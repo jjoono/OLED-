@@ -30,9 +30,22 @@ python3 tools/gemini_consult.py --model flash --prompt-file draft.md
 ## 모델 별칭
 | 별칭 | 실제 모델 | 용도 |
 |------|-----------|------|
-| `flash` | gemini-2.5-flash | 기본. 조사/초안/요약 오프로딩 |
-| `pro` | gemini-2.5-pro | 교차검증/어려운 판단 |
-| `flash2` | gemini-2.0-flash | 경량 대안 |
+| `pro` | gemini-3.1-pro-preview | 최신 고성능 (유료 티어 권장) |
+| `pro25` | gemini-2.5-pro | 이전 세대 pro |
+| `flash` | gemini-3.5-flash | 최신 flash |
+| `flash25` | gemini-2.5-flash | 무료 티어에서 가장 안정적 |
+
+## ⚠️ 티어/quota 주의
+현재 `GEMINI_API_KEY`는 **무료 티어(Free Tier)** 로 확인됨.
+- pro 계열(gemini-2.5-pro, 3.x-pro-preview)은 무료 티어 하루/분당 한도가 낮아
+  **429 RESOURCE_EXHAUSTED** 로 자주 막힘.
+- 무료 티어에서 상시 열려 있는 건 사실상 `gemini-2.5-flash`(=`flash25`).
+- **pro/최신 모델을 상시 쓰려면** Google AI Studio 프로젝트에서 **billing 활성화**(유료 티어) 필요.
+- `--fallback` 플래그: 429/503 시 `3.1-pro → 2.5-pro → 2.5-flash` 순으로 자동 강등.
+  ```bash
+  python3 tools/gemini_consult.py --model pro --fallback --max-tokens 4096 --prompt "..."
+  ```
+- 2.5-flash 등 thinking 모델은 max-tokens가 작으면 추론에 다 써서 출력이 빔 → 넉넉히 지정.
 
 ## 운영 원칙 (Claude ↔ Gemini 프로토콜)
 1. **오프로딩**: 넓은 조사·긴 초안은 flash에 위임하고, Claude는 결과만 통합.

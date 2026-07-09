@@ -24,10 +24,19 @@ import urllib.request
 import urllib.error
 
 MODEL_ALIASES = {
-    "flash": "gemini-2.5-flash",   # 빠르고 저렴 — 조사/초안/요약 오프로딩용
-    "pro": "gemini-2.5-pro",       # 고성능 — 교차검증/어려운 판단용
-    "flash2": "gemini-2.0-flash",
+    # 최신 pro 우선. 무료 티어에서 pro가 429(quota)면 --fallback 로 하위 모델로 자동 강등.
+    "pro": "gemini-3.1-pro-preview",   # 최신 고성능 (유료 티어 권장)
+    "pro25": "gemini-2.5-pro",         # 이전 세대 pro
+    "flash": "gemini-3.5-flash",       # 최신 flash
+    "flash25": "gemini-2.5-flash",     # 무료 티어에서 가장 안정적으로 열려 있음
 }
+
+# --fallback 지정 시 429/503이 나면 순서대로 다음 모델을 시도한다.
+FALLBACK_CHAIN = [
+    "gemini-3.1-pro-preview",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash",
+]
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
@@ -92,6 +101,8 @@ def main():
     ap.add_argument("--prompt-file", default=None, help="프롬프트 파일 경로")
     ap.add_argument("--temperature", type=float, default=0.4)
     ap.add_argument("--max-tokens", type=int, default=8192)
+    ap.add_argument("--fallback", action="store_true",
+                    help="429/503 시 하위 모델로 자동 강등 (무료 티어 대비)")
     ap.add_argument("--json", action="store_true", help="원본 JSON 출력")
     args = ap.parse_args()
 
@@ -107,8 +118,28 @@ def main():
         sys.exit("ERROR: 프롬프트가 비어 있습니다.")
 
     model = MODEL_ALIASES.get(args.model, args.model)
-    resp = call_gemini(prompt, model=model, system=args.system,
-                       temperature=args.temperature, max_output_tokens=args.max_tokens)
+
+    if args.fallback:
+        # 지정 모델부터 시작해, 429/503이면 체인의 다음(하위) 모델로 자동 강등.
+        chain = [model] + [m for m in FALLBACK_CHAIN if m != model]
+        resp = None
+        for m in chain:
+            try:
+                resp = call_gemini(prompt, model=m, system=args.system,
+                                   temperature=args.temperature,
+                                   max_output_tokens=args.max_tokens, retries=1)
+                model = m
+                break
+            except SystemExit as e:
+                if "429" in str(e) or "503" in str(e):
+                    sys.stderr.write(f"[fallback] {m} 사용 불가 → 다음 모델 시도\n")
+                    continue
+                raise
+        if resp is None:
+            sys.exit("ERROR: 폴백 체인의 모든 모델이 사용 불가(quota/unavailable).")
+    else:
+        resp = call_gemini(prompt, model=model, system=args.system,
+                           temperature=args.temperature, max_output_tokens=args.max_tokens)
 
     if args.json:
         print(json.dumps(resp, ensure_ascii=False, indent=2))
