@@ -78,8 +78,17 @@ def _in_footprint(x, y, R, pitch):
 
 
 @njit(cache=True)
-def trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce):
-    """Trace one ray. Returns (outcome_code, theta_out[rad])."""
+def trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce, concave):
+    """Trace one ray. Returns (outcome_code, theta_out[rad]).
+
+    concave = 0 : convex lenses (glass hemispheres bulge UP into air; the real
+                  spherical surface is the UPPER hemisphere z >= 0).
+    concave = 1 : concave pits (hemispherical AIR cavities carved DOWN into the
+                  glass; the real spherical surface is the LOWER hemisphere
+                  z <= 0, inside the sphere is the air cavity).
+    In both cases the sphere centres sit on the z = 0 plane and the flat
+    inter-lens gaps are identical glass/air interfaces.
+    """
     st = np.sin(theta_i)
     ct = np.cos(theta_i)
     dx = st * np.cos(phi)
@@ -87,7 +96,8 @@ def trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce):
     dz = ct                      # upward, dz > 0
     px = sx
     py = sy
-    pz = -1.0e-3 * R             # start just inside the glass substrate
+    # start in the semi-infinite glass, below all geometry
+    pz = -(1.0 + 1.0e-3) * R if concave else -1.0e-3 * R
     in_glass = True
 
     a = pitch
@@ -116,8 +126,8 @@ def trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce):
         i = px / a - j / 2.0
         i0 = int(round(i))
         j0 = int(round(j))
-        for di in range(-3, 4):
-            for dj in range(-3, 4):
+        for di in range(-4, 5):
+            for dj in range(-4, 5):
                 cx = (i0 + di) * a + (j0 + dj) * a / 2.0
                 cy = (j0 + dj) * a * SQRT3 / 2.0
                 ox = px - cx
@@ -132,7 +142,9 @@ def trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce):
                 for t in (-bq - sq, -bq + sq):
                     if 1.0e-7 < t < best_t:
                         hz = pz + t * dz
-                        if hz >= 0.0:        # upper hemisphere only
+                        # concave: lower hemisphere (z<=0); convex: upper (z>=0)
+                        real = (hz <= 0.0) if concave else (hz >= 0.0)
+                        if real:
                             best_t = t
                             hit = 1
                             hx = px + t * dx
@@ -197,7 +209,7 @@ def trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce):
 
 
 @njit(cache=True, parallel=True)
-def trace_batch(theta_i, N, n_glass, n_air, R, pitch, max_bounce):
+def trace_batch(theta_i, N, n_glass, n_air, R, pitch, max_bounce, concave):
     """Trace N rays at incidence angle theta_i. Returns outcome[N], theta_out[N]."""
     outcome = np.empty(N, dtype=np.int64)
     tout = np.empty(N, dtype=np.float64)
@@ -209,14 +221,15 @@ def trace_batch(theta_i, N, n_glass, n_air, R, pitch, max_bounce):
         sx = u * a + w * (a / 2.0)
         sy = w * (a * SQRT3 / 2.0)
         phi = 2.0 * np.pi * np.random.random()
-        oc, th = trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch, max_bounce)
+        oc, th = trace_ray(theta_i, phi, sx, sy, n_glass, n_air, R, pitch,
+                           max_bounce, concave)
         outcome[n] = oc
         tout[n] = th
     return outcome, tout
 
 
 def sweep(theta_i_deg, N=200_000, n_glass=1.5, n_air=1.0,
-          R=1.0, pitch=2.0, max_bounce=200, nbins=90, seed=0):
+          R=1.0, pitch=2.0, max_bounce=200, nbins=90, seed=0, concave=False):
     """Run the full incident-angle sweep.
 
     Returns a dict with the 2-D BSDF maps (percent of incident power per 1 deg
@@ -234,7 +247,7 @@ def sweep(theta_i_deg, N=200_000, n_glass=1.5, n_air=1.0,
 
     for idx, ti in enumerate(theta_i_deg):
         oc, th = trace_batch(np.deg2rad(ti), int(N), n_glass, n_air,
-                             R, pitch, max_bounce)
+                             R, pitch, max_bounce, int(concave))
         thd = np.rad2deg(th)
         mT = oc == TRANSMIT
         mR = oc == REFLECT
@@ -255,5 +268,6 @@ def sweep(theta_i_deg, N=200_000, n_glass=1.5, n_air=1.0,
         "R_total": Rtot,
         "lost": lost,
         "params": dict(N=N, n_glass=n_glass, n_air=n_air, R=R, pitch=pitch,
-                       max_bounce=max_bounce, nbins=nbins, seed=seed),
+                       max_bounce=max_bounce, nbins=nbins, seed=seed,
+                       concave=bool(concave)),
     }

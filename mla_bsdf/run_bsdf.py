@@ -1,12 +1,17 @@
 """Run the full incident-angle sweep and produce the BSDF maps + summary curves.
 
-Outputs (written next to this script):
-    mla_bsdf_result.npz   raw data
-    bsdf_maps.png         BSDF_T(theta_i, theta_t) and BSDF_R(theta_i, theta_r)
-    total_RT.png          integrated reflectance / transmittance vs incident angle
+Usage:
+    python run_bsdf.py            # convex lenses  -> prefix "convex_"
+    python run_bsdf.py --concave  # concave pits   -> prefix "concave_"
+
+Outputs (written next to this script, PREFIX = convex_ / concave_):
+    PREFIX_result.npz    raw data
+    PREFIX_bsdf_maps.png BSDF_T(theta_i, theta_t) and BSDF_R(theta_i, theta_r)
+    PREFIX_total_RT.png  integrated reflectance / transmittance vs incident angle
 """
 
 import os
+import sys
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -17,18 +22,20 @@ from raytrace import sweep
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
-def main(N=300_000, seed=0):
+def main(N=300_000, seed=0, concave=False):
+    prefix = "concave_" if concave else "convex_"
+    kind = "concave pits" if concave else "convex lenses"
     theta_i = np.arange(0.5, 90.0, 1.0)          # 1 deg bin centres, 0..90
     res = sweep(theta_i, N=N, n_glass=1.5, n_air=1.0, R=1.0, pitch=2.0,
-                max_bounce=200, nbins=90, seed=seed)
+                max_bounce=200, nbins=90, seed=seed, concave=concave)
 
-    np.savez(os.path.join(HERE, "mla_bsdf_result.npz"), **{
+    np.savez(os.path.join(HERE, prefix + "result.npz"), **{
         k: v for k, v in res.items() if k != "params"})
 
-    _plot_maps(res)
-    _plot_totals(res)
+    _plot_maps(res, prefix, kind)
+    _plot_totals(res, prefix, kind)
 
-    # console summary
+    print("=== %s ===" % kind)
     print(" thi(deg)   T       R      T+R")
     for ti, T, R in zip(res["theta_i"], res["T_total"], res["R_total"]):
         if int(round(ti - 0.5)) % 10 == 0:
@@ -37,7 +44,7 @@ def main(N=300_000, seed=0):
     return res
 
 
-def _plot_maps(res):
+def _plot_maps(res, prefix, kind):
     ti = res["theta_i"]
     to = res["theta_out_centers"]
     ext = [to.min(), to.max(), ti.min(), ti.max()]
@@ -45,8 +52,8 @@ def _plot_maps(res):
     fig, axes = plt.subplots(1, 2, figsize=(12, 5.2))
     vmax = 5.0     # match the LightTools colour scale ( >5 % clipped )
 
-    im0 = axes[0].imshow(res["bsdf_T"], origin="lower", aspect="auto",
-                         extent=ext, cmap="jet", vmin=0, vmax=vmax)
+    axes[0].imshow(res["bsdf_T"], origin="lower", aspect="auto",
+                   extent=ext, cmap="jet", vmin=0, vmax=vmax)
     axes[0].set_title(r"$\mathrm{BSDF_T}(\theta_i,\theta_t)$")
     axes[0].set_xlabel("Transmitted angle (deg)")
     axes[0].set_ylabel("Incident angle (deg)")
@@ -61,13 +68,14 @@ def _plot_maps(res):
 
     cb = fig.colorbar(im1, ax=axes, fraction=0.046, pad=0.04)
     cb.set_label("Power ratio (%)  [per 1$\\degree$ bin]")
-    fig.suptitle("Hemispherical MLA (R=20 um, hex close-packed, n=1.5 on n=1.5 glass) "
-                 "- geometric Monte-Carlo ray trace", fontsize=10)
-    fig.savefig(os.path.join(HERE, "bsdf_maps.png"), dpi=140, bbox_inches="tight")
+    fig.suptitle("Hemispherical MLA (%s, R=20 um, hex close-packed, n=1.5 on n=1.5 glass)"
+                 % kind, fontsize=10)
+    fig.savefig(os.path.join(HERE, prefix + "bsdf_maps.png"), dpi=140,
+                bbox_inches="tight")
     plt.close(fig)
 
 
-def _plot_totals(res):
+def _plot_totals(res, prefix, kind):
     ti = res["theta_i"]
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.plot(ti, res["T_total"] * 100, "-o", ms=3, label="Transmittance T")
@@ -76,14 +84,15 @@ def _plot_totals(res):
                label=r"critical angle 41.8$\degree$")
     ax.set_xlabel("Incident angle in glass (deg)")
     ax.set_ylabel("Power fraction (%)")
-    ax.set_title("Angle-integrated reflectance / transmittance")
+    ax.set_title("Angle-integrated R / T  (%s)" % kind)
     ax.set_xlim(0, 90)
     ax.set_ylim(0, 100)
     ax.grid(alpha=0.3)
     ax.legend()
-    fig.savefig(os.path.join(HERE, "total_RT.png"), dpi=140, bbox_inches="tight")
+    fig.savefig(os.path.join(HERE, prefix + "total_RT.png"), dpi=140,
+                bbox_inches="tight")
     plt.close(fig)
 
 
 if __name__ == "__main__":
-    main()
+    main(concave="--concave" in sys.argv)

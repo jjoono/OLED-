@@ -27,6 +27,23 @@ optical interfaces** are:
 The flat gaps produce the specular `θr = θi` diagonal seen in the reflection
 BSDF; the caps produce the spread transmission/reflection lobes.
 
+### Convex vs concave (`concave` flag)
+
+The same array can be built two ways (sphere centres stay on `z = 0`):
+
+* **convex** (`concave=False`, default): glass hemispheres bulge **up** into the
+  air; the real spherical surface is the **upper** hemisphere (`z ≥ 0`), inside
+  the sphere is glass.
+* **concave** (`concave=True`): hemispherical **air cavities** are carved **down**
+  into the glass; the real surface is the **lower** hemisphere (`z ≤ 0`), inside
+  the sphere is the air pit.
+
+Illumination (plane wave from below, in the glass) and the flat gaps are
+identical for both. Result: below the 41.8° critical angle the **concave** pits
+transmit more (≈65 %→53 %) than the convex lenses (≈45 %→48 %); above ~50° the
+convex lenses win, and the two transmittance curves cross near the critical
+angle (see `compare_total_RT.png`).
+
 ## Simplifications (equivalent to the full 25 mm array + 1 mm source)
 
 The physical setup (25×25 mm array, 1 mm-radius surface source just below it) is
@@ -72,20 +89,25 @@ fraction of total incident power landing in that 1°-wide output-angle bin
 
 ```bash
 pip install numpy matplotlib numba
-python run_bsdf.py          # ~10 s for 90 angles × 3×10^5 rays (numba parallel)
+python run_bsdf.py            # convex  -> convex_*   (~10 s, 90 angles x 3e5 rays)
+python run_bsdf.py --concave  # concave -> concave_*
+python compare.py            # export all CSVs + convex-vs-concave overlay
 ```
 
-Produces `mla_bsdf_result.npz`, `bsdf_maps.png`, `total_RT.png`.
+Each `run_bsdf.py` produces `PREFIX_result.npz`, `PREFIX_bsdf_maps.png`,
+`PREFIX_total_RT.png` (PREFIX = `convex_` / `concave_`).
 
 ## Files
 
 | file | purpose |
 |---|---|
-| `raytrace.py` | numba Monte-Carlo tracer + `sweep()` driver |
+| `raytrace.py` | numba Monte-Carlo tracer (`concave` flag) + `sweep()` driver |
 | `run_bsdf.py` | full incident-angle sweep, saves data + plots |
+| `compare.py`  | export CSVs for both cases + convex-vs-concave R/T overlay |
 
 ## Comparing with your LightTools export
 
-`mla_bsdf_result.npz` holds `bsdf_T`, `bsdf_R` (shape `[n_theta_i, 90]`, percent),
-`theta_i`, `theta_out_centers`, and the integrated `T_total`/`R_total`. Load your
-LightTools BSDF onto the same 1° grid to overlay / difference the two.
+`PREFIX_result.npz` holds `bsdf_T`, `bsdf_R` (shape `[n_theta_i, 90]`, percent),
+`theta_i`, `theta_out_centers`, and the integrated `T_total`/`R_total`; the same
+data is written as `PREFIX_bsdf_T.csv`, `PREFIX_bsdf_R.csv`, `PREFIX_totals.csv`.
+Load your LightTools BSDF onto the same 1° grid to overlay / difference the two.
