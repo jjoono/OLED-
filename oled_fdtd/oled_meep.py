@@ -82,7 +82,12 @@ def build(pol, resolution=RES, courant=0.5):
     sim = mp.Simulation(cell_size=cell,
                         geometry=geometry,
                         sources=src,
-                        boundary_layers=[mp.PML(DPML)],
+                        # PML only vertically; lateral boundaries use Absorber:
+                        # the SPP guided along the Al interface enters the side
+                        # layers, and dispersive-metal-in-PML is a documented
+                        # Meep instability (Absorber is the documented remedy).
+                        boundary_layers=[mp.PML(DPML, direction=mp.Y),
+                                         mp.Absorber(DPML, direction=mp.X)],
                         resolution=resolution,
                         Courant=courant,
                         force_complex_fields=False)
