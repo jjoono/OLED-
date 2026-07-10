@@ -50,7 +50,7 @@ SX = 6.0 * UM             # lateral size (waveguide power measured near edges)
 RES = 100                 # pixels / um  -> 10 nm grid
 
 
-def build(pol, resolution=RES):
+def build(pol, resolution=RES, courant=0.5):
     sy = DPML + T_GLASS + T_ITO + T_ORG + T_AL + DPML
     cell = mp.Vector3(SX + 2 * DPML, sy)
 
@@ -84,14 +84,15 @@ def build(pol, resolution=RES):
                         sources=src,
                         boundary_layers=[mp.PML(DPML)],
                         resolution=resolution,
+                        Courant=courant,
                         force_complex_fields=False)
 
     return sim, dict(y_src=y_src, y_ito1=y_ito1, y_al1=y_al1, y_org1=y_org1,
                      sy=sy, y0=y0)
 
 
-def run(pol, resolution=RES, quiet=True):
-    sim, g = build(pol, resolution)
+def run(pol, resolution=RES, quiet=True, courant=0.5):
+    sim, g = build(pol, resolution, courant)
     y_src, y_ito1 = g["y_src"], g["y_ito1"]
 
     # total emitted power: small box around the dipole (inside the organic)
