@@ -1,37 +1,38 @@
-function out = generate_freeform_mesh(H, pCtrl, harm, stlPath, opts)
-% GENERATE_FREEFORM_MESH  비대칭 freeform 렌즈를 watertight 삼각 메쉬로 만들어
+function out = generate_freeform_mesh(hfun, stlPath, opts)
+% GENERATE_FREEFORM_MESH  임의 freeform 렌즈를 watertight 삼각 메쉬로 만들어
 % STL(ASCII)로 저장한다. LightTools 로 import -> (모델에서) SaveLibrary 로 .ent(ACIS)
 % 변환하는 파이프라인의 앞단이다.
 %
-%   out = generate_freeform_mesh(H, pCtrl, harm, stlPath, opts)
+%   out = generate_freeform_mesh(hfun, stlPath, opts)
+%
+%   [파라미터화 무관] 높이장을 함수 핸들 hfun 로 받는다. 어떤 파라미터화든
+%   (B-spline 격자 / Zernike / harmonic) hfun 만 넘기면 된다:
+%       hfun = @(X,Y) freeform_grid_height(X, Y, C, winPow);   % 정규좌표 -> z[mm]
+%   hfun 은 |(x,y)|<=1 에서 z(mm)를 주고, rim(rho=1)에서 0 이어야 한다(watertight).
 %
 %   solid 구성 (plano-convex, 평평한 바닥):
-%     - 윗면  : freeform cap  z = freeform_height(x,y,...)  (rim rho=1 에서 z=0)
+%     - 윗면  : freeform cap  z = hfun(x,y)   (rim rho=1 에서 z=0)
 %     - 아랫면: 평면 disk z=0 (같은 footprint)
 %     - rim(rho=1)에서 윗/아랫면이 z=0 으로 만나 side wall 없이 닫힌 solid.
-%       (P(1)=0 이므로 cap 이 자연히 바닥으로 내려와 닫힘)
 %
 %   입력
-%     H, pCtrl, harm : freeform_height 파라미터
-%     stlPath        : 저장할 .stl 경로(문자열). 비우면 저장 생략(메쉬만 반환).
-%     opts           : (선택) 구조체
-%                        .nr        반경 방향 링 수     (기본 40)
-%                        .nt        방위각 분할 수      (기본 120)
-%                        .Rfoot     footprint 물리 반경 [mm] (기본 1; 좌표 스케일)
-%                        .solidName STL solid 이름      (기본 'freeform_lens')
+%     hfun    : @(X,Y) -> Z. 정규 footprint(반경1) 좌표에서 높이[mm]. rim=0 필수.
+%     stlPath : 저장할 .stl 경로(문자열). 비우면 저장 생략(메쉬만 반환).
+%     opts    : (선택) 구조체
+%                 .nr        반경 방향 링 수     (기본 40)
+%                 .nt        방위각 분할 수      (기본 120)
+%                 .Rfoot     footprint 물리 반경 [mm] (기본 1; xy 스케일)
+%                 .solidName STL solid 이름      (기본 'freeform_lens')
 %
 %   출력 out 구조체
 %     .V         Nx3 정점 [x y z] (mm)
 %     .F         Mx3 삼각형 (1-based 인덱스)
-%     .centroidXY  [cx cy]  높이가중 무게중심 (비대칭/tilt 방향 진단; 대칭이면 ~0)
+%     .centroidXY  [cx cy]  높이가중 무게중심 (비대칭/조향 방향 진단; 대칭이면 ~0)
 %     .volume    근사 부피
 %     .zmax      최대 높이
 %     .stlPath   저장 경로(저장 시)
-%
-%   주의: 좌표는 opts.Rfoot 로 스케일된 물리 단위(mm). 기존 파이프라인이 프로파일을
-%   max<=1 로 정규화하던 것과 달리 여기서는 footprint 반경을 명시적으로 준다.
 
-    if nargin < 5 || isempty(opts), opts = struct(); end
+    if nargin < 3 || isempty(opts), opts = struct(); end
     if ~isfield(opts, 'nr'),        opts.nr = 40;              end
     if ~isfield(opts, 'nt'),        opts.nt = 120;             end
     if ~isfield(opts, 'Rfoot'),     opts.Rfoot = 1;            end
@@ -45,14 +46,14 @@ function out = generate_freeform_mesh(H, pCtrl, harm, stlPath, opts)
     ang   = linspace(0, 2*pi, nt + 1);
     ang   = ang(1:end-1);                    % nt 개(중복 제거)
 
-    % 정규 좌표에서 높이 계산 후 물리 좌표(R 배)로 확대
+    % 정규 좌표에서 높이 계산(hfun) 후 xy 만 물리 좌표(R 배)로 확대
     % top 정점
-    topApex = [0, 0, freeform_height(0, 0, H, pCtrl, harm)];  % (0,0,H)
+    topApex = [0, 0, hfun(0, 0)];            % (0,0, 정점 높이)
     Vtop = zeros(nr*nt, 3);
     for i = 1:nr
         r = rings(i);
         xr = r*cos(ang);  yr = r*sin(ang);
-        zr = freeform_height(xr, yr, H, pCtrl, harm);
+        zr = hfun(xr, yr);
         zr(~isfinite(zr)) = 0;
         idx = (i-1)*nt + (1:nt);
         Vtop(idx, :) = [R*xr(:), R*yr(:), zr(:)];

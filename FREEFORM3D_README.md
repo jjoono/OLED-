@@ -7,20 +7,26 @@ hemisphere/회전대칭 렌즈로는 **원리적으로 불가능한 방향성 �
 
 | 파일 | 역할 |
 |------|------|
-| `freeform_height.m` | 비대칭 렌즈 높이장 `z(ρ,φ)=H·P(ρ)·[1+Σ ρ^m(c_m cosmφ+s_m sinmφ)]`. **c1,s1(1차 harmonic)이 정점 tilt = 방향성 핵심 DOF**. 회전대칭이면 harmonic 항이 0(= hemisphere가 갇히는 상태). |
-| `generate_freeform_mesh.m` | 높이장 → **watertight 삼각 메쉬** → ASCII STL. plano-convex(평평한 바닥) 닫힌 solid. LightTools import용. |
-| `BO_Freeform3D_asym.m` | 메인 드라이버. Bayesian Optimization으로 freeform + 마이크로캐비티 동시 최적화. 목적함수 = **목표 방향으로 조향 추출된 EQE (`EQE_cone`)**. |
+| `freeform_grid_height.m` | **임의 3D** 렌즈 높이장 `z(x,y)= clamp(interp2_spline(C)) · (1-ρ²)^p`. NgxNg 제어높이 격자 `C` → 국소 bump/dimple 포함 임의 비대칭 형상. **현재 사용 파라미터화**. |
+| `generate_freeform_mesh.m` | 높이장 함수핸들 → **watertight 삼각 메쉬** → ASCII STL. plano-convex(평평한 바닥) 닫힌 solid. 파라미터화 무관(핸들만 받음). |
+| `BO_Freeform3D_asym.m` | 메인 드라이버. Bayesian Optimization으로 freeform 격자 + 마이크로캐비티 동시 최적화. 목적함수 = **목표 방향으로 조향 추출된 EQE (`EQE_cone`)**. |
+| `freeform_height.m` | (대안) 회전대칭+harmonic 파라미터화 `z=H·P(ρ)·[1+Σρ^m(c_m cosmφ+s_m sinmφ)]`. 저차 "약한 tilt"용. 메쉬가 핸들 기반이라 교체 가능하나, 현재 메인은 격자 방식 사용. |
 
-## 파라미터화 (13-dim)
+## 파라미터화 (19-dim; 형상 16 + 마이크로캐비티 3)
 
 ```
-p1..p5      : 반경 base 프로파일 제어높이 (정점=1, rim=0 고정)
-H           : 렌즈 높이/aspect
-c1, s1      : 1차 harmonic  (정점 tilt = 방위각 비대칭·방향 제어)   ← 논문 core
-c2, s2      : 2차 harmonic  (rim shaping)
+g11..g44    : 4x4 B-spline 제어높이 격자 [mm], 각 [0, 0.8]   ← 임의 3D 형상 (16 DOF)
 dETL, dHTL  : OLED 마이크로캐비티 두께 (나노 스케일, EQE에 직접)
 stretchZ    : 텍스처 z 스트레치
 ```
+
+- 높이장 `z(x,y)`는 정의상 **single-valued** → 자기교차 불가 → 기하학적으로 항상 유효.
+- rim(ρ=1)은 윈도우 `(1-ρ²)^p (p≥1)`로 0 고정 → 메쉬 watertight + 유한 rim 기울기.
+- 형상 유효성(`isValidFreeform`): 최소 정점높이 `≥0.08mm`, 최대 기울기 `≤3.0`
+  (제조/레이트레이싱 안정). 랜덤 시드 수용률 ~100%(검증됨).
+- **DOF/optimizer**: 19 DOF는 GP-BO(`bayesopt`) 상한(~20) 내. `NGRID`를 5(→28 DOF)
+  이상으로 키우려면 `surrogateopt`/CMA-ES 등으로 optimizer 교체 필요.
+  (`BO_Freeform3D_asym.m` 상단 `NGRID`, `GRID_HMAX`, `GRID_WINPOW`로 조절)
 
 ## 목적함수: 왜 hemisphere를 배제하는가
 

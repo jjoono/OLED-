@@ -9,16 +9,21 @@
 %  시뮬레이션 하에 설계한다.
 %
 %  --- 기존 회전대칭 코드(PSO_test_..._rOLED_sweep_v4.m) 대비 변경점 ---
-%   (1) 형상 표현: 7점 회전스윕 스플라인 -> 2D freeform 높이장
-%         z(rho,phi) = H * P(rho) * [1 + sum_m rho^m (c_m cos m phi + s_m sin m phi)]
-%       (freeform_height.m). c1,s1(1차 harmonic)이 "정점 tilt" = 방향성 DOF.
+%   (1) 형상 표현: 7점 회전스윕 스플라인 -> 임의 3D freeform 높이장 z(x,y).
+%       NgxNg B-spline 제어높이 격자(interp2 spline) + rim 윈도우 (1-rho^2)^p.
+%       (freeform_grid_height.m). Ng=4 -> 16 형상 DOF: 국소 bump/dimple 포함
+%       임의 3D 비대칭 형상 표현. 높이장이라 항상 single-valued -> 기하 유효.
 %   (2) 지오메트리 주입: SetSweptProfilePoints(회전스윕) -> generate_freeform_mesh
 %       로 watertight STL 생성 -> LightTools import -> SaveLibrary 로 .ent 변환
 %       -> 기존 텍스처 unit-cell 파이프라인 재사용.
 %   (3) 목적함수: 단일 방위각 슬라이스 -> 2D 원거리장(theta,phi) 전체를 읽어
 %       "목표 방향(theta_t, phi_t) 원뿔로 추출된 EQE" (EQE_cone) 최대화.
 %       추출효율 + 방향성 조향을 동시에 보상한다.
-%   (4) 제약: 스플라인 기하검사 -> isValidFreeform (양수/단일값/aspect/tilt 한계).
+%   (4) 제약: isValidFreeform (최소높이 + 최대기울기; 제조/레이트레이싱 안정).
+%
+%   [DOF/optimizer] 형상 16 + 마이크로캐비티 3 = 19 DOF. GP-BO(bayesopt) 상한(~20)
+%   내에서 동작. Ng 를 5(28 DOF) 이상으로 키우면 bayesopt 대신 surrogateopt/CMA-ES
+%   등으로 교체 필요(README 참고).
 %
 %   [v4 로부터 계승] 탐색/검증 ray 분리, 크래시 시 NaN 반환, warm-start 상위 N점,
 %   수렴 판정 적응예산, patternsearch 국소정련, 고정밀 반복검증 mean±std.
@@ -72,21 +77,34 @@ cone_half    = 20;    % [deg] 원뿔 반각(집광 목표 범위)
 %   phi_sweep = 0:45:315;  % 각 phi 마다 아래 최적화를 독립 실행
 % 여기서는 단일 타겟 1회 최적화를 수행(스윕은 for 로 감싸면 됨).
 
-%% ===== 최적화 변수 (13-dim) =====
-%   base 반경 프로파일 제어높이 p1..p5 (정점=1, rim=0 고정; 내부 5점)
-%   H        : 렌즈 높이/aspect
-%   c1,s1    : 1차 harmonic (정점 tilt = 방향성 핵심)
-%   c2,s2    : 2차 harmonic (rim shaping)
+%% ===== 최적화 변수 : 임의 3D freeform = NgxNg B-spline 제어격자 + 마이크로캐비티 =====
+%   g11..gNN : Ng x Ng 제어높이 [mm] (임의 3D 형상; 높이장이라 항상 single-valued)
 %   dETL,dHTL: 마이크로캐비티 두께 (나노 스케일, EQE 에 직접 영향)
 %   stretchZ : 텍스처 z 스트레치
-varNames = {'p1','p2','p3','p4','p5', 'H', 'c1','s1','c2','s2', 'dETL','dHTL','stretchZ'};
-lb = [0.05 0.05 0.05 0.05 0.05,  0.20,  -0.60 -0.60 -0.40 -0.40,  10  10  0.1];
-ub = [1.00 1.00 1.00 1.00 1.00,  1.50,   0.60  0.60  0.40  0.40,  150 150 3.0];
+%
+%   Ng=4 -> 16 형상 DOF + 3 = 19 DOF. (GP-BO 상한 ~20 내. Ng=5 로 올리면 28 DOF 가
+%   되어 bayesopt 로는 버거우니 그때는 optimizer 교체 필요 - README 참고.)
+global NGRID GRID_WINPOW GRID_HMAX
+NGRID       = 4;      % 격자 한 변 (형상 DOF = NGRID^2)
+GRID_WINPOW = 1.0;    % rim 윈도우 (1-rho^2)^winPow 지수 (>=1 : rim 기울기 유한)
+GRID_HMAX   = 0.80;   % 제어높이 상한 [mm] (footprint 반경 1mm -> aspect 상한 ~0.8)
+
+nGridDOF = NGRID^2;
+gridNames = cell(1, nGridDOF);
+for i = 1:NGRID
+    for j = 1:NGRID
+        gridNames{(i-1)*NGRID + j} = sprintf('g%d%d', i, j);
+    end
+end
+varNames = [gridNames, {'dETL','dHTL','stretchZ'}];
+lb = [zeros(1,nGridDOF)              , 10   10   0.1];
+ub = [GRID_HMAX*ones(1,nGridDOF)     , 150  150  3.0];
 
 optVars = optimizableVariable.empty(0, numel(lb));
 for i = 1:numel(lb)
     optVars(i) = optimizableVariable(varNames{i}, [lb(i), ub(i)]);
 end
+fprintf('형상 DOF = %d (%dx%d 격자) + 3 = %d 총 DOF\n', nGridDOF, NGRID, NGRID, numel(lb));
 
 %% ===== 초기 시드 + BO =====
 eval_count = 0;
@@ -212,7 +230,7 @@ ok = isfinite(f); X = X(ok,:); f = f(ok);
 T = X(idx(1:K), :);
 end
 
-%% ===== 무작위 valid freeform 시드 (rejection sampling) =====
+%% ===== 무작위 valid freeform 시드 (rejection sampling; 격자는 수용률 ~100%) =====
 function P = genValidFreeform(K, lb, ub)
 dim = numel(lb);  P = zeros(K, dim);
 for i = 1:K
@@ -240,13 +258,11 @@ lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
 % --- 파라미터 언팩 ---
-pCtrl    = point(1:5);
-H        = point(6);
-harm     = [1, point(7), point(8);    % [m c1 s1]
-            2, point(9), point(10)];   % [m c2 s2]
-dETL     = point(11);
-dHTL     = point(12);
-stretchZ = point(13);
+global NGRID
+C        = reshape(point(1:NGRID^2), [NGRID, NGRID]);  % 제어높이 격자
+dETL     = point(NGRID^2 + 1);
+dHTL     = point(NGRID^2 + 2);
+stretchZ = point(NGRID^2 + 3);
 
 % --- 고정 설정(기존과 동일 스케일) ---
 d_sub = 1.3;  r_OLED = 1;  r_pat = 1;   % r_pat: 텍스처 패턴 크기(필요시 상수/변수화)
@@ -271,13 +287,13 @@ List = ltml.LTDbList(lt,'lens_manager[1]','DISK_SOURCE');
 Key  = ltml.LTListByName(lt,List,'DiskSource_18');
 ltml.LTDbSet(lt,Key,'Radius',r_OLED);
 
-% --- (신규) 비대칭 freeform 지오메트리 주입 ---
-% 형상 유효성(양수/단일값/aspect)은 objective 진입 전 isValidFreeform 이 보장하지만
+% --- (신규) 임의 3D freeform 지오메트리 주입 ---
+% 형상 유효성(최소높이/기울기)은 objective 진입 전 isValidFreeform 이 보장하지만
 % 방어적으로 재확인.
 if ~isValidFreeform(point)
     output = zero_output(); return;
 end
-entPath = updateFreeformGeometry(H, pCtrl, harm, stretchZ);
+entPath = updateFreeformGeometry(C, stretchZ);
 if isempty(entPath)
     output = zero_output(); return;   % 지오메트리 생성/import 실패
 end
@@ -404,12 +420,12 @@ end
 %% =====================================================================
 %%  (신규) 비대칭 freeform -> STL -> LightTools import -> .ent
 %% =====================================================================
-function entPath = updateFreeformGeometry(H, pCtrl, harm, stretchZ)
-% 비대칭 freeform 렌즈를 STL 로 만들어 SweptEntity LightTools 인스턴스에 import
+function entPath = updateFreeformGeometry(C, stretchZ)
+% 임의 3D freeform 렌즈를 STL 로 만들어 SweptEntity LightTools 인스턴스에 import
 % 하고, 기존 파이프라인이 기대하는 .ent(ACIS) 로 SaveLibrary 하여 텍스처 unit-cell
 % 파일을 교체한다. STL->.ent 변환(ACIS kernel)은 LightTools 가 담당하므로 MATLAB
 % 이 직접 ACIS 를 쓸 필요가 없다.
-global ID_swept ID_LT ltml ltloc
+global ID_swept ID_LT ltml ltloc GRID_WINPOW
 entPath = '';
 lt  = ltloc.GetLTAPI(ID_swept);   % 렌즈 마스터 인스턴스
 lt2 = ltloc.GetLTAPI(ID_LT);      % 배열 시뮬 인스턴스
@@ -422,9 +438,12 @@ entPath_local = [base 'swept_' tagc '.ent'];
 entPath_mod   = [base 'swept_' tagc '.1.ent'];   % Repair 후 텍스처가 참조하는 이름
 
 % 1) STL 생성 (footprint 반경 = 렌즈 기존 스케일 1 mm)
-mopts = struct('nr',40,'nt',120,'Rfoot',1,'solidName','freeform_lens');
+%    파라미터화 무관 mesh: 높이장 핸들만 넘긴다.
+winPow = GRID_WINPOW;
+hfun   = @(X,Y) freeform_grid_height(X, Y, C, winPow);
+mopts  = struct('nr',40,'nt',120,'Rfoot',1,'solidName','freeform_lens');
 try
-    minfo = generate_freeform_mesh(H, pCtrl, harm, stlPath, mopts); %#ok<NASGU>
+    minfo = generate_freeform_mesh(hfun, stlPath, mopts); %#ok<NASGU>
 catch me
     fprintf('[Geom] 메쉬 생성 실패: %s\n', me.message);  return;
 end
@@ -519,42 +538,34 @@ end
 %%  (신규) freeform 형상 유효성
 %% =====================================================================
 function TF = isValidFreeform(X)
-% X: 1x13 (또는 Nx13). freeform 파라미터가 물리적/제조적으로 타당한지 검사.
-%   (1) 반경 프로파일 P(rho) 가 정점->rim 으로 대체로 감소(단봉) 하는가
-%   (2) 비대칭 인자 S(rho,phi) 가 전 방위에서 양수(단일값 표면 유지)
-%   (3) aspect(H) 및 tilt(harmonic) 크기가 제조 가능 범위
+% X: 1xD (또는 NxD). 격자 freeform 파라미터가 물리적/제조적으로 타당한지 검사.
+%   높이장 z(x,y) 는 정의상 항상 single-valued 이므로 자기교차는 불가능하다.
+%   실제 제약은 (1) 형상이 유의미(너무 납작하지 않음), (2) 표면 기울기가 제조/
+%   레이트레이싱 가능 범위 이내.  (수용률 ~100% 설계 - README/프로토타입 검증)
+global NGRID GRID_WINPOW
+persistent XX YY
+if isempty(XX)
+    t = linspace(-1, 1, 61);   % 유효성 평가용 저해상 격자(속도)
+    [XX, YY] = meshgrid(t, t);
+end
+SLOPE_MAX = 3.0;    % 최대 |grad z| (제조/레이트레이싱 안정)
+Z_MIN     = 0.08;   % 최소 정점 높이 [mm] (degenerate 방지)
+
 numRows = size(X,1);
 TF = true(numRows,1);
+nGrid = NGRID^2;
+t = linspace(-1, 1, 61);
 for k = 1:numRows
-    p     = X(k,1:5);
-    H     = X(k,6);
-    c1=X(k,7); s1=X(k,8); c2=X(k,9); s2=X(k,10);
-    harm  = [1 c1 s1; 2 c2 s2];
+    C = reshape(X(k, 1:nGrid), [NGRID, NGRID]);
+    Z = freeform_grid_height(XX, YY, C, GRID_WINPOW);
+    Zf = Z;  Zf(~isfinite(Zf)) = 0;
+
     bad = false;
-
-    % (1) base 프로파일 단봉성(대략): 제어높이가 크게 재증가하면 물결 형상 -> 배제
-    %     정점 1 -> p1..p5 -> rim 0. 인접 증가가 tol 이상이면 위반.
-    seq = [1, p, 0];
-    if any(diff(seq) > 0.15), bad = true; end
-
-    % (2) S>0 (전 방위/전 반경). 최악은 rho=1 에서 |sum| 최대.
+    if max(Zf(:)) < Z_MIN, bad = true; end
     if ~bad
-        phis = linspace(0, 2*pi, 73);
-        Smin = inf;
-        for r = [0.5, 0.8, 1.0]
-            S = 1 + (r.^1).*(c1*cos(phis)+s1*sin(phis)) + (r.^2).*(c2*cos(2*phis)+s2*sin(2*phis));
-            Smin = min(Smin, min(S));
-        end
-        if Smin <= 0.10, bad = true; end   % 여유 마진(제조/레이트레이싱 안정)
+        [gx, gy] = gradient(Zf, t, t);
+        if max(hypot(gx(:), gy(:))) > SLOPE_MAX, bad = true; end
     end
-
-    % (3) aspect / tilt 세기 한계
-    if ~bad
-        if H <= 0, bad = true; end
-        tiltMag = hypot(c1, s1);
-        if tiltMag > 0.75, bad = true; end   % 과도한 tilt -> 단일값/제조 곤란
-    end
-
     TF(k) = ~bad;
 end
 end
@@ -564,18 +575,18 @@ end
 %%  형상 리포트 (최적 결과 시각화; LightTools 불필요, 순수 MATLAB)
 %% =====================================================================
 function report_best_shape(x, varNames) %#ok<INUSD>
-pCtrl = x(1:5);  H = x(6);
-harm  = [1 x(7) x(8); 2 x(9) x(10)];
+global NGRID GRID_WINPOW
+C = reshape(x(1:NGRID^2), [NGRID, NGRID]);
 t = linspace(-1,1,200);  [Xg,Yg] = meshgrid(t,t);
-Z = freeform_height(Xg, Yg, H, pCtrl, harm);
+Z = freeform_grid_height(Xg, Yg, C, GRID_WINPOW);
 m = Z; m(~isfinite(m)) = 0;
 cx = sum(Xg(:).*m(:))/sum(m(:));  cy = sum(Yg(:).*m(:))/sum(m(:));
-figure('Name','Best asymmetric freeform');
+figure('Name','Best 3D freeform (grid)');
 subplot(1,2,1); surf(Xg,Yg,Z,'EdgeColor','none'); axis tight; view(35,30);
-title(sprintf('Best freeform  H=%.2f', H)); xlabel x; ylabel y; zlabel z;
+title(sprintf('Best freeform  z_{max}=%.3f mm', max(m(:)))); xlabel x; ylabel y; zlabel z;
 subplot(1,2,2); contourf(Xg,Yg,Z,25,'LineColor','none'); axis equal tight; hold on;
 plot(cx,cy,'r+','MarkerSize',14,'LineWidth',2); plot(0,0,'w.','MarkerSize',8);
-title(sprintf('height centroid=(%+.3f,%+.3f)  [tilt \\rightarrow +x=phi 0]', cx, cy));
+title(sprintf('height centroid=(%+.3f,%+.3f)  [조향 \\rightarrow +x=phi 0]', cx, cy));
 fprintf('[Shape] height centroid (비대칭/조향 방향 지표) = (%+.4f, %+.4f)\n', cx, cy);
 end
 
