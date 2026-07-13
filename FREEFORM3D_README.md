@@ -48,11 +48,17 @@ stretchZ    : 텍스처 z 스트레치
 템플릿 자체를 GUI에서 원하는 U×V로 다시 만들어 저장하면, 코드가 자동으로 그 크기에
 맞춘다(`freeform_grid_info`가 N·내부점을 파싱).
 
-## 목적함수: 왜 hemisphere를 배제하는가
+## 목적함수: 특정 (θ밴드 × φ구간) EQE 최대화
 
-`EQE_cone` = 목표 방향 `(θ_t, φ_t)` 중심 반각 `cone_half` 원뿔로 방출된 EQE.
-대칭 발광(hemisphere)은 어떤 방향을 목표로 해도 방위각 대칭이라 `EQE_cone`을 못 올린다.
-비대칭 freeform만 특정 방위각으로 조향 가능 → 이 지표가 논문의 판별자.
+`J = EQE_region` = 목표 **극각 밴드 `θ∈[TGT_TH_LO,TGT_TH_HI]` × 방위각 구간
+`φ∈[TGT_PHI_C ± TGT_PHI_HALF]`** 로 방출된 EQE. (대비 페널티 없음 — hemisphere는
+별도 대조군으로 비교.) 영역이 φ로 국한돼 있어 EQE_region 최대화 자체가 방위각 집중을
+보상하고, hemisphere는 φ 전체로 퍼져 같은 영역에 조금만 넣으므로 비교에서 낮게 나온다.
+
+- 리포트: `EQE_total`, `EQE_region`, `directionality = EQE_region/EQE_total`.
+- 검증(합성 원거리장, θ∈[20,40] φ∈[0±45]): 비대칭 tilt=0.35 vs hemisphere=0.07 (~5×).
+- **φ_c = 렌즈 정렬 방향**. 배열을 Δφ 회전 → 발광도 Δφ 회전(방향 제어). θ밴드 중심을
+  바꿔 달성 가능한 최대 tilt를 특성화. hemisphere를 같은 조건에서 돌려 대조군으로.
 
 ## 실행 전 확인 (@@VERIFY)
 

@@ -43,8 +43,7 @@ nInner = numel(FF_INNER);
 fprintf('Freeform 격자: 총 %d 점, 내부(자유) %d 점 -> 형상 DOF=%d\n', FF_N, nInner, nInner);
 
 %% ===== LightTools 연결 (배열 모델 1개) =====
-global ID_LT ltml ltloc count eval_count restart_interval ray_nums_current
-global target_theta target_phi cone_half MESH_POS
+global ID_LT ltml ltloc count eval_count restart_interval ray_nums_current MESH_POS
 global MESH_NLONG MESH_NLAT MESH_LONG_MIN MESH_LONG_MAX MESH_LAT_MIN MESH_LAT_MAX
 RenewLightTools();
 try
@@ -65,16 +64,15 @@ INIT_EVAL_FIRST = 50;    CONV_BLOCK = 10;      CONV_TOL = 0.002;
 CONV_PATIENCE   = 2;     MAX_EVAL_PER_TGT = 120;
 
 %% ===== 방향성 발광 타겟 =====
-% 목적함수 J = EQE_cone_fwd(theta_t,phi_t) - W_CONTRAST * EQE_cone_opp(theta_t,phi_t+180)
-%   - EQE_cone_fwd : 목표 원뿔로 추출된 EQE (HUD eyebox 로 가는 유용 효율)
-%   - EQE_cone_opp : 반대 방위각 같은 극각 원뿔로 새는 EQE (손실/글레어)
-%   hemisphere(방위각 대칭)는 fwd=opp -> 대비항이 이득을 상쇄 -> 구조적으로 불리.
-%   비대칭 freeform 만 fwd>>opp 로 J 를 키운다(= 논문 판별 지표).
-global W_CONTRAST
-target_theta = 30;    % [deg] 목표 극각(빔을 정면에서 이만큼 기울임)
-target_phi   = 0;     % [deg] 목표 방위각(= 렌즈 정렬 방향; 배열 회전으로 임의 제어)
-cone_half    = 20;    % [deg] 원뿔 반각(eyebox 크기)
-W_CONTRAST   = 0.5;   % 반대편 누설 페널티 가중(0=순수 EQE_cone, 1=순수 대비차)
+% 목적함수 J = EQE_region : 특정 (theta 밴드 x phi 구간)으로 방출된 EQE 최대화.
+%   대비 페널티는 없다(hemisphere 는 별도 대조군으로 비교). 영역이 phi 로 국한돼
+%   있어 EQE_region 최대화 자체가 방위각 집중을 보상하며, hemisphere 는 phi 전체로
+%   퍼져 같은 영역에 조금밖에 못 넣으므로 비교에서 자동으로 낮게 나온다.
+global TGT_TH_LO TGT_TH_HI TGT_PHI_C TGT_PHI_HALF
+TGT_TH_LO    = 20;    % [deg] 목표 극각 밴드 하한
+TGT_TH_HI    = 40;    % [deg] 목표 극각 밴드 상한  (중심 ~30도)
+TGT_PHI_C    = 0;     % [deg] 목표 방위각 중심(= 렌즈 정렬 방향; 배열 회전으로 임의 제어)
+TGT_PHI_HALF = 45;    % [deg] 방위각 반폭 -> phi in [C-45, C+45] (eyebox 방위 폭)
 
 %% ===== far-field INTENSITY_MESH 격자 사양 (@@VERIFY: 모델과 일치) =====
 % "잘못된 인덱스(N,·) CellValue UI" 에러 시 N-1 이 실제 longitude 셀 수.
@@ -104,8 +102,8 @@ eval_count = 0;
 initX = array2table(lb + rand(20, numel(lb)) .* (ub - lb), 'VariableNames', varNames);
 ray_nums_current = RAY_SEARCH;
 
-fprintf('\n######## Freeform BO 시작: target (theta=%d, phi=%d, cone=%d) ########\n', ...
-    target_theta, target_phi, cone_half);
+fprintf('\n######## Freeform BO 시작: target θ∈[%d,%d], φ∈[%d±%d] ########\n', ...
+    TGT_TH_LO, TGT_TH_HI, TGT_PHI_C, TGT_PHI_HALF);
 
 results = bayesopt(@bo_objective, optVars, ...
     'MaxObjectiveEvaluations', INIT_EVAL_FIRST, ...
@@ -153,22 +151,22 @@ if ~isfinite(bestEQE), bestEQE = -results.MinEstimatedObjective; ci = 1; end
 bestX = array2table(candX{ci}, 'VariableNames', varNames);
 
 %% ===== 결과 저장 + 형상 리포트 =====
-% 최적 형상의 방향성 분해(목표 원뿔 vs 반대편) 재평가 (고정밀)
+% 최적 형상 방향성 분해 재평가 (고정밀)
 ray_nums_current = RAY_FINAL;
 try
     bd = objFcn_directionalEQE(table2array(bestX));
 catch
-    bd = struct('EQE_total',NaN,'EQE_cone_fwd',NaN,'EQE_cone_opp',NaN,'asym',NaN);
+    bd = struct('EQE_total',NaN,'EQE_region',NaN,'directionality',NaN);
 end
 
 save('BO_Freeform_result.mat', 'bestX', 'bestEQE', 'results', 'bd', ...
-    'target_theta', 'target_phi', 'cone_half', 'W_CONTRAST', 'varNames', 'lb', 'ub', 'FF_XY', 'FF_INNER');
+    'TGT_TH_LO', 'TGT_TH_HI', 'TGT_PHI_C', 'TGT_PHI_HALF', 'varNames', 'lb', 'ub', 'FF_XY', 'FF_INNER');
 fprintf('\n######## Done ########\n');
-fprintf('  목적함수 J (fwd - %.2f*opp) = %.5f ± %.5f\n', W_CONTRAST, bestEQE, candStd(ci));
-fprintf('  EQE_total        = %.5f\n', bd.EQE_total);
-fprintf('  EQE_cone_fwd (θ=%d,φ=%d)   = %.5f  <- HUD 방향 유용 효율\n', target_theta, target_phi, bd.EQE_cone_fwd);
-fprintf('  EQE_cone_opp (θ=%d,φ=%d) = %.5f  <- 반대편 누설\n', target_theta, mod(target_phi+180,360), bd.EQE_cone_opp);
-fprintf('  방위각 비대칭 asym = (fwd-opp)/(fwd+opp) = %.3f   [hemisphere→0]\n', bd.asym);
+fprintf('  목적함수 J = EQE_region = %.5f ± %.5f\n', bestEQE, candStd(ci));
+fprintf('  EQE_total   = %.5f\n', bd.EQE_total);
+fprintf('  EQE_region (θ∈[%d,%d], φ∈[%d±%d]) = %.5f  <- HUD 방향 유용 효율\n', ...
+    TGT_TH_LO, TGT_TH_HI, TGT_PHI_C, TGT_PHI_HALF, bd.EQE_region);
+fprintf('  directionality = EQE_region/EQE_total = %.3f   [hemisphere 대비군보다 높아야]\n', bd.directionality);
 disp(bestX);
 report_best_shape(table2array(bestX));
 
@@ -209,8 +207,8 @@ end
 %%  Objective: freeform .ent 주입 + 나노 CPS + 2D 방향성 EQE
 %% =====================================================================
 function output = objFcn_directionalEQE(point)
-global ID_LT ltml ltloc count ray_nums_current
-global target_theta target_phi cone_half MESH_POS FF_N FF_INNER W_CONTRAST
+global ID_LT ltml ltloc count ray_nums_current MESH_POS FF_N FF_INNER
+global TGT_TH_LO TGT_TH_HI TGT_PHI_C TGT_PHI_HALF
 
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
@@ -295,12 +293,10 @@ I_white = 0.5*(CPS_result.I_sub_s + CPS_result.I_sub_p);
 P_white = I_white .* repmat(sin089, wavelength_num, 1);
 weight_factor = sum(P_white, 2);
 
-% --- 2D 원거리장 방향성 EQE (목표 원뿔 + 반대편 원뿔) ---
+% --- 2D 원거리장 방향성 EQE (목표 theta 밴드 x phi 구간) ---
 K = (wavelength_num-1)/n + 1;
 Power_output = zeros(1, wavelength_num);
-coneFrac_fwd = zeros(1, wavelength_num);   % 목표 방향 (theta_t, phi_t)
-coneFrac_opp = zeros(1, wavelength_num);   % 반대 방위각 (theta_t, phi_t+180)
-phi_opp = mod(target_phi + 180, 360);
+regionFrac   = zeros(1, wavelength_num);   % 목표 (theta 밴드 x phi 구간) 파워 분율
 
 for wv = 1:n:wavelength_num
     fileID = fopen('C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','w');
@@ -322,34 +318,29 @@ for wv = 1:n:wavelength_num
 
     Key = ltml.LTListAtPos(lt,List,MESH_POS);   % far-field 방향성 mesh
     [Igrid, thC, phC] = read_intensity_grid(ltml, lt, Key);
-    coneFrac_fwd(wv) = cone_power_fraction(Igrid, thC, phC, target_theta, target_phi, cone_half);
-    coneFrac_opp(wv) = cone_power_fraction(Igrid, thC, phC, target_theta, phi_opp,   cone_half);
+    regionFrac(wv) = region_power_fraction(Igrid, thC, phC, ...
+        TGT_TH_LO, TGT_TH_HI, TGT_PHI_C, TGT_PHI_HALF);
 end
 
 weight_factor_2 = zeros(K,1);  Power_output_2 = zeros(K,1);
-EQE_sub_matrix_2 = zeros(K,1);  cFwd_2 = zeros(K,1);  cOpp_2 = zeros(K,1);
+EQE_sub_matrix_2 = zeros(K,1);  reg_2 = zeros(K,1);
 for k = 1:K
     idx = n*(k-1) + 1;
     weight_factor_2(k)  = weight_factor(idx);
     Power_output_2(k)   = Power_output(idx);
     EQE_sub_matrix_2(k) = CPS_result.EQE_sub_matrix(idx);
-    cFwd_2(k)           = coneFrac_fwd(idx);
-    cOpp_2(k)           = coneFrac_opp(idx);
+    reg_2(k)            = regionFrac(idx);
 end
 EQE_wv_matrix = Power_output_2 ./ weight_factor_2;
 EQE_sub_matrix_2 = EQE_sub_matrix_2 / sum(EQE_sub_matrix_2) * EQE_sub_CPS;
 
 wq = EQE_wv_matrix .* EQE_sub_matrix_2;   % 파장별 EQE 가중
-EQE_total    = sum(wq);
-EQE_cone_fwd = sum(wq .* cFwd_2);         % 목표 원뿔 EQE
-EQE_cone_opp = sum(wq .* cOpp_2);         % 반대편 원뿔 EQE(누설)
+EQE_total  = sum(wq);
+EQE_region = sum(wq .* reg_2);            % 목표 (theta 밴드 x phi 구간) EQE
 
-% 목적함수: 목표 원뿔 EQE - W*반대편 누설 (hemisphere 는 fwd=opp -> 불리)
-J = EQE_cone_fwd - W_CONTRAST * EQE_cone_opp;
-asym = (EQE_cone_fwd - EQE_cone_opp) / max(EQE_cone_fwd + EQE_cone_opp, eps);
-
-output = struct('EQE_total', EQE_total, 'EQE_cone', J, ...
-    'EQE_cone_fwd', EQE_cone_fwd, 'EQE_cone_opp', EQE_cone_opp, 'asym', asym);
+% 목적함수 = 목표 영역 EQE (대비 페널티 없음; hemisphere 는 별도 대조군)
+output = struct('EQE_total', EQE_total, 'EQE_cone', EQE_region, ...
+    'EQE_region', EQE_region, 'directionality', EQE_region / max(EQE_total, eps));
 
 % 코팅 정리 (v4 계승)
 List = ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');  Key = ltml.LTListByName(lt,List,'R_Al');
@@ -361,7 +352,7 @@ end
 
 function output = zero_output()
 % 지오메트리 생성/주입 실패: 목적함수를 NaN 으로(= bayesopt 오류점, GP 비오염).
-output = struct('EQE_total',0,'EQE_cone',NaN,'EQE_cone_fwd',0,'EQE_cone_opp',0,'asym',0);
+output = struct('EQE_total',0,'EQE_cone',NaN,'EQE_region',0,'directionality',0);
 end
 
 
@@ -429,23 +420,17 @@ thetaC = MESH_LAT_MIN  + (MESH_LAT_MAX -MESH_LAT_MIN) /nLat  * ((1:nLat)  - 0.5)
 phiC   = MESH_LONG_MIN + (MESH_LONG_MAX-MESH_LONG_MIN)/nLong * ((1:nLong) - 0.5);
 end
 
-function frac = cone_power_fraction(Igrid, thetaC, phiC, th_t, ph_t, halfAng)
-% 목표 방향(th_t,ph_t) 중심 반각 halfAng 원뿔로 방출되는 파워 분율.
-%   dP ∝ I(theta,phi) sin(theta).  원뿔 판정: 방향 단위벡터 각거리 <= halfAng.
+function frac = region_power_fraction(Igrid, thetaC, phiC, thLo, thHi, phiC0, phiHalf)
+% 목표 (theta 밴드 [thLo,thHi]) x (phi 구간 phiC0 ± phiHalf) 로 방출되는 파워 분율.
+%   dP ∝ I(theta,phi) sin(theta).
+%   phi 는 원형(wrap) 거리로 판정 -> phiC0=0, phiHalf=45 이면 [315,360]∪[0,45] 포함.
 [TH, PH] = ndgrid(thetaC, phiC);
 W = Igrid .* sind(TH);
 Wtot = sum(W(:));
 if Wtot <= 0, frac = 0; return; end
-d_t = ang2vec(th_t, ph_t);
-V = ang2vec(TH, PH);
-csep = reshape(V(1,:).*d_t(1) + V(2,:).*d_t(2) + V(3,:).*d_t(3), size(TH));
-frac = sum(W(csep >= cosd(halfAng))) / Wtot;
-end
-
-function V = ang2vec(theta, phi)
-th = theta(:).';  ph = phi(:).';
-V = [sind(th).*cosd(ph); sind(th).*sind(ph); cosd(th)];
-if isscalar(theta), V = V(:); end
+dphi = abs(mod(PH - phiC0 + 180, 360) - 180);      % [0,180] wrap 거리
+inReg = (TH >= thLo) & (TH <= thHi) & (dphi <= phiHalf);
+frac = sum(W(inReg)) / Wtot;
 end
 
 
