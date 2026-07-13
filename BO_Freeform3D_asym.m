@@ -65,9 +65,16 @@ INIT_EVAL_FIRST = 50;    CONV_BLOCK = 10;      CONV_TOL = 0.002;
 CONV_PATIENCE   = 2;     MAX_EVAL_PER_TGT = 120;
 
 %% ===== 방향성 발광 타겟 =====
+% 목적함수 J = EQE_cone_fwd(theta_t,phi_t) - W_CONTRAST * EQE_cone_opp(theta_t,phi_t+180)
+%   - EQE_cone_fwd : 목표 원뿔로 추출된 EQE (HUD eyebox 로 가는 유용 효율)
+%   - EQE_cone_opp : 반대 방위각 같은 극각 원뿔로 새는 EQE (손실/글레어)
+%   hemisphere(방위각 대칭)는 fwd=opp -> 대비항이 이득을 상쇄 -> 구조적으로 불리.
+%   비대칭 freeform 만 fwd>>opp 로 J 를 키운다(= 논문 판별 지표).
+global W_CONTRAST
 target_theta = 30;    % [deg] 목표 극각(빔을 정면에서 이만큼 기울임)
-target_phi   = 0;     % [deg] 목표 방위각(비대칭 정렬 방향)
-cone_half    = 20;    % [deg] 원뿔 반각
+target_phi   = 0;     % [deg] 목표 방위각(= 렌즈 정렬 방향; 배열 회전으로 임의 제어)
+cone_half    = 20;    % [deg] 원뿔 반각(eyebox 크기)
+W_CONTRAST   = 0.5;   % 반대편 누설 페널티 가중(0=순수 EQE_cone, 1=순수 대비차)
 
 %% ===== far-field INTENSITY_MESH 격자 사양 (@@VERIFY: 모델과 일치) =====
 % "잘못된 인덱스(N,·) CellValue UI" 에러 시 N-1 이 실제 longitude 셀 수.
@@ -146,9 +153,22 @@ if ~isfinite(bestEQE), bestEQE = -results.MinEstimatedObjective; ci = 1; end
 bestX = array2table(candX{ci}, 'VariableNames', varNames);
 
 %% ===== 결과 저장 + 형상 리포트 =====
-save('BO_Freeform_result.mat', 'bestX', 'bestEQE', 'results', ...
-    'target_theta', 'target_phi', 'cone_half', 'varNames', 'lb', 'ub', 'FF_XY', 'FF_INNER');
-fprintf('\n######## Done: best EQE_cone = %.5f ± %.5f ########\n', bestEQE, candStd(ci));
+% 최적 형상의 방향성 분해(목표 원뿔 vs 반대편) 재평가 (고정밀)
+ray_nums_current = RAY_FINAL;
+try
+    bd = objFcn_directionalEQE(table2array(bestX));
+catch
+    bd = struct('EQE_total',NaN,'EQE_cone_fwd',NaN,'EQE_cone_opp',NaN,'asym',NaN);
+end
+
+save('BO_Freeform_result.mat', 'bestX', 'bestEQE', 'results', 'bd', ...
+    'target_theta', 'target_phi', 'cone_half', 'W_CONTRAST', 'varNames', 'lb', 'ub', 'FF_XY', 'FF_INNER');
+fprintf('\n######## Done ########\n');
+fprintf('  목적함수 J (fwd - %.2f*opp) = %.5f ± %.5f\n', W_CONTRAST, bestEQE, candStd(ci));
+fprintf('  EQE_total        = %.5f\n', bd.EQE_total);
+fprintf('  EQE_cone_fwd (θ=%d,φ=%d)   = %.5f  <- HUD 방향 유용 효율\n', target_theta, target_phi, bd.EQE_cone_fwd);
+fprintf('  EQE_cone_opp (θ=%d,φ=%d) = %.5f  <- 반대편 누설\n', target_theta, mod(target_phi+180,360), bd.EQE_cone_opp);
+fprintf('  방위각 비대칭 asym = (fwd-opp)/(fwd+opp) = %.3f   [hemisphere→0]\n', bd.asym);
 disp(bestX);
 report_best_shape(table2array(bestX));
 
@@ -165,8 +185,7 @@ if mod(eval_count, restart_interval) == 0
     lt = ltloc.GetLTAPI(ID_LT);  ltml.LTSetOption(lt, "ShowFileDialogBox", 0);  pause(2);
 end
 try
-    eqe = objFcn_directionalEQE(pt).EQE_cone;
-    if eqe == 0, eqe = NaN; end
+    eqe = objFcn_directionalEQE(pt).EQE_cone;   % 목적함수 J (음수/0 도 유효값)
 catch err
     fprintf('\n[Error] eval %d LightTools 충돌: %s\n', eval_count, err.message);
     eqe = NaN;
@@ -191,7 +210,7 @@ end
 %% =====================================================================
 function output = objFcn_directionalEQE(point)
 global ID_LT ltml ltloc count ray_nums_current
-global target_theta target_phi cone_half MESH_POS FF_N FF_INNER
+global target_theta target_phi cone_half MESH_POS FF_N FF_INNER W_CONTRAST
 
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
@@ -276,10 +295,12 @@ I_white = 0.5*(CPS_result.I_sub_s + CPS_result.I_sub_p);
 P_white = I_white .* repmat(sin089, wavelength_num, 1);
 weight_factor = sum(P_white, 2);
 
-% --- 2D 원거리장 방향성 EQE ---
+% --- 2D 원거리장 방향성 EQE (목표 원뿔 + 반대편 원뿔) ---
 K = (wavelength_num-1)/n + 1;
 Power_output = zeros(1, wavelength_num);
-coneFrac     = zeros(1, wavelength_num);
+coneFrac_fwd = zeros(1, wavelength_num);   % 목표 방향 (theta_t, phi_t)
+coneFrac_opp = zeros(1, wavelength_num);   % 반대 방위각 (theta_t, phi_t+180)
+phi_opp = mod(target_phi + 180, 360);
 
 for wv = 1:n:wavelength_num
     fileID = fopen('C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','w');
@@ -301,26 +322,34 @@ for wv = 1:n:wavelength_num
 
     Key = ltml.LTListAtPos(lt,List,MESH_POS);   % far-field 방향성 mesh
     [Igrid, thC, phC] = read_intensity_grid(ltml, lt, Key);
-    coneFrac(wv) = cone_power_fraction(Igrid, thC, phC, target_theta, target_phi, cone_half);
+    coneFrac_fwd(wv) = cone_power_fraction(Igrid, thC, phC, target_theta, target_phi, cone_half);
+    coneFrac_opp(wv) = cone_power_fraction(Igrid, thC, phC, target_theta, phi_opp,   cone_half);
 end
 
 weight_factor_2 = zeros(K,1);  Power_output_2 = zeros(K,1);
-EQE_sub_matrix_2 = zeros(K,1);  coneFrac_2 = zeros(K,1);
+EQE_sub_matrix_2 = zeros(K,1);  cFwd_2 = zeros(K,1);  cOpp_2 = zeros(K,1);
 for k = 1:K
     idx = n*(k-1) + 1;
     weight_factor_2(k)  = weight_factor(idx);
     Power_output_2(k)   = Power_output(idx);
     EQE_sub_matrix_2(k) = CPS_result.EQE_sub_matrix(idx);
-    coneFrac_2(k)       = coneFrac(idx);
+    cFwd_2(k)           = coneFrac_fwd(idx);
+    cOpp_2(k)           = coneFrac_opp(idx);
 end
 EQE_wv_matrix = Power_output_2 ./ weight_factor_2;
 EQE_sub_matrix_2 = EQE_sub_matrix_2 / sum(EQE_sub_matrix_2) * EQE_sub_CPS;
 
-EQE_total = sum(EQE_wv_matrix .* EQE_sub_matrix_2);
-EQE_cone  = sum(EQE_wv_matrix .* EQE_sub_matrix_2 .* coneFrac_2);
+wq = EQE_wv_matrix .* EQE_sub_matrix_2;   % 파장별 EQE 가중
+EQE_total    = sum(wq);
+EQE_cone_fwd = sum(wq .* cFwd_2);         % 목표 원뿔 EQE
+EQE_cone_opp = sum(wq .* cOpp_2);         % 반대편 원뿔 EQE(누설)
 
-output = struct('EQE_total', EQE_total, 'EQE_cone', EQE_cone, ...
-    'coneFrac', EQE_cone / max(EQE_total, eps));
+% 목적함수: 목표 원뿔 EQE - W*반대편 누설 (hemisphere 는 fwd=opp -> 불리)
+J = EQE_cone_fwd - W_CONTRAST * EQE_cone_opp;
+asym = (EQE_cone_fwd - EQE_cone_opp) / max(EQE_cone_fwd + EQE_cone_opp, eps);
+
+output = struct('EQE_total', EQE_total, 'EQE_cone', J, ...
+    'EQE_cone_fwd', EQE_cone_fwd, 'EQE_cone_opp', EQE_cone_opp, 'asym', asym);
 
 % 코팅 정리 (v4 계승)
 List = ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');  Key = ltml.LTListByName(lt,List,'R_Al');
@@ -331,7 +360,8 @@ fclose('all');
 end
 
 function output = zero_output()
-output = struct('EQE_total',0,'EQE_cone',0,'coneFrac',0);
+% 지오메트리 생성/주입 실패: 목적함수를 NaN 으로(= bayesopt 오류점, GP 비오염).
+output = struct('EQE_total',0,'EQE_cone',NaN,'EQE_cone_fwd',0,'EQE_cone_opp',0,'asym',0);
 end
 
 
