@@ -34,6 +34,24 @@
 % ============================================================
 clear;
 
+%% ===== STL import 명령 (@@VERIFY: 매크로 기록으로 확보) — 최상단에서 사전 점검 =====
+% LTCmd 로 SweptEntity 인스턴스에 freeform STL 을 임포트하는 명령. 버전마다 이름이
+% 달라 추측이 무의미하므로, LightTools 매크로 레코더로 File>Import 를 한 번 수동
+% 실행해 정확한 명령을 얻어 아래에 넣는다. 명령 안의 파일경로 자리에 '%s' 를 둘 것
+% (sprintf 로 STL 경로가 치환된다). 예(형식 예시, 실제 명령 아님): 'ImportFile "%s"'
+% import 후 생성되는 solid 이름을 LT_IMPORT_SOLIDNAME 에(레코더 DefaultSelect 줄에서 확인).
+% (먼저 test_freeform_geom.m 로 이 두 값을 확정한 뒤 여기에 복사할 것.)
+global LT_IMPORT_CMD LT_IMPORT_SOLIDNAME
+LT_IMPORT_CMD       = '';              % <- 매크로 기록으로 얻은 명령 문자열 ('%s'=STL경로)
+LT_IMPORT_SOLIDNAME = 'freeform_lens'; % <- import 후 solid 이름
+
+% LightTools 를 재시작하기 전에(=사용자의 열린 세션을 죽이기 전에) 미리 중단.
+if isempty(LT_IMPORT_CMD)
+    error(['STL import 명령(LT_IMPORT_CMD)이 비어 있습니다. 먼저 test_freeform_geom.m 로 ' ...
+        'File>Import 매크로를 기록해 정확한 명령을 확보한 뒤, 이 스크립트 상단 ' ...
+        'LT_IMPORT_CMD/LT_IMPORT_SOLIDNAME 에 넣고 다시 실행하세요. (README 의 @@VERIFY 절)']);
+end
+
 %% ===== LightTools 연결 (v4 계승) =====
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ray_nums_current
 global target_theta target_phi cone_half   % 방향성 목적함수 타겟(전역: objFcn 접근)
@@ -72,6 +90,20 @@ MAX_EVAL_PER_TGT  = 150;
 target_theta = 30;    % [deg] 목표 극각(빔을 정면에서 이만큼 기울임)
 target_phi   = 0;     % [deg] 목표 방위각(비대칭 정렬 방향)
 cone_half    = 20;    % [deg] 원뿔 반각(집광 목표 범위)
+
+%% ===== far-field INTENSITY_MESH 격자 사양 (@@VERIFY: 모델과 반드시 일치) =====
+% [중요] 에러 "잘못된 인덱스(31,·) ... CellValue UI" 는 여기 값이 모델 메쉬의 실제
+%  셀 수보다 크면 발생한다. 에러가 index 31 에서 났으므로 첫 축(longitude)은 30셀.
+%  아래 값을 모델의 far-field 메쉬(기존 코드가 CellValue_UI 로 읽던 pos 3)의 실제
+%  longitude/latitude 셀 수와 각도 범위에 정확히 맞출 것. 방위각 비대칭을 보려면
+%  longitude 셀 수 > 1 이고 메쉬 Symmetry = No Symmetry 여야 한다.
+global MESH_NLONG MESH_NLAT MESH_LONG_MIN MESH_LONG_MAX MESH_LAT_MIN MESH_LAT_MAX MESH_POS
+MESH_POS      = 3;     % INTENSITY_MESH 리스트에서 far-field 메쉬 위치 (기존 코드와 동일)
+MESH_NLONG    = 30;    % @@VERIFY: longitude(방위각) 셀 수  (에러 신호상 30)
+MESH_NLAT     = 90;    % @@VERIFY: latitude(극각) 셀 수      (기존 코드가 90까지 읽음)
+MESH_LONG_MIN = 0;     MESH_LONG_MAX = 360;   % 방위각 범위 [deg]
+MESH_LAT_MIN  = 0;     MESH_LAT_MAX  = 90;    % 극각 범위 [deg] (전방 반구; 모델에 맞게)
+
 
 % (선택) 방위각 스윕으로 방향 제어성 증명하려면 아래 리스트 사용:
 %   phi_sweep = 0:45:315;  % 각 phi 마다 아래 최적화를 독립 실행
@@ -252,7 +284,7 @@ end
 %% =====================================================================
 function output = objFcn_directionalEQE(point)
 global ID_LT ID_swept ltml ltloc count ray_nums_current
-global target_theta target_phi cone_half
+global target_theta target_phi cone_half MESH_POS
 
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
@@ -376,7 +408,7 @@ for wv = 1:n:wavelength_num
     % @@VERIFY: 아래 mesh index/차원/DB이름은 모델의 far-field INTENSITY_MESH 설정에
     %  맞춰야 한다. 모델 기본: longitude 0..360, latitude 0..180, No Symmetry.
     %  방위각 비대칭이 나타나려면 (a) longitude 셀 수 > 1, (b) Symmetry=None 필수.
-    Key = ltml.LTListAtPos(lt,List,3);   % far-field 방향성 mesh (기존 3번 슬롯)
+    Key = ltml.LTListAtPos(lt,List,MESH_POS);   % far-field 방향성 mesh
     [Igrid, thC, phC] = read_intensity_grid(ltml, lt, Key);  % Igrid: [nLat x nLong]
     coneFrac(wv) = cone_power_fraction(Igrid, thC, phC, target_theta, target_phi, cone_half);
 end
@@ -449,17 +481,43 @@ catch me
 end
 
 % 2) LightTools 로 import + Repair + .ent 저장
-%    @@VERIFY: STL import LTAPI 커맨드 이름은 버전 확인 필요. 아래는 대표 형태.
-%    (GUI: File > Import > CAD/STL 의 매크로 기록으로 정확한 명령 확보 권장)
+%    [중요] LTCmd 는 잘못된 명령이어도 MATLAB 예외를 던지지 않고 LightTools 콘솔에만
+%    "Unknown variable ..." 를 찍는다. 따라서 성공 여부는 .ent 파일이 실제로
+%    생성됐는지로 판정한다(아래). import 명령 문자열은 버전마다 다르므로 전역
+%    LT_IMPORT_CMD 로 분리했다 -> 매크로 기록으로 얻은 정확한 명령을 넣을 것.
+global LT_IMPORT_CMD LT_IMPORT_SOLIDNAME
+if isempty(LT_IMPORT_CMD)
+    error(['[Geom] STL import 명령이 설정되지 않았습니다. LightTools 매크로 레코더로 ' ...
+        'File>Import 로 .stl 하나를 수동 임포트해 정확한 명령을 얻은 뒤, 스크립트 상단 ' ...
+        'LT_IMPORT_CMD 에 넣으세요. (자세한 방법: FREEFORM3D_README.md 의 STL import 절)']);
+end
+if exist(entPath_local, 'file'), delete(entPath_local); end   % 이전 잔재 제거(판정 신뢰성)
 try
     ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
-    % 기존 SweptEntity 를 지우고 새 freeform 을 import (또는 import 후 이전 것 삭제)
-    ltml.LTCmd(lt, sprintf('ImportCADFile "%s"', stlPath));       % @@VERIFY 명령명
-    ltml.LTCmd(lt, 'DefaultSelect "freeform_lens"');              % @@VERIFY 엔티티명
+    % LT_IMPORT_CMD 안의 '%s' 자리에 STL 경로가 들어간다 (sprintf).
+    ltml.LTCmd(lt, sprintf(LT_IMPORT_CMD, stlPath));
+    ltml.LTCmd(lt, sprintf('DefaultSelect "%s"', LT_IMPORT_SOLIDNAME));  % 임포트된 solid 선택
     ltml.LTCmd(lt, 'RepairEntities');
     ltml.LTCmd(lt, sprintf('SaveLibrary XYZ 0,0,0 "%s"', entPath_local));
 catch me
-    fprintf('[Geom] LightTools import/저장 실패: %s\n', me.message);  return;
+    fprintf('[Geom] LightTools import/저장 예외: %s\n', me.message);  return;
+end
+pause(0.3);
+if ~exist(entPath_local, 'file')
+    fprintf(['[Geom] .ent 저장 실패 -> import 명령이 안 먹혔을 가능성. ' ...
+        'LightTools 콘솔의 오류 메시지와 LT_IMPORT_CMD/LT_IMPORT_SOLIDNAME 를 확인하세요.\n']);
+    return;   % 조용히 진행하지 않고 이 평가를 실패(NaN) 처리
+end
+
+% 2b) 임포트된 solid 정리 — 기존 코드는 SetSweptProfilePoints 로 "한 개"를 수정했지만
+%     지금은 매 평가마다 새 solid 를 import 하므로, 저장 후 삭제하지 않으면 마스터
+%     모델에 계속 쌓여 이름 충돌/메모리 문제가 생긴다. 선택 후 삭제로 클린 상태 유지.
+%     @@VERIFY: 삭제 명령/선택자는 매크로 기록으로 확인(레코더에서 solid 삭제 시 기록됨).
+try
+    ltml.LTCmd(lt, sprintf('DefaultSelect "%s"', LT_IMPORT_SOLIDNAME));
+    ltml.LTCmd(lt, 'Delete');
+catch
+    % 삭제 실패는 치명적이지 않으나, 반복 누적을 막으려면 restart_interval 을 짧게.
 end
 
 % 3) 배열 모델의 텍스처 unit-cell 파일 + StretchZ 갱신 (v4 계승)
@@ -483,16 +541,14 @@ end
 %% =====================================================================
 function [Igrid, thetaC, phiC] = read_intensity_grid(ltml, lt, Key)
 % far-field INTENSITY_MESH 를 [nLat x nLong] 격자로 읽는다.
-% @@VERIFY: 셀 차원/CellValue_UI 인자 순서는 모델 mesh 설정에 맞춘다.
-%   여기서는 latitude(극각) 0..180 를 nLat, longitude(방위각) 0..360 를 nLong 로
-%   가정하고, CellValue_UI(iLong, iLat) 규약(기존 코드와 동일 방향)으로 읽는다.
-% [비용 주의] 셀별 LTDbGet 는 COM 호출이므로 nLat*nLong 회/파장/평가로 급증한다.
-%  기본은 절충 해상도(45x36=1620회). 각도 정밀도를 높이려면 키우되 시간 증가 감수.
-%  @@VERIFY(성능): LightTools 가 인텐시티 메쉬 전체를 텍스트로 export 하는 커맨드를
-%  지원하면(예: 메쉬 데이터 SaveData) 한 번에 읽어 훨씬 빠르다 - 매크로 기록으로 확인.
-nLat  = 45;    % @@VERIFY: 모델 far-field mesh 의 latitude 셀 수와 정합
-nLong = 36;    % @@VERIFY: longitude 셀 수 ( >1 이어야 방위각 비대칭 관측 )
-latMin = 0; latMax = 180;  longMin = 0; longMax = 360;
+% 차원/각도범위는 상단 전역(MESH_*)에서 가져오며 모델 메쉬와 정확히 일치해야 한다.
+% CellValue_UI(iLong, iLat) 규약(기존 코드가 CellValue_UI(1,lat) 로 읽던 것과 동일:
+% 첫 인자=longitude, 둘째 인자=latitude).
+% [비용 주의] 셀별 LTDbGet 는 COM 호출이므로 nLong*nLat 회/파장/평가로 급증한다.
+%  30x90=2700회. 느리면 상단에서 해상도를 줄이거나(모델 메쉬도 함께 축소),
+%  LightTools 메쉬 데이터 일괄 export 커맨드로 대체(매크로 기록으로 확인).
+global MESH_NLONG MESH_NLAT MESH_LONG_MIN MESH_LONG_MAX MESH_LAT_MIN MESH_LAT_MAX
+nLong = MESH_NLONG;  nLat = MESH_NLAT;
 
 Igrid = zeros(nLat, nLong);
 for iL = 1:nLong
@@ -501,8 +557,8 @@ for iL = 1:nLong
     end
 end
 % 셀 중심 각도 [deg]
-thetaC = latMin  + (latMax-latMin) /nLat  * ((1:nLat)  - 0.5);   % 1xnLat
-phiC   = longMin + (longMax-longMin)/nLong* ((1:nLong) - 0.5);   % 1xnLong
+thetaC = MESH_LAT_MIN  + (MESH_LAT_MAX -MESH_LAT_MIN) /nLat  * ((1:nLat)  - 0.5);  % 1xnLat
+phiC   = MESH_LONG_MIN + (MESH_LONG_MAX-MESH_LONG_MIN)/nLong * ((1:nLong) - 0.5);  % 1xnLong
 end
 
 function frac = cone_power_fraction(Igrid, thetaC, phiC, th_t, ph_t, halfAng)
@@ -591,45 +647,4 @@ fprintf('[Shape] height centroid (비대칭/조향 방향 지표) = (%+.4f, %+.4
 end
 
 
-%% =====================================================================
-%%  RenewLightTools (v4 계승) — 2개 인스턴스 재시작
-%% =====================================================================
-function RenewLightTools()
-global ID_LT ID_swept ltml ltloc
-lt_exe_path = 'C:\Program Files\Optical Research Associates\LightTools 2023.03\lt.exe';
-model_file_path_swept = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\SweptEntity.2.lts';
-model_file_path_LT    = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\Lens_size_effect_for_PSO_bump_modified_v1.1.lts';
-
-fprintf('--- Restarting LightTools ---\n');
-target_user = 'jhkim';
-system(sprintf('taskkill /F /FI "USERNAME eq %s" /IM lt.exe', target_user));
-pause(2);
-
-system(sprintf('"%s" "%s" &', lt_exe_path, model_file_path_swept));
-try
-    ltml  = actxserver('ltcom64.LTAPI2');
-    ltloc = actxserver('ltlocator.Locator');
-catch
-    error('LightTools 재시작 실패. 라이선스/설치 확인.');
-end
-find_cmd = sprintf('tasklist /fi "imagename eq lt.exe" /fi "username eq %s" /fo csv /nh', target_user);
-[status, cmdout] = system(find_cmd);
-if status == 0 && contains(cmdout, 'lt.exe')
-    tokens = regexp(cmdout, '"(\d+)"', 'tokens');
-    ID_swept = str2double(tokens{1}{1});
-    fprintf('PID(swept)=%d\n', ID_swept);
-else
-    error('lt.exe(swept) 탐색 실패');
-end
-
-system(sprintf('"%s" "%s" &', lt_exe_path, model_file_path_LT));
-[status, cmdout] = system(find_cmd);
-if status == 0 && contains(cmdout, 'lt.exe')
-    tokens = regexp(cmdout, '"(\d+)"', 'tokens');
-    ID_LT = str2double(tokens{3}{1});
-    fprintf('PID(LT)=%d\n', ID_LT);
-else
-    error('lt.exe(LT) 탐색 실패');
-end
-pause(5);
-end
+%% RenewLightTools 는 별도 파일(RenewLightTools.m)로 분리됨 (test 스크립트와 공용).
