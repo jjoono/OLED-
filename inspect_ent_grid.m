@@ -1,10 +1,21 @@
 function inspect_ent_grid(entPath)
 % INSPECT_ENT_GRID  .ent 파일의 자유형 표면 격자 X,Y,Z 값을 표로 출력.
 %
-%   inspect_ent_grid('freeform_template.ent')
+%   inspect_ent_grid()               % 인자 없이 실행 -> 파일 선택창이 열림
+%   inspect_ent_grid('freeform_template.ent')   % 경로 직접 지정
 %
 %   .ent 안의 ORAStartData...ORAEndData 블록(보통 2개: Front, Rear)을 찾아
 %   각 블록의 U,V 격자 크기와 (X,Y,Z) 점들을 표로 보여준다. 디버깅용.
+
+    if nargin < 1 || isempty(entPath)
+        [fname, fpath] = uigetfile({'*.ent', 'LightTools Library (*.ent)'; '*.*', 'All Files'}, ...
+            '.ent 파일 선택');
+        if isequal(fname, 0)
+            disp('선택 취소됨.');
+            return;
+        end
+        entPath = fullfile(fpath, fname);
+    end
 
     txt = fileread(entPath);
     toks = regexp(txt, 'ORAStartData;([\s\S]*?)ORAEndData;', 'tokens');
