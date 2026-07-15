@@ -10,13 +10,15 @@
 %   여기서는 정사각 Cartesian 격자(코너 포함)를 쓰고, 그 위에서 min(돔,평면)만 적용한다.
 
 h     = 1.0;   % 돔 높이
-z0    = 0.75;  % 절단평면의 중심 높이
-m     = 0.6;   % 절단평면 기울기
+z0    = 0.45;  % 절단평면의 중심 높이 (낮을수록 잘리는 면적이 커짐)
+m     = 1.2;   % 절단평면 기울기 (클수록 크리즈가 급함)
 phi0  = 0;     % 절단평면 방향 [rad]
 tbase = 0.1;   % base 두께
 Ra    = 1.2139;  % 템플릿과 동일한 사각 격자 반폭(코너 포함); 광학 조리개는 별도로 원형 1.0
 
-n = 15;   % 격자 해상도(자유변수 아님)
+% [주의] n 은 렌더링 해상도일 뿐 DOF(자유변수)가 아니다. DOF는 위 5개(h,z0,m,phi0,tbase)
+% 로 고정이며, n 을 키워도 BO 변수 수는 그대로다 -> 물결/각짐을 줄이려면 n 을 넉넉히.
+n = 41;   % 격자 해상도(자유변수 아님)
 templatePath = 'freeform_template.ent';
 outPath = 'ff_sharp_cut.1.ent';
 
@@ -45,6 +47,10 @@ buf = [buf ' 0 0 4 CartesianMapper 1 0 0 0 0'];
 newtxt = [tpl(1:s0-1) char(10) buf char(10) tpl(e0+1:end)];
 newtxt = strrep(newtxt, 'setPosition:  { 0. 0. 1.  } ;', ...
     sprintf('setPosition:  { 0. 0. %g  } ;', tbase));
+
+% FrontSurface(첫 번째)만 SmoothResample 끔 -> 내부 스무딩이 크리즈를 뭉개는 것 방지.
+% (파일 안 첫 occurrence = Front. Rear 는 어차피 평면이라 영향 없음.)
+newtxt = regexprep(newtxt, 'restoreSmoothResample: "Yes"', 'restoreSmoothResample: "No"', 'once');
 
 fid = fopen(outPath, 'w');
 fwrite(fid, newtxt);
