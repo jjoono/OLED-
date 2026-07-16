@@ -16,7 +16,7 @@
 % [render 해상도 n 은 DOF 아님] - n 키우면 매끈해지지만 최적화 변수는 안 늘어남.
 
 %% ===== 설정 =====
-templatePath = 'freeform_template.ent';
+templatePath = 'freeform_template_v2.ent';  % 원점(0,0,0)+단위행렬(축정렬) 로 정리된 템플릿
 outDir = 'freeform_v2_ents';
 Nlens  = 12;  seed = 1;
 
@@ -124,8 +124,12 @@ function write_freeform_ent(H, X, Y, n, tbase, templatePath, outPath)
     end
     buf = [buf ' 0 0 4 CartesianMapper 1 0 0 0 0'];
     newtxt = [tpl(1:s0-1) char(10) buf char(10) tpl(e0+1:end)];
-    newtxt = strrep(newtxt, 'setPosition:  { 0. 0. 1.  } ;', ...
-        sprintf('setPosition:  { 0. 0. %g  } ;', -tbase));
+    % RearSurface(평면) z 위치 = -tbase  (SecondLensSurfacePrimitive 의 첫 setPosition,
+    % 현재 값이 무엇이든 견고하게 치환). FreeformEntity/LensElementPrimitive 는 템플릿에서
+    % 이미 원점(0,0,0)+단위행렬 이므로 손대지 않는다.
+    newtxt = regexprep(newtxt, ...
+        '(CSGLensSurfacePrimitive_1[\s\S]*?setPosition:  \{ 0\. 0\. )[-0-9.eE]+(  \} ;)', ...
+        ['$1' num2str(-tbase,'%g') '$2'], 'once');
     newtxt = regexprep(newtxt, 'restoreSmoothResample: "Yes"', 'restoreSmoothResample: "No"', 'once');
     fid = fopen(outPath, 'w');  fwrite(fid, newtxt);  fclose(fid);
 end
