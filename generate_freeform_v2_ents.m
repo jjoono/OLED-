@@ -112,7 +112,9 @@ end
 
 %% ============ .ent writer ============
 function write_freeform_ent(H, X, Y, n, tbase, templatePath, outPath)
-    Z = -H;  Xv=X(:); Yv=Y(:); Zv=Z(:);  N=n*n;
+    % [방향] +Z 방향으로 볼록 돌출, 플랫 베이스는 아래(-z). z축으로 뒤집은 것:
+    %   FrontSurface Z = +H (위로 볼록),  RearSurface(평면)를 z=-tbase 로 이동.
+    Z = H;  Xv=X(:); Yv=Y(:); Zv=Z(:);  N=n*n;
     tpl = fileread(templatePath);
     tok = regexp(tpl, 'ORAStartData;([\s\S]*?)ORAEndData;', 'tokenExtents');
     s0 = tok{1}(1); e0 = tok{1}(2);
@@ -123,7 +125,7 @@ function write_freeform_ent(H, X, Y, n, tbase, templatePath, outPath)
     buf = [buf ' 0 0 4 CartesianMapper 1 0 0 0 0'];
     newtxt = [tpl(1:s0-1) char(10) buf char(10) tpl(e0+1:end)];
     newtxt = strrep(newtxt, 'setPosition:  { 0. 0. 1.  } ;', ...
-        sprintf('setPosition:  { 0. 0. %g  } ;', tbase));
+        sprintf('setPosition:  { 0. 0. %g  } ;', -tbase));
     newtxt = regexprep(newtxt, 'restoreSmoothResample: "Yes"', 'restoreSmoothResample: "No"', 'once');
     fid = fopen(outPath, 'w');  fwrite(fid, newtxt);  fclose(fid);
 end
