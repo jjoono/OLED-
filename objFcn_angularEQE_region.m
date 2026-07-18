@@ -21,9 +21,16 @@ function output = objFcn_angularEQE_region(point)
 global ID_LT ID_swept ltml ltloc count r_pat ray_nums_current
 
 % ===== region 설정 (응용에 따라 조정) =====
+% [phi 폭 정하는 법] 시청자 가로각 Δlateral 에 대해 Δφ ≈ Δlateral / sin(θ).
+%   단일 시청자(모바일 프라이버시, 운전자 전용): 30~40°
+%   법규 배광(리어램프 H±20°): 40~60° / 존 조명: 80~120°
+% [하한 주의] φ bin=10° 이므로 창은 최소 3~4 bin(30~40°) 이상이어야 검출이
+%   안정. 또 창폭 << per-lenslet 빔폭(~±35°) 이면 목적함수가 평평해져 BO 신호
+%   가 죽는다 -> 창폭 ≈ 도달가능 빔폭 근처가 최적화에 유리.
 REGION_TH_LO   = 40;    % [deg] theta 밴드 하한 (고각 응용 예시)
 REGION_TH_HI   = 60;    % [deg] theta 밴드 상한
-REGION_PHIW    = 80;    % [deg] phi 창 전체폭 (중심은 자동검출)
+REGION_PHIW    = 40;    % [deg] phi 창 전체폭 (중심은 자동검출; 단일 시청자 기준)
+REGION_PHIW_LOG= [40 60 80];  % 참고용 동시 로깅 폭들 (Wacc 재사용, 비용 0)
 MESH_POS       = 3;     % far-field 2D mesh 위치
 MESHCFG = struct('nLong',36,'nLat',45,'longMin',-180,'longMax',180, ...
                  'latMin',0,'latMax',90);   % @@VERIFY 모델 mesh bin 수와 일치
@@ -206,6 +213,14 @@ output.fracWin    = R.fracWin;
 output.contrast   = R.contrast;
 output.thBand     = [REGION_TH_LO REGION_TH_HI];
 output.phiWidth   = REGION_PHIW;
+
+% 참고용: 다른 창폭들도 동시 산출 (그리드 재사용이라 비용 0)
+output.multiW = struct('width',{},'EQE_region',{},'phiC',{},'contrast',{});
+for wI = 1:numel(REGION_PHIW_LOG)
+    Rw = detect_phi_window(Wacc,thC,phC,REGION_TH_LO,REGION_TH_HI,REGION_PHIW_LOG(wI));
+    output.multiW(wI) = struct('width',REGION_PHIW_LOG(wI), ...
+        'EQE_region',Rw.PWin,'phiC',Rw.phiC,'contrast',Rw.contrast);
+end
 
 % ===== (3) bare 기준과 "같은 창" 비교 (있을 때만) =====
 % bare_ref.mat: capture_bare_reference.m 가 저장 (Wacc_bare, EQE_total_bare 등).
