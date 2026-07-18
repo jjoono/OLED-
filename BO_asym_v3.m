@@ -230,7 +230,11 @@ P_white=I_white.*repmat(sin089,wavelength_num,1);
 weight_factor=sum(P_white,2);
 
 % --- 파장 루프: 시뮬 + 2D far-field 누적 ---
-nLat=90; nLong=36;  K=(wavelength_num-1)/n+1;
+% [주의] 이 모델의 far-field mesh = theta 45 bins(0~90°, 2° 간격) x phi 36 bins.
+%   (export 데이터가 45x36 이었음. CellValue_UI(iPhi, iTheta) 두번째 인자=theta.)
+%   모델 mesh 를 바꾸면 여기 nLat/nLong 을 그 bin 수로 맞출 것. nLat 틀리면
+%   "잘못된 인덱스(·,N) ... CellValue UI" 에러가 남.
+nLat=45; nLong=36;  K=(wavelength_num-1)/n+1;
 Power_output=zeros(1,wavelength_num);  Igrids=cell(1,K);
 for wv=1:n:wavelength_num
     fileID=fopen('C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','w');
