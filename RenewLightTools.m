@@ -12,10 +12,20 @@ model_file_path_LT = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\Lens_size_effe
 
 fprintf('--- Restarting LightTools (array model) ---\n');
 target_user = 'jhkim';
-system(sprintf('taskkill /F /FI "USERNAME eq %s" /IM lt.exe', target_user));
-pause(2);
+find_cmd = sprintf('tasklist /fi "imagename eq lt.exe" /fi "username eq %s" /fo csv /nh', target_user);
 
-system(sprintf('"%s" "%s" &', lt_exe_path, model_file_path_LT));
+system(sprintf('taskkill /F /FI "USERNAME eq %s" /IM lt.exe', target_user));
+% [속도] 고정 pause(2) 대신, 프로세스가 실제로 사라질 때까지만 폴링 대기
+% (헤드리스 실행파일이 없어 GUI 실행 자체는 못 줄이지만, 이 고정대기는 줄일 수 있음)
+tKillTimeout = 10;  tKill0 = tic;
+while toc(tKill0) < tKillTimeout
+    [~, cmdout] = system(find_cmd);
+    if ~contains(cmdout, 'lt.exe'), break; end
+    pause(0.3);
+end
+
+% [속도] "start /min" 으로 최소화 실행 -> 창 렌더링 비용 절감(완전 headless는 아님)
+system(sprintf('start /min "" "%s" "%s"', lt_exe_path, model_file_path_LT));
 try
     ltml  = actxserver('ltcom64.LTAPI2');
     ltloc = actxserver('ltlocator.Locator');
@@ -23,7 +33,6 @@ catch
     error('LightTools 재시작 실패. 라이선스/설치 확인.');
 end
 
-find_cmd = sprintf('tasklist /fi "imagename eq lt.exe" /fi "username eq %s" /fo csv /nh', target_user);
 [status, cmdout] = system(find_cmd);
 if status == 0 && contains(cmdout, 'lt.exe')
     tokens = regexp(cmdout, '"(\d+)"', 'tokens');
@@ -32,5 +41,21 @@ if status == 0 && contains(cmdout, 'lt.exe')
 else
     error('lt.exe(LT) 탐색 실패');
 end
-pause(5);
+
+% [속도] 고정 pause(5) 대신, COM 이 실제로 명령을 받을 준비가 될 때까지만 폴링
+% (모델 로딩이 5초보다 빨리 끝나면 그만큼 즉시 진행; 상한 20초로 무한대기 방지)
+tReadyTimeout = 20;  tReady0 = tic;  ready = false;
+while toc(tReady0) < tReadyTimeout
+    try
+        lt = ltloc.GetLTAPI(ID_LT);
+        ltml.LTCmd(lt, 'Message "Check Connection"');
+        ready = true;
+        break;
+    catch
+        pause(0.5);
+    end
+end
+if ~ready
+    fprintf('[경고] %d초 내 COM 준비 확인 실패. 계속 진행하되 이후 호출이 실패할 수 있음.\n', tReadyTimeout);
+end
 end
