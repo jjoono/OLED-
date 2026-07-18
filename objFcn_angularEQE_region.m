@@ -32,8 +32,15 @@ REGION_TH_HI   = 60;    % [deg] theta 밴드 상한
 REGION_PHIW    = 40;    % [deg] phi 창 전체폭 (중심은 자동검출; 단일 시청자 기준)
 REGION_PHIW_LOG= [40 60 80];  % 참고용 동시 로깅 폭들 (Wacc 재사용, 비용 0)
 MESH_POS       = 3;     % far-field 2D mesh 위치
+% [속도] exportObjPath 지정 시 read_ff_mesh2d 가 ExportMeshToFile(콘솔 명령)로
+% mesh 전체를 파일 1회 저장 후 벡터화 읽기 -> COM 셀단위 왕복(3240회/파장) 제거.
+% @@VERIFY 리시버 인스턴스 이름(farFieldReceiver_21)이 모델과 다르면 수정.
 MESHCFG = struct('nLong',36,'nLat',45,'longMin',-180,'longMax',180, ...
-                 'latMin',0,'latMax',90);   % @@VERIFY 모델 mesh bin 수와 일치
+                 'latMin',0,'latMax',90, ...                          % @@VERIFY 모델 mesh bin 수와 일치
+                 'exportObjPath', ['ILLUM_MANAGER[Illumination Manager].RECEIVERS[Receiver List].' ...
+                     'FARFIELD_RECEIVER[farFieldReceiver_21].FORWARD_SIM_FUNCTION[Forward Simulation].' ...
+                     'INTENSITY_MESH[Intensity Mesh]'], ...
+                 'exportTmpDir', 'C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\');
 BARE_REF_MAT   = 'bare_ref.mat';            % capture_bare_reference.m 산출물
 
 lt = ltloc.GetLTAPI(ID_LT);
