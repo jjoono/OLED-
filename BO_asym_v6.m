@@ -1,5 +1,12 @@
 % ============================================================
-%  BO_asym_v5.m  -- v4 + MLA 패턴 변수화(비등방) + 2D 편심
+%  BO_asym_v6.m  -- v5 + 기판두께(d_sub) 변수화
+%
+%  [v5 대비 변경] d_sub 를 최적화 변수로 추가, 범위 [0.5, 3.0] mm.
+%    per-lenslet 소스 각크기 atan(r_OLED/d_sub) 를 옵티마이저가 직접 조절
+%    -> 패턴크기(rx,ry)와의 비율이 스티어링 기하 전체를 결정 (시너지 최대).
+%    [주의] 실제 데모에서 기판두께 조절엔 한계가 있음 - v5(고정 1.3) 결과와
+%    비교해 "두께 자유가 주는 상한"을 보는 용도.
+%  ---- 이하 v5 헤더 ----
 %
 %  [v4 대비 변경]
 %   - MLA 패턴 크기 변수화 + 비등방: rx_pat, ry_pat 각각 [2,25]
@@ -67,11 +74,11 @@ for i = 1:NCUT   % 절단면: z0(높이), m(기울기), phi0(방향)
     shapeNames = [shapeNames, {sprintf('cz_%d',i),sprintf('cm_%d',i),sprintf('cphi_%d',i)}]; %#ok<AGROW>
     lbS = [lbS, 0.20, 0.0, 0.0];  ubS = [ubS, 1.40, 1.6, 2*pi]; %#ok<AGROW>
 end
-varNames = [shapeNames, {'dETL','dHTL','dAg','stretchZ','decX_frac','decY_frac','rx_pat','ry_pat'}];
-lb = [lbS,  10,  10,  0,  0.1, 0.0, -0.5,  2,  2];
-ub = [ubS, 150, 150, 50,  3.0, 0.5,  0.5, 25, 25];
+varNames = [shapeNames, {'dETL','dHTL','dAg','stretchZ','decX_frac','decY_frac','rx_pat','ry_pat','d_sub'}];
+lb = [lbS,  10,  10,  0,  0.1, 0.0, -0.5,  2,  2, 0.5];
+ub = [ubS, 150, 150, 50,  3.0, 0.5,  0.5, 25, 25, 3.0];
 NV = numel(lb);   S_DIM = 4*NRBF + 3*NCUT;
-fprintf('총 변수 = %d (형상 %d | + dETL,dHTL,dAg,stretchZ,decX,decY,rx_pat,ry_pat)\n', ...
+fprintf('총 변수 = %d (형상 %d | + dETL,dHTL,dAg,stretchZ,decX,decY,rx_pat,ry_pat,d_sub)\n', ...
     NV, S_DIM);
 
 %% ===== surrogateopt 실행 (실시간 진행표시) =====
@@ -82,7 +89,7 @@ optsSurr = optimoptions('surrogateopt', ...
     'MinSurrogatePoints', max(2*NV+1, 60), ...
     'OutputFcn', @live_progress, ...      % <-- 실시간 진행
     'PlotFcn', [], ...
-    'CheckpointFile', 'BO_asym_v5_ckpt.mat', ...
+    'CheckpointFile', 'BO_asym_v6_ckpt.mat', ...
     'Display', 'iter');
 
 fprintf('\n######## surrogateopt 시작: %d DOF, target θ∈[%d,%d], φ창=%d° ########\n', ...
@@ -95,7 +102,7 @@ e = nan(1, N_FINAL_REP);
 for rrep = 1:N_FINAL_REP, e(rrep) = simulate_metric(xBest); end
 bestEQE = mean(e,'omitnan');  bestStd = std(e,'omitnan');
 bd = objFcn_regionPower(xBest);
-save('BO_asym_v5_result.mat', 'xBest','bestEQE','bestStd','bd','varNames','lb','ub', ...
+save('BO_asym_v6_result.mat', 'xBest','bestEQE','bestStd','bd','varNames','lb','ub', ...
     'NRBF','NCUT','TH_LO','TH_HI','PHI_W','outS','OPT_HIST');
 fprintf('\n######## Done ########\n');
 fprintf('  EQE_region(절대) = %.5g ± %.2g (surrogate fBest=%.5g)\n', bestEQE, bestStd, -fBest);
@@ -191,10 +198,11 @@ dETL     = point(S+1);  dHTL = point(S+2);  dAg = point(S+3);
 stretchZ = point(S+4);
 decX_frac= point(S+5);  decY_frac = point(S+6);
 rx_pat   = point(S+7);  ry_pat    = point(S+8);
+d_sub    = point(S+9);            % 기판두께 변수 (v6)
 DecenterX = decX_frac * rx_pat;   % 편심 = 셀 대비 비율 -> 항상 셀 안
 DecenterY = decY_frac * ry_pat;
 
-d_sub=1.3; r_OLED=1; Lensheight=0.01;
+r_OLED=1; Lensheight=0.01;   % d_sub 는 변수(위에서 언팩)
 wavelength_start=450; wavelength_end=750; n=10;
 if isempty(ray_nums_current), ray_nums=50000; else, ray_nums=ray_nums_current; end
 
