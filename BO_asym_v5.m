@@ -55,7 +55,16 @@ LAST_METRICS = struct('phiC',NaN,'contrast',NaN,'draft',NaN);  % live 표시용
 SUMMARY_EVERY = 10;                    % N 평가마다 요약 출력
 
 RAY_SEARCH  = 20000;   RAY_FINAL = 100000;   N_FINAL_REP = 3;
-MAXEVAL     = 600;     % 고DOF -> 넉넉히(시뮬 시간 보고 조절). Checkpoint 로 재개 가능.
+MAXEVAL     = 600;     % 60변수엔 빠듯(권장 1200~3000). 아래 RESUME 로 이어서 연장 가능.
+% [횟수 늘리는 법]
+%  (1) 이어달리기: 1차 run 종료 후 MAXEVAL 을 더 크게(예: 1500 - "누적 총횟수"임)
+%      바꾸고 RESUME_FROM_CKPT=true 로 재실행 -> checkpoint 에서 이어서 최적화.
+%      (live 카운터가 이전 횟수부터 이어짐. 목적함수가 이 스크립트 안에 있으므로
+%       반드시 "같은 스크립트를 다시 실행"하는 방식으로 재개할 것.)
+%  (2) 평가당 비용 절감(횟수 키우려면 사실상 필수):
+%      n=10 -> 30 (파장 31->11개, ~3배 빠름) + RAY_SEARCH 20000 -> 10000 (~2배)
+%      => ~6배. 스펙트럼/ray 정밀도는 최종 고정밀 검증(RAY_FINAL, n 원복)에서 보상.
+RESUME_FROM_CKPT = false;   % true 면 v5_ckpt 에서 이어서 (MAXEVAL 은 누적 총횟수)
 
 %% ===== 변수 (형상 4*NRBF + 3*NCUT + 5) =====
 shapeNames = {};  lbS = [];  ubS = [];
@@ -87,7 +96,13 @@ optsSurr = optimoptions('surrogateopt', ...
 
 fprintf('\n######## surrogateopt 시작: %d DOF, target θ∈[%d,%d], φ창=%d° ########\n', ...
     NV, TH_LO, TH_HI, PHI_W);
-[xBest, fBest, exitflag, outS] = surrogateopt(@surr_objective, lb, ub, optsSurr); %#ok<ASGLU>
+ckptFile = 'BO_asym_v5_ckpt.mat';
+if RESUME_FROM_CKPT && isfile(ckptFile)
+    fprintf('[Resume] %s 에서 이어서 최적화 (MAXEVAL=%d 은 누적 총횟수)\n', ckptFile, MAXEVAL);
+    [xBest, fBest, exitflag, outS] = surrogateopt(ckptFile, optsSurr); %#ok<ASGLU>
+else
+    [xBest, fBest, exitflag, outS] = surrogateopt(@surr_objective, lb, ub, optsSurr); %#ok<ASGLU>
+end
 
 %% ===== 최종 고정밀 검증 =====
 ray_nums_current = RAY_FINAL;
