@@ -7,6 +7,8 @@
 %       Al / ETL / EML(B3) / TCTA_B3 / TCTA / TAPC(HTL) / ITO(150nm) / DBR / 유리(1.51).
 %   - Ag 두께 최적화 변수 dAg 를 변수 목록에서 완전히 제거(인덱스 재정렬).
 %   - useThinAgContact / tAgContact 제거. ITO 두께는 tITO=150nm 로 고정.
+%   - DBR 층 두께를 최적화 변수화: dbrHi/dbrLo (고/저굴절 층, 모든 pair 공통).
+%       기존 quarter-wave 고정 -> [30,120]/[50,180]nm 범위에서 유연하게 최적화.
 %
 %  [v5->v6(DBR) 배경]
 %   - v5: 소자구조 ITO -> Ag(l_Ag_McPeak). v6: Ag 전극 + 하부 DBR 도입.
@@ -20,7 +22,8 @@
 %       (min(H, 기울어진 평면) -> 날카로운 비대칭 단면). 기본 Nrbf=10, Ncut=4
 %       -> 형상 4*10 + 3*4 = 52 DOF. "돔에서 거기서 거기" 탈피.
 %
-%  [변수] 형상(4*Nrbf+3*Ncut) + 4개(dETL,dHTL,stretchZ,Decenter)  % <-- dAg 제거
+%  [변수] 형상(4*Nrbf+3*Ncut) + 6개(dETL,dHTL,stretchZ,Decenter) + DBR 2개(dbrHi,dbrLo)
+%        % <-- dAg 제거, DBR 층두께(dbrHi/dbrLo) 최적화 변수 추가
 %  [목적함수] phi 40도 창(자동검출) 안, theta[40,60] 로 몰리는 EQE(파워) 절대값.
 %
 %  ================= @@CONFIRM =================
@@ -68,11 +71,14 @@ for i = 1:NCUT   % 절단면: z0(높이), m(기울기), phi0(방향)
     shapeNames = [shapeNames, {sprintf('cz_%d',i),sprintf('cm_%d',i),sprintf('cphi_%d',i)}]; %#ok<AGROW>
     lbS = [lbS, 0.20, 0.0, 0.0];  ubS = [ubS, 1.40, 1.6, 2*pi]; %#ok<AGROW>
 end
-varNames = [shapeNames, {'dETL','dHTL','stretchZ','decX_frac','decY_frac','rx_pat','ry_pat'}];
-lb = [lbS,  10,  10,  0.1, 0.0, -0.5,  2,  2];
-ub = [ubS, 150, 150,  3.0, 0.5,  0.5, 25, 25];
+% dbrHi/dbrLo : DBR 고굴절/저굴절 층 두께 [nm]. 모든 pair 공통(주기형).
+%   quarter-wave 기준값: dHi=600/(4*2.35)=63.8nm, dLo=600/(4*1.46)=102.7nm
+%   -> 그 주변으로 넉넉히 열어 최적화가 중심파장/대역폭을 조정 가능.
+varNames = [shapeNames, {'dETL','dHTL','stretchZ','decX_frac','decY_frac','rx_pat','ry_pat','dbrHi','dbrLo'}];
+lb = [lbS,  10,  10,  0.1, 0.0, -0.5,  2,  2,  30,  50];
+ub = [ubS, 150, 150,  3.0, 0.5,  0.5, 25, 25, 120, 180];
 NV = numel(lb);   S_DIM = 4*NRBF + 3*NCUT;
-fprintf('총 변수 = %d (형상 %d | + dETL,dHTL,stretchZ,decX,decY,rx_pat,ry_pat)\n', ...
+fprintf('총 변수 = %d (형상 %d | + dETL,dHTL,stretchZ,decX,decY,rx_pat,ry_pat,dbrHi,dbrLo)\n', ...
     NV, S_DIM);
 
 %% ===== surrogateopt 실행 (실시간 진행표시) =====
@@ -192,6 +198,7 @@ dETL     = point(S+1);  dHTL = point(S+2);        % <-- dAg 제거로 인덱스 
 stretchZ = point(S+3);
 decX_frac= point(S+4);  decY_frac = point(S+5);
 rx_pat   = point(S+6);  ry_pat    = point(S+7);
+dbrHi    = point(S+8);  dbrLo     = point(S+9);   % DBR 고/저굴절 층 두께 [nm]
 DecenterX = decX_frac * rx_pat;   % 편심 = 셀 대비 비율 -> 항상 셀 안
 DecenterY = decY_frac * ry_pat;
 
@@ -246,11 +253,11 @@ nLo   = 1.46;         % 저굴절 (SiO2). material.l_SiO2
 Ndbr  = 4;            % DBR pair 수 (2~6 sweep 권장; 많을수록 고반사=고방향성=고손실민감)
 tITO  = 150;          % ITO 전극 두께 [nm] (고정)  <-- Ag 제거, ITO 단독 사용
 
-%% ----- DBR 층 배열 만들기 (quarter-wave) -----
-dHi = lam0/(4*nHi);   dLo = lam0/(4*nLo);          % 층 두께 [nm]
+%% ----- DBR 층 배열 만들기 (두께는 최적화 변수 dbrHi/dbrLo) -----
+dHi_qw = lam0/(4*nHi);   dLo_qw = lam0/(4*nLo);    % quarter-wave 기준값(참고용)
 colHi = nHi*ones(401,1);  colLo = nLo*ones(401,1); % 무손실(k=0), 등방(no=ne)
 dbr_cols = repmat([colHi colLo], 1, Ndbr);         % 401 x (2*Ndbr)
-dbr_th   = repmat([dHi   dLo  ], 1, Ndbr);         % 1 x (2*Ndbr)
+dbr_th   = repmat([dbrHi dbrLo], 1, Ndbr);         % 1 x (2*Ndbr) <-- 변수로 최적화
 
 % --- 전극: Ag 제거, ITO 150nm 단독 (등방 no=ne) ---
 % @@CONFIRM nk_JH_total.mat 의 material 구조체에 ITO 필드명 확인 (l_ITO_SNU_temp)
@@ -346,8 +353,8 @@ output=struct('EQE_region',PWin,'EQE_total',EQE_total,'phiC',phiC, ...
     'contrast',contrast,'thBand',[TH_LO TH_HI],'phiWidth',PHI_W, ...
     'maxDraft',maxDraft,'loadFailed',loadFailed);
 LAST_METRICS = struct('phiC',phiC,'contrast',contrast,'draft',maxDraft);   % live 표시용
-fprintf('[obj] EQEreg=%.5g | EQEtot=%.5g | φc=%+.0f° | ctr=%.2f | drft=%.0f° | ITO=%.0fnm | cell=%.1fx%.1f dec=(%.2f,%.2f)%s\n', ...
-    PWin, EQE_total, phiC, contrast, maxDraft, ito_th, rx_pat, ry_pat, DecenterX, DecenterY, ternary(loadFailed,' [LOAD FAIL]',''));
+fprintf('[obj] EQEreg=%.5g | EQEtot=%.5g | φc=%+.0f° | ctr=%.2f | drft=%.0f° | ITO=%.0fnm | DBR=%.0f/%.0fnm | cell=%.1fx%.1f dec=(%.2f,%.2f)%s\n', ...
+    PWin, EQE_total, phiC, contrast, maxDraft, ito_th, dbrHi, dbrLo, rx_pat, ry_pat, DecenterX, DecenterY, ternary(loadFailed,' [LOAD FAIL]',''));
 
 List=ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');  Key=ltml.LTListByName(lt,List,'R_Al');
 List=ltml.LTDbList(lt,Key,'USER_COATING_AMPLITUDE_ZONE');  Key=ltml.LTListNext(lt,List);
