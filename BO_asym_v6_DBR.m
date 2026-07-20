@@ -9,6 +9,7 @@
 %   - useThinAgContact / tAgContact 제거. ITO 두께는 tITO=150nm 로 고정.
 %   - DBR 층 두께를 최적화 변수화: dbrHi/dbrLo (고/저굴절 층, 모든 pair 공통).
 %       기존 quarter-wave 고정 -> [30,120]/[50,180]nm 범위에서 유연하게 최적화.
+%   - DBR pair 수도 최적화 변수화: nDBR (정수 2~10, surrogateopt intcon).
 %
 %  [v5->v6(DBR) 배경]
 %   - v5: 소자구조 ITO -> Ag(l_Ag_McPeak). v6: Ag 전극 + 하부 DBR 도입.
@@ -22,8 +23,8 @@
 %       (min(H, 기울어진 평면) -> 날카로운 비대칭 단면). 기본 Nrbf=10, Ncut=4
 %       -> 형상 4*10 + 3*4 = 52 DOF. "돔에서 거기서 거기" 탈피.
 %
-%  [변수] 형상(4*Nrbf+3*Ncut) + 6개(dETL,dHTL,stretchZ,Decenter) + DBR 2개(dbrHi,dbrLo)
-%        % <-- dAg 제거, DBR 층두께(dbrHi/dbrLo) 최적화 변수 추가
+%  [변수] 형상(4*Nrbf+3*Ncut) + 6개(dETL,dHTL,stretchZ,Decenter) + DBR 3개(dbrHi,dbrLo,nDBR)
+%        % <-- dAg 제거, DBR 층두께(dbrHi/dbrLo)+pair수(nDBR,정수) 최적화 변수 추가
 %  [목적함수] phi 40도 창(자동검출) 안, theta[40,60] 로 몰리는 EQE(파워) 절대값.
 %
 %  ================= @@CONFIRM =================
@@ -74,11 +75,13 @@ end
 % dbrHi/dbrLo : DBR 고굴절/저굴절 층 두께 [nm]. 모든 pair 공통(주기형).
 %   quarter-wave 기준값: dHi=600/(4*2.35)=63.8nm, dLo=600/(4*1.46)=102.7nm
 %   -> 그 주변으로 넉넉히 열어 최적화가 중심파장/대역폭을 조정 가능.
-varNames = [shapeNames, {'dETL','dHTL','stretchZ','decX_frac','decY_frac','rx_pat','ry_pat','dbrHi','dbrLo'}];
-lb = [lbS,  10,  10,  0.1, 0.0, -0.5,  2,  2,  30,  50];
-ub = [ubS, 150, 150,  3.0, 0.5,  0.5, 25, 25, 120, 180];
+% nDBR : DBR pair 수(정수, 2~10). surrogateopt intcon 으로 정수 처리.
+varNames = [shapeNames, {'dETL','dHTL','stretchZ','decX_frac','decY_frac','rx_pat','ry_pat','dbrHi','dbrLo','nDBR'}];
+lb = [lbS,  10,  10,  0.1, 0.0, -0.5,  2,  2,  30,  50,  2];
+ub = [ubS, 150, 150,  3.0, 0.5,  0.5, 25, 25, 120, 180, 10];
 NV = numel(lb);   S_DIM = 4*NRBF + 3*NCUT;
-fprintf('총 변수 = %d (형상 %d | + dETL,dHTL,stretchZ,decX,decY,rx_pat,ry_pat,dbrHi,dbrLo)\n', ...
+intcon = NV;   % 마지막 변수(nDBR)만 정수 제약
+fprintf('총 변수 = %d (형상 %d | + dETL,dHTL,stretchZ,decX,decY,rx_pat,ry_pat,dbrHi,dbrLo,nDBR)\n', ...
     NV, S_DIM);
 
 %% ===== surrogateopt 실행 (실시간 진행표시) =====
@@ -94,7 +97,7 @@ optsSurr = optimoptions('surrogateopt', ...
 
 fprintf('\n######## surrogateopt 시작: %d DOF, target θ∈[%d,%d], φ창=%d° ########\n', ...
     NV, TH_LO, TH_HI, PHI_W);
-[xBest, fBest, exitflag, outS] = surrogateopt(@surr_objective, lb, ub, optsSurr); %#ok<ASGLU>
+[xBest, fBest, exitflag, outS] = surrogateopt(@surr_objective, lb, ub, intcon, optsSurr); %#ok<ASGLU>
 
 %% ===== 최종 고정밀 검증 =====
 ray_nums_current = RAY_FINAL;
@@ -199,6 +202,8 @@ stretchZ = point(S+3);
 decX_frac= point(S+4);  decY_frac = point(S+5);
 rx_pat   = point(S+6);  ry_pat    = point(S+7);
 dbrHi    = point(S+8);  dbrLo     = point(S+9);   % DBR 고/저굴절 층 두께 [nm]
+Ndbr     = round(point(S+10));                    % DBR pair 수(정수)
+Ndbr     = min(max(Ndbr,2),10);                   % 안전 클램프 [2,10]
 DecenterX = decX_frac * rx_pat;   % 편심 = 셀 대비 비율 -> 항상 셀 안
 DecenterY = decY_frac * ry_pat;
 
@@ -250,7 +255,7 @@ bottom_air_refractive_index=ones(wavelength_num,1);
 lam0  = 600;          % DBR 중심파장 [nm] (오렌지 이미터 피크 근처로)
 nHi   = 2.35;         % 고굴절 (TiO2). 실제 데이터 있으면 material.l_TiO2 로 교체
 nLo   = 1.46;         % 저굴절 (SiO2). material.l_SiO2
-Ndbr  = 4;            % DBR pair 수 (2~6 sweep 권장; 많을수록 고반사=고방향성=고손실민감)
+% Ndbr(DBR pair 수)는 최적화 변수 nDBR 에서 위에서 이미 설정됨(정수 2~10).
 tITO  = 150;          % ITO 전극 두께 [nm] (고정)  <-- Ag 제거, ITO 단독 사용
 
 %% ----- DBR 층 배열 만들기 (두께는 최적화 변수 dbrHi/dbrLo) -----
@@ -353,8 +358,8 @@ output=struct('EQE_region',PWin,'EQE_total',EQE_total,'phiC',phiC, ...
     'contrast',contrast,'thBand',[TH_LO TH_HI],'phiWidth',PHI_W, ...
     'maxDraft',maxDraft,'loadFailed',loadFailed);
 LAST_METRICS = struct('phiC',phiC,'contrast',contrast,'draft',maxDraft);   % live 표시용
-fprintf('[obj] EQEreg=%.5g | EQEtot=%.5g | φc=%+.0f° | ctr=%.2f | drft=%.0f° | ITO=%.0fnm | DBR=%.0f/%.0fnm | cell=%.1fx%.1f dec=(%.2f,%.2f)%s\n', ...
-    PWin, EQE_total, phiC, contrast, maxDraft, ito_th, dbrHi, dbrLo, rx_pat, ry_pat, DecenterX, DecenterY, ternary(loadFailed,' [LOAD FAIL]',''));
+fprintf('[obj] EQEreg=%.5g | EQEtot=%.5g | φc=%+.0f° | ctr=%.2f | drft=%.0f° | ITO=%.0fnm | DBR=%dx%.0f/%.0fnm | cell=%.1fx%.1f dec=(%.2f,%.2f)%s\n', ...
+    PWin, EQE_total, phiC, contrast, maxDraft, ito_th, Ndbr, dbrHi, dbrLo, rx_pat, ry_pat, DecenterX, DecenterY, ternary(loadFailed,' [LOAD FAIL]',''));
 
 List=ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');  Key=ltml.LTListByName(lt,List,'R_Al');
 List=ltml.LTDbList(lt,Key,'USER_COATING_AMPLITUDE_ZONE');  Key=ltml.LTListNext(lt,List);
