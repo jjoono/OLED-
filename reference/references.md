@@ -52,6 +52,25 @@
    **닫힌 achievable region**으로 통합하고, **기하/손실을 분리**하고, **제작으로 봉투를 검증**한
    선행은 없음.
 
+## Reciprocity / Generality (기하 절반의 보편성 근거)
+
+- U. Rau, "Reciprocity relation between photovoltaic quantum efficiency and
+  electroluminescent emission of solar cells," *Phys. Rev. B* 76, 085303 (2007).
+  — 준평형에서 EL 방출 ↔ 광전 흡수(EQE)의 상반성. 우리 "방향성 봉투가 방출=흡수 동형"의
+  일반화 Kirchhoff 근거. https://doi.org/10.1103/PhysRevB.76.085303
+- E. Yablonovitch, "Statistical ray optics," *J. Opt. Soc. Am.* 72, 899 (1982).
+  — 방출↔흡수를 detailed balance로 연결, 4n²/2n², 손실이 유한 천장을 만든다.
+  https://opg.optica.org/josa/abstract.cfm?uri=josa-72-7-899
+- 점검 결과(요지): **동형** = 각도 재분배/étendue/zero-mean-slope 봉투(방출=흡수 acceptance).
+  **비동형** = 총효율 천장(useful 채널이 탈출 vs 활성층으로 다름), 스펙트럼 적분 최적, 동작점.
+
+## Foundational (정독)
+
+- Yablonovitch 1982 (위) — 효율천장=손실 소관, 재활용, 4n².
+- "Nonimaging optics: a tutorial," *Adv. Opt. Photon.* 10, 484 (2018). — étendue 보존,
+  brightness theorem, sine-law 집광한계 (방향성 상한의 정석 언어).
+  https://opg.optica.org/aop/fulltext.cfm?uri=aop-10-2-484&id=389885
+
 ## 메타표면은 실제로 조향됨 (스코핑 가드레일 근거)
 
 - "Enhanced and directional electroluminescence from MicroLEDs using metallic or dielectric
