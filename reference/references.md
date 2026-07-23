@@ -29,6 +29,29 @@
 - → 이들은 "개별 트레이드오프는 이미 알려짐"의 근거. 통합 achievable-region/possibility 지도는 미발견
   (그래서 "아무도 없음" 대신 "통합·실험검증된 바 없음"으로 서술).
 
+## Claim 2 심화 — 트레이드오프/한계 선행 (차별화 문단 근거)
+
+이미 발표된 "조각들" (우리는 이것들을 통합·손실분리·실험검증으로 넘어섬):
+- MLA는 escape cone **밖** 광을 추출하되 cone **안** 추출은 줄고, back-surface **재활용(다중반사)**으로 보상
+  — "Analysis of light out-coupling from microlens array," *Opt. Commun.* (2011).
+  https://www.sciencedirect.com/science/article/abs/pii/S0030401811006511
+- MLA-OLED 휘도효율 평가 기법(기초): *Opt. Express* 12, 5777 (2004).
+  https://opg.optica.org/oe/fulltext.cfm?uri=oe-12-23-5777&id=81744
+- 효율 ↔ **이미지 blur(공간)** 트레이드오프 (각도 조향 아님): MLA-film 연구.
+  https://www.tandfonline.com/doi/full/10.1080/15980316.2018.1531073
+- 방향성 ↔ 총효율 트레이드오프, 충전물질에 따라 opening-angle 최적 이동
+  — micro-Horn collimator µLED, arXiv:2412.14027. https://arxiv.org/html/2412.14027
+  (단, collimator/능동집속 구조 = 주기 굴절렌즈 클래스 밖)
+- 회절/공진 기반 방향성 OLED (다른 클래스): *Adv. Photonics Res.* (2023).
+  https://advanced.onlinelibrary.wiley.com/doi/10.1002/adpr.202200143
+- 메타표면 phosphor µLED 방향성 (다른 클래스): *ACS Nano* (2024).
+  https://pubs.acs.org/doi/10.1021/acsnano.4c13472
+
+→ 차별화: 위는 (a) 효율, (b) 효율↔공간blur, (c) collimator/메타표면의 방향성↔효율을
+   *각각* 다룸. **주기 굴절렌즈 어레이 × 자발광 확장광원**에 대해 효율×방향성을 하나의
+   **닫힌 achievable region**으로 통합하고, **기하/손실을 분리**하고, **제작으로 봉투를 검증**한
+   선행은 없음.
+
 ## 메타표면은 실제로 조향됨 (스코핑 가드레일 근거)
 
 - "Enhanced and directional electroluminescence from MicroLEDs using metallic or dielectric
