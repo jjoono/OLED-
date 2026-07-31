@@ -52,6 +52,31 @@
    **닫힌 achievable region**으로 통합하고, **기하/손실을 분리**하고, **제작으로 봉투를 검증**한
    선행은 없음.
 
+## 각도선택 필터 + 광재활용 (⚠ 선행 확정 — "제안" 금지, "검증"으로만 사용)
+
+우리 Fig3(b)(c) 계산의 대상 구조는 **이미 알려진 개념**이다. 새 플랫폼 제안으로
+쓰면 즉시 선행에 걸린다. 반드시 "우리 이론이 이 알려진 거동을 예측/설명한다"는
+**검증 재료**로만 배치할 것.
+
+- Buhl et al., "Resonance-Based Directional Light Emission from OLEDs,"
+  *Adv. Photonics Res.* (2023). — **핵심**: DBR을 입사각 필터로 쓰면 저각 방출을
+  억제하지만 "light interacts more often with absorbing materials inside the device"
+  로 손실이 커진다고 명시. 우리가 계산한 트레이드오프가 이미 서술돼 있음.
+  https://advanced.onlinelibrary.wiley.com/doi/10.1002/adpr.202200143
+- "Using angle-selective optical film to enhance the light extraction of a thin-film
+  encapsulated 3D reflective pixel for OLED displays" (2022). — OLED에 각도선택 필름
+  직접 적용. https://pubmed.ncbi.nlm.nih.gov/36558597/
+- "Broadband Angular Selectivity of Light at the Nanoscale," arXiv:1512.02761. —
+  각도선택성 + photon recycling 리뷰. https://arxiv.org/pdf/1512.02761
+- "Methods and apparatus for broadband angular selectivity" (US 10073191). —
+  각도선택 필터 = TiO2/SiO2 다층막 정의까지 동일.
+  https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/10073191
+- "High efficient OLED displays ... air-gapped bridges on quantum dot patterns for
+  optical recycling," *Sci. Rep.* 7, 43063 (2017). — OLED 광재활용 실측 이득(적색 58.2%).
+  https://www.nature.com/articles/srep43063
+- LCD 백라이트 BEF/DBEF: off-axis 광을 저손실 캐비티로 되돌려 재활용 — 동일 원리의
+  상용화 선례(정면휘도 ~1.6x).
+
 ## Reciprocity / Generality (기하 절반의 보편성 근거)
 
 - U. Rau, "Reciprocity relation between photovoltaic quantum efficiency and
