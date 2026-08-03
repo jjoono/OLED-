@@ -474,6 +474,14 @@ def main(a_hatcn=15.0):
         ("hatcn_ml_ag_bridge", ag_on_hatcn(ml, "bridge"), "GEO_OPT", True, frozen_sub,
          "Ag at the bridge site -- diffusion transition-state candidate"),
     ]
+    # Isolated Ag atom in the SAME cell -- the E_b reference. Using the same cell
+    # and grid makes most of the basis-set and grid error cancel in
+    #     E_b = E(slab) + E(Ag) - E(slab+Ag)
+    ag = Atoms("Ag", positions=[[0.0, 0.0, ml.get_cell()[2, 2] / 2]],
+               cell=ml.get_cell(), pbc=[True, True, True])
+    jobs.append(("ag_atom", ag, "ENERGY_FORCE", True, None,
+                 "isolated Ag atom in the HATCN cell (E_b reference)"))
+
     lif = lif_slab()
     jobs += [
         ("lif001", lif, "ENERGY_FORCE", False, None,
@@ -503,6 +511,31 @@ def main(a_hatcn=15.0):
         ase_write(os.path.join(d, f"image_{i:02d}.xyz"), im)
     ase_write(os.path.join(d, "band.xyz"), imgs)
     built.append(("hatcn_neb", len(ini), "7-image CI-NEB starting band"))
+
+    # Rigid distance scan of Ag along the C-N axis, mirroring the cluster
+    # protocol (scripts/05,06): the adatom height is the one coordinate that
+    # matters for E_b, and scanning it is far cheaper than a full GEO_OPT.
+    d = os.path.join(OUT, "hatcn_ag_scan")
+    os.makedirs(d, exist_ok=True)
+    base = ag_on_hatcn(ml, "nitrile")
+    p_ag = base.get_positions()[-1]
+    p_all = base.get_positions()[:-1]
+    cen = p_all[:, :2].mean(axis=0)
+    ns = [i for i, s in enumerate(base.get_chemical_symbols()[:-1]) if s == "N"]
+    i_n = max(ns, key=lambda k: np.linalg.norm(p_all[k, :2] - cen))
+    axis = p_ag - p_all[i_n]
+    r0 = np.linalg.norm(axis)
+    axis = axis / r0
+    for r in (2.0, 2.2, 2.4, 2.6, 3.0, 3.5):
+        at = base.copy()
+        pos = at.get_positions()
+        pos[-1] = p_all[i_n] + r * axis
+        at.set_positions(pos)
+        nm = f"hatcn_ag_r{r:.1f}".replace(".", "p")
+        ase_write(os.path.join(d, f"{nm}.xyz"), at)
+        write_cp2k(at, nm, d, run_type="ENERGY_FORCE", uks=True,
+                   title=f"Ag on HATCN nitrile, Ag-N = {r:.1f} A (rigid scan)")
+    built.append(("hatcn_ag_scan", len(base), "Ag-N rigid scan, 6 points"))
 
     # convergence-test inputs: cutoff scan on the cheap system
     d = os.path.join(OUT, "cutoff_scan")
