@@ -25,8 +25,15 @@ run() {                     # run <dir> <name>
 
 run ag_atom  ag_atom
 run hatcn_ml hatcn_ml
-for f in "$SLABS"/hatcn_ag_scan/*.inp; do
-  run hatcn_ag_scan "$(basename "${f%.inp}")"
+# far -> near; each point starts from the previous one's converged wavefunction,
+# which is what actually fixes the charge sloshing at short Ag-N distance.
+PREV=""
+for r in 3p5 3p0 2p6 2p4 2p2 2p0; do
+  n="hatcn_ag_r$r"
+  [ -n "$PREV" ] && cp -f "$SLABS/hatcn_ag_scan/$PREV-RESTART.wfn" \
+                          "$SLABS/hatcn_ag_scan/$n-RESTART.wfn" 2>/dev/null
+  run hatcn_ag_scan "$n"
+  PREV="$n"
 done
 
 echo
@@ -39,7 +46,14 @@ HA = 27.211386
 def energy(p):
     if not os.path.exists(p):
         return None
-    for line in reversed(open(p, errors="ignore").read().splitlines()):
+    # Prefer the T->0 extrapolated energy: with Fermi smearing the raw total is a
+    # free energy and carries -TS, which does not cancel in E_b between systems
+    # with different densities of states at E_F.
+    txt = open(p, errors="ignore").read().splitlines()
+    for line in reversed(txt):
+        if "extrapolated to T->0" in line:
+            return float(line.split()[-1])
+    for line in reversed(txt):
         if "Total FORCE_EVAL" in line:
             return float(line.split()[-1])
     return None

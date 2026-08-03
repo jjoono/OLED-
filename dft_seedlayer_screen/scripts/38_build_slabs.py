@@ -275,26 +275,42 @@ CP2K_TMPL = """! {title}
 """
 
 # Ag present -> partial occupations are real; smearing + diagonalisation.
+#
+# Settings tuned on hatcn_ag_r2p0, which with the textbook defaults
+# (ELECTRONIC_TEMPERATURE 300, ALPHA 0.2) did not converge at all: the residual
+# oscillated between 5e-3 and 1e-2 and the energy bounced over ~10 mHa for 128
+# iterations. That is charge sloshing -- a metal adatom on an organic layer
+# inside a large vacuum cell has near-degenerate states at E_F and a very soft
+# long-wavelength charge response.
+#
+#   ELECTRONIC_TEMPERATURE 1000 : the single biggest lever. Smooths occupations
+#       near E_F so the level ordering stops flipping between iterations. Use the
+#       "Total energy (extrapolated to T->0)" line from the output, NOT the raw
+#       total energy, or the smearing entropy leaks into E_b.
+#   ALPHA 0.05, NBUFFER 12      : damp and lengthen the Broyden history.
+#   SCF_GUESS {guess}           : the scan runs far -> near reusing the previous
+#       geometry's wavefunction, which is worth more than any mixing tweak.
 SCF_METAL = """    &SCF
-      SCF_GUESS ATOMIC
+      SCF_GUESS {guess}
       EPS_SCF 1.0E-6
-      MAX_SCF 60
+      MAX_SCF 100
       ADDED_MOS {added_mos}
       &SMEAR
         METHOD FERMI_DIRAC
-        ELECTRONIC_TEMPERATURE 300
+        ELECTRONIC_TEMPERATURE 1000
       &END SMEAR
       &DIAGONALIZATION
         ALGORITHM STANDARD
       &END DIAGONALIZATION
       &MIXING
         METHOD BROYDEN_MIXING
-        ALPHA 0.2
-        NBUFFER 8
+        ALPHA 0.05
+        BETA 1.5
+        NBUFFER 12
       &END MIXING
       &OUTER_SCF
         EPS_SCF 1.0E-6
-        MAX_SCF 10
+        MAX_SCF 20
       &END OUTER_SCF
     &END SCF
 """
@@ -347,7 +363,7 @@ MOTION_GEOOPT = """&MOTION
 
 def write_cp2k(at, name, out_dir, title="", run_type="ENERGY_FORCE",
                cutoff=500, rel_cutoff=60, uks=False, d3=True,
-               frozen=None, walltime=86000):
+               frozen=None, walltime=86000, guess="ATOMIC"):
     os.makedirs(out_dir, exist_ok=True)
     cell = at.get_cell()
     coord = "".join(f"      {s} {p[0]:14.8f} {p[1]:14.8f} {p[2]:14.8f}\n"
@@ -367,7 +383,8 @@ def write_cp2k(at, name, out_dir, title="", run_type="ENERGY_FORCE",
         pseudo=os.path.basename(PSEUDO_FILE) if PSEUDO_FILE else "GTH_POTENTIALS",
         cutoff=cutoff, rel_cutoff=rel_cutoff,
         poisson="ANALYTIC" if at.pbc[2] else "MT",
-        scf=(SCF_METAL.format(added_mos=max(40, 20 * n_ag)) if n_ag else SCF_GAP),
+        scf=(SCF_METAL.format(added_mos=max(60, 30 * n_ag), guess=guess)
+             if n_ag else SCF_GAP),
         vdw=VDW_D3 if d3 else "",
         uks="    UKS .TRUE.\n    MULTIPLICITY 2\n" if uks else "",
         A=" ".join(f"{v:12.6f}" for v in cell[0]),
@@ -526,7 +543,7 @@ def main(a_hatcn=15.0):
     axis = p_ag - p_all[i_n]
     r0 = np.linalg.norm(axis)
     axis = axis / r0
-    for r in (2.0, 2.2, 2.4, 2.6, 3.0, 3.5):
+    for r in (3.5, 3.0, 2.6, 2.4, 2.2, 2.0):      # far -> near, see SCF_METAL
         at = base.copy()
         pos = at.get_positions()
         pos[-1] = p_all[i_n] + r * axis
@@ -534,6 +551,7 @@ def main(a_hatcn=15.0):
         nm = f"hatcn_ag_r{r:.1f}".replace(".", "p")
         ase_write(os.path.join(d, f"{nm}.xyz"), at)
         write_cp2k(at, nm, d, run_type="ENERGY_FORCE", uks=True,
+                   guess="ATOMIC" if r == 3.5 else "RESTART",
                    title=f"Ag on HATCN nitrile, Ag-N = {r:.1f} A (rigid scan)")
     built.append(("hatcn_ag_scan", len(base), "Ag-N rigid scan, 6 points"))
 
