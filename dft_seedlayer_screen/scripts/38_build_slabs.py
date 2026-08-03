@@ -150,12 +150,55 @@ def ag_on_hatcn(at, site="nitrile", height=2.3):
     return at
 
 
-def lif_slab(a=4.026, layers=4, vacuum=18.0):
-    b = bulk("LiF", "rocksalt", a=a)
+def lif_slab(a=4.026, layers=2, vacuum=16.0):
+    """LiF(001), the NON-POLAR rocksalt termination.
+
+    cubic=True matters. bulk("LiF","rocksalt") returns the 2-atom PRIMITIVE fcc
+    cell, and (001) of that primitive setting cuts alternating pure-Li / pure-F
+    planes -- a Tasker type-3 polar slab with a macroscopic dipole. Its
+    electrostatic potential diverges with thickness, the SCF cannot converge
+    properly, and the energy is meaningless. (Observed directly: OT stalled at
+    1e-5 after 140 steps and landed 1.1 eV away from the diagonalisation run.)
+    The conventional cubic cell gives the checkerboard Li/F (001) planes that are
+    charge-neutral layer by layer, i.e. Tasker type 1.
+    """
+    b = bulk("LiF", "rocksalt", a=a, cubic=True)
     s = surface(b, (0, 0, 1), layers, vacuum=vacuum / 2)
     s = s.repeat((2, 2, 1))
     s.pbc = [True, True, True]
+    assert_nonpolar(s)
     return s
+
+
+def assert_nonpolar(at, tol=0.05):
+    """Guard against silently building a polar slab.
+
+    Checks that every atomic layer is charge-neutral using formal charges. A
+    layer of only cations or only anions means the (hkl) cut is Tasker type 3
+    and the slab carries a dipole -- rebuild with a different termination.
+    """
+    FORMAL = {"Li": +1, "Na": +1, "Al": +3, "Mo": +6, "Zn": +2,
+              "F": -1, "O": -2, "S": -2, "Cl": -1}
+    sym = at.get_chemical_symbols()
+    if not all(s in FORMAL for s in sym):
+        return                                   # molecular/metallic, not ionic
+    z = at.get_positions()[:, 2]
+    order = np.argsort(z)
+    layers, cur = [], [order[0]]
+    for i in order[1:]:
+        if abs(z[i] - z[cur[-1]]) < 0.3:
+            cur.append(i)
+        else:
+            layers.append(cur); cur = [i]
+    layers.append(cur)
+    bad = [k for k, lay in enumerate(layers)
+           if abs(sum(FORMAL[sym[i]] for i in lay)) > tol]
+    if bad:
+        raise ValueError(
+            f"polar slab: {len(bad)}/{len(layers)} atomic layers carry net charge "
+            f"(layer charges "
+            f"{[sum(FORMAL[sym[i]] for i in lay) for lay in layers]}). "
+            "Use the conventional cubic cell, or cut a non-polar face.")
 
 
 def ag_on_lif(slab, height=2.5):
