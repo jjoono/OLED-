@@ -52,6 +52,12 @@ def _find_cp2k_data():
         return None
 
 
+# Memory available to a single CP2K job here. The plane-wave grid, not the number
+# of atoms, is what runs out of RAM: a 15 x 15 x 22 A cell at CUTOFF 500 Ry was
+# OOM-killed twice on this 15 GB box while a 64-atom LiF slab in a small cell ran
+# fine. Keep some headroom for the rest of the process.
+MEM_BUDGET_GB = float(os.environ.get("CP2K_MEM_BUDGET_GB", 9.0))
+
 CP2K_DATA = _find_cp2k_data()
 PSEUDO_FILE = os.path.join(CP2K_DATA, "GTH_POTENTIALS") if CP2K_DATA else None
 BASIS_FILE = os.path.join(CP2K_DATA, "BASIS_MOLOPT") if CP2K_DATA else None
@@ -91,7 +97,28 @@ def read_xyz(path):
     return sym, xyz
 
 
-def hatcn_monolayer(a=15.0, vacuum=22.0):
+def grid_memory_GB(cell, cutoff_ry, spins=1, ngrids=5):
+    """Rough peak memory of the CP2K realspace/reciprocal grids.
+
+    The finest grid has n_i = L_i * sqrt(2 E_cut) / pi points (atomic units).
+    The coarser levels add ~1/(1-1/3^3) and CP2K keeps several work arrays per
+    grid, so this is a lower bound -- but it is enough to catch the case that
+    actually killed jobs here: a 15 x 15 x 22 A cell at 500 Ry needed >15 GB and
+    was OOM-killed twice.
+    """
+    L = np.linalg.norm(cell, axis=1) / 0.529177          # bohr
+    n = L * np.sqrt(2.0 * cutoff_ry / 2.0) / np.pi       # Ry -> Ha is /2
+    pts = float(np.prod(np.maximum(n, 1)))
+    per_grid = pts * 8 / 1024 ** 3                       # GB, one real array
+    raw = per_grid * ngrids * 1.5 * max(spins, 1) * 4    # work arrays + threads
+    # Calibration against the one measurement available: the HATCN cell
+    # (a = 15 A, vacuum = 22 A) at CUTOFF 500 with UKS gave raw = 5.4 GB but was
+    # OOM-killed at 15.9 GB resident. Counting only the grids underestimates by
+    # ~3x, so scale by that rather than reporting a number known to be too small.
+    return raw * 3.0
+
+
+def hatcn_monolayer(a=15.0, vacuum=18.0):
     """Flat-lying HATCN in a hexagonal 2D cell.
 
     a is the in-plane lattice constant. HATCN spans 12.0 A N-to-N, so a must
@@ -374,6 +401,10 @@ def write_cp2k(at, name, out_dir, title="", run_type="ENERGY_FORCE",
         kinds += (f"    &KIND {el}\n      BASIS_SET {b}\n"
                   f"      POTENTIAL {q}\n    &END KIND\n")
     n_ag = sum(1 for s in at.get_chemical_symbols() if s == "Ag")
+    est = grid_memory_GB(at.get_cell(), cutoff, spins=2 if uks else 1)
+    if est > MEM_BUDGET_GB:
+        print(f"  [warn] {name}: grid memory ~{est:.1f} GB > {MEM_BUDGET_GB:.0f} GB "
+              f"budget at CUTOFF {cutoff} -- lower the cutoff or shrink the cell")
     motion = ""
     if run_type == "GEO_OPT" and frozen:
         motion = MOTION_GEOOPT.format(frozen=frozen)
