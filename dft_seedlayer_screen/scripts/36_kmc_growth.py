@@ -341,12 +341,22 @@ SEEDS = {
     "TAPC":          {"E_b": 0.25, "E_d": 0.02, "src": "NEB"},
     "Liq":           {"E_b": 0.17, "E_d": None, "src": "est"},
 }
-# E_d estimated from E_b where no NEB was run. Proportional fit through the two
-# organic/oxide points that DO have NEB data: HATCN (1.03, 0.29) and AlOx (0.42,
-# 0.17). Metals (clean Al, and TAPC's flat pi surface) fall off this line and are
-# used only where their own NEB value exists.
+# E_d where no NEB was run.
+#
+# THIS IS THE WEAKEST LINK IN THE WHOLE CHAIN AND MUST NOT BE PRESENTED AS A FIT.
+# The four systems that DO have NEB barriers give E_d/E_b of
+#     HATCN 0.29/1.03 = 0.282      AlOx  0.17/0.42 = 0.405
+#     TAPC  0.02/0.25 = 0.080      Al    0.02/2.24 = 0.009
+# i.e. the ratio spans a factor of 45, and even the two organic/oxide points
+# disagree by 1.4x. There is no correlation here to fit. Using 0.28 amounts to
+# applying HATCN's own ratio to eleven other materials.
+#
+# Consequence: every percolation thickness below that is not backed by its own
+# NEB barrier inherits this assumption, and the kMC result for those materials is
+# a restatement of E_b rather than an independent prediction. Do not report those
+# rows as predictions in a paper without computing their barriers.
 ED_OVER_EB = 0.28
-ED_FIT_RANGE = (0.42, 1.03)     # outside this the estimate is an extrapolation
+ED_FIT_RANGE = (0.42, 1.03)     # outside this it is extrapolation on top of that
 
 
 def N_sat_at(R, R_anchor, N_anchor, chi=1 / 3):
