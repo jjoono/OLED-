@@ -58,6 +58,13 @@ def _find_cp2k_data():
 # fine. Keep some headroom for the rest of the process.
 MEM_BUDGET_GB = float(os.environ.get("CP2K_MEM_BUDGET_GB", 9.0))
 
+# Production plane-wave cutoff. The LiF test (scripts/40) measured what actually
+# matters: across CUTOFF 300-600 the TOTAL energy moved 0.376 eV but E_b moved
+# only 0.014 eV, because the grid-assignment offset is common to all systems that
+# share a cell and grid and cancels in the difference. 350 Ry therefore gives E_b
+# to ~0.01 eV, and unlike 500 Ry it fits in memory for the HATCN cell.
+CUTOFF_DEFAULT = 350
+
 CP2K_DATA = _find_cp2k_data()
 PSEUDO_FILE = os.path.join(CP2K_DATA, "GTH_POTENTIALS") if CP2K_DATA else None
 BASIS_FILE = os.path.join(CP2K_DATA, "BASIS_MOLOPT") if CP2K_DATA else None
@@ -389,7 +396,7 @@ MOTION_GEOOPT = """&MOTION
 
 
 def write_cp2k(at, name, out_dir, title="", run_type="ENERGY_FORCE",
-               cutoff=500, rel_cutoff=60, uks=False, d3=True,
+               cutoff=CUTOFF_DEFAULT, rel_cutoff=60, uks=False, d3=True,
                frozen=None, walltime=86000, guess="ATOMIC"):
     os.makedirs(out_dir, exist_ok=True)
     cell = at.get_cell()

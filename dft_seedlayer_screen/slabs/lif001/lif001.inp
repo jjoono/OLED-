@@ -18,7 +18,7 @@
     &END QS
     &MGRID
       ! CONVERGE THESE FIRST -- see jobs/cutoff_scan
-      CUTOFF 500
+      CUTOFF 350
       REL_CUTOFF 60
       NGRIDS 5
     &END MGRID
