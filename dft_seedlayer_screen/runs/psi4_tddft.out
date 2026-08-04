@@ -1,0 +1,203 @@
+
+Scratch directory: /tmp/
+   => Libint2 <=
+
+    Primary   basis highest AM E, G, H:  7, 6, 3
+    Auxiliary basis highest AM E, G, H:  7, 7, 4
+    Onebody   basis highest AM E, G, H:  -, -, -
+    Solid Harmonics ordering:            Gaussian
+
+*** tstart() called on vm
+*** at Tue Aug  4 15:48:08 2026
+
+   => Loading Basis Set <=
+
+    Name: DEF2-SVP
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1, 5, 14, 16                   entry N          line   110 file /root/miniforge3/envs/qc/share/psi4/basis/def2-svp.gbs 
+    atoms 2-4, 6-7, 9, 11-13, 15, 17, 19 entry C          line    90 file /root/miniforge3/envs/qc/share/psi4/basis/def2-svp.gbs 
+    atoms 8, 10, 18, 20                  entry F          line   150 file /root/miniforge3/envs/qc/share/psi4/basis/def2-svp.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              RKS Reference
+                        2 Threads,   2861 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c1
+    Full point group: C1
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+         N            3.730970000000     2.707277000000    -1.306267000000    14.003074004430
+         C            3.286179000000     1.705788000000    -0.925473000000    12.000000000000
+         C            2.761124000000     0.463797000000    -0.455087000000    12.000000000000
+         C            3.755285000000    -0.523225000000    -0.177749000000    12.000000000000
+         N            4.576887000000    -1.312196000000     0.042066000000    14.003074004430
+         C            1.428495000000     0.240103000000    -0.285871000000    12.000000000000
+         C            0.901888000000    -1.050042000000     0.201419000000    12.000000000000
+         F            1.757239000000    -2.049728000000     0.493581000000    18.998403162730
+         C           -0.413226000000    -1.270995000000     0.367818000000    12.000000000000
+         F           -0.803619000000    -2.479981000000     0.817600000000    18.998403162730
+         C           -1.428455000000    -0.239896000000     0.075613000000    12.000000000000
+         C           -2.761165000000    -0.464008000000     0.243636000000    12.000000000000
+         C           -3.755382000000     0.522726000000    -0.034526000000    12.000000000000
+         N           -4.577035000000     1.311437000000    -0.255087000000    14.003074004430
+         C           -3.286274000000    -1.706283000000     0.713210000000    12.000000000000
+         N           -3.731114000000    -2.708028000000     1.093272000000    14.003074004430
+         C           -0.901798000000     1.050506000000    -0.410939000000    12.000000000000
+         F           -1.757086000000     2.050518000000    -0.702172000000    18.998403162730
+         C            0.413316000000     1.271460000000    -0.577337000000    12.000000000000
+         F            0.803772000000     2.480770000000    -1.026192000000    18.998403162730
+
+  Running in c1 symmetry.
+
+  Rotational constants: A =      0.01961  B =      0.00832  C =      0.00585 [cm^-1]
+  Rotational constants: A =    587.91089  B =    249.27935  C =    175.38471 [MHz]
+  Nuclear repulsion = 1386.094071326162066
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 136
+  Nalpha       = 68
+  Nbeta        = 68
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-06
+  Density threshold  = 1.00e-06
+  Integral threshold = 1.00e-12
+
+  ==> Primary Basis <==
+
+  Basis Set: DEF2-SVP
+    Blend: DEF2-SVP
+    Number of shells: 120
+    Number of basis functions: 280
+    Number of Cartesian functions: 300
+    Spherical Harmonics?: true
+    Max angular momentum: 2
+
+  ==> DFT Potential <==
+
+   => LibXC <=
+
+    Version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018) (10.1016/j.softx.2017.11.002)
+
+   => Composite Functional: WB97X <= 
+
+    wB97X Hyb-GGA Exchange-Correlation Functional
+
+    J.-D. Chai and M. Head-Gordon.,  J. Chem. Phys. 128, 084106 (2008) (10.1063/1.2834918)
+
+    Deriv               =              1
+    GGA                 =           TRUE
+    Meta                =          FALSE
+
+    Exchange Hybrid     =           TRUE
+    MP2 Hybrid          =          FALSE
+
+   => Exchange-Correlation Functionals <=
+
+    1.0000   wB97X range-separated functional
+
+   => Exact (HF) Exchange <=
+
+    0.8423            HF,LR [omega = 0.3000]
+    0.1577               HF 
+
+   => LibXC Density Thresholds  <==
+
+    XC_HYB_GGA_XC_WB97X:  1.00E-14 
+
+   => Molecular Quadrature <=
+
+    Radial Scheme          =       TREUTLER
+    Pruning Scheme         =           NONE
+    Nuclear Scheme         =       TREUTLER
+
+    Blocking Scheme        =         OCTREE
+    BS radius alpha        =              1
+    Pruning alpha          =              1
+    Radial Points          =             75
+    Spherical Points       =            302
+    Total Points           =         411428
+    Total Blocks           =           2994
+    Max Points             =            256
+    Max Functions          =            212
+    Weights Tolerance      =       1.00E-15
+
+   => Loading Basis Set <=
+
+    Name: (DEF2-SVP AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1, 5, 14, 16                   entry N          line   258 file /root/miniforge3/envs/qc/share/psi4/basis/def2-universal-jkfit.gbs 
+    atoms 2-4, 6-7, 9, 11-13, 15, 17, 19 entry C          line   198 file /root/miniforge3/envs/qc/share/psi4/basis/def2-universal-jkfit.gbs 
+    atoms 8, 10, 18, 20                  entry F          line   378 file /root/miniforge3/envs/qc/share/psi4/basis/def2-universal-jkfit.gbs 
+
+  ==> Integral Setup <==
+
+  DFHelper Memory: AOs need 2.056 GiB; user supplied 2.056 GiB. 
+  SCF_SUBTYPE=INCORE selected. In-core MEM_DF algorithm will be used.
+  Using in-core AOs.
+
+  ==> MemDFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                   Yes
+    K tasked:                   Yes
+    wK tasked:                  Yes
+    Omega:                3.000E-01
+    OpenMP threads:               2
+    Memory [MiB]:              2104
+    Algorithm:                 Core
+    Schwarz Cutoff:           1E-12
+    Mask sparsity (%):      23.9056
+    Fitting Condition:        1E-10
+
+   => Auxiliary Basis Set <=
+
+  Basis Set: (DEF2-SVP AUX)
+    Blend: DEF2-UNIVERSAL-JKFIT
+    Number of shells: 500
+    Number of basis functions: 1516
+    Number of Cartesian functions: 1812
+    Spherical Harmonics?: true
+    Max angular momentum: 4
+
+  Cached 2.3% of DFT collocation blocks in 0.042 [GiB].
+
+  Minimum eigenvalue in the overlap matrix is 1.5842542005E-04.
+  Reciprocal condition number of the overlap matrix is 2.5750849917E-05.
+    Using symmetric orthogonalization.
+
+  ==> Pre-Iterations <==
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF (no occupation information).
+
+   -------------------------
+    Irrep   Nso     Nmo    
+   -------------------------
+     A        280     280 
+   -------------------------
+    Total     280     280
+   -------------------------
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
