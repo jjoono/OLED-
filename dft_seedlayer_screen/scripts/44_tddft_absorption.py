@@ -46,6 +46,12 @@ CASES = [
 FUNCTIONAL = "wb97x"        # range-separated: needed for acceptor CT states
 BASIS = "def2-svp"
 N_STATES = 12
+# TDA for every case. RPA is the better approximation but it needs a stable SCF
+# reference, and the HATCN radical anion does not have one, so a mixed run would
+# compare HATCN(TDA) against F4TCNQ(RPA) -- different levels, and the whole point
+# of this script is an internal comparison. Set FORCE_TDA=0 to use RPA where it
+# converges, which is only useful for checking how much TDA shifts things.
+FORCE_TDA = os.environ.get("FORCE_TDA", "1") == "1"
 
 
 def geometry(fname, charge, mult):
@@ -73,14 +79,35 @@ def run(tag, fname, charge, mult):
     e, wfn = psi4.energy(FUNCTIONAL, molecule=mol, return_wfn=True)
     # tdscf_excitations lives in the procrouting submodule, not at psi4 top level,
     # and it RETURNS the results rather than only stashing them on the wavefunction.
-    res = tdscf_excitations(wfn, states=N_STATES, tda=False)
+    #
+    # Full RPA needs the (A-B) matrix to be positive definite, i.e. the SCF
+    # reference must be a genuine minimum. For the HATCN radical anion it is not
+    # -- psi4 aborts with "The H2 matrix is not Positive Definite. This means the
+    # reference state is not stable." Radical anions of symmetric acceptors
+    # commonly have a lower broken-symmetry solution. TDA does not form (A-B) and
+    # survives that, so fall back to it and SAY SO, because RPA and TDA are not
+    # the same level and mixing them silently would corrupt the comparison.
+    used_tda = FORCE_TDA
+    try:
+        res = tdscf_excitations(wfn, states=N_STATES, tda=FORCE_TDA)
+    except RuntimeError as ex:
+        if "Positive Definite" not in str(ex):
+            raise
+        print("  RPA failed (unstable reference) -> retrying with TDA", flush=True)
+        psi4.core.clean()
+        mol = geometry(fname, charge, mult)
+        psi4.set_options({"stability_analysis": "follow"})
+        e, wfn = psi4.energy(FUNCTIONAL, molecule=mol, return_wfn=True)
+        res = tdscf_excitations(wfn, states=N_STATES, tda=True)
+        used_tda = True
 
     rows = []
     for i, r in enumerate(res):
         ev = float(r["EXCITATION ENERGY"]) * 27.211386
         f = float(r.get("OSCILLATOR STRENGTH (LEN)",
                         r.get("OSCILLATOR STRENGTH (VEL)", 0.0)))
-        rows.append({"state": i + 1, "eV": ev, "nm": NM_PER_EV / ev, "f": f})
+        rows.append({"state": i + 1, "eV": ev, "nm": NM_PER_EV / ev, "f": f,
+                     "tda": used_tda})
     return rows
 
 
@@ -105,12 +132,30 @@ def report(all_rows):
     print("Visible-range oscillator strength (400-700 nm), summed:")
     tot = {}
     for tag, rows in all_rows.items():
-        s = sum(r["f"] for r in rows if 400 <= r["nm"] <= 700)
-        tot[tag] = s
-        print(f"  {tag:<16}{s:>8.3f}")
+        if not rows:
+            # A case that never produced states has no absorption number. Scoring
+            # it as 0.000 would read as "transparent" and, for the HATCN anion,
+            # would have manufactured exactly the conclusion being tested.
+            tot[tag] = None
+            print(f"  {tag:<16}{'CALCULATION FAILED':>20}")
+            continue
+        v = sum(r["f"] for r in rows if 400 <= r["nm"] <= 700)
+        tot[tag] = v
+        lvl = " (TDA)" if rows[0].get("tda") else ""
+        print(f"  {tag:<16}{v:>8.3f}{lvl}")
     print("\nThe number that decides the seed question is the ANION comparison:")
-    a, b = tot.get("HATCN_anion", 0), tot.get("F4TCNQ_anion", 0)
+    a, b = tot.get("HATCN_anion"), tot.get("F4TCNQ_anion")
+    if a is None or b is None:
+        missing = [k for k in ("HATCN_anion", "F4TCNQ_anion") if tot.get(k) is None]
+        print(f"  NOT DECIDABLE -- {', '.join(missing)} did not produce a spectrum.")
+        print("  Do not read a missing calculation as zero absorption.")
+        return
     print(f"  HATCN(-)  {a:.3f}   vs   F4TCNQ(-)  {b:.3f}")
+    ta = all_rows["HATCN_anion"][0].get("tda")
+    tb = all_rows["F4TCNQ_anion"][0].get("tda")
+    if ta != tb:
+        print(f"  WARNING: different levels (HATCN TDA={ta}, F4TCNQ TDA={tb}).")
+        print("  Rerun both with tda=True before quoting this comparison.")
     if b > 2 * max(a, 1e-6):
         print("  -> F4TCNQ's anion is far more strongly coloured in the visible.")
         print("     Since Ag necessarily reduces F4TCNQ at the interface, this is an")
