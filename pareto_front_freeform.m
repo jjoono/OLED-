@@ -39,8 +39,13 @@ ltx= getltpointer(ID_swept);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
 %% ===== Multi-fidelity =====
-WAVE_N_SEARCH = 30;      % 탐색용 파장 step (453:30:753 -> K=11)
-WAVE_N_FINAL  = 10;      % 검증용 (K=31)
+% [주의] 파장 step 은 objFcn_both 안의 파장창 폭에 맞춰 정해야 한다.
+%   넓은 창(453-753, 301개): SEARCH=30 -> K=11,  FINAL=10 -> K=31
+%   좁은 창(593-603,  11개): SEARCH=10 -> K=2,   FINAL=2  -> K=6
+%   * 인덱스는 wv_list = 1:n:wavelength_num 로 생성되므로 나누어떨어지지 않아도
+%     오류는 나지 않지만, n 이 파장 개수보다 크면 K=1 이 되어 스펙트럼 정보가 사라진다.
+WAVE_N_SEARCH = 10;      % 탐색용 파장 step
+WAVE_N_FINAL  = 2;       % 검증용 파장 step
 RAY_SEARCH    = 10000;
 RAY_FINAL     = 50000;
 N_FINAL_REP   = 3;
@@ -447,8 +452,17 @@ I_white=0.5*(CPS_result.I_sub_s+CPS_result.I_sub_p);
 sin089=sind(0:89);
 P_white=I_white.*repmat(sin089,wavelength_num,1);
 weight_factor=sum(P_white,2);
-I_air_1_2=zeros(90,(wavelength_num+n-1)/n);
-for wv=1:n:wavelength_num
+% [수정] 파장 샘플 인덱스를 명시적으로 생성.
+%   기존 (wavelength_num+n-1)/n 식은 (wavelength_num-1)이 n으로 나누어떨어질 때만
+%   정수가 되어, 좁은 파장창(예: 593-603, span 10)에 n=30 을 쓰면 zeros() 에서
+%   "크기 입력값은 정수여야 합니다" 오류가 났다. 아래처럼 인덱스 벡터를 쓰면
+%   파장창과 n 의 조합에 무관하게 안전하다.
+wv_list = 1:n:wavelength_num;
+K = numel(wv_list);
+I_air_1_2 = zeros(90, K);
+Power_output = zeros(1, wavelength_num);
+for kk = 1:K
+    wv = wv_list(kk);
     fileID = fopen('C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','w');
     fprintf(fileID,'%s  %d  %d  %d  %d  %d  %d','SPHEREMESH:',1, 90, 0, 0, 360, 90);
     writematrix(flip(I_white(wv,:).'),'C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','Delimiter','tab','WriteMode','append');
@@ -475,15 +489,14 @@ for wv=1:n:wavelength_num
     for j=1:90
         I_air_1_JH(91-j,:)=ltml.LTDbGet(lt,Key,'CellValue_UI',1,91-j);
     end
-    I_air_1_2(:,(wv+n-1)/n)=smooth(I_air_1_JH);
+    I_air_1_2(:,kk)=smooth(I_air_1_JH);
 end
 
-K = (wavelength_num-1)/n + 1;
 weight_factor_2  = zeros(K,1);
 Power_output_2   = zeros(K,1);
 EQE_sub_matrix_2 = zeros(K,1);
 for k = 1:K
-    idx = n*(k-1) + 1;
+    idx = wv_list(k);
     weight_factor_2(k)  = weight_factor(idx);
     Power_output_2(k)   = Power_output(idx);
     EQE_sub_matrix_2(k) = CPS_result.EQE_sub_matrix(idx);

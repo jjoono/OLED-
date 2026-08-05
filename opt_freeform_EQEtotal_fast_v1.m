@@ -416,8 +416,15 @@ weight_factor=sum(P_white,2);
 I_white_ang=sum(P_white); %#ok<NASGU>
 wavelength_num=length(wavelength);
 
-I_air_1_2=zeros(90,(wavelength_num+n-1)/n);
-for wv=1:n:wavelength_num
+% [수정] 파장 샘플 인덱스를 명시적으로 생성 (나눗셈 의존 제거).
+%   기존 식은 (wavelength_num-1)이 n 으로 나누어떨어질 때만 정수라, 좁은 파장창에
+%   큰 n 을 쓰면 zeros() 에서 "크기 입력값은 정수여야 합니다" 오류가 났다.
+wv_list = 1:n:wavelength_num;
+K = numel(wv_list);
+I_air_1_2 = zeros(90, K);
+Power_output = zeros(1, wavelength_num);
+for kk = 1:K
+    wv = wv_list(kk);
     fileID = fopen('C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','w');
     fprintf(fileID,'%s  %d  %d  %d  %d  %d  %d','SPHEREMESH:',1, 90, 0, 0, 360, 90);
     writematrix(flip(I_white(wv,:).'),'C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','Delimiter','tab','WriteMode','append');
@@ -449,15 +456,14 @@ for wv=1:n:wavelength_num
     for j=1:90
         I_air_1_JH(91-j,:)=ltml.LTDbGet(lt,Key,'CellValue_UI',1,91-j);
     end
-    I_air_1_2(:,(wv+n-1)/n)=smooth(I_air_1_JH);
+    I_air_1_2(:,kk)=smooth(I_air_1_JH);
 end
 
-K = (wavelength_num-1)/n + 1;
 weight_factor_2  = zeros(K,1);
 Power_output_2   = zeros(K,1);
 EQE_sub_matrix_2 = zeros(K,1);
 for k = 1:K
-    idx = n*(k-1) + 1;
+    idx = wv_list(k);
     weight_factor_2(k)  = weight_factor(idx);
     Power_output_2(k)   = Power_output(idx);
     EQE_sub_matrix_2(k) = CPS_result.EQE_sub_matrix(idx);
