@@ -1,0 +1,60 @@
+{
+  "cell": {
+    "a_A": 15.6,
+    "b_A": 8.95,
+    "vacuum_A": 18.0,
+    "nn_contact_at_2p2_A": 3.06,
+    "note": "contact matched to HATCN monolayer"
+  },
+  "settings": {
+    "code": "CP2K 2026.2",
+    "functional": "PBE-D3(BJ)",
+    "basis": "DZVP-MOLOPT/GTH-PBE",
+    "cutoff_Ry": 350,
+    "rel_cutoff": 60,
+    "smearing_K": 1000,
+    "energy": "T->0 extrapolated"
+  },
+  "E_monolayer_Ha": -204.80639927529816,
+  "E_Ag_atom_Ha": -36.93638637490866,
+  "scan": {
+    "3.5": {
+      "E_Ha": -241.7786591300404,
+      "E_b_eV": 0.9761671069148464
+    },
+    "3.0": {
+      "E_Ha": -241.78326633053138,
+      "E_b_eV": 1.1015354178539138
+    },
+    "2.6": {
+      "E_Ha": -241.79064239137904,
+      "E_b_eV": 1.3022482567391276
+    },
+    "2.4": {
+      "E_Ha": -241.79560644960375,
+      "E_b_eV": 1.4373271612183227
+    },
+    "2.2": {
+      "E_Ha": -241.79997618614306,
+      "E_b_eV": 1.5562337489075995
+    },
+    "2.0": {
+      "E_Ha": -241.7977512702462,
+      "E_b_eV": 1.4956907036209768
+    }
+  },
+  "E_b_max_eV": 1.5562337489075995,
+  "r_min_A": 2.2,
+  "comparison": {
+    "HATCN_monolayer_eV": 1.346,
+    "HATCN_cluster_eV": 1.03,
+    "F4TCNQ_cluster_eV": 0.97,
+    "verdict": "F4TCNQ overtakes HATCN by 0.21 eV in the monolayer; the cluster ranking is reversed"
+  },
+  "control_stretched_lattice": {
+    "E_ml_big_Ha": -204.80780681976591,
+    "E_ag_big_Ha": -36.93631137631167,
+    "E_cx_big_Ha": null,
+    "status": "cx_big rerunning; neighbour contribution pending"
+  }
+}

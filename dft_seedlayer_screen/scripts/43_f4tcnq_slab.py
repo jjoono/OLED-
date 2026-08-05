@@ -228,8 +228,12 @@ def report():
     else:
         print(f"  HATCN stays ahead by {1.346-eb_max:.3f} eV in the monolayer, so the")
         print("  cluster ranking survives inside the nitrile family.")
-    print("  NOTE: absorption decides this too -- F4TCNQ's radical anion is")
-    print("  strongly coloured (see scripts/44). Anchoring is not the only axis.")
+    print("  NOTE: absorption does NOT settle this. scripts/44 (TDA, wB97X) gives")
+    print("  visible oscillator strength 0.197 for the F4TCNQ anion but 0.299 for")
+    print("  the HATCN anion -- per molecule HATCN is the more coloured of the two.")
+    print("  Both neutrals are transparent. The device-level answer depends on how")
+    print("  much anion forms, which favours HATCN only because its electron")
+    print("  affinity is lower, and that has not been computed here.")
 
 
 if __name__ == "__main__":
