@@ -54,7 +54,10 @@
   "control_stretched_lattice": {
     "E_ml_big_Ha": -204.80780681976591,
     "E_ag_big_Ha": -36.93631137631167,
-    "E_cx_big_Ha": null,
-    "status": "cx_big rerunning; neighbour contribution pending"
+    "E_cx_big_Ha": -241.77681618503067,
+    "E_b_eV": 0.8897575988262394,
+    "neighbour_contribution_eV": 0.6664424011737606,
+    "HATCN_neighbour_contribution_eV": 0.534,
+    "status": "complete"
   }
 }
