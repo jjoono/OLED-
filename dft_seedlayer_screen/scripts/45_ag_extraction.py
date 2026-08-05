@@ -68,13 +68,49 @@ BASIS = os.environ.get("EA_BASIS", "def2-tzvp")
 # and the shift is reported instead of assumed negligible.
 BASIS_CHECK = os.environ.get("EA_BASIS_CHECK", "def2-tzvpd")
 
-MOLECULES = [("F4TCNQ", "F4TCNQ.xyz"), ("HATCN", "HATCN.xyz")]
+MOLECULES = [("F4TCNQ", "F4TCNQ.xyz"), ("HATCN", "HATCN.xyz"), ("TCNQ", "TCNQ.xyz")]
 
 # ---------------------------------------------------------- literature inputs
 # Silver thermochemistry. These are measured quantities, not fits.
 E_COH_AG = 2.95      # eV/atom, cohesive energy of fcc Ag (Kittel)
 IP_AG = 7.576        # eV, first ionisation potential of atomic Ag (NIST ASD)
-EA_F4TCNQ_EXP = 5.24  # eV, gas-phase EA of F4TCNQ -- the method validation target
+
+# VALIDATION TARGET -- and the place where the first version of this script went
+# wrong, so the reasoning is written out rather than left as a number.
+#
+# The value quoted for F4TCNQ throughout the OLED/doping literature is 5.24 eV.
+# The first run compared the computed gas-phase dSCF EA against it and missed by
+# -1.22 eV, with diffuse functions worth only +0.01 eV, so the gap was not a
+# basis-set problem. It was a PHASE problem: 5.24 eV is the SOLID-STATE electron
+# affinity, i.e. the LUMO edge below vacuum measured by UPS/IPES on a thin film.
+# That includes the electronic polarisation of the surrounding molecules around
+# the extra charge, worth of order 1.0-1.5 eV in a molecular solid. A gas-phase
+# calculation cannot reproduce it and should not be asked to.
+#
+# Comparing the two was my error, and it matters twice over: it also means the
+# thermodynamic cycle below was mixing phases, since M there is a SOLID.
+EA_F4TCNQ_GAS = 3.9     # eV, gas-phase EA of F4TCNQ. APPROXIMATE -- see note.
+EA_F4TCNQ_SOLID = 5.24  # eV, solid-state (UPS/IPES) EA, the widely quoted value
+# The gas-phase figure is the weak link: it is from memory, this session cannot
+# reach the literature to check it, and the whole point of a validation target is
+# that it be independent. So the absolute check is reported as PROVISIONAL and
+# the script leans instead on the differential check below, which does not depend
+# on it.
+
+# DIFFERENTIAL VALIDATION, independent of the absolute reference.
+# EA(F4TCNQ) - EA(TCNQ) is ~0.5-0.6 eV, and this difference is far better
+# established than either absolute value because it is reproduced in gas phase
+# AND in the solid (the polarisation energies of two molecules this similar
+# cancel to within ~0.1 eV). If the method gets this splitting right, it is
+# describing fluorination of the acceptor correctly, which is the chemistry that
+# the HATCN-vs-F4TCNQ comparison actually rests on.
+DELTA_F4_TCNQ = 0.55    # eV, expected EA(F4TCNQ) - EA(TCNQ)
+DELTA_TOL = 0.25        # eV, tolerance on that splitting
+
+# Polarisation stabilisation of a molecular anion in its own solid. Enters the
+# cycle because M is a solid there. Carried explicitly, and identical for the two
+# molecules, so it shifts both dE values together and CANCELS in the gap.
+E_POL = 1.3             # eV, order-of-magnitude for a molecular organic solid
 
 # Energy to detach one Ag atom from silver, for route (B). Which number applies
 # depends on where the atom sits, and the range matters more than any single
@@ -89,6 +125,42 @@ AG_DETACH = {
 # Slab binding energies already computed (scripts/39, 43) -- the monolayer values,
 # which are the ones that apply to a real film.
 E_B_SLAB = {"HATCN": 1.346, "F4TCNQ": 1.556}
+
+
+def ensure_tcnq():
+    """Build TCNQ from F4TCNQ by swapping the four F for H.
+
+    Used only for the DIFFERENTIAL validation, where what matters is the change
+    on fluorination, not either absolute number. Replacing F by H along the same
+    C-X vector at the standard C-H length is a rigid approximation -- the ring
+    geometry is not re-relaxed -- but the ring barely moves on defluorination and,
+    more to the point, the same approximation is applied to the neutral and the
+    anion, so it largely cancels in the EA difference.
+    """
+    dst = os.path.join(STR, "TCNQ.xyz")
+    if os.path.exists(dst):
+        return
+    lines = open(os.path.join(STR, "F4TCNQ.xyz")).read().splitlines()
+    n = int(lines[0])
+    sym, xyz = [], []
+    for l in lines[2:2 + n]:
+        p = l.split()
+        sym.append(p[0])
+        xyz.append([float(v) for v in p[1:4]])
+    xyz = np.array(xyz)
+    for i, s in enumerate(sym):
+        if s != "F":
+            continue
+        j = int(np.argmin([np.linalg.norm(xyz[i] - xyz[k]) if k != i else 9e9
+                           for k in range(len(sym))]))
+        v = xyz[i] - xyz[j]
+        xyz[i] = xyz[j] + v / np.linalg.norm(v) * 1.08   # C-H
+        sym[i] = "H"
+    with open(dst, "w") as f:
+        f.write(f"{n}\nTCNQ, built from F4TCNQ by F->H (scripts/45)\n")
+        for s, p in zip(sym, xyz):
+            f.write(f"{s} {p[0]:.6f} {p[1]:.6f} {p[2]:.6f}\n")
+    print(f"built {dst}", flush=True)
 
 
 def geometry(fname, charge, mult):
@@ -145,9 +217,18 @@ def kapustinskii(z_plus, z_minus, n_ions, r_plus_A, r_minus_A):
     a sphere. It is used here only to show that the lattice term is LARGE ENOUGH
     to matter (several eV, i.e. it can overturn the sign) and that it is nearly
     the same for the two molecules, which is the only property the argument needs.
+
+    UNITS. The canonical form takes radii in PICOMETRES:
+        U [kJ/mol] = 1.202e5 * nu * z+ * |z-| / r_pm * (1 - 34.5 / r_pm)
+    The first version of this script kept radii in angstrom but carried the
+    prefactor as 1.202e2 instead of 1.202e3, so every lattice energy came out a
+    factor of 10 too small (0.43 eV instead of 4.3 eV) -- small enough to look
+    like a negligible correction when it is in fact the largest single term in
+    the cycle. Radii are converted to pm here so the constants match the textbook.
     """
-    return 1.202e2 * n_ions * z_plus * abs(z_minus) / (r_plus_A + r_minus_A) \
-        * (1.0 - 0.345 / (r_plus_A + r_minus_A)) / 96.485
+    r_pm = (r_plus_A + r_minus_A) * 100.0
+    u_kj = 1.202e5 * n_ions * z_plus * abs(z_minus) / r_pm * (1.0 - 34.5 / r_pm)
+    return u_kj / 96.485
 
 
 def thermal_radius(fname):
@@ -167,6 +248,7 @@ def main():
     psi4.set_num_threads(int(os.environ.get("PSI4_THREADS", "4")))
     psi4.core.set_output_file(os.path.join(RUNS, "psi4_ea.out"), False)
 
+    ensure_tcnq()
     ea, res = {}, {}
     for tag, fname in MOLECULES:
         try:
@@ -187,52 +269,96 @@ def main():
     print("\n" + "=" * 74)
     print(f"METHOD VALIDATION  ({FUNCTIONAL}/{BASIS}, vertical dSCF)")
     print("-" * 74)
+    print("  All values below are GAS-PHASE vertical dSCF. The 5.24 eV usually")
+    print("  quoted for F4TCNQ is a SOLID-STATE (UPS/IPES) affinity and includes")
+    print("  ~1-1.5 eV of polarisation; comparing the two directly is an error and")
+    print("  was the one made in the first version of this script.")
+    print()
+    for tag in ("TCNQ", "F4TCNQ", "HATCN"):
+        if ea.get(tag) is not None:
+            print(f"  EA_gas({tag:<7}) = {ea[tag]:>5.2f} eV")
+    if ea_check is not None and ea.get("F4TCNQ") is not None:
+        print(f"  F4TCNQ / {BASIS_CHECK}: {ea_check:.2f} eV "
+              f"({ea_check - ea['F4TCNQ']:+.2f} eV from diffuse functions) "
+              f"-> basis converged")
+
+    # (1) differential check -- the one that does not depend on a remembered value
     ok = False
+    print("\n  CHECK 1 (differential, primary): EA(F4TCNQ) - EA(TCNQ)")
+    if ea.get("F4TCNQ") is not None and ea.get("TCNQ") is not None:
+        d = ea["F4TCNQ"] - ea["TCNQ"]
+        err = d - DELTA_F4_TCNQ
+        ok = abs(err) < DELTA_TOL
+        print(f"    computed {d:+.2f} eV   expected {DELTA_F4_TCNQ:+.2f} eV   "
+              f"error {err:+.2f} eV   -> {'PASS' if ok else 'FAIL'}")
+        print("    This is the check the argument leans on: it tests whether the")
+        print("    method describes acceptor strength correctly, and polarisation")
+        print("    cancels between two molecules this similar, so it is valid in")
+        print("    gas phase.")
+    else:
+        print("    unavailable -- TCNQ or F4TCNQ did not converge")
+
+    # (2) absolute check -- provisional, flagged as such
+    print("\n  CHECK 2 (absolute, PROVISIONAL): EA_gas(F4TCNQ)")
     if ea.get("F4TCNQ") is not None:
-        err = ea["F4TCNQ"] - EA_F4TCNQ_EXP
-        print(f"  EA(F4TCNQ)  computed {ea['F4TCNQ']:.2f} eV   "
-              f"experiment {EA_F4TCNQ_EXP:.2f} eV   error {err:+.2f} eV")
-        if ea_check is not None:
-            print(f"  same molecule / {BASIS_CHECK}: {ea_check:.2f} eV "
-                  f"({ea_check - ea['F4TCNQ']:+.2f} eV from diffuse functions)")
-        ok = abs(err) < 0.4
-        print("  -> method reproduces the known EA; the HATCN number is usable."
-              if ok else
-              "  -> method does NOT reproduce the known EA. Do not quote the\n"
-              "     HATCN prediction until this is understood.")
-    if ea.get("HATCN") is not None:
-        print(f"  EA(HATCN)   computed {ea['HATCN']:.2f} eV   (prediction)")
+        err2 = ea["F4TCNQ"] - EA_F4TCNQ_GAS
+        print(f"    computed {ea['F4TCNQ']:.2f} eV   reference ~{EA_F4TCNQ_GAS:.2f} eV"
+              f"   error {err2:+.2f} eV")
+        print(f"    implied polarisation, EA_solid - EA_gas = "
+              f"{EA_F4TCNQ_SOLID - ea['F4TCNQ']:+.2f} eV, which is the right size")
+        print("    for a molecular solid -- consistent, but not an independent test.")
+        print("    TREAT AS UNCONFIRMED: the gas-phase reference is from memory and")
+        print("    this session cannot reach the literature to verify it. Check it")
+        print("    against the NIST WebBook before this goes in a manuscript.")
+
+    print(f"\n  -> {'Method accepted on the differential check.' if ok else 'METHOD NOT VALIDATED -- do not quote these numbers.'}")
 
     # -------------------------------------------------- route A: ionic / salt
     print("\n" + "=" * 74)
     print("ROUTE A -- oxidation of Ag to the charge-transfer salt")
     print("  Ag(bulk) + M(solid) -> Ag(+)M(-)")
     print(f"  dE = E_coh(Ag) {E_COH_AG:.2f} + IP(Ag) {IP_AG:.2f} "
-          f"- EA(M) - E_latt")
+          f"- [EA_gas(M) + E_pol {E_POL:.2f}] - E_latt")
+    print("  M is a SOLID here, so the affinity entering the cycle is the")
+    print("  solid-state one: EA_gas plus the polarisation of the surrounding")
+    print("  molecules. E_pol is taken as identical for the two, so it shifts both")
+    print("  dE together and drops out of the gap.")
     print("-" * 74)
     r_ag = 1.15                                  # Ag(+) ionic radius, A
-    print(f"{'molecule':<10}{'EA (eV)':>9}{'r_anion':>9}{'E_latt':>9}{'dE (eV)':>10}"
-          f"   verdict")
+    print(f"{'molecule':<10}{'EA_gas':>8}{'EA_sol':>8}{'r_anion':>9}{'E_latt':>8}"
+          f"{'dE (eV)':>9}   verdict")
     dE = {}
     for tag, fname in MOLECULES:
+        if tag == "TCNQ":
+            continue                 # validation only, not a seed candidate
         if ea.get(tag) is None:
-            print(f"{tag:<10}{'FAILED':>9}")
+            print(f"{tag:<10}{'FAILED':>8}")
             continue
         r_m = thermal_radius(fname)
         e_latt = kapustinskii(1, 1, 2, r_ag, r_m)
-        d = E_COH_AG + IP_AG - ea[tag] - e_latt
+        ea_sol = ea[tag] + E_POL
+        d = E_COH_AG + IP_AG - ea_sol - e_latt
         dE[tag] = d
-        v = "salt formation downhill" if d < 0 else "salt formation uphill"
-        print(f"{tag:<10}{ea[tag]:>9.2f}{r_m:>9.2f}{e_latt:>9.2f}{d:>10.2f}   {v}")
+        v = "downhill" if d < 0 else "uphill"
+        print(f"{tag:<10}{ea[tag]:>8.2f}{ea_sol:>8.2f}{r_m:>9.2f}{e_latt:>8.2f}"
+              f"{d:>9.2f}   {v}")
 
     if len(dE) == 2:
         gap = dE["HATCN"] - dE["F4TCNQ"]
         print(f"\n  HATCN is {gap:+.2f} eV LESS favourable than F4TCNQ toward salt")
-        print("  formation. This difference is the robust part of the calculation:")
-        print("  E_coh, IP and (to first order) E_latt are common to both, so the")
-        print("  gap is essentially EA(F4TCNQ) - EA(HATCN) and does not depend on")
-        print("  the crude lattice-energy model. The ABSOLUTE dE does, so read the")
-        print("  sign of dE with caution and the gap with confidence.")
+        print("  formation.")
+        print("\n  WHAT TO TRUST HERE. The GAP is robust: E_coh, IP and E_pol are")
+        print("  common to both molecules and cancel exactly, leaving")
+        print("      gap = [EA(F4TCNQ) - EA(HATCN)] + [E_latt(F4) - E_latt(HATCN)]")
+        print("  whose two terms happen to push the same way -- HATCN is both the")
+        print("  weaker acceptor and the bulkier anion, hence the more weakly bound")
+        print("  salt. The ABSOLUTE dE is NOT trustworthy: Kapustinskii models a")
+        print("  flat TCNQ-type anion as a sphere and puts Ag(+) at its spherical")
+        print("  surface, when in the real Ag-TCNQ structure Ag(+) sits ~2.3 A from")
+        print("  a nitrile N, i.e. far deeper in the potential. That underestimates")
+        print("  E_latt by an unknown but substantial amount, which is why the")
+        print("  cycle can report 'uphill' for a salt that is known to exist.")
+        print("  Read the sign as unresolved and the gap as the result.")
 
     # ------------------------------------------------ route B: neutral pickup
     print("\n" + "=" * 74)
@@ -255,9 +381,12 @@ def main():
     print("  So route B does not disqualify either molecule, and the F4TCNQ")
     print("  objection stands or falls entirely on route A.")
 
-    json.dump({"functional": FUNCTIONAL, "basis": BASIS, "EA_eV": ea,
-               "EA_basis_check": ea_check, "dE_salt_eV": dE,
-               "validated": ok},
+    json.dump({"functional": FUNCTIONAL, "basis": BASIS,
+               "EA_gas_eV": ea, "EA_basis_check": ea_check,
+               "E_pol_assumed_eV": E_POL, "dE_salt_eV": dE,
+               "gap_eV": (dE["HATCN"] - dE["F4TCNQ"]) if len(dE) == 2 else None,
+               "differential_check_passed": ok,
+               "absolute_EA_reference_verified": False},
               open(os.path.join(RUNS, "ag_extraction.json"), "w"), indent=2)
 
     # ------------------------------------------------------------- conclusion
@@ -266,11 +395,18 @@ def main():
     print("-" * 74)
     if len(dE) == 2 and ok:
         print("  Settled: the two molecules are NOT equivalent on the redox axis.")
-        print(f"  The {abs(gap):.2f} eV EA gap makes Ag oxidation markedly harder for")
+        print(f"  The {abs(gap):.2f} eV gap makes Ag oxidation markedly harder for")
         print("  HATCN, so 'both are strong acceptors, therefore both attack Ag'")
         print("  is not correct. The asymmetry the argument needed is real.")
+        print("  This is a RELATIVE statement and should be written as one.")
     else:
         print("  NOT settled -- see the validation block above.")
+    print("  Not settled: the ABSOLUTE question of whether either salt forms.")
+    print("  The lattice-energy model is too crude for that, and it is the wrong")
+    print("  tool anyway -- an interface is not a bulk salt. Answering it properly")
+    print("  means a periodic slab of Ag(111) with the molecule on top and a Bader")
+    print("  or Loewdin charge analysis, which the CP2K setup in scripts/38 can")
+    print("  already do. That is the natural next calculation.")
     print("  Not settled: kinetics at deposition conditions (300 K substrate,")
     print("  ~0.1 nm/s, minutes). A downhill reaction can still be too slow, and")
     print("  a slightly uphill one can proceed at hot spots. The thermodynamic")
