@@ -10,4 +10,9 @@ dft_seedlayer_screen/psi.*.clean
 dft_seedlayer_screen/timer.dat
 dft_seedlayer_screen/runs/psi4_*.out
 dft_seedlayer_screen/runs/*_run.log
+# Console logs of the psi4/CP2K driver scripts. These are written incrementally
+# while a calculation is in flight, so committing one captures a truncated file.
+# The results that matter are the .json each script writes at the end, plus the
+# REPORT*.md that interprets them -- both of which are tracked.
+dft_seedlayer_screen/runs/*.log
 dft_seedlayer_screen/runs/tddft_absorption.json.tmp
