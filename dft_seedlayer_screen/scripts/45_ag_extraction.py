@@ -191,14 +191,41 @@ def single_point(fname, charge, mult, basis):
     return psi4.energy(FUNCTIONAL, molecule=mol)
 
 
+CACHE = os.path.join(RUNS, "ea_cache.json")
+# Every SCF here is expensive and this container has repeatedly killed long runs
+# mid-flight (idle reclaim, and four working-tree rollbacks). Without a cache each
+# restart redoes work that already converged, and the last attempt died on the
+# OPTIONAL basis check after all three production numbers were finished -- losing
+# the report for want of a single-point that was not needed for the conclusion.
+# Keyed on everything that changes the number, so a settings change invalidates it.
+
+
+def cache_load():
+    try:
+        return json.load(open(CACHE))
+    except Exception:
+        return {}
+
+
+def cache_key(tag, basis):
+    return f"{tag}|{FUNCTIONAL}|{basis}"
+
+
 def vertical_ea(tag, fname, basis):
     """EA = E(neutral) - E(anion), both at the NEUTRAL geometry.
 
     Vertical, not adiabatic. Relaxing the anion would lower it further and raise
-    EA by typically 0.1-0.3 eV for a rigid conjugated acceptor. Both molecules
-    are planar and rigid, so the relaxation is similar for the two and the
-    COMPARISON -- which is what the argument rests on -- is barely affected.
+    EA by typically 0.1-0.3 eV for a rigid conjugated acceptor. All three
+    molecules are planar and rigid, so the relaxation is similar and the
+    COMPARISONS -- which is what the argument rests on -- are barely affected.
     """
+    c = cache_load()
+    k = cache_key(tag, basis)
+    if k in c:
+        print(f"\n=== {tag} / {basis} ===  [cached] EA = {c[k]['ea']:.3f} eV"
+              f"   ({c[k].get('provenance', 'this script')})", flush=True)
+        return c[k]["ea"]
+
     print(f"\n=== {tag} / {basis} ===", flush=True)
     e0 = single_point(fname, 0, 1, basis)
     print(f"  neutral  {e0:.8f} Ha", flush=True)
@@ -206,6 +233,11 @@ def vertical_ea(tag, fname, basis):
     print(f"  anion    {em:.8f} Ha", flush=True)
     ea = (e0 - em) * HA
     print(f"  EA(vert) {ea:.3f} eV", flush=True)
+
+    c = cache_load()          # re-read: another process may have added entries
+    c[k] = {"ea": ea, "E_neutral_Ha": e0, "E_anion_Ha": em,
+            "provenance": "computed"}
+    json.dump(c, open(CACHE, "w"), indent=2)
     return ea
 
 
