@@ -212,16 +212,18 @@ save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band',
      'W_LIST','varNames','lb','ub','REF_TOTAL','REF_BAND');
 fprintf('\nsaved -> pareto_front_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
 
-%% ===== 그림 =====
+%% =====================================================================
+%  그림 2 — achievable region & Pareto front
+%% =====================================================================
 % EVAL_LOG = [x(1:nvar) | EQE_total | b0_20 | b20_40 | b40_60 | b60_80 | phase | w]
 nv = nvar;
-Et = EVAL_LOG(:,nv+1);          % EQE_total
-Eb = EVAL_LOG(:,nv+4);          % EQE_40_60 (네 구간 중 세 번째)
-Ph = EVAL_LOG(:,nv+6);          % phase
+Et = EVAL_LOG(:,nv+1);              % EQE_total
+Bins = EVAL_LOG(:, nv+2 : nv+5);    % [0-20, 20-40, 40-60, 60-80]
+Eb = Bins(:,3);                     % EQE_40_60
+Ph = EVAL_LOG(:,nv+6);              % phase
 ok = isfinite(Et) & isfinite(Eb) & Et>0;
 
-figure('Name','Achievable region & Pareto front','Color','w','Position',[100 100 1000 420]);
-
+figure('Name','Fig 2 — achievable region & Pareto front','Color','w','Position',[100 100 1000 420]);
 subplot(1,2,1);
 scatter(Et(ok&Ph==1), Eb(ok&Ph==1), 14, [.6 .6 .6], 'filled'); hold on;
 scatter(Et(ok&Ph==2), Eb(ok&Ph==2), 14, [.2 .5 .8], 'filled');
@@ -239,6 +241,111 @@ xlabel('EQE_{total}'); ylabel('selectivity  EQE_{40-60}/EQE_{total}'); grid on;
 title('(b) efficiency vs selectivity');
 saveas(gcf,'pareto_front.png');
 fprintf('saved -> pareto_front.png\n');
+
+%% =====================================================================
+%  그림 3 — FoM 지도 + 선택성 불변성 검증 (네 각도구간 동시)
+%
+%  마스터 관계식은 목표 입체각 Omega 만 바꾸면 모든 FoM 에 적용된다.
+%  각 구간의 선택성이 Lambertian 값 S = sin^2(th2) - sin^2(th1) 에 고정되어야 하며,
+%  한 번의 시뮬로 네 개의 독립 예측을 동시에 검증한다.
+%% =====================================================================
+edges  = [0 20; 20 40; 40 60; 60 80];
+names  = {'0-20 deg','20-40 deg','40-60 deg','60-80 deg'};
+S_pred = sind(edges(:,2)).^2 - sind(edges(:,1)).^2;   % [0.117 0.296 0.337 0.220]
+
+okB = isfinite(Et) & Et > 0.05 & all(isfinite(Bins),2);   % 저효율 설계는 노이즈 지배
+fprintf('\n################ FIG 3: 선택성 불변성 검증 ################\n');
+fprintf('유효 설계 %d개 (전체 %d개 중)\n\n', sum(okB), size(EVAL_LOG,1));
+
+fid = fopen('fig3_summary.txt','w');
+hdr = sprintf('%-11s | %8s | %18s | %8s | %7s\n', 'band','예측 S','실측 S (mean±std)','편차','상관 R');
+fprintf('%s%s\n', hdr, repmat('-',1,64));
+fprintf(fid,'%s%s\n', hdr, repmat('-',1,64));
+
+S_meas = nan(4,1);  S_std = nan(4,1);  R_corr = nan(4,1);
+for b = 1:4
+    s = Bins(okB,b) ./ Et(okB);
+    S_meas(b) = mean(s,'omitnan');
+    S_std(b)  = std(s,'omitnan');
+    c = corrcoef(Et(okB), s);  R_corr(b) = c(1,2);   % 불변량이면 0 근처
+    line = sprintf('%-11s | %8.3f | %8.3f ± %.3f | %+7.1f%% | %+6.2f\n', ...
+        names{b}, S_pred(b), S_meas(b), S_std(b), ...
+        100*(S_meas(b)-S_pred(b))/S_pred(b), R_corr(b));
+    fprintf('%s', line);  fprintf(fid,'%s',line);
+end
+
+% --- 자동 판정 ---
+dev_ok = all(abs(S_meas-S_pred)./S_pred < 0.15);
+cor_ok = all(abs(R_corr) < 0.3);
+verdict = sprintf(['\n[판정] 예측 편차 15%% 이내: %s | 상관 |R|<0.3: %s\n' ...
+    '  => %s\n'], ternary(dev_ok,'통과','실패'), ternary(cor_ok,'통과','실패'), ...
+    ternary(dev_ok&&cor_ok, ...
+      '선택성은 설계 불변량. 원고 2.3/4.2절 주장 성립.', ...
+      '불변성 미확인. 원고 2.3절 재검토 필요 (구간별 편차/상관 확인).'));
+fprintf('%s', verdict);  fprintf(fid,'%s',verdict);
+fprintf(fid,'\n* 상관 R 이 0 근처 = 선택성이 EQE_total 과 무관 = 설계 불변량\n');
+fclose(fid);
+fprintf('saved -> fig3_summary.txt\n');
+
+% --- 4패널 그림 ---
+figure('Name','Fig 3 — FoM map','Color','w','Position',[80 80 1200 780]);
+cols = lines(4);  n_s = 1.51;
+
+subplot(2,2,1);   % (a) 하나의 식, 여러 목표 입체각 (해석적)
+thg = linspace(0,90,200);
+plot(thg, 100*sind(thg).^2/n_s^2, 'k-', 'LineWidth', 2); hold on;
+for b = 1:4
+    bb = (sind(edges(b,2))^2 - sind(edges(b,1))^2)/n_s^2;
+    plot(mean(edges(b,:)), 100*bb, 'o','MarkerSize',9, ...
+        'MarkerFaceColor',cols(b,:),'MarkerEdgeColor','k');
+end
+yline(100/n_s^2,'--','전 반구 1/n_s^2','LabelHorizontalAlignment','left');
+xlabel('\theta (deg)'); ylabel('단일통과 상한 P_\Omega/P_{sub} (%)');
+title('(a) 하나의 식, 여러 목표 입체각'); grid on;
+legend({'정면 원뿔 [0,\theta]','각 구간 밴드'},'Location','northwest','FontSize',8);
+
+subplot(2,2,2);   % (b) 불변성의 핵심 증거
+for b = 1:4
+    scatter(Et(okB), Bins(okB,b)./Et(okB), 10, cols(b,:), 'filled', ...
+        'MarkerFaceAlpha',0.35); hold on;
+    yline(S_pred(b), '--', 'Color', cols(b,:), 'LineWidth', 1.6);
+end
+xlabel('EQE_{total}'); ylabel('선택성 S = EQE_{band}/EQE_{total}');
+title('(b) 선택성은 설계 불변량 (점선 = Lambertian 예측)'); grid on;
+legend(names,'Location','east','FontSize',8);
+
+subplot(2,2,3);   % (c) 네 구간 독립 검증
+errorbar(S_pred, S_meas, S_std, 'o','MarkerSize',9,'LineWidth',1.4, ...
+    'MarkerFaceColor',[.2 .4 .7]); hold on;
+lim = [0 0.45];  plot(lim, lim, 'k--','LineWidth',1.2);
+for b = 1:4, text(S_pred(b)+0.012, S_meas(b), names{b}, 'FontSize',8); end
+xlim(lim); ylim(lim); axis square; grid on;
+xlabel('예측  sin^2\theta_2 - sin^2\theta_1'); ylabel('실측 선택성');
+title('(c) 네 구간 독립 검증');
+
+subplot(2,2,4);   % (d) 가능 / 금지 지도
+axis([0 1 0 1]); axis off; hold on;
+rectangle('Position',[0.05 0.55 0.42 0.35],'FaceColor',[.85 .95 .90],'EdgeColor',[.2 .5 .4]);
+text(0.26,0.86,'REACHABLE','HorizontalAlignment','center','FontWeight','bold','Color',[.15 .45 .35]);
+text(0.26,0.73,sprintf('총 추출\n정면 증강\n밴드 집광 (S 고정)'),'HorizontalAlignment','center','FontSize',8);
+rectangle('Position',[0.53 0.55 0.42 0.35],'FaceColor',[.98 .93 .82],'EdgeColor',[.7 .55 .2]);
+text(0.74,0.86,'BOUNDED','HorizontalAlignment','center','FontWeight','bold','Color',[.6 .45 .15]);
+text(0.74,0.73,sprintf('재활용 축적\n(각도 선별 필요,\n손실이 제한)'),'HorizontalAlignment','center','FontSize',8);
+rectangle('Position',[0.05 0.10 0.90 0.35],'FaceColor',[.98 .88 .88],'EdgeColor',[.7 .3 .3]);
+text(0.50,0.40,'FORBIDDEN','HorizontalAlignment','center','FontWeight','bold','Color',[.6 .2 .2]);
+text(0.50,0.25,sprintf(['순 방위각 조향  (\\oint\\nablaz dA = 0)\n' ...
+    '중앙이 어두운 듀얼뷰\n타일링 어레이의 각도 압축  (A_{out}/A_{src} = 1)']), ...
+    'HorizontalAlignment','center','FontSize',8);
+title('(d) 가능 / 금지 지도');
+
+saveas(gcf,'fig3_fom_map.png');
+fprintf('saved -> fig3_fom_map.png\n');
+
+save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band', ...
+     'W_LIST','varNames','lb','ub','REF_TOTAL','REF_BAND', ...
+     'S_pred','S_meas','S_std','R_corr','edges');
+fprintf('\n########## 완료 ##########\n');
+fprintf('  pareto_front_result.mat / pareto_front.png / fig3_fom_map.png / fig3_summary.txt\n');
 
 
 %% ===== 평가 래퍼 (네 각도구간을 모두 로그에 기록) =====
@@ -295,6 +402,11 @@ if ~isValidPoints(x), f = 0; return; end
 [et, eb] = simulate_both(x);
 if ~isfinite(et) || ~isfinite(eb), f = 0; return; end
 f = -( w*et/refT + (1-w)*eb/refB );
+end
+
+%% ===== 판정 문구 헬퍼 =====
+function s = ternary(cond, a, b)
+if cond, s = a; else, s = b; end
 end
 
 %% ===== 무작위 valid 시드 생성 =====
