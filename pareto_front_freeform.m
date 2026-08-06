@@ -213,8 +213,11 @@ save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band',
 fprintf('\nsaved -> pareto_front_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
 
 %% ===== 그림 =====
+% EVAL_LOG = [x(1:nvar) | EQE_total | b0_20 | b20_40 | b40_60 | b60_80 | phase | w]
 nv = nvar;
-Et = EVAL_LOG(:,nv+1);  Eb = EVAL_LOG(:,nv+2);  Ph = EVAL_LOG(:,nv+3);
+Et = EVAL_LOG(:,nv+1);          % EQE_total
+Eb = EVAL_LOG(:,nv+4);          % EQE_40_60 (네 구간 중 세 번째)
+Ph = EVAL_LOG(:,nv+6);          % phase
 ok = isfinite(Et) & isfinite(Eb) & Et>0;
 
 figure('Name','Achievable region & Pareto front','Color','w','Position',[100 100 1000 420]);
@@ -238,7 +241,11 @@ saveas(gcf,'pareto_front.png');
 fprintf('saved -> pareto_front.png\n');
 
 
-%% ===== 두 목적을 동시에 반환하는 평가 래퍼 (모든 평가를 로그에 기록) =====
+%% ===== 평가 래퍼 (네 각도구간을 모두 로그에 기록) =====
+%  EVAL_LOG 열 구성:
+%    [ x(1:13) | EQE_total | EQE_0_20 | EQE_20_40 | EQE_40_60 | EQE_60_80 | phase | w ]
+%  -> 한 번의 시뮬로 네 구간 선택성을 동시에 얻어, Fig 3(FoM 지도)에서
+%     S = sin^2(th2) - sin^2(th1) 예측을 네 구간 독립 검증할 수 있다.
 function [eqe_total, eqe_band] = simulate_both(pt)
 global ID_swept ltml ltloc eval_count restart_interval EVAL_LOG EVAL_PHASE EVAL_W
 eval_count = eval_count + 1;
@@ -248,18 +255,22 @@ if mod(eval_count, restart_interval) == 0
     lt = ltloc.GetLTAPI(ID_swept);  ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
     pause(2);
 end
+bins = [NaN NaN NaN NaN];
 try
     out = objFcn_both(pt);
     eqe_total = out.EQE_total;
     eqe_band  = out.EQE_40_60;
-    if eqe_total == 0, eqe_total = NaN; eqe_band = NaN; end
+    bins = [out.EQE_0_20, out.EQE_20_40, out.EQE_40_60, out.EQE_60_80];
+    if eqe_total == 0
+        eqe_total = NaN; eqe_band = NaN; bins = [NaN NaN NaN NaN];
+    end
 catch err
     fprintf('\n[Error] eval %d LightTools 충돌: %s\n', eval_count, err.message);
     eqe_total = NaN;  eqe_band = NaN;
     RenewLightTools();
     lt = ltloc.GetLTAPI(ID_swept);  ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 end
-EVAL_LOG(end+1,:) = [pt(:).', eqe_total, eqe_band, EVAL_PHASE, EVAL_W];
+EVAL_LOG(end+1,:) = [pt(:).', eqe_total, bins, EVAL_PHASE, EVAL_W];
 end
 
 %% ===== 가중합 목적 (surrogateopt: 제약 결합형) =====
