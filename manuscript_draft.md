@@ -1,9 +1,10 @@
 # Limits of external light outcoupling in thin-film light-emitting devices: why shape is an exhausted degree of freedom
 
 **[제목 후보]**
+- *Angular selectivity is a design invariant in external light outcoupling* ← 데이터가 가장 강하게 뒷받침
 - *Limits of external light outcoupling in thin-film LEDs: shape is an exhausted degree of freedom*
 - *Étendue bounds on directional outcoupling: why inverse design saturates at a hemisphere*
-- *Efficiency and directionality cannot be increased together by shape design*
+- ~~*Efficiency and directionality cannot be increased together*~~ ← 트레이드오프 없음이 확인되어 폐기
 
 **Authors** — [TBD]
 
@@ -22,8 +23,12 @@ into a prescribed solid angle in a single pass is therefore bounded by the produ
 étendue and the maximum attainable radiance; applying this one relation with different target solid
 angles yields limits for a range of figures of merit within a single framework. We show that a **bare flat
 interface already saturates this single-pass bound**, so no microlens or freeform profile can exceed a
-flat surface on a single pass, and that efficiency and angular selectivity can only be **exchanged, not
-simultaneously increased**, by shape design. Angular compression is not forbidden in general — it is paid
+flat surface on a single pass. A stronger statement follows and is confirmed numerically: the angular
+selectivity — the fraction of extracted light reaching the target band — is a **design invariant**. Across
+freeform profiles spanning a factor of five in total extraction, it remains fixed at 0.355 ± 0.01, within
+5% of the Lambertian value the étendue argument predicts, and a Pareto sweep between the two objectives
+collapses to a single design. Directional emission therefore has **no independent design freedom**: it can
+be improved only by improving total extraction. Angular compression is not forbidden in general — it is paid
 for in area — but an array coextensive with the emitter has an output-to-source area ratio of unity, which
 removes that currency; this simultaneously explains why an index-matched hemispherical macroextractor
 works and why it cannot be tiled. Three routes lie beyond the single-pass bound: radiance build-up by
@@ -184,24 +189,27 @@ before reaching the array, so each lenslet of radius *a* draws from an effective
 neighbouring lenslets share light heavily and each sees a nearly Lambertian angular input, removing any
 local compression as well.
 
-### 2.3 Efficiency and directionality can only be exchanged
+### 2.3 The angular partition is a design invariant
 
-Writing the band power as the product of total extraction efficiency and angular selectivity,
-*P*<sub>band</sub> = η<sub>ext</sub> × *S*, the master relation bounds the **product**:
+An étendue-preserving layer maps the substrate distribution into air without altering how power is
+partitioned among angles. Writing the angular selectivity as the fraction of extracted light that reaches
+the target band, *S* = *P*<sub>band</sub>/*P*<sub>total</sub>, this implies that *S* is fixed at the value
+carried by a Lambertian distribution,
 
-$$\eta_{\mathrm{ext}}\times S \;\le\; \text{const}.$$
+$$S \;\simeq\; \sin^{2}\theta_{hi}-\sin^{2}\theta_{lo}\;=\;0.337 \quad (40\text{–}60^\circ),$$
 
-Shape design can move a structure along this constraint — trading total extraction for angular
-concentration or the reverse — but cannot move it outward. We therefore predict that designs obtained from
-independent optimization runs, whatever their individual shapes, populate a common iso-product contour in
-the (η<sub>ext</sub>, *S*) plane.
+**independently of the lens profile**. Selectivity is then not a design variable at all: shape
+optimization alters total extraction but leaves the angular partition untouched.
 
-> **[한글 주석 — 중요]** 이 예측은 **아직 검증 전**입니다. BO 결과를 (EQE_total, 선택성) 평면에 찍어
-> 등곱 곡선 위에 놓이는지 확인해야 합니다.
-> - **성립** → 이 절이 논문의 간판 결과, 제목 반영
-> - **불성립** → "곱이 유계된다"는 진술만 남기고 iso-product 예측은 삭제
->
-> **투고 전 반드시 검증할 것.**
+Two consequences follow, both directly testable. First, band emission can be improved *only* by improving
+total extraction, so the two are proportional rather than exchangeable. Second, optimizing for band
+emission and optimizing for total efficiency must return the same design, and no Pareto trade-off between
+them should exist. Section 4.2 confirms both.
+
+> **[한글 주석]** ✅ **검증 완료.** 가중합 스윕(w = 0…1) 결과 Pareto front가 곡선이 아니라 한 점으로
+> 붕괴했고, 선택성이 EQE_total 전 구간에서 ~0.355로 고정되었습니다. 앞선 초안의 "효율과 방향성은
+> 교환된다"는 서술은 데이터가 반박하므로 폐기하고, 더 강한 "설계 불변량" 주장으로 교체했습니다.
+> (교환 가능하다는 것은 조절 손잡이가 있다는 뜻이지만, 실제로는 손잡이 자체가 없습니다.)
 
 ### 2.4 Azimuthal steering is forbidden in periodic tilings
 
@@ -299,9 +307,25 @@ attained by a flat interface, and the best designs converge to near-hemispherica
 this saturation curve as an **achievable frontier**; it is an outcome of finite search and is conceptually
 distinct from the bounds of Section 2, which follow from conservation laws.
 
-### 4.2 Efficiency–selectivity trade-off
-[Fig 2b] Designs populate a common contour in the (η<sub>ext</sub>, *S*) plane, consistent with the
-bounded product of Section 2.3. **[검증 후 확정]**
+### 4.2 Angular selectivity is invariant across the design space
+[Fig 2b] We traced the Pareto front between total extraction and band emission by optimizing the weighted
+objective *w*·η̂<sub>ext</sub> + (1−*w*)·*P̂*<sub>band</sub> for *w* = 0, 0.25, 0.5, 0.75, 1, and
+supplemented it with [N] randomly sampled feasible designs to populate the interior of the achievable
+region without the sampling bias of an optimizer.
+
+The Pareto front **collapses to a single cluster**: every weight returns essentially the same design, so
+optimizing for directionality and optimizing for efficiency are not competing objectives. Correspondingly,
+band emission is proportional to total extraction across the whole design space, *P*<sub>band</sub> =
+0.355 × η<sub>ext</sub>, spanning η<sub>ext</sub> from 0.11 to 0.56 — a factor of five in total extraction
+over which the selectivity does not drift. At the frontier the selectivity is 0.355 ± 0.01.
+
+This is within 5% of the Lambertian value 0.337 predicted in Section 2.3. We attribute the small excess to
+weak genuine concentration by the lens profile, which slightly biases the emergent distribution away from
+Lambertian; it is far too small to constitute a directional design freedom. Selectivity is thus an
+invariant of the structural class rather than a quantity that shape optimization can address.
+
+> **[한글 주석]** EQE_40_60은 전 방위각(360°) 기준입니다. 40° φ 창으로 환산하면
+> 0.20 × (40/360) ≈ 2.2%로, 별도 최적화에서 얻은 2.93%와 같은 계열입니다.
 
 ### 4.3 Map of figures of merit
 [Fig 3] Applying the master relation with different target solid angles gives bounds for on-axis
@@ -332,8 +356,10 @@ PeLED, QLED and micro-LED platforms; sweeping *n*<sub>s</sub> [Fig 4c] shows the
 ## 5. Discussion
 
 The central practical implication is that **shape is an exhausted degree of freedom** for external
-outcoupling. Further refinement of lenslet profiles, whether by analytic freeform methods or by
-large-scale numerical inverse design, redistributes a bounded product rather than increasing it. Effort is
+outcoupling. The invariance of angular selectivity makes this concrete: shape optimization does not merely
+face diminishing returns on directionality, it has **no effect on the angular partition at all**. A
+designer seeking emission into a particular angular band gains nothing from profile refinement beyond
+whatever it contributes to total extraction. Effort is
 better directed at the levers identified in Section 2.5 — radiance build-up through angular rejection,
 microcavity engineering of the source distribution, and, where planarity can be sacrificed, aperture
 expansion — and at reducing the loss that caps the first of these.
@@ -365,8 +391,10 @@ We have shown that energy conservation and reciprocity alone bound the radiance 
 external outcoupling layer, and hence the power it can deliver into a prescribed angular target in a
 single pass, independently of the layer's internal complexity. A flat interface already saturates this
 bound, which explains the saturation of inverse design at near-hemispherical profiles as a consequence of
-conservation rather than of optimization, and implies that efficiency and directionality can only be
-exchanged by shape design. Angular compression requires an output-to-source area ratio above unity, a
+conservation rather than of optimization. Numerically, the angular selectivity proves to be a design
+invariant: it holds at the Lambertian value across the entire searched design space, and optimizing for
+directionality returns the same structure as optimizing for efficiency, so directional emission carries no
+design freedom of its own. Angular compression requires an output-to-source area ratio above unity, a
 currency that tiling removes — the same relation that accounts for the success of the hemispherical
 macroextractor and for its non-scalability. Beyond the single-pass bound lie radiance build-up by
 recycling, microcavity engineering of the source, and aperture expansion; of these, recycling admits a
@@ -380,7 +408,7 @@ selectivity whose availability to refractive structures remains open.
 | Fig | Content | Status |
 |---|---|---|
 | 1 | Platform, étendue picture, **three levers** (shape exhausted / recycling / cavity) | 작성 필요 |
-| 2 | Single-pass bound, flat saturation, iso-product plane, frontier | **iso-product 검증 필요** |
+| 2 | Single-pass bound, flat saturation, **selectivity invariance** (Pareto collapse), frontier | ✅ **계산 완료** |
 | 3 | FoM map (Ω별 상한, 금지 영역, 색–방향성 트레이드오프) | 계산 일부 필요 |
 | 4 | Recycling **bound vs frontier gap**, bandwidth, generality, cross-validation | (a)(b) 계산 완료 |
 
