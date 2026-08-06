@@ -24,7 +24,15 @@
 clear;
 %% For LightTools Connection
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
-       ray_nums_current wave_n_current EVAL_LOG EVAL_PHASE EVAL_W
+       ray_nums_current wave_n_current EVAL_LOG EVAL_PHASE EVAL_W ...
+       GEOM_TOL GEOM_MISMATCH_LOG
+
+% [기하 검증 tolerance] LightTools 제어점 왕복 불일치 허용치.
+%   NaN 이 자주 뜨면 실행 후 출력되는 '기하 거부 진단'을 보고 조정할 것:
+%     불일치가 1e-4~1e-3 대에 몰려 있으면  -> 수치 오차, GEOM_TOL 을 1e-3 으로
+%     불일치가 0.01 이상으로 크면          -> 형상 왜곡, 거부가 옳으므로 그대로 둘 것
+GEOM_TOL = 1e-4;
+GEOM_MISMATCH_LOG = [];
 RenewLightTools();
 try
     ltml.LTCmd(ltml.GetLTAPI(ID_LT), 'Message "Check Connection"');
@@ -96,6 +104,9 @@ for i = 1:N_RANDOM
     end
 end
 save('pareto_log_partial.mat','EVAL_LOG','varNames','lb','ub');
+
+% --- 기하 거부 진단 (NaN 의 주원인 판별) ---
+report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);
 
 % 정규화 상수 자동 보정
 if AUTO_CALIBRATE && ~isempty(EVAL_LOG)
@@ -344,6 +355,7 @@ fprintf('saved -> fig3_fom_map.png\n');
 save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band', ...
      'W_LIST','varNames','lb','ub','REF_TOTAL','REF_BAND', ...
      'S_pred','S_meas','S_std','R_corr','edges');
+report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);   % 전체 실행 기준 최종 진단
 fprintf('\n########## 완료 ##########\n');
 fprintf('  pareto_front_result.mat / pareto_front.png / fig3_fom_map.png / fig3_summary.txt\n');
 
@@ -407,6 +419,33 @@ end
 %% ===== 판정 문구 헬퍼 =====
 function s = ternary(cond, a, b)
 if cond, s = a; else, s = b; end
+end
+
+%% ===== 기하 거부 진단 =====
+%  NaN 이 자주 뜨는 원인이 '수치 오차'인지 '형상 왜곡'인지 분포로 판별한다.
+function report_geom_rejection(mismLog, tol)
+if isempty(mismLog), return; end
+rej = mismLog > tol;
+fprintf('\n--- 기하 거부 진단 (NaN 원인) ---\n');
+fprintf('  평가 %d회 중 거부 %d회 (%.1f%%), tol=%.1e\n', ...
+    numel(mismLog), sum(rej), 100*mean(rej), tol);
+if any(rej)
+    r = mismLog(rej);
+    fprintf('  거부 시 불일치: median=%.2e, p90=%.2e, max=%.2e\n', ...
+        median(r), prctile(r,90), max(r));
+    if median(r) < 1e-2
+        fprintf(['  => 불일치가 작다. 수치/왕복 오차일 가능성이 높으므로\n' ...
+                 '     GEOM_TOL 을 1e-3 으로 올리면 거부율이 크게 줄어든다.\n']);
+    else
+        fprintf(['  => 불일치가 크다. LightTools 가 해당 형상을 그대로 표현하지 못한 것이므로\n' ...
+                 '     거부가 옳은 동작이다. GEOM_TOL 을 올리지 말 것\n' ...
+                 '     (대신 isValidPoints 에 형상 제약을 추가해 사전 배제하는 편이 낫다).\n']);
+    end
+end
+if any(~rej)
+    fprintf('  통과 시 불일치: median=%.2e, max=%.2e\n', ...
+        median(mismLog(~rej)), max(mismLog(~rej)));
+end
 end
 
 %% ===== 무작위 valid 시드 생성 =====
@@ -490,8 +529,28 @@ for j=1:7
     xy_l(j,1) = ltml.LTDbGet(lt, Key, 'YAt', j);
     xy_l(j,2) = ltml.LTDbGet(lt, Key, 'ZAt', j);
 end
-tol = 1e-4;   % float 완전일치(isequal) 대신 tolerance 비교
-if max(abs(xy(:) - xy_l(:))) > tol
+% [기하 검증] LightTools 에 설정한 제어점과 읽어온 값의 불일치 검사.
+%   불일치가 크면 의도한 형상이 아니므로 거부한다(EQE_total=0 -> 상위에서 NaN).
+%   불일치 크기를 global 로 내보내, 거부가 '수치 오차'인지 '형상 왜곡'인지
+%   통계로 판별할 수 있게 한다 (GEOM_MISMATCH_LOG).
+global GEOM_TOL GEOM_MISMATCH_LOG
+if isempty(GEOM_TOL), GEOM_TOL = 1e-4; end
+mism = max(abs(xy(:) - xy_l(:)));
+
+% COM 왕복 글리치 가능성 -> 1회 재설정 후 재확인
+if mism > GEOM_TOL
+    ltx.SetSweptProfilePoints(Curve,xy,7);
+    ltx.DbSet(Curve,'StartSlopeMode',"Auto");
+    ltx.DbSet(Curve,'EndSlopeMode',"Auto");
+    for j=1:7
+        xy_l(j,1) = ltml.LTDbGet(lt, Key, 'YAt', j);
+        xy_l(j,2) = ltml.LTDbGet(lt, Key, 'ZAt', j);
+    end
+    mism = max(abs(xy(:) - xy_l(:)));
+end
+
+GEOM_MISMATCH_LOG(end+1,1) = mism;
+if mism > GEOM_TOL
     output = struct('EQE_0_20',0,'EQE_20_40',0,'EQE_40_60',0,'EQE_60_80',0,'EQE_total',0);
     return;
 end
