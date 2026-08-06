@@ -25,14 +25,20 @@ clear;
 %% For LightTools Connection
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
        ray_nums_current wave_n_current EVAL_LOG EVAL_PHASE EVAL_W ...
-       GEOM_TOL GEOM_MISMATCH_LOG
+       GEOM_TOL GEOM_MISMATCH_LOG REQUIRE_MONOTONIC_X
 
 % [기하 검증 tolerance] LightTools 제어점 왕복 불일치 허용치.
-%   NaN 이 자주 뜨면 실행 후 출력되는 '기하 거부 진단'을 보고 조정할 것:
-%     불일치가 1e-4~1e-3 대에 몰려 있으면  -> 수치 오차, GEOM_TOL 을 1e-3 으로
-%     불일치가 0.01 이상으로 크면          -> 형상 왜곡, 거부가 옳으므로 그대로 둘 것
 GEOM_TOL = 1e-4;
-GEOM_MISMATCH_LOG = [];
+GEOM_MISMATCH_LOG = [];   % 열: [mismatch, max_length, rescale_triggered]
+
+% [수율 개선] x 좌표 단조성 요구.
+%   max_length 는 '곡선의 x 최댓값'이며, x2..x6 를 정렬 없이 무작위로 뽑으면
+%   프로파일이 되돌아가(non-monotonic) 스플라인이 x>1 로 크게 overshoot 한다.
+%   -> 재스케일 발동 -> 재설정 후 제어점 불일치 -> 거부(NaN).
+%   비단조 프로파일은 렌즈 단면으로도 부적절하고 어차피 거부되므로, 생성 단계에서
+%   배제하면 시뮬 낭비 없이 수율이 오른다.
+%   * false 로 두면 기존(정렬 없음) 거동. 가설 검증용으로 비교해 볼 수 있다.
+REQUIRE_MONOTONIC_X = true;
 RenewLightTools();
 try
     ltml.LTCmd(ltml.GetLTAPI(ID_LT), 'Message "Check Connection"');
@@ -394,7 +400,13 @@ end
 
 %% ===== 가중합 목적 (surrogateopt: 제약 결합형) =====
 function out = scalar_objconstr(x, w, refT, refB)
+global REQUIRE_MONOTONIC_X
 x = x(:).';
+% 비단조 x 는 LightTools 표현 불가로 어차피 거부되므로, 제약 단계에서 배제해
+% surrogateopt 가 예산을 NaN 에 쓰지 않게 한다.
+if ~isempty(REQUIRE_MONOTONIC_X) && REQUIRE_MONOTONIC_X && any(diff(x(1:5)) < 0)
+    out.Ineq = 1;  out.Fval = 1;  return;
+end
 if ~isValidPoints(x)
     out.Ineq = 1;  out.Fval = 1;  return;   % infeasible: 시뮬 없이 반환
 end
@@ -409,7 +421,11 @@ end
 
 %% ===== 가중합 목적 (patternsearch) =====
 function f = scalar_polish(x, w, refT, refB)
+global REQUIRE_MONOTONIC_X
 x = x(:).';
+if ~isempty(REQUIRE_MONOTONIC_X) && REQUIRE_MONOTONIC_X && any(diff(x(1:5)) < 0)
+    f = 0; return;
+end
 if ~isValidPoints(x), f = 0; return; end
 [et, eb] = simulate_both(x);
 if ~isfinite(et) || ~isfinite(eb), f = 0; return; end
@@ -425,36 +441,64 @@ end
 %  NaN 이 자주 뜨는 원인이 '수치 오차'인지 '형상 왜곡'인지 분포로 판별한다.
 function report_geom_rejection(mismLog, tol)
 if isempty(mismLog), return; end
-rej = mismLog > tol;
+mism = mismLog(:,1);  maxlen = mismLog(:,2);  resc = mismLog(:,3) > 0;
+rej = mism > tol;
 fprintf('\n--- 기하 거부 진단 (NaN 원인) ---\n');
 fprintf('  평가 %d회 중 거부 %d회 (%.1f%%), tol=%.1e\n', ...
-    numel(mismLog), sum(rej), 100*mean(rej), tol);
+    numel(mism), sum(rej), 100*mean(rej), tol);
+
+% (1) 재스케일 발동 여부와 거부의 상관 -> 원인 특정
+if any(resc) || any(~resc)
+    r1 = mean(rej(resc));   n1 = sum(resc);
+    r0 = mean(rej(~resc));  n0 = sum(~resc);
+    fprintf('  재스케일 발동(곡선 x>1): %d회 (%.1f%%), 이때 거부율 %.1f%%\n', ...
+        n1, 100*mean(resc), 100*r1);
+    fprintf('  재스케일 미발동        : %d회, 이때 거부율 %.1f%%\n', n0, 100*r0);
+    if n1 > 0 && n0 > 0 && r1 > 0.5 && r0 < 0.1
+        fprintf(['  => 거부는 거의 전부 재스케일에서 발생. 원인 확정:\n' ...
+                 '     비단조 x 프로파일이 스플라인 overshoot 을 일으켜 재설정 불일치를 만든다.\n' ...
+                 '     REQUIRE_MONOTONIC_X = true 로 두면 수율이 크게 오른다.\n']);
+    elseif n1 > 0 && r0 > 0.2
+        fprintf(['  => 재스케일과 무관하게도 거부가 발생. 단조성만으로는 부족하며\n' ...
+                 '     GEOM_TOL(현재 %.1e) 상향을 함께 검토할 것.\n'], tol);
+    end
+    if any(maxlen > 1)
+        fprintf('  overshoot 크기: median max_length=%.3f, max=%.3f\n', ...
+            median(maxlen(maxlen>1)), max(maxlen));
+    end
+end
+
+% (2) 불일치 크기 분포 -> tolerance 조정 판단
 if any(rej)
-    r = mismLog(rej);
+    r = mism(rej);
     fprintf('  거부 시 불일치: median=%.2e, p90=%.2e, max=%.2e\n', ...
         median(r), prctile(r,90), max(r));
     if median(r) < 1e-2
-        fprintf(['  => 불일치가 작다. 수치/왕복 오차일 가능성이 높으므로\n' ...
-                 '     GEOM_TOL 을 1e-3 으로 올리면 거부율이 크게 줄어든다.\n']);
+        fprintf('     (불일치가 작음 -> GEOM_TOL 1e-3 상향도 유효)\n');
     else
-        fprintf(['  => 불일치가 크다. LightTools 가 해당 형상을 그대로 표현하지 못한 것이므로\n' ...
-                 '     거부가 옳은 동작이다. GEOM_TOL 을 올리지 말 것\n' ...
-                 '     (대신 isValidPoints 에 형상 제약을 추가해 사전 배제하는 편이 낫다).\n']);
+        fprintf('     (불일치가 큼 -> 형상 왜곡. GEOM_TOL 올리지 말 것)\n');
     end
 end
 if any(~rej)
     fprintf('  통과 시 불일치: median=%.2e, max=%.2e\n', ...
-        median(mismLog(~rej)), max(mismLog(~rej)));
+        median(mism(~rej)), max(mism(~rej)));
 end
 end
 
 %% ===== 무작위 valid 시드 생성 =====
+%  REQUIRE_MONOTONIC_X 가 true 면 x2..x6 를 오름차순으로 정렬해 생성한다.
+%  (기하 제약을 만족하면서도 LightTools 가 표현하지 못하던 비단조 프로파일을 배제)
 function P = genValidPoints(K, lb, ub)
+global REQUIRE_MONOTONIC_X
+mono = ~isempty(REQUIRE_MONOTONIC_X) && REQUIRE_MONOTONIC_X;
 dim = numel(lb);  P = zeros(K, dim);
 for i = 1:K
     ok = false;
     while ~ok
         p = lb + rand(1, dim) .* (ub - lb);
+        if mono
+            p(1:5) = sort(p(1:5));          % x2..x6 오름차순
+        end
         if isValidPoints(p), ok = true; P(i, :) = p; end
     end
 end
@@ -517,7 +561,8 @@ for a=1:101
     x_values(a)=ltml.LTDbGet(lt,Key,'YFacetsAt',a);
 end
 max_length = max(x_values);
-if max_length > 1
+rescaled = (max_length > 1);        % 재스케일 발동 여부 (거부와의 상관 진단용)
+if rescaled
     xy = xy / max_length;
 end
 ltx.SetSweptProfilePoints(Curve,xy,7);
@@ -549,7 +594,7 @@ if mism > GEOM_TOL
     mism = max(abs(xy(:) - xy_l(:)));
 end
 
-GEOM_MISMATCH_LOG(end+1,1) = mism;
+GEOM_MISMATCH_LOG(end+1,:) = [mism, max_length, double(rescaled)];
 if mism > GEOM_TOL
     output = struct('EQE_0_20',0,'EQE_20_40',0,'EQE_40_60',0,'EQE_60_80',0,'EQE_total',0);
     return;
