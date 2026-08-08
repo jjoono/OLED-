@@ -1,7 +1,8 @@
 # References — OLED microlens-array limits paper
 
-동기화 기준: **paper_plan_v7.md** (2026-08-08 반영). 주 목록은 v7 계획서의 참고문헌 [1]–[15]와
-번호·순서 동일. 검증 상태: URL/DOI는 웹검색으로 실재 확인된 것 유지. 서지 상세(권/페이지)는
+동기화 기준: **paper_plan_v7.md** (2026-08-08 반영). 주 목록 [1]–[15]는 v7 계획서의 참고문헌과
+번호·순서 동일이며, 그룹 선행 논문 2건을 [16]–[17]로 추가(append)하였다 — [1]–[15]는 재번호하지
+않음. 검증 상태: URL/DOI는 웹검색으로 실재 확인된 것 유지. 서지 상세(권/페이지)는
 확인된 것만 표기, 미확인은 "[서지정보 확인 필요]"로 표시 (임의로 채우지 말 것).
 그룹 자기인용(⚑)은 self-overlap 관리 대상.
 
@@ -44,11 +45,12 @@
   Using Embedded Microlens Arrays." *ACS Photonics* **2018**.
   https://doi.org/10.1021/acsphotonics.8b00255 [서지정보 확인 필요: 권/페이지]
 - 내용: embedded hemispherical MLA로 매우 높은 EQE 달성 (nonintrusive 외부 광학).
-- 사용처: §1 서론 — embedded hemispherical MLA의 very high EQE 보고 [4,5].
-- ⚠ **번호 불일치 확인 필요**: plan §4.1은 "[5] 본 연구 그룹의 선행 MLA-OLED 연구
-  (실험 배광·EQE 검증)"라고 쓰는데, 리스트 [5]는 Forrest 그룹의 Qu 2018임.
-  §4.1의 의도는 아래 미채택 섹션의 ⚑ Kim 2023 *ACS Photonics* (자기 그룹)일 가능성이
-  높음 — 원고 확정 전에 [5]를 분리·재번호하거나 §4.1 인용을 수정할 것.
+- 사용처: §1 서론 — embedded hemispherical MLA의 very high EQE 보고 [4,5];
+  §2.5/§4.5 — 일반성 검사의 embedded MLA family 구조 근거(저굴절 overcoat 평탄화).
+- ✔ **번호 불일치 해소 (2026-08-08)**: plan §4.1의 "[5] 본 연구 그룹의 선행 연구"는
+  실제로는 그룹 자기 논문(Kim 2023 *ACS Photonics*)을 가리키는 오기였음. 그룹 논문
+  2건을 [16]/[17]로 append하고 원고 §4.1(및 §1)의 인용을 [16,17]로 수정하여 해결.
+  리스트 [5]는 Qu 2018로 유지.
 
 ### [6] Kim 2021 — DNN inverse design of OLED
 - Kim, S.(?); et al. "Inverse Design of Organic Light-Emitting Diode Structure Based on
@@ -73,7 +75,7 @@
   "light interacts more often with absorbing materials inside the device"로 손실 증가를
   명시 — 우리의 recycling loss 트레이드오프 계산과 정합.
 - 사용처: §2.4 — 회절/공진 요소는 방향성 광분배 가능(스코핑 가드레일) [8,9];
-  §2.6 — angular-selective recycling이 이미 알려진 개념임의 근거 [8,14,15].
+  §2.7 — angular-selective recycling이 이미 알려진 개념임의 근거 [8,14,15].
   ⚠ 선행 확정 — 새 구조 "제안"으로 쓰지 말고 known-route reference로만 배치.
 
 ### [9] Commun. Eng. 2025 — metasurface directional microLED
@@ -89,7 +91,7 @@
   *Adv. Opt. Photon.* **2018**, *10*, 484–511.
   https://opg.optica.org/aop/fulltext.cfm?uri=aop-10-2-484&id=389885
 - 내용: étendue 보존, brightness theorem, sine-law 집광 한계 — 방향성 상한의 정석 언어.
-- 사용처: §2.5 — radiance/étendue envelope를 "numerical frontier 해석 기준"으로
+- 사용처: §2.6 — radiance/étendue envelope를 "numerical frontier 해석 기준"으로
   사용하는 근거 [10,11] (global impossibility theorem 아님 — v7 표현 준수).
 
 ### [11] Rau 2007 — reciprocity relation (solar cells)
@@ -97,7 +99,7 @@
   Electroluminescent Emission of Solar Cells." *Phys. Rev. B* **2007**, *76*, 085303.
   https://doi.org/10.1103/PhysRevB.76.085303
 - 내용: 준평형에서 EL 방출 ↔ 광전 흡수(EQE)의 상반성 관계 (태양전지 맥락).
-- 사용처: §2.5 — [10]과 병기되어 radiance/étendue envelope 문단에 등장 [10,11].
+- 사용처: §2.6 — [10]과 병기되어 radiance/étendue envelope 문단에 등장 [10,11].
 - ⚠ **적용 범위 주의 — 상반성/광자재활용 일반 맥락에만 인용, radiance envelope
   논증에는 인용 금지 (외부 리뷰 지적).** 구판에서 "방향성 봉투 = 방출=흡수 동형"의
   일반화 Kirchhoff 근거로 오용했음. Rau 2007은 준평형 diode의 흡수↔방출 상반성이지
@@ -110,7 +112,7 @@
   Devices." *Light: Sci. Appl.* **2013**, *2*, e74. https://doi.org/10.1038/lsa.2013.30
 - 내용: RGB 인광 microcavity OLED의 효율 향상 계통 연구 — cavity가 substrate-side
   source distribution을 바꾸는 대표 사례.
-- 사용처: §2.6 — source/cavity engineering이 OLED angular emission control의
+- 사용처: §2.7 — source/cavity engineering이 OLED angular emission control의
   확립된 방법이라는 근거 [12,13].
 
 ### [13] Song 2018 — lens-free scattering, >50% EQE ★ 직접 경쟁 선행
@@ -118,7 +120,7 @@
   External Scattering and Horizontally Oriented Emitters." *Nat. Commun.* **2018**,
   *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x
 - 내용: 렌즈 없이 외부 산란층 + 수평 배향 emitter만으로 EQE >50% 달성.
-- 사용처: §2.6 — source/cavity engineering 경로의 근거 [12,13].
+- 사용처: §2.7 — source/cavity engineering 경로의 근거 [12,13].
 - ★ **DIRECT COMPETING PRIOR — §2.x에서 명시적으로 논의 필수.** 렌즈 없이도 총 EQE가
   매우 높게 나온다는 사실은 본 논문의 포화 논지를 오히려 강화함: 총 추출은 lens-free
   경로로도 달성 가능하며, 본 논문의 질문은 "freeform MLA가 그 위에 angular control을
@@ -131,14 +133,38 @@
   https://pubmed.ncbi.nlm.nih.gov/36558597/
   [서지정보 확인 필요: 저자·저널명(MDPI 계열 추정)·권/논문번호]
 - 내용: OLED 디스플레이 픽셀에 각도선택 광학 필름 직접 적용.
-- 사용처: §2.6 — angular-selective recycling이 known route임의 근거 [8,14,15].
+- 사용처: §2.7 — angular-selective recycling이 known route임의 근거 [8,14,15].
 
 ### [15] Kim 2017 — optical recycling with air-gapped bridges
 - Kim, H.-J.; et al. "High Efficient OLED Displays Prepared with the Air-Gapped Bridges
   on Quantum Dot Patterns for Optical Recycling." *Sci. Rep.* **2017**, *7*, 43063.
   https://doi.org/10.1038/srep43063
 - 내용: OLED 디스플레이 photon recycling 실측 이득 (적색 58.2%).
-- 사용처: §2.6 — angular-selective recycling/photon recycling known-route 근거 [8,14,15].
+- 사용처: §2.7 — angular-selective recycling/photon recycling known-route 근거 [8,14,15].
+  (원고 §2.6→§2.7 재번호: 2026-08-08 generality 절 삽입에 따름.)
+
+### [16] Kim 2023 — 그룹 선행: IMLA foldable OLED (trans-scale 검증) ⚑
+- Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S.
+  "Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin
+  Substrates Embedded with Micron-Scale Inverted Lens Arrays." *ACS Photonics*
+  **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017
+  [PDF: Kim2023_ACSPhotonics_IMLA_foldable.pdf — 저자·권/페이지 PDF 1면에서 확인]
+- 내용: inverted microlens array(IMLA) 내장 초박형 기판 foldable OLED, EQE 최대 58%.
+  trans-scale(CPS+BSDF+LightTools) 방법을 제작 소자의 실측 배광·EQE와 비교 검증.
+- 사용처: §1 서론 — 검증된 source model 언급 [16,17]; §2.5/§4.5 — inverted(오목형)
+  MLA family의 실현 선례 [16]; §4.1 — trans-scale 파이프라인의 실험 검증 앵커 [16,17].
+- ⚑ self-overlap 관리: trans-scale 방법·EQE 58% 선점 — 방법 인용에 한정, 결과 재주장 금지.
+
+### [17] Nat. Commun. 2025 — 그룹 선행: near-planar outcoupling co-design ⚑
+- "Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for
+  Ultra-Efficient and Optical Crosstalk-Free OLED Displays." *Nat. Commun.* **2025**.
+  https://www.nature.com/articles/s41467-025-66538-6
+  [서지정보 확인 필요: 저자·권/논문번호]
+- 내용: 스택+구조 공동설계로 48% EQE, crosstalk-free OLED 디스플레이 — 동일 시뮬레이션
+  파이프라인의 제작 소자 대비 검증 사례.
+- 사용처: §1 서론 — 검증된 source model 언급 [16,17]; §4.1 — trans-scale 파이프라인의
+  실험 검증 앵커 [16,17].
+- ⚑ self-overlap 관리 대상.
 
 ---
 
@@ -147,19 +173,10 @@
 v7 계획서의 [1]–[15]에 포함되지 않은 구판 항목. 사유 1줄씩. "보류"는 원고 확장 시
 재고 가능, "미채택"은 현 논지에서 제외.
 
-### 자기 그룹 (⚑ self-overlap 관리 — v7 리스트 누락 여부 확인 필요)
-- ⚑ Kim, Kim, Park, Song, Kim, Moon, Yoo. "Toward Near-Foldable Surface Light Sources...
-  Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays." *ACS Photonics*
-  **2023**, *10*, 1775. https://pubs.acs.org/doi/10.1021/acsphotonics.3c00017
-  [PDF: Kim2023_ACSPhotonics_IMLA_foldable.pdf]
-  — 사유: v7 번호 리스트에 없음. 단, plan §4.1의 "본 연구 그룹의 선행 MLA-OLED 연구 [5]"가
-  이 논문을 가리키는 것으로 보임 (위 [5] 항목의 번호 불일치 메모 참조). **리스트 편입 유력 —
-  원고 확정 시 결정.** trans-scale(CPS+BSDF+LightTools) 방법·EQE 58% 선점 → self-overlap 관리.
-- ⚑ "Near-planar light outcoupling structures with finite lateral dimensions for
-  ultra-efficient and optical crosstalk-free OLED displays." *Nat. Commun.* **2025**.
-  https://www.nature.com/articles/s41467-025-66538-6
-  — 사유: v7 리스트에 없음 (보류). 스택+구조 공동설계 48% EQE — §2.6 source/cavity
-  경로 논의 확장 시 재고; self-overlap 관리 대상.
+### 자기 그룹 (⚑ self-overlap 관리)
+- ✔ **해소 (2026-08-08)**: 이 섹션에 있던 그룹 논문 2건(Kim 2023 *ACS Photonics*,
+  *Nat. Commun.* 2025)은 주 목록 [16]/[17]로 편입 완료 — 상세는 위 [16]/[17] 항목 참조.
+  이에 따라 [5] 항목의 "본 연구 그룹" 번호 불일치 경고도 해소됨.
 
 ### Inverse design / freeform 관련 (미채택)
 - "Dual-Task Optimization Method for Inverse Design of RGB Micro-LED Light Collimator"
@@ -176,13 +193,13 @@ v7 계획서의 [1]–[15]에 포함되지 않은 구판 항목. 사유 1줄씩.
   — 사유: 동일 — theorem-style 논증 철회로 불필요, 특허 인용 회피 (미채택).
 - "Analysis of light out-coupling from microlens array." *Opt. Commun.* (2011).
   — 사유: escape-cone 안팎 재활용 분석 — 현 v7 본문 서술에 인용 슬롯 없음 (보류;
-  §2.5 논의 확장 시 재고).
+  §2.6 논의 확장 시 재고).
 - MLA-OLED 휘도효율 평가 기법. *Opt. Express* 12, 5777 (2004).
   — 사유: 기초 방법론, [3–5]로 대체 (미채택).
 - 효율 ↔ 이미지 blur 트레이드오프 (MLA-film, J. Inf. Disp. 2018).
   — 사유: 공간 blur 축은 out of scope — v7은 angular 축만 다룸 (미채택).
 - micro-Horn collimator µLED, arXiv:2412.14027.
-  — 사유: collimator = 주기 굴절렌즈 클래스 밖; §2.6 aperture expansion 경로에
+  — 사유: collimator = 주기 굴절렌즈 클래스 밖; §2.7 aperture expansion 경로에
   예시가 필요해지면 재고 (보류).
 - 메타표면 phosphor µLED 방향성. *ACS Nano* (2024).
   — 사유: 메타표면 조향 가드레일 역할은 [9] *Commun. Eng.* 2025로 대체 (미채택).
@@ -204,7 +221,7 @@ v7 계획서의 [1]–[15]에 포함되지 않은 구판 항목. 사유 1줄씩.
   — 사유: 회절 프레임의 "주기 MLA 조향 불가" 논거는 P0 피벗(정리형 주장 철회) 후
   미사용 (미채택).
 - 확장광원 freeform + étendue blur. *Optica* 3, 840 (2016).
-  — 사유: v7 리스트 미포함이나 §2.5 lateral mixing/extended-source 논의와 관련 —
+  — 사유: v7 리스트 미포함이나 §2.6 lateral mixing/extended-source 논의와 관련 —
   리뷰 대응 시 재고 (보류).
 - cross-scale 3D OLED 픽셀 EM 시뮬레이션. *Org. Electron.* (2022).
   — 사유: EM-스케일 시뮬은 본 방법론(CPS+ray tracing)과 다른 축, out of scope (미채택).

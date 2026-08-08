@@ -14,9 +14,9 @@
 
 ## 초록
 
-자유형(freeform) 마이크로렌즈 어레이(MLA)와 수치 역설계(inverse design)는 OLED의 광추출 효율과 배광을 동시에 제어할 수 있는 수단으로 널리 기대되어 왔다. 그러나 이 기대는 대개 점광원 또는 렌즈 개구보다 훨씬 작은 광원을 전제한 광학계에서 비롯되며, 균일한 확장 광원(extended source) 위에 공면적(coextensive)으로 타일링된 MLA에 그대로 적용되지는 않는다. 여기서 우리는 CPS 기반의 OLED 광원 모델과 3차원 광선추적을 결합하여, 반구형 기준 렌즈, 축대칭 자유형 렌즈, 비대칭·off-axis 자유형 렌즈를 동일한 기하·재료·공정 제약 아래 비교하였다. 총 외부양자효율(EQE)과 네 개의 polar band(0–20°, 20–40°, 40–60°, 60–80°) 각각을 독립적인 단일 목적함수로 최적화하였고, 총 EQE와 40–60° band 사이의 가중합 스윕으로 이를 보완하였다 **[4-band 최적화 결과: 추후 삽입]**. 그 결과, 높은 형상 자유도와 cavity 공동 최적화에도 불구하고 자유형 MLA가 반구형 MLA 대비 제공하는 추가 이득은 탐색한 조건 전반에서 작았다. 유효 무작위 설계 150개와 가중합 스윕($w=0,0.25,0.5,0.75,1$)을 합친 표본에서 총 EQE는 0.11–0.56에 걸쳐 5배 변했지만, 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴하여 효율–지향성 트레이드오프는 관측되지 않았고, 최적 설계의 40–60° band 선택성은 약 0.355로 Lambertian 값 0.337에 근접하였다. 목표 band를 바꾸거나 비대칭 형상으로 방위각 창을 직접 최적화해도, 총 추출의 개선을 넘어서는 안정적이고 재현 가능한 angular gain은 탐색 범위 내에서 관측되지 않았다.
+자유형(freeform) 마이크로렌즈 어레이(MLA)와 수치 역설계(inverse design)는 OLED의 광추출 효율과 배광을 동시에 제어할 수 있는 수단으로 널리 기대되어 왔다. 그러나 이 기대는 대개 점광원 또는 렌즈 개구보다 훨씬 작은 광원을 전제한 광학계에서 비롯되며, 균일한 확장 광원(extended source) 위에 공면적(coextensive)으로 타일링된 MLA에 그대로 적용되지는 않는다. 여기서 우리는 CPS 기반의 OLED 광원 모델과 3차원 광선추적을 결합하여, 반구형 기준 렌즈, 축대칭 자유형 렌즈, 비대칭·off-axis 자유형 렌즈를 동일한 기하·재료·공정 제약 아래 비교하였다. 총 외부양자효율(EQE)과 네 개의 polar band(0–20°, 20–40°, 40–60°, 60–80°) 각각을 독립적인 단일 목적함수로 최적화하였고, 총 EQE와 40–60° band 사이의 가중합 스윕으로 이를 보완하였다 **[4-band 최적화 결과: 추후 삽입]**. 그 결과, 높은 형상 자유도와 cavity 공동 최적화에도 불구하고 자유형 MLA가 반구형 MLA 대비 제공하는 추가 이득은 탐색한 조건 전반에서 작았다. 유효 무작위 설계 150개와 가중합 스윕($w=0,0.25,0.5,0.75,1$)을 합친 표본에서 총 EQE는 0.11–0.56에 걸쳐 5배 변했지만, 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴하여 효율–지향성 트레이드오프는 관측되지 않았고, 최적 설계의 40–60° band 선택성은 약 0.355로 Lambertian 값 0.337에 근접하였다. 목표 band를 바꾸거나 비대칭 형상으로 방위각 창을 직접 최적화해도, 총 추출의 개선을 넘어서는 안정적이고 재현 가능한 angular gain은 탐색 범위 내에서 관측되지 않았다. 이 benchmark family를 넘어, 우리는 세 가지 추가 제조 가능 MLA family—저굴절 overcoat 아래에 평탄화된 embedded MLA, inverted(오목형) MLA, pseudo-random supercell로 표현한 randomly assembled MLA—를 동일한 프로토콜로 stress test한다 **[MLA family 일반성 stress test 결과: 추후 삽입]**.
 
-이 실용적 포화(practical saturation)는 세 가지 요인으로 설명된다. 첫째, coextensive tiled array에서는 개구 면적과 유효 광원 면적이 함께 증가하므로 점광원 집광에 필요한 면적 이득이 생기지 않는다. 둘째, 기판 내 횡방향 전파가 인접 lenslet 사이의 광을 혼합하여 국소 형상이 활용할 수 있는 공간 정보를 약화한다. 셋째, 수동 외부 광학계는 주어진 source radiance와 출광 면적 아래에서 특정 angular channel에 전달할 수 있는 power의 상한 경향을 갖는다. 이 결과는 자유형 MLA가 무의미하다는 뜻이 아니라, 확장 OLED에서 형상 복잡도에 계속 투자할지 중단할지를 판정하는 기준을 제공한다. 마지막으로 우리는 MLA 포화 이후의 세 경로—source/cavity engineering, aperture expansion, angular-selective recycling—를 같은 물리적 언어로 정리하고, 목표 성능에 따라 다음 설계 레버를 선택하는 design-route map을 제시한다. 이상적 각도필터 모델은 왕복 손실 10%에서 40–60° band에 발생 광량의 62.1%를 전달할 수 있는 반면, 현실적 8-pair DBR은 단색 광원에서 48.2%, 100 nm 대역폭에서 32.5%에 머물러 source bandwidth와 손실이 이 경로의 실질적 제약임을 보인다.
+이 실용적 포화(practical saturation)는 세 가지 요인으로 설명된다. 첫째, coextensive tiled array에서는 개구 면적과 유효 광원 면적이 함께 증가하므로 점광원 집광에 필요한 면적 이득이 생기지 않는다. 둘째, 기판 내 횡방향 전파가 인접 lenslet 사이의 광을 혼합하여 국소 형상이 활용할 수 있는 공간 정보를 약화한다. 셋째, 수동 외부 광학계는 주어진 source radiance와 출광 면적 아래에서 특정 angular channel에 전달할 수 있는 power의 상한 경향을 갖는다. 이 결과는 자유형 MLA가 무의미하다는 뜻이 아니라, 시험한 네 개의 제조 가능 family 전반에 걸쳐, 확장 OLED에서 형상 복잡도에 계속 투자할지 중단할지를 판정하는 기준을 제공한다. 마지막으로 우리는 MLA 포화 이후의 세 경로—source/cavity engineering, aperture expansion, angular-selective recycling—를 같은 물리적 언어로 정리하고, 목표 성능에 따라 다음 설계 레버를 선택하는 design-route map을 제시한다. 이상적 각도필터 모델은 왕복 손실 10%에서 40–60° band에 발생 광량의 62.1%를 전달할 수 있는 반면, 현실적 8-pair DBR은 단색 광원에서 48.2%, 100 nm 대역폭에서 32.5%에 머물러 source bandwidth와 손실이 이 경로의 실질적 제약임을 보인다.
 
 ---
 
@@ -28,7 +28,7 @@ OLED의 외부 광추출은 여전히 소자 효율과 고휘도 구동 수명�
 
 이 논문은 이 직관을 정면으로 시험한다. 우리의 질문은 "더 좋은 freeform 렌즈를 찾을 수 있는가?"가 아니라, **확장 OLED 위의 tiled refractive MLA에서 형상 자유도는 실제로 얼마나 가치 있는가?**이다. 렌즈 없는 산란층이 이미 높은 총 EQE에 도달할 수 있다면 [13], 자유형 MLA에 기대할 수 있는 고유한 부가가치는 총 추출 위에 얹히는 **각도 제어**여야 한다. 본 연구는 바로 그 부가가치가 탐색 가능한 설계공간에서 실제로 실현되는지를 정량적으로 조사한다. 이 질문은 실무적으로 중요하다. 자유형 설계와 정밀 성형은 제조 비용과 검증 부담을 높이지만, 얻는 이득이 hemispherical reference를 거의 넘지 못한다면 설계의 다음 단계는 더 복잡한 형상이 아니라 광원, 개구, 또는 재활용 경로를 바꾸는 것이어야 한다.
 
-우리는 동일한 OLED source model과 동일한 제조 가능 기하 제약 아래에서, (i) hemispherical MLA, (ii) 축대칭 freeform MLA를 비교하고, 보조 연구로 (iii) 비대칭 3D freeform MLA를 별도 조건에서 시험한다. 총 EQE뿐 아니라 polar band와 제한된 azimuthal window를 목적함수로 사용하고, 다중 시작점 최적화와 고정밀 재평가로 optimizer dependence를 분리한다. 그 결과를 radiance/étendue 관점 및 기판 내 lateral mixing과 연결한다. 본 연구의 기여는 새로운 MLA 형상을 제안하는 데 있지 않다. 대신 **freeform MLA의 실용적 포화를 진단하고, 그 뒤에 어떤 광학 레버로 넘어가야 하는지를 정량적으로 제시하는 것**이다. 이때의 포화는 보편 정리(universal theorem)가 아니라, 재현 가능한 벤치마크와 불확도를 갖춘 수치적 관측으로 제시된다.
+우리는 제작 소자와의 비교로 검증된 바 있는 동일한 OLED source model [16,17]과 동일한 제조 가능 기하 제약 아래에서, (i) hemispherical MLA, (ii) 축대칭 freeform MLA를 비교하고, 보조 연구로 (iii) 비대칭 3D freeform MLA를 별도 조건에서 시험한다(2.4절). 나아가 embedded, inverted, randomly assembled MLA의 세 가지 추가 제조 가능 family에 대해 결과의 일반성을 시험한다(2.5절). 총 EQE뿐 아니라 polar band와 제한된 azimuthal window를 목적함수로 사용하고, 다중 시작점 최적화와 고정밀 재평가로 optimizer dependence를 분리한다. 그 결과를 radiance/étendue 관점 및 기판 내 lateral mixing과 연결한다. 본 연구의 기여는 새로운 MLA 형상을 제안하는 데 있지 않다. 대신 **freeform MLA의 실용적 포화를 진단하고, 그 뒤에 어떤 광학 레버로 넘어가야 하는지를 정량적으로 제시하는 것**이다. 이때의 포화는 보편 정리(universal theorem)가 아니라, 재현 가능한 벤치마크와 불확도를 갖춘 수치적 관측으로 제시된다.
 
 ---
 
@@ -90,7 +90,15 @@ $$
 
 우리의 계산에서는 비대칭 형상이 far-field의 중심과 세부 분포를 이동시킬 수는 있었지만, hemispherical MLA보다 크게 높은 **절대 window power**를 안정적으로 얻지는 못했다 **[최종 비교 수치 삽입]**. 이 결과는 "주기 array가 어떤 상황에서도 조향할 수 없다"는 뜻이 아니다. 비대칭 prism, diffractive element, metasurface, 또는 충분한 aperture expansion은 방향성 광분배를 만들 수 있다 [8,9]. 다만 균일한 확장 OLED source 위의 coextensive refractive MLA에서는, 탐색한 범위 내에서 그러한 재배분이 hemispherical reference를 크게 넘는 유용한 output channel로 이어지지 않았다는 것이 본 연구의 범위 내 결론이다.
 
-### 2.5 포화의 물리적 원인: 면적, 혼합, 그리고 radiance envelope
+### 2.5 MLA family 전반의 일반성 (Generality across MLA families)
+
+2.1–2.3절의 benchmark는 하나의 array 구성—기판 출광면에 성형된 볼록 lenslet—에 대한 것이다. 관측된 포화가 이 특정 구성의 산물이 아님을 확인하기 위해, 세 가지 추가 제조 가능 MLA family에 동일한 시험을 적용한다. (i) **Embedded MLA**: 렌즈 array를 저굴절률 수지 overcoat($n \approx 1.41$) 아래에 평탄화하여 외부 광학 표면이 평평한 구성으로, Qu 등의 embedded-MLA 구조를 따른다 [5]. (ii) **Inverted(오목형) MLA**: 동일한 freeform profile class의 오목형 대응물로, inverted-microlens-array 플랫폼에서 실현된 바 있다 [16]. (iii) **Randomly assembled MLA**: 비주기 array를 pseudo-random supercell로 표현한 구성으로, lenslet 위치를 육각 격자에서 jitter시키고 각 lenslet에 동일 class에서 독립적으로 추출한 무작위 profile을 부여한 뒤 supercell을 주기적으로 타일링한다(4.5절). 이 supercell 표현은 무질서의 correlation length가 supercell 크기보다 충분히 작을 때 진짜 무작위 array와 통계적으로 동등하다.
+
+각 family에는 전체 프로토콜의 경량 버전을 적용한다. 즉 achievable region을 채우는 100개의 유효 무작위 설계, 총 EQE에 대한 1회의 전용 최적화, 그리고 최선 후보의 고정밀 재평가다. 각 family에 대해 앞서 확립한 포화의 세 가지 signature를 검사한다. (a) (총 EQE, band EQE) 점들의 준선형 붕괴, (b) 최선 설계의 선택성이 Lambertian partition에 근접, (c) 동일한 약한 단조 편류. 결과는 추후 확정된다: **[embedded MLA stress test 결과: 추후 삽입]**; **[inverted MLA stress test 결과: 추후 삽입]**; **[randomly assembled MLA stress test 결과: 추후 삽입]**. 그림 5는 family당 3-panel 일반성 검사로 이 결과를 담을 예정이다. 세 signature가 재현되면 포화 진술은 단일 array 구성에서 시험한 네 개의 제조 가능 family로 확장되고, 어떤 family가 이탈한다면 그 이탈 자체가 어떤 구성 요소가 중요한지를 국소화한다.
+
+**Fig. 5 | MLA family 일반성 검사.** 세 추가 family—embedded(저굴절 overcoat $n \approx 1.41$, flat top), inverted(오목형), randomly assembled(pseudo-random supercell)—각각에 대해 3개 패널: (좌) 무작위 설계 100개와 전용 최적점의 총 EQE 대 40–60° band EQE **[추후 삽입]**; (중) 최선 설계의 band 선택성과 Lambertian partition 비교 **[추후 삽입]**; (우) band별 선택성–효율 상관 $R$ **[추후 삽입]**.
+
+### 2.6 포화의 물리적 원인: 면적, 혼합, 그리고 radiance envelope
 
 관측된 포화는 세 개의 서로 보완적인 관점에서 설명된다.
 
@@ -100,7 +108,9 @@ $$
 
 셋째, 주어진 source radiance와 출광 면적에서 passive external layer가 특정 solid angle에 공급할 수 있는 power에는 radiance/étendue envelope가 존재한다 [10]. 본 연구에서는 이를 global impossibility theorem이 아니라, numerical frontier를 해석하는 기준으로 사용한다. 평면 계면 또는 hemisphere가 그 envelope에 가까워질수록, 더 복잡한 profile은 새로운 radiance를 만들기보다 기존 power의 작은 재배분만 수행한다. 2.3절에서 관측된 준선형 붕괴와 Lambertian 근방의 선택성은 이 해석과 정합적이다.
 
-### 2.6 MLA 포화 이후의 설계 경로
+마지막으로 이 시뮬레이션 결과의 인식적 무게를 분명히 해 둘 필요가 있다. 본 논문의 핵심 주장은 부정적 주장—특정 profile의 우월성이 아니라 실용적 포화—이므로, 이상화된 시뮬레이션 조건은 형상 자유도가 이득을 드러내기에 가장 유리한 조건이다. 표면은 수학적으로 완벽하고, 정렬은 정확하며, 제작 형상 오차·정렬 오차·lens-to-lens 산포가 전혀 없다. 실제 제작 결함은 freeform profile이 hemispherical reference에 대해 갖는 이득을 줄일 수만 있을 뿐, 새로 만들 수는 없다. 따라서 시뮬레이션에서 얻은 null result는 보수적이다. 제작 공정은 여기서 보고한 작은 이득을 더 줄일 수는 있어도, 결론을 뒤집을 수는 없다.
+
+### 2.7 MLA 포화 이후의 설계 경로
 
 MLA 형상 최적화의 수익이 작다는 결론은 광추출이 더 이상 개선될 수 없다는 뜻이 아니다. 대신 바꾸어야 하는 물리량이 형상이 아니라는 뜻이다. 그림 4는 세 가지 후속 경로를 정리한다.
 
@@ -116,7 +126,7 @@ MLA 형상 최적화의 수익이 작다는 결론은 광추출이 더 이상 �
 
 ## 3. 결론
 
-우리는 확장 OLED 위의 제조 가능한 tiled refractive MLA에서 freeform 형상 자유도의 실용적 가치를 체계적으로 시험하였다. 총 EQE와 네 polar band 각각을 독립 단일목적으로 최적화하고 가중합 스윕과 비대칭 off-axis 보조 연구로 이를 보완했지만 **[4-band 최적화 결과: 추후 삽입]**, freeform MLA는 동일 조건의 hemispherical MLA를 크게 넘는 안정적인 성능 이득을 보이지 않았다. 유효 무작위 설계 150개와 Pareto 스윕 전반에서 총 EQE가 0.11–0.56으로 5배 변하는 동안 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴했고, 효율–지향성 트레이드오프도, hemispherical reference를 의미 있게 넘는 각도 조향도 관측되지 않았다. 이 결과는 hemisphere가 모든 광학계에서 최적이라는 보편 명제가 아니다. 대신 coextensive tiling, extended source, substrate-mediated lateral mixing, 그리고 주어진 radiance/area 조건이 함께 성립할 때, 탐색한 설계공간 내에서 형상 복잡도만으로 확보할 수 있는 추가 자유도가 작다는 정량적 결론이다.
+우리는 확장 OLED 위의 제조 가능한 tiled refractive MLA에서 freeform 형상 자유도의 실용적 가치를 체계적으로 시험하였다. 총 EQE와 네 polar band 각각을 독립 단일목적으로 최적화하고 가중합 스윕과 비대칭 off-axis 보조 연구로 이를 보완했지만 **[4-band 최적화 결과: 추후 삽입]**, freeform MLA는 동일 조건의 hemispherical MLA를 크게 넘는 안정적인 성능 이득을 보이지 않았다. 유효 무작위 설계 150개와 Pareto 스윕 전반에서 총 EQE가 0.11–0.56으로 5배 변하는 동안 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴했고, 효율–지향성 트레이드오프도, hemispherical reference를 의미 있게 넘는 각도 조향도 관측되지 않았다. 이 결과는 hemisphere가 모든 광학계에서 최적이라는 보편 명제가 아니다. 대신 coextensive tiling, extended source, substrate-mediated lateral mixing, 그리고 주어진 radiance/area 조건이 함께 성립할 때, 탐색한 설계공간 내에서 형상 복잡도만으로 확보할 수 있는 추가 자유도가 작다는 정량적 결론이다. embedded, inverted, randomly assembled MLA의 세 가지 추가 제조 가능 family에 대한 동일 프로토콜의 일반성 검사는 이 시험을 단일 array 구성 너머로 확장한다 **[MLA family 일반성 stress test 결과: 추후 삽입]**. 이때의 포화 진술은 시험한 네 개의 제조 가능 family에 대한 열거적 진술이며, 그 밖으로 확장되지 않는다.
 
 따라서 본 연구는 freeform MLA를 포기하라는 결론이 아니라, 설계 결정을 앞당기는 기준을 제공한다. hemisphere benchmark에서 포화가 확인되면, 다음 개선은 더 많은 lens-shape degrees of freedom이 아니라 source/cavity engineering, aperture expansion, 또는 angular-selective recycling에서 찾아야 한다. 이 design-route map은 OLED뿐 아니라 확장 박막 광원을 사용하는 PeLED, QLED, micro-LED optical packaging에도 적용 가능한 실용적 출발점이 된다.
 
@@ -126,7 +136,7 @@ MLA 형상 최적화의 수익이 작다는 결론은 광추출이 더 이상 �
 
 ### 4.1 Trans-scale source model
 
-OLED stack의 dipole emission은 CPS formalism으로 계산하였다. 파장 및 substrate-side angle에 따른 $I_{\mathrm{sub}}(\theta,\lambda)$는 macroscopic ray tracing의 spectral/angular source로 사용하였다. 광원은 반경 $r_{\mathrm{OLED}}=1$ mm의 확장 면광원으로, 두께 $d_{\mathrm{sub}}=1.295$ mm의 기판 하면에 배치된다. CPS input, material dispersion, dipole orientation, internal radiative efficiency, emission spectrum, layer thickness 및 wavelength sampling은 표 S1에 정리한다. 본 프레임워크는 본 연구 그룹의 선행 MLA-OLED 연구에서 실험 배광 및 EQE와 비교된 바 있다 [5].
+OLED stack의 dipole emission은 CPS formalism으로 계산하였다. 파장 및 substrate-side angle에 따른 $I_{\mathrm{sub}}(\theta,\lambda)$는 macroscopic ray tracing의 spectral/angular source로 사용하였다. 광원은 반경 $r_{\mathrm{OLED}}=1$ mm의 확장 면광원으로, 두께 $d_{\mathrm{sub}}=1.295$ mm의 기판 하면에 배치된다. CPS input, material dispersion, dipole orientation, internal radiative efficiency, emission spectrum, layer thickness 및 wavelength sampling은 표 S1에 정리한다. 동일한 trans-scale 파이프라인—CPS dipole microcavity source와 LightTools 3차원 광선추적의 결합—은 본 연구 그룹의 선행 논문에서 제작된 소자의 실측 배광 및 EQE와 비교하여 실험적으로 검증된 바 있다 [16,17].
 
 ### 4.2 Lens classes와 제조 제약
 
@@ -141,6 +151,10 @@ Hemispherical reference와 축대칭 freeform을 동일 제약 아래 비교하�
 ### 4.4 Angular-selective recycling model
 
 각도별 transmission/reflection $T(\theta,\lambda)$를 가진 external layer와 round-trip loss $a$를 갖는 reflective electrode를 Markov recycling model로 표현하였다. 이상적 angular filter는 target band에서 $T=1$, 그 밖에서 $T=0$으로 정의했다. 실현 가능한 filter는 alternating high/low-index dielectric multilayer(8-pair DBR)의 transfer-matrix calculation(Python)으로 계산했다. 비선별 굴절층의 단일 통과 대역 선택성은 해석 모델에서 33.7%, 수치 계산에서 33.8%로 산란 비대칭 파라미터 $g$에 무관하였다. 이 모델은 MLA와 DBR를 결합한 소자 제안이 아니라, non-selective refractive MLA의 포화와 selective recycling의 차이를 분리하기 위한 reference calculation이다.
+
+### 4.5 일반성 검사를 위한 MLA family 기하
+
+Embedded MLA는 benchmark의 렌즈 profile과 pitch를 유지하되 array를 저굴절률 수지 overcoat($n \approx 1.41$) 아래에 평탄화하여 외부 광학 표면을 평평하게 하고, 굴절은 매립된 lens/resin 계면에서 일어난다 [5]. Inverted MLA는 동일 freeform profile class의 오목형 대응물로, 4.2절의 profile 매개변수화·제약·기각 규칙을 오목 표면에 적용한다 [16]. Randomly assembled MLA는 pseudo-random supercell로 표현한다. 즉 lenslet 위치를 육각 격자에서 **[supercell jitter 파라미터: 추후 삽입]** 만큼 jitter시키고, 각 lenslet에 동일 매개변수화 class에서 독립 추출한 무작위 profile을 부여한 뒤, supercell을 array 전면에 주기적으로 타일링한다. 이 구성은 무질서의 correlation length가 supercell 크기보다 충분히 작을 때 무작위 array와 통계적으로 동등하다 **[supercell 크기 및 correlation length: 추후 삽입]**. 각 family는 2.5절의 경량 프로토콜—유효 무작위 설계 100개, 총 EQE 전용 최적화 1회, 고정밀 재평가—을 따르며, 최적화 예산과 ray 수는 표 S2에 보고한다 **[family별 최적화 설정: 추후 삽입]**.
 
 ---
 
@@ -175,3 +189,7 @@ Hemispherical reference와 축대칭 freeform을 동일 제약 아래 비교하�
 14. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** **2022**. https://pubmed.ncbi.nlm.nih.gov/36558597/.
 
 15. Kim, H.-J.; et al. **High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling.** *Sci. Rep.* **2017**, *7*, 43063. https://doi.org/10.1038/srep43063.
+
+16. Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. **Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays.** *ACS Photonics* **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017.
+
+17. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**. https://www.nature.com/articles/s41467-025-66538-6. [서지정보 확인 필요: 저자·권/논문번호]
