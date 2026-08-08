@@ -1,10 +1,9 @@
-# 박막 발광소자 외부 광추출의 한계: 형상은 왜 소진된 자유도인가
+# 확장 OLED에서 자유형 마이크로렌즈 어레이의 실용적 포화와 후속 광학 설계 경로
 
-**[제목 후보]**
-- **외부 광추출에서 각도 선택성은 설계 불변량이다** ← 데이터가 가장 강하게 뒷받침
-- 박막 발광소자 외부 광추출의 한계: 형상은 소진된 자유도이다
-- 방향성 광추출의 에텐듀 한계: 역설계는 왜 반구에서 포화하는가
-- ~~형상 설계로는 효율과 방향성을 동시에 향상시킬 수 없다~~ ← 트레이드오프 부재 확인으로 폐기
+**영문 제목 후보**
+- *Practical Saturation of Freeform Microlens Arrays for Extended OLED Emitters*
+- *When Freeform Microlens Arrays Stop Helping OLEDs: A Design Route Map beyond Hemispheres*
+- *Hemispherical Saturation in Freeform OLED Outcoupling*
 
 **저자** — [TBD]
 
@@ -15,345 +14,164 @@
 
 ## 초록
 
-마이크로렌즈 어레이(MLA)와 산란층은 박막 발광소자의 광추출을 개선하는 대표적인 외부 구조이며, 최근에는
-목표한 배광을 얻기 위해 자유형(freeform) 설계와 수치적 역설계가 활발히 적용되고 있다. 본 연구는 이러한
-구조가 도달할 수 있는 경계를 규명한다. 임의의 수동 외부층은 그 양방향 산란분포함수(BSDF)로 완전히
-기술되며, **에너지 보존과 상반성만으로** 출사 휘도가 *L*<sub>out</sub> ≤ *L*<sub>in</sub>/*n*<sub>s</sub>²
-를 만족함이 따라 나온다. 이는 **내부 다중반사, 전반사 연쇄, 체적 산란과 무관하게** 성립한다. 따라서 주어진
-입체각으로 단일 통과 시 전달 가능한 광량은 그 입체각의 에텐듀와 최대 휘도의 곱으로 유계되며, 이 하나의
-관계식을 목표 입체각만 바꾸어 적용하면 여러 figure of merit에 대한 한계가 단일 틀에서 얻어진다. 우리는
-**평평한 계면이 이미 이 단일 통과 상한을 달성**함을 보인다. 따라서 어떤 마이크로렌즈나 자유형 형상도 단일
-통과 기준으로 평면을 넘어설 수 없다. 나아가 더 강한 진술이 따라 나오며 수치적으로 확인된다 — 추출광 중
-목표 대역에 도달하는 비율인 **각도 선택성은 설계 불변량**이다. 총 추출이 5배 차이 나는 자유형 설계 전반에서
-선택성은 0.355 ± 0.01로 고정되며, 이는 에텐듀 논증이 예측하는 Lambertian 값과 5% 이내로 일치한다. 두 목적
-사이의 Pareto 스윕 또한 단일 설계로 붕괴한다. 따라서 방향성 방출에는 **독립적인 설계 자유도가 존재하지
-않으며**, 총 추출을 개선하는 방법으로만 개선될 수 있다. 각도 압축이 일반적으로 금지된 것은 아니며 그 대가는
-**면적**이다. 다만 발광면을 덮는
-어레이는 출광면/광원 면적비가 1로 고정되어 그 대가를 치를 수단이 없다. 이는 굴절률 정합 반구형
-macroextractor가 작동하는 이유이자 동시에 타일링될 수 없는 이유를 하나의 식으로 설명한다. 단일 통과 상한
-너머에는 세 가지 경로가 있다 — 재활용에 의한 **휘도 축적**, **마이크로캐비티**를 통한 광원 배광 조절,
-그리고 **개구 확장**이다. 물리적으로 허용되는 모든 층에 대해 최적화하면 재활용 상한은 왕복당 손실 10%에서
-40–60° 대역에 발생 광량의 62%를 전달하는 반면, 굴절형 구조는 29%에 머문다. 우리는 이 **2배의 간극을 명시적
-결과로 보고**하며, 굴절형 구조가 이를 메우지 못하는 이유를 **열린 문제**로 제시한다. 여기에 주기적 타일링에서
-순 방위각 조향을 금지하는 기하학적 항등식을 결합하면 달성 가능·불가능 배광의 지도가 얻어지며, 이 경계는 기판
-굴절률과 기하에만 의존하므로 OLED, PeLED, QLED, 마이크로 LED에 공통 적용된다.
+자유형(freeform) 마이크로렌즈 어레이(MLA)와 수치 역설계(inverse design)는 OLED의 광추출 효율과 배광을 동시에 제어할 수 있는 수단으로 널리 기대되어 왔다. 그러나 이 기대는 대개 점광원 또는 렌즈 개구보다 훨씬 작은 광원을 전제한 광학계에서 비롯되며, 균일한 확장 광원(extended source) 위에 공면적(coextensive)으로 타일링된 MLA에 그대로 적용되지는 않는다. 여기서 우리는 CPS 기반의 OLED 광원 모델과 3차원 광선추적을 결합하여, 반구형 기준 렌즈, 축대칭 자유형 렌즈, 비대칭·off-axis 자유형 렌즈를 동일한 기하·재료·공정 제약 아래 비교하였다. 총 외부양자효율(EQE)과 40–60° polar band는 각각 독립적인 목적함수로 최적화하였고, 나머지 polar band(0–20°, 20–40°, 60–80°)는 가중합 스윕과 **[3-band 최적화 결과: 추후 삽입]** 으로 보완하였다. 그 결과, 높은 형상 자유도와 cavity 공동 최적화에도 불구하고 자유형 MLA가 반구형 MLA 대비 제공하는 추가 이득은 탐색한 조건 전반에서 작았다. 유효 무작위 설계 150개와 가중합 스윕($w=0,0.25,0.5,0.75,1$)을 합친 표본에서 총 EQE는 0.11–0.56에 걸쳐 5배 변했지만, 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴하여 효율–지향성 트레이드오프는 관측되지 않았고, 최적 설계의 40–60° band 선택성은 약 0.355로 Lambertian 값 0.337에 근접하였다. 목표 band를 바꾸거나 비대칭 형상으로 방위각 창을 직접 최적화해도, 총 추출의 개선을 넘어서는 안정적이고 재현 가능한 angular gain은 탐색 범위 내에서 관측되지 않았다.
+
+이 실용적 포화(practical saturation)는 세 가지 요인으로 설명된다. 첫째, coextensive tiled array에서는 개구 면적과 유효 광원 면적이 함께 증가하므로 점광원 집광에 필요한 면적 이득이 생기지 않는다. 둘째, 기판 내 횡방향 전파가 인접 lenslet 사이의 광을 혼합하여 국소 형상이 활용할 수 있는 공간 정보를 약화한다. 셋째, 수동 외부 광학계는 주어진 source radiance와 출광 면적 아래에서 특정 angular channel에 전달할 수 있는 power의 상한 경향을 갖는다. 이 결과는 자유형 MLA가 무의미하다는 뜻이 아니라, 확장 OLED에서 형상 복잡도에 계속 투자할지 중단할지를 판정하는 기준을 제공한다. 마지막으로 우리는 MLA 포화 이후의 세 경로—source/cavity engineering, aperture expansion, angular-selective recycling—를 같은 물리적 언어로 정리하고, 목표 성능에 따라 다음 설계 레버를 선택하는 design-route map을 제시한다. 이상적 각도필터 모델은 왕복 손실 10%에서 40–60° band에 발생 광량의 62.1%를 전달할 수 있는 반면, 현실적 8-pair DBR은 단색 광원에서 48.2%, 100 nm 대역폭에서 32.5%에 머물러 source bandwidth와 손실이 이 경로의 실질적 제약임을 보인다.
 
 ---
 
 ## 1. 서론
 
-OLED, PeLED, QLED와 같은 박막 발광소자는 대면적 면발광이 가능하고 유연·곡면 폼팩터에 적용될 수 있다는
-장점에 힘입어 조명과 디스플레이 양 분야의 핵심 광원으로 주목받고 있다. 그러나 무기 LED가 통상 70–80%
-수준의 광추출을 달성하는 것과 달리 이들 소자의 외부 양자효율은 여전히 낮으며, 이는 고휘도 구동과 소자 수명
-확보에 지속적인 제약으로 작용한다 [ref].
+OLED의 외부 광추출은 여전히 소자 효율과 고휘도 구동 수명을 제한하는 핵심 문제다. 유기층 및 기판 도파 모드, 금속 전극과 연관된 손실 모드, 기판/공기 계면의 전반사로 인해 평면 OLED에서 생성된 광자의 상당 부분은 공기 중으로 나오지 못한다 [1,2]. 외부 MLA는 전기적 소자 구조를 건드리지 않으면서 기판 모드를 추출할 수 있어, 대면적 OLED와 유연 OLED에 특히 매력적인 해결책으로 사용되어 왔다 [3–5]. 반구형 또는 준반구형 MLA는 이미 높은 효율을 달성할 수 있으며, embedded hemispherical MLA를 사용한 OLED에서는 매우 높은 EQE도 보고되었다 [4,5]. 나아가 렌즈가 전혀 없는 외부 산란층과 수평 배향 발광체의 조합만으로도 50%를 넘는 EQE가 실증된 바 있다 [13]. 즉 **높은 총 추출 자체는 정교한 렌즈 형상 없이도 도달 가능한 목표**이며, 이 사실은 자유형 형상에 남겨진 고유한 역할이 무엇인지를 되묻게 한다.
 
-내부 양자효율은 더 이상 병목이 아니다. 인광 및 TADF 발광체를 통해 내부 발광효율은 거의 unity에
-근접하였다 [ref]. 남은 제약은 광추출이다. 평판 구조에서는 유기층의 도파 모드, 기판/공기 계면의 전반사,
-금속 전극에서의 표면 플라즈몬 결합이 생성 광자의 상당 부분을 가두어 실질 추출량은 20–25% 수준에 머문다
-[ref].
+그럼에도 더 복잡한 형상에 대한 기대는 계속된다. 자유형 illumination optics와 inverse design은 원하는 배광을 생성하는 강력한 도구이며, 최근에는 micro-LED와 OLED의 광학 패키징에도 적용되고 있다 [6,7]. 직관적으로는 렌즈의 비대칭성, 곡률 분포, 높이, pitch, 또는 microcavity 조건을 동시에 조절하면 총 추출과 특정 방향으로의 방출을 반구형 MLA보다 더 잘 제어할 수 있어 보인다.
 
-이를 해결하기 위한 여러 전략 중 **외부 광추출 구조**(마이크로렌즈 어레이, 산란층 등)는 독특한 위치를
-차지한다. 소자 외부에 형성되므로 전기적 동작을 교란하지 않으며, 발광 물질이나 제작 공정에 크게 구애받지
-않아 OLED·PeLED·QLED 전반에 폭넓게 적용될 수 있고, 상당한 효율 향상을 제공하여 산업적으로도 선호되어
-왔다 [ref].
+이 논문은 이 직관을 정면으로 시험한다. 우리의 질문은 "더 좋은 freeform 렌즈를 찾을 수 있는가?"가 아니라, **확장 OLED 위의 tiled refractive MLA에서 형상 자유도는 실제로 얼마나 가치 있는가?**이다. 렌즈 없는 산란층이 이미 높은 총 EQE에 도달할 수 있다면 [13], 자유형 MLA에 기대할 수 있는 고유한 부가가치는 총 추출 위에 얹히는 **각도 제어**여야 한다. 본 연구는 바로 그 부가가치가 탐색 가능한 설계공간에서 실제로 실현되는지를 정량적으로 조사한다. 이 질문은 실무적으로 중요하다. 자유형 설계와 정밀 성형은 제조 비용과 검증 부담을 높이지만, 얻는 이득이 hemispherical reference를 거의 넘지 못한다면 설계의 다음 단계는 더 복잡한 형상이 아니라 광원, 개구, 또는 재활용 경로를 바꾸는 것이어야 한다.
 
-**광추출 효율의 한계**에 대해서는 이미 상당한 이해가 축적되어 있다. Yablonovitch의 통계 광학은 무작위
-텍스처를 갖는 고굴절 매질에서 경로 증대가 4*n*²로 유계됨을 보였고 [Yablonovitch 1982], 평판 OLED의 광학
-손실 채널 분해 또한 상세히 분석되었다 [Brütting 2013]. 나아가 Brütting 등은 수평 배향된 인광 발광체가
-내부 발광효율 unity에 근접할 경우 **기판 모드를 모두 추출할 수 있다면** 외부 양자효율 70%까지 도달할
-잠재력이 있음을 보였다 [Brütting 2013]. 다만 이 조건은 실제로는 굴절률 정합된 **반구형 macroextractor**로
-구현되며 대면적 소자에는 적용할 수 없다.
-
-한편 최근 응용들이 요구하는 것은 광량의 총합이 아니라 **배광의 형태**이다. AR·VR 및 도파관 디스플레이는
-특정 각도 범위로의 결합을 [ref], 프라이버시·듀얼뷰 디스플레이는 방위각 비대칭을 [ref], 검사·머신비전
-조명은 목표 영역 내 균일도를 [ref] 요구한다. 이에 따라 EQE뿐 아니라 정면 휘도, 시야각 색 안정성 등 서로
-다른 figure of merit를 개선하려는 연구가 활발히 진행되어 왔다 [ref].
-
-배광을 성형하는 문제 자체는 성숙한 주제이다. Monge–Ampère 방정식, ray mapping, supporting quadric에
-기반한 자유형 설계법은 지난 20여 년에 걸쳐 발전하여 조명 광학에서 확립된 방법론으로 자리잡았다 [ref].
-최근에는 이러한 설계 및 역설계 기법이 박막 발광소자의 광추출 구조로 확장되어, 수치 최적화를 통해 배광과
-효율을 동시에 겨냥하는 시도가 이어지고 있다 [ref]. 그러나 이들 방법론은 대체로 **점광원 또는 이에 준하는
-zero-étendue 조건**을 전제로 발전해 온 반면, 박막 발광소자는 렌즈릿 크기에 필적하는 **확장 광원**이며 기판
-내 **전반사와 재활용**이 거동을 지배한다는 점에서 조건이 근본적으로 다르다.
-
-이러한 조건에서 **방향성 figure of merit**에 대해 외부 광추출 구조가 원리적으로 어디까지 도달할 수 있는지는
-정립된 바 없다. 어떤 배광이 달성 가능하고 어떤 것이 불가능한지, 그 경계를 결정하는 것이 무엇인지, 그리고
-설계 자유도를 늘리는 것이 그 경계를 실제로 밀어낼 수 있는지가 본 연구의 질문이다.
+우리는 동일한 OLED source model과 동일한 제조 가능 기하 제약 아래에서, (i) hemispherical MLA, (ii) 축대칭 freeform MLA를 비교하고, 보조 연구로 (iii) 비대칭 3D freeform MLA를 별도 조건에서 시험한다. 총 EQE뿐 아니라 polar band와 제한된 azimuthal window를 목적함수로 사용하고, 다중 시작점 최적화와 고정밀 재평가로 optimizer dependence를 분리한다. 그 결과를 radiance/étendue 관점 및 기판 내 lateral mixing과 연결한다. 본 연구의 기여는 새로운 MLA 형상을 제안하는 데 있지 않다. 대신 **freeform MLA의 실용적 포화를 진단하고, 그 뒤에 어떤 광학 레버로 넘어가야 하는지를 정량적으로 제시하는 것**이다. 이때의 포화는 보편 정리(universal theorem)가 아니라, 재현 가능한 벤치마크와 불확도를 갖춘 수치적 관측으로 제시된다.
 
 ---
 
-## 2. 이론
+## 2. 결과 및 논의
 
-### 2.1 마스터 관계식, 그리고 내부 복잡도가 무관한 이유
+### 2.1 공정하게 정렬된 benchmark: 형상 복잡도 자체의 효과를 분리하다
 
-**BSDF로부터의 휘도 상한.** 내부 구성이 무엇이든, 수동 외부층은 그 양방향 산란분포함수
-*f*(θ<sub>i</sub> → θ<sub>o</sub>)로 완전히 기술된다. 이 함수는 정의상 내부의 모든 다중반사, 전반사 연쇄,
-체적 산란을 이미 포함한다. 물리적으로 허용되는 BSDF는 에너지 보존
+그림 1은 비교하는 광학계를 보여 준다. OLED microcavity의 dipole emission은 CPS 계산으로 substrate-side angular–spectral distribution $I_{\mathrm{sub}}(\theta,\lambda)$를 얻고, 이를 3차원 광선추적의 source로 사용하였다. 광원은 반경 $r_{\mathrm{OLED}} = 1$ mm의 확장 면광원이고, 기판 두께는 $d_{\mathrm{sub}} = 1.295$ mm이며, 개별 lenslet(반경 ~10 μm)은 2차원 육각배열로 15×15 mm 전면을 타일링한다. 자유형 프로파일은 13개 설계변수(스플라인 제어점; $x_2$–$x_6$ 단조 제약)로 매개변수화하였다. 모든 렌즈는 동일한 기판 굴절률, lens material, pitch, fill factor, 최대 높이 및 최대 draft-angle 제약을 만족하도록 하였다. 비교에서 cavity thickness를 고정한 경우와 lens/cavity를 함께 최적화한 경우를 분리하여 보고하였다.
 
-$$\int f(\theta_o\!\to\!\theta_i)\cos\theta_i \, d\Omega_i \le 1$$
+이러한 정렬은 필수적이다. freeform이 더 넓은 variable range, 더 높은 lens height, 더 큰 aperture, 또는 더 유리한 cavity만 사용하면 형상 효과와 다른 효과가 섞인다. 본 연구에서는 hemispherical MLA도 동일한 outer radius 및 공정 가능한 높이 범위에서 최적화하고, freeform에는 동일하거나 더 불리한 제약을 부과하지 않았다. 따라서 이후의 성능 차이는 가능한 한 형상 자유도 자체의 순수 효과로 해석할 수 있다. 한 가지 스코프를 명확히 해 둔다. 이 통제 비교(controlled comparison)는 위에 명시한 동일 스택·동일 제약의 **축대칭 클래스**(hemisphere vs 축대칭 freeform)에 대해 성립한다. 2.4절의 비대칭·off-axis 탐색은 서로 다른 소자 조건에서 수행된 **별도의 보조 연구(auxiliary study)**이며, 본 절의 통제 비교의 일부가 아니다.
 
-과 굴절률 계면에서의 상반성
+**Fig. 1 | 플랫폼과 비교군.** (a) OLED–substrate–MLA 광학계 개요: CPS 기반 microcavity dipole 모델이 생성한 $I_{\mathrm{sub}}(\theta,\lambda)$를 광원으로 하는 trans-scale 시뮬레이션 흐름. 반경 1 mm 확장 광원, 두께 1.295 mm 기판, 반경 ~10 μm lenslet의 육각배열(전체 15×15 mm). (b) 비교군: hemispherical reference, 13변수 축대칭 freeform, (보조 연구) 비대칭 3D freeform. (c) 목적함수 정의(총 EQE 및 polar band EQE)와 surrogate 기반 최적화 흐름.
 
-$$n_i^{2} f(\theta_i\!\to\!\theta_o) = n_o^{2} f(\theta_o\!\to\!\theta_i)$$
+### 2.2 목적함수를 바꾸어도 hemispherical reference를 크게 넘지 못한다
 
-을 만족한다. 기판 측에서 휘도 *L*의 Lambertian 광이 입사하면 출사 휘도는
+그림 2a는 총 EQE와 네 개의 polar angular band(0–20°, 20–40°, 40–60°, 60–80°)를 목적으로 했을 때의 최선 성능을 요약한다. 총 EQE와 40–60° band는 독립적인 전용 최적화로, 나머지 band는 가중합 스윕과 **[3-band 최적화 결과: 추후 삽입]** 으로 다루었다. 각 목적 $j$에 대해 다음의 relative gain을 정의하였다.
 
-$$L_{out}(\theta_o) = \int f(\theta_i\!\to\!\theta_o)\,L\cos\theta_i \, d\Omega_i
-= L\,\frac{n_o^{2}}{n_i^{2}}\int f(\theta_o\!\to\!\theta_i)\cos\theta_i \, d\Omega_i
-\;\le\; \frac{L}{n_s^{2}}$$
+$$
+G_j=\frac{\max\left[\mathrm{EQE}_j\mid\mathrm{freeform}\right]}
+{\max\left[\mathrm{EQE}_j\mid\mathrm{hemisphere}\right]}.
+$$
 
-즉 휘도 상한은 **에너지 보존과 상반성만으로** 따라 나온다. 구조의 기하, 특징 크기, 내부 광선 이력에 대한
-어떤 가정도 필요하지 않으므로, 모든 마이크로렌즈 어레이·자유형 프로파일·산란층이 자동으로 이 상한에
-종속된다. 이것이 열거할 수 없는 구조 클래스 전체를 다룰 수 있게 해 준다.
+여기서 최적값은 독립 초기값, 다중 시작점, 그리고 고정밀 ray 재평가를 거친 뒤의 평균으로 정의한다. 탐색한 모든 polar objective에서 $G_j$는 **[최종 수치 범위 삽입]** 에 머물렀다. 일부 freeform은 특정 angular bin에서 국소적인 gain을 보였지만, 이는 total EQE 감소, 다른 bin으로의 power 이동, 또는 Monte-Carlo uncertainty를 고려하면 hemispherical MLA를 대체할 정도의 독립 성능 축을 형성하지 못했다.
 
-> **[편집 주석 — 중요]** 이 유도가 "모든 MLA·산란층을 어떻게 다 확인했나"라는 질문을 원천 차단합니다.
-> 확인할 필요 없이 BSDF 제약이 보증합니다.
+이 결과는 "freeform이 정확히 반구형이어야 한다"는 뜻이 아니다. 실제 최적 형상들은 기울기와 곡률 분포에서 서로 달랐고, 낮은 효율 영역에는 다양한 형상이 존재했다. 중요한 점은 성능 상단부에서 이 형상 다양성이 유의미한 추가 효율 또는 band power로 연결되지 않았다는 것이다. 따라서 hemisphere는 단순한 convenience baseline이 아니라, 이 클래스의 **practical near-optimum**으로 작동한다.
 
-**세 가지 기술 방식의 정합성.** 동일한 상한이 서로 독립적인 세 경로에서 얻어지며, 차이는 **얼마나 근접할 수
-있는가**에만 있다.
+### 2.3 Pareto 분석: polar shaping은 독립적인 큰 설계 축이 아니다
 
-| 기술 방식 | 상한의 근거 | 달성 여부 |
-|---|---|---|
-| 단일 굴절 | Snell 법칙이 에텐듀를 정확히 보존 | 평면이 **달성** |
-| 내부 다중반사 | Liouville 정리: 위상공간 부피 보존 | 일반적으로 **미달** — 혼합이 에텐듀 증가 |
-| BSDF | 에너지 보존 + 상반성 | BSDF에 따라 다름 |
+총 추출과 40–60° band power를 함께 조사하기 위해 가중 목적함수
 
-따라서 내부 다중반사는 결코 도움이 되지 않는다. 각 산란 사건은 에텐듀를 보존하거나 증가시키므로, 내부
-복잡도는 구조를 상한에서 **멀어지게** 한다.
+$$
+J_w=w\hat{\eta}_{\mathrm{ext}}+(1-w)\hat{P}_{40\text{–}60}
+$$
 
-**마스터 관계식.** 휘도 상한을, 발광 면적 *A*로부터 목표 입체각 Ω로 전달되는 광량의 정의와 결합하고 기판
-반구로 넘어가는 총 광량 *P*<sub>sub</sub> = *L A* π로 정규화하면
+를 $w=0,0.25,0.5,0.75,1$에서 surrogateopt + patternsearch로 최적화하고, 별도로 유효 무작위 feasible freeform 표본 $N=150$개를 수집하였다. 그 결과가 그림 2b,c다. 총 EQE는 표본 전반에서 0.11–0.56에 걸쳐 5배 변했지만, 모든 (총 EQE, band EQE) 점은 **준선형 경계(quasi-linear boundary)로 붕괴**하였다. 즉 가중치를 어느 극단으로 옮겨도 optimizer는 사실상 같은 상단 영역의 설계를 반환하며, 효율과 40–60° band 방출 사이의 트레이드오프는 관측되지 않았다.
 
-$$\boxed{\;\frac{P_\Omega}{P_{\mathrm{sub}}}\;\le\;\frac{1}{\pi n_s^{2}}\int_\Omega \cos\theta\, d\Omega\;}
-\qquad \text{(단일 통과)}$$
+이를 정량화하기 위해 각 band의 선택성(selectivity)을 $S_j = \mathrm{EQE}_{\mathrm{band},j}/\mathrm{EQE}_{\mathrm{total}}$로 정의한다. Lambertian 기준값은 $S(0\text{–}20^\circ)=0.117$, $S(20\text{–}40^\circ)=0.296$, $S(40\text{–}60^\circ)=0.337$, $S(60\text{–}80^\circ)=0.220$이다. 최적 설계의 실측 $S(40\text{–}60^\circ)$는 약 0.355로 Lambertian보다 약간 높은 수준에 머물렀다. 즉 최고 효율 설계조차 배광은 Lambertian에서 크게 벗어나지 않는다.
 
-서로 다른 figure of merit는 Ω의 선택에만 대응한다. 비축 대역 θ ∈ [θ<sub>lo</sub>, θ<sub>hi</sub>]에서
-적분은 π(sin²θ<sub>hi</sub> − sin²θ<sub>lo</sub>)가 되어
+다만 선택성이 엄밀히 고정된 것은 아니며, **체계적 편류(systematic drift)**가 존재한다. 전체 설계에 대해 총 EQE와 $S_j$의 상관계수를 계산하면 $R(0\text{–}20^\circ)\approx+0.6$, $R(20\text{–}40^\circ)\approx+0.7$, $R(40\text{–}60^\circ)\approx+0.05$, $R(60\text{–}80^\circ)\approx-0.7$이다. 해석은 명료하다. 효율이 오르면 배광이 저각 쪽으로 약간 기울지만, band 간 순서는 어떤 설계에서도 뒤집히지 않으며 40–60° band가 항상 최대 비중을 유지한다. 이 편류가 Monte-Carlo 노이즈나 협대역 인공물이 아님을 확인하기 위해, 광선 수를 20배(200,000)로 늘리고 3회 독립 반복하며 광대역(450–750 nm) 스펙트럼으로 재평가하는 수렴검사를 수행하였고, 동일한 상관 구조가 재현되었다(4.3절 및 보충자료). 따라서 이 편류는 실재하는 미세 추세이되, 설계자가 활용할 수 있는 독립적인 조향 자유도에는 미치지 못한다.
 
-$$\frac{P_{\mathrm{band}}}{P_{\mathrm{sub}}}\;\le\;\frac{\sin^{2}\theta_{hi}-\sin^{2}\theta_{lo}}{n_s^{2}}$$
+핵심 결과는 효율과 특정 polar band가 수학적으로 절대 불변이라는 것이 아니다. passive optics는 위치와 각도 사이의 power를 재배분할 수 있으므로, étendue 보존만으로 angular selectivity의 절대적 한계를 주장할 수는 없다. 본 연구가 제시하는 것은 더 제한적이면서도 실용적인 명제다. 즉, **탐색한 제조 가능 freeform class에서는 재배분의 크기가 작아 설계자가 활용할 수 있는 polar-shaping freedom이 사실상 포화한다.** 이 명제는 엄밀한 보편 정리 대신, 재현 가능한 benchmark와 uncertainty를 갖춘 수치적 결과로 제시한다.
 
-이고, *n*<sub>s</sub> = 1.51의 40–60° 대역에서 **14.8%**가 된다.
+**Fig. 2 | Achievable region과 Pareto 붕괴.** (a) 각 objective(총 EQE, polar band EQE)에 대한 hemisphere/freeform 최선값과 오차막대, 그리고 relative gain $G_j$ **[최종 수치 삽입]**. (b) 유효 무작위 설계 $N=150$개(회색)와 가중합 스윕 $w\in\{0,0.25,0.5,0.75,1\}$ 최적화 결과(색상)의 (총 EQE, 40–60° band EQE) 산점도. 총 EQE 0.11–0.56 전 구간에서 모든 점이 준선형 경계로 붕괴하며, 효율–지향성 트레이드오프가 관측되지 않는다. (c) 최적 freeform 프로파일과 hemisphere의 형상 비교.
 
-### 2.2 평평한 계면이 단일 통과 상한을 달성한다
+**Fig. 3 | Figure-of-merit 지도: 4개 band 선택성.** 네 패널은 각각 $S_j=\mathrm{EQE}_{\mathrm{band},j}/\mathrm{EQE}_{\mathrm{total}}$ (0–20°, 20–40°, 40–60°, 60–80°)를 총 EQE에 대해 나타낸다. 점선은 Lambertian 기준값(0.117, 0.296, 0.337, 0.220). 총 EQE와의 상관 $R\approx+0.6,\,+0.7,\,+0.05,\,-0.7$은 효율 상승에 따라 배광이 저각으로 약간 기우는 체계적 편류를 보여 주지만, band 순서는 전 설계에서 유지된다(40–60°가 항상 최대). 수렴검사(광선 20배, 3회 반복, 450–750 nm)에서 동일한 $R$이 재현된다(보충자료).
 
-평면 유전체 계면은 Snell 법칙으로 기판 각도를 공기 각도에 일대일 사상하며 에텐듀를 흐트러뜨리지 않으므로
-마스터 관계식을 saturate한다. 탈출광 중 40–60° 대역의 비율은 정확히 sin²60° − sin²40° = 0.337이고, 탈출
-확률 1/*n*<sub>s</sub>²와 곱하면 기판 광량의 14.8%가 된다. 목표 대역만 투과시키는 **이상적 각도필터** 역시
-단일 통과에서 같은 값(14.8%, 선택성 1)에 도달한다. 두 극단이 동일한 에텐듀–휘도 곱에 묶여 있다.
+### 2.4 비대칭 및 off-axis freeform은 중요한 stress test다
 
-**따름정리.** 어떤 마이크로렌즈 어레이나 자유형 프로파일도 단일 통과 대역 광량에서 평면을 넘어설 수 없다.
-대규모 역설계가 반구형 프로파일에서 포화하는 것은 최적화기의 실패가 아니라 보존법칙의 귀결이다.
+대칭성 자체가 결과를 제한하는지 확인하기 위해, 3D 비대칭 freeform lenslet과 제한된 $(\theta,\phi)$ window를 직접 최적화하였다. 목적함수는
 
-**각도 압축의 대가는 면적이며, 타일링이 그 수단을 없앤다.** 각도 압축은 일반적으로 금지된 것이 아니다.
-에텐듀 보존 *A*<sub>src</sub>Ω<sub>src</sub> = *A*<sub>out</sub>Ω<sub>out</sub>는 출광 입체각을 줄이려면
-그에 비례해 출광 면적을 키워야 함을 말한다. 단일 렌즈가 집광하는 것은 그 개구가 덮고 있는 광원보다 훨씬
-크기 때문이다. 중요한 것은 **비율** *A*<sub>out</sub>/*A*<sub>src</sub>이지 렌즈릿의 절대 크기가 아니다 —
-렌즈릿을 키우면 그 아래 광원 패치도 같은 비율로 커진다. 대면적 발광체를 타일링하는 어레이는 발광면과 같은
-면적을 공유하므로 비율이 1로 고정되고, 압축에 필요한 수단이 아예 존재하지 않는다. 이로부터 서론에서 언급한
-예외가 같은 관계식의 귀결로 얻어진다. 굴절률 정합 반구형 macroextractor는 작은 발광면 위에서
-*A*<sub>out</sub>/*A*<sub>src</sub> ≫ 1을 달성하며, 이것이 기판 모드를 추출하는 이유이자 동시에 대면적으로
-타일링될 수 없는 이유이다.
+$$
+\mathrm{EQE}_{\mathrm{win}}=\int_{\theta_1}^{\theta_2}\int_{\phi_1}^{\phi_2}
+I_{\mathrm{air}}(\theta,\phi)\sin\theta\,d\phi\, d\theta
+$$
 
-작은 렌즈릿에는 크기에 의존하는 부차적 불리함이 추가된다. 빛은 어레이에 도달하기 전 기판 내에서 횡으로
-퍼지므로, 반경 *a*인 렌즈릿은 실효 반경 *r*<sub>eff</sub> = *a* + *d*<sub>sub</sub> tan θ<sub>c</sub>
-범위에서 빛을 받는다. *a* ≪ *d*<sub>sub</sub> tan θ<sub>c</sub>인 경우 이웃 렌즈릿과 광을 심하게 공유하여
-각 렌즈릿이 거의 Lambertian에 가까운 입사각 분포를 보게 되므로, 국소적인 압축 여지도 사라진다.
+로 정의하였다. 이 시험은 매우 중요하다. 만약 비대칭 freeform이 같은 total EQE에서 window power 또는 contrast를 크게 높인다면, 앞 절의 포화는 단지 축대칭 parameterization의 한계였을 것이기 때문이다.
 
-### 2.3 각도 분배는 설계 불변량이다
+스코프에 관한 주의가 필요하다. 이 비대칭 탐색은 2.1절의 통제 비교와 **다른 소자 조건**에서 수행된 별도의 보조 연구다. 구체적으로, 반사 전극이 다른 스택(Ag 전극; 통제 비교의 ITO 기반 스택과 상이), 이방성 발광(anisotropic emitter) 셀, 그리고 52개 설계변수(통제 비교의 13개 대비 훨씬 풍부한 매개변수화)를 사용하였다. 따라서 이 결과는 2.1절의 동일 제약 비교에 산입되지 않으며, 다음의 독립적 보조 증거로 읽어야 한다. **훨씬 더 풍부한 매개변수화와 다른 스택 조건에서도, 의미 있는 각도 조향은 관측되지 않았다.**
 
-에텐듀 보존 층은 기판 배광을 공기로 사상하면서 **각도 간 광량 분배 자체를 바꾸지 않는다**. 추출광 중 목표
-대역에 도달하는 비율을 각도 선택성 *S* = *P*<sub>band</sub>/*P*<sub>total</sub>로 쓰면, 이는 Lambertian
-분포가 갖는 값에 고정된다.
+우리의 계산에서는 비대칭 형상이 far-field의 중심과 세부 분포를 이동시킬 수는 있었지만, hemispherical MLA보다 크게 높은 **절대 window power**를 안정적으로 얻지는 못했다 **[최종 비교 수치 삽입]**. 이 결과는 "주기 array가 어떤 상황에서도 조향할 수 없다"는 뜻이 아니다. 비대칭 prism, diffractive element, metasurface, 또는 충분한 aperture expansion은 방향성 광분배를 만들 수 있다 [8,9]. 다만 균일한 확장 OLED source 위의 coextensive refractive MLA에서는, 탐색한 범위 내에서 그러한 재배분이 hemispherical reference를 크게 넘는 유용한 output channel로 이어지지 않았다는 것이 본 연구의 범위 내 결론이다.
 
-$$S \;\simeq\; \sin^{2}\theta_{hi}-\sin^{2}\theta_{lo}\;=\;0.337 \quad (40\text{–}60^\circ)$$
+### 2.5 포화의 물리적 원인: 면적, 혼합, 그리고 radiance envelope
 
-그리고 이 값은 **렌즈 프로파일과 무관하다**. 즉 선택성은 애초에 설계 변수가 아니다. 형상 최적화는 총 추출을
-바꿀 뿐 각도 분배는 건드리지 못한다.
+관측된 포화는 세 개의 서로 보완적인 관점에서 설명된다.
 
-여기서 검증 가능한 두 귀결이 따라 나온다. 첫째, 대역 방출은 **총 추출을 개선하는 방법으로만** 개선될 수
-있으므로 둘은 교환 관계가 아니라 비례 관계다. 둘째, 대역 방출 최적화와 총 효율 최적화는 **같은 설계**를
-내놓아야 하며, 둘 사이의 Pareto 트레이드오프는 존재하지 않아야 한다. 4.2절이 두 가지를 모두 확인한다.
+첫째, 각도 압축에는 일반적으로 output aperture의 확장이 필요하다. 작은 source와 큰 macro-lens의 조합은 source area보다 큰 output area를 사용해 solid angle을 줄일 수 있다. 반면 large-area OLED를 덮는 tiled MLA에서는 각 lenslet의 aperture와 그 lenslet이 담당하는 source patch가 같은 비율로 증가한다. 따라서 lenslet의 절대 크기를 키우는 것만으로는 point-source collimation의 이득을 얻지 못한다.
 
-> **[편집 주석]** ✅ **검증 완료.** 가중합 스윕(w = 0…1)에서 Pareto front가 곡선이 아니라 한 점으로
-> 붕괴했고, 선택성이 EQE_total 전 구간에서 ~0.355로 고정되었습니다. 이전 초안의 "효율과 방향성은
-> 교환된다"는 서술은 데이터가 반박하므로 폐기하고 더 강한 "설계 불변량" 주장으로 교체했습니다.
-> (교환 가능은 조절 손잡이가 있다는 뜻이지만, 실제로는 손잡이가 없습니다.)
+둘째, substrate thickness와 source size는 lateral mixing을 결정한다. 기판을 따라 전파한 광은 하나의 lenslet 아래에서 발생한 광만 보지 않으며, 인접 cell에서 온 광과 섞인다. 본 연구의 기하(lenslet 반경 ~10 μm, $d_{\mathrm{sub}}=1.295$ mm)에서는 기판 두께가 lenslet pitch보다 두 자릿수 이상 크므로 이 혼합이 특히 강하다. source radius, substrate thickness, pitch를 sweep하면 source angular extent가 커질수록 attainable steering이 감소하는 경향이 나타난다 **[lateral mixing sweep 수치 삽입: 보충자료 그림 참조]**. 이 결과는 freeform surface가 처리할 수 있는 input phase space가 이미 평균화되어 있음을 보여 준다.
 
-### 2.4 주기 타일링에서 방위각 조향은 금지된다
+셋째, 주어진 source radiance와 출광 면적에서 passive external layer가 특정 solid angle에 공급할 수 있는 power에는 radiance/étendue envelope가 존재한다 [10]. 본 연구에서는 이를 global impossibility theorem이 아니라, numerical frontier를 해석하는 기준으로 사용한다. 평면 계면 또는 hemisphere가 그 envelope에 가까워질수록, 더 복잡한 profile은 새로운 radiance를 만들기보다 기존 power의 작은 재배분만 수행한다. 2.3절에서 관측된 준선형 붕괴와 Lambertian 근방의 선택성은 이 해석과 정합적이다.
 
-셀 경계에서 높이가 연속인 주기 표면 *z*(*x*, *y*)에 대해 한 셀 위의 평균 기울기는 마주보는 경계의 기여가
-상쇄되어 소멸한다.
+### 2.6 MLA 포화 이후의 설계 경로
 
-$$\oint \nabla z \, dA = 0$$
+MLA 형상 최적화의 수익이 작다는 결론은 광추출이 더 이상 개선될 수 없다는 뜻이 아니다. 대신 바꾸어야 하는 물리량이 형상이 아니라는 뜻이다. 그림 4는 세 가지 후속 경로를 정리한다.
 
-박막 근사에서 프리즘 편향은 국소 기울기에 비례하므로 평균 각도 편향은 0이며, 균일한 주기 어레이는 순 빔
-조향을 만들 수 없다. 폭 Δφ인 방위각 창에 도달하는 비율은 대략 Δφ/360°로 제한되어, 40° 창의 경우 11%이다.
+**Source/cavity engineering.** Microcavity thickness, dipole orientation, 반사 전극 및 resonant structure는 substrate-side source distribution 자체를 바꾼다. 이는 이미 OLED angular emission control에 널리 쓰이는 방법이며 [12,13], 본 연구에서는 MLA가 포화된 뒤 가장 먼저 검토할 source-side lever로 위치시킨다. 특히 Song 등의 결과 [13]는 외부 구조로는 렌즈 없는 산란층만 사용하면서 발광체 배향(source-side lever)으로 50% 이상의 EQE에 도달하였는데, 이는 본 연구의 포화 논지와 일관된다. 즉 높은 총 추출은 외부 형상의 정교화가 아니라 광원 쪽 레버로 확보되었고, 남는 질문—자유형 MLA가 그 위에 각도 제어를 추가로 제공하는가—에 대한 본 연구의 답은 탐색 범위 내에서 부정적이었다.
 
-이 진술은 **굴절형·높이 연속 주기 어레이**에 적용된다. 메타표면은 위상 경사를 부여하므로 이 항등식의 적용
-대상이 아니며 본 연구의 클래스 밖에 있다 [ref].
+**Aperture expansion.** Small emitter 또는 pixel-level architecture에서 output/source area ratio를 실제로 크게 만들 수 있다면, macroextractor 또는 비공면 optical element로 angular compression이 가능하다. 이 경로는 tiled MLA와 동일한 평면적 확장성을 갖지 않지만, collimation이 최우선인 응용에는 적합하다.
 
-> **[편집 주석]** 이 한정 문구가 없으면 메타표면 논문 하나로 반박당합니다. 반드시 유지.
+**Angular-selective recycling.** 목표 angular band 밖의 광을 선택적으로 반사하여 재시도시키는 angular filter는 non-selective refractive MLA가 제공하지 못하는 selectivity를 만들 수 있다. 비선별 굴절층의 단일 통과(single-pass) 대역 선택성은 해석 모델에서 약 33.7%, 수치 계산에서 33.8%로, 산란 비대칭 파라미터 $g$에 무관하게 일치한다. 반면 이상적 filter 모델에서 round-trip loss 10%일 때 40–60° band로의 전달은 62.1%에 이를 수 있는 반면, 평면 class-A reference는 29.1%에 머문다. 실제 8-pair DBR의 전달행렬 계산에서는 단색 source에서 48.2%, 100 nm 대역폭에서 32.5%가 얻어져, source bandwidth와 loss가 이 경로의 현실적 제약임을 보인다. 이 기술은 새 구조 제안이 아니라, 이미 알려진 angle-selective OLED 및 photon-recycling 개념 [8,11,14,15]이 MLA 포화 뒤 왜 필요한지를 보여 주는 control이다.
 
-### 2.5 단일 통과 상한 너머의 세 가지 경로
-
-마스터 관계식은 **패스당**, 그리고 **주어진 기판 휘도에 작용하는 수동층**에 대해 성립한다. 각 전제가 하나의
-탈출 경로에 대응한다.
-
-**(i) 재활용에 의한 휘도 축적.** 탈출에 실패한 광을 되돌려 재시도시키면 정상상태 기판 휘도가 단일 통과 값
-위로 올라가 같은 에텐듀를 통해 더 많은 광량을 밀어 넣게 된다. 축적을 위해서는 대역 밖 광이 **선별적으로
-반사**되어야 하며, 왕복마다 반사 전극에서 흡수가 누적되므로 손실이 대가가 된다.
-
-**(ii) 마이크로캐비티를 통한 광원 배광 조절.** 위 상한은 기판 휘도가 Lambertian임을 가정한다.
-마이크로캐비티는 발광 자체를 재분배하여 *I*<sub>sub</sub>(θ)를 비-Lambertian으로 만든다. 이는 수동층으로
-작용하는 것이 아니라 **광원 자체를 바꾸는 것**이므로 휘도 상한의 구속을 받지 않으며, 외부 구조와 독립된
-레버를 이룬다.
-
-**(iii) 개구 확장.** 2.2절에서 보인 대로 *A*<sub>out</sub>/*A*<sub>src</sub>를 1보다 크게 하면 각도 압축이
-가능하다. 이것이 반구형 macroextractor의 작동 원리이며, 발광면을 타일링하는 어떤 구조에도 허용되지 않는다.
-
-이 밖의 세 경로는 휘도 상한의 전제를 위반하므로 본 연구의 범위 밖이다 — **비상반** 소자(자기광학 매질 등),
-형광 집광기에서 사용되는 **주파수 변환**, 그리고 **능동·이득** 매질.
-
-**재활용 상한과 굴절형 구조 사이의 간극.** 에너지 보존과 상반성만을 제약으로 하여 물리적으로 허용되는 모든
-BSDF에 대해 최적화하면 최적해는 각도필터가 되며, 이때 재활용 상한은 왕복당 손실 10%에서 40–60° 대역에
-발생 광량의 62%를 전달한다. 반면 굴절형 구조 — 평면, 마이크로렌즈 어레이, 자유형 프로파일, 산란층 — 는
-같은 조건에서 약 29%에 머문다. **이 2배의 간극은 본 연구의 결과이지 계산상의 부산물이 아니다.** 29%는
-비선별 층의 achievable frontier이고, 62%는 허용 클래스 전체에 대한 bound이다.
-
-굴절형 구조가 그 간극을 메울 각도 선별성을 만들어낼 수 있는지는 우리의 판단으로 **아직 결론나지 않았다**.
-매끄러운 유전체 표면의 반사율은 Fresnel 계수와 전반사에 의해 결정되어 국소 입사각에 대해 매끄럽고 단조롭게
-변하므로, 임의의 각도에 양쪽으로 차단되는 통과대를 놓으려면 간섭이 필요해 보인다. 이와 부합하게, 평면
-계면의 선택성이 인접 산란층의 비대칭 파라미터에 완전히 무관함을 수치적으로 확인하였다(4.4절). 다만 에너지
-보존과 상반성만으로는 선별적 굴절형 BSDF의 존재를 배제할 수 없으므로, 이를 증명이 아니라 **열린 문제**로
-제시한다.
-
-> **[편집 주석]** "열린 문제" 선언이 정직성이자 방어막입니다. 62% vs 29% 간극을 숨기지 않고 명시적
-> 결과로 올린 것이 이번 개정의 핵심입니다.
+**Fig. 4 | Angular-selective recycling 경로와 현실적 제약.** (a) Markov 재활용 모델 개요: 각도별 투과·반사 외부층과 왕복 손실 $a$를 갖는 반사 전극. (b) 40–60° band 전달률 비교 — 비선별 굴절층의 단일 통과 벽(≈33.7% 해석 / 33.8% 수치, $g$ 무관), 평면 class-A reference(29.1%), 이상적 각도필터($a=0.1$, 62.1%). (c) 현실적 8-pair DBR: 단색 광원에서 48.2%, 100 nm 대역폭에서 32.5%로 저하 — source bandwidth가 이 경로의 지배적 제약이다. (d) 목표 성능별 design-route map: source/cavity engineering, aperture expansion, angular-selective recycling.
 
 ---
 
-## 3. 방법
+## 3. 결론
 
-### 3.1 Trans-scale 광학 모델
-마이크로캐비티 내부의 쌍극자 발광을 classical-power-spectrum(CPS) 형식으로 계산하여 기판 측 각도·파장
-분해 강도 *I*<sub>sub</sub>(θ, λ)를 얻고, 이를 외부 구조를 통과하는 거시 광선추적의 광원으로 사용한다
-[ref: 자기 ACS Photonics 2023, Nat Commun 2025]. 본 프레임워크는 OLED 마이크로렌즈 구조에 대해 선행
-연구에서 실측 검증되었으며, 시뮬레이션과 측정된 EQE 및 배광이 실험 오차 범위 내에서 일치하였다 [refs].
+우리는 확장 OLED 위의 제조 가능한 tiled refractive MLA에서 freeform 형상 자유도의 실용적 가치를 체계적으로 시험하였다. 총 EQE와 40–60° polar band를 독립적으로, 나머지 band와 비대칭 off-axis window를 가중합 스윕 및 보조 연구로 최적화했지만, freeform MLA는 동일 조건의 hemispherical MLA를 크게 넘는 안정적인 성능 이득을 보이지 않았다. 유효 무작위 설계 150개와 Pareto 스윕 전반에서 총 EQE가 0.11–0.56으로 5배 변하는 동안 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴했고, 효율–지향성 트레이드오프도, hemispherical reference를 의미 있게 넘는 각도 조향도 관측되지 않았다. 이 결과는 hemisphere가 모든 광학계에서 최적이라는 보편 명제가 아니다. 대신 coextensive tiling, extended source, substrate-mediated lateral mixing, 그리고 주어진 radiance/area 조건이 함께 성립할 때, 탐색한 설계공간 내에서 형상 복잡도만으로 확보할 수 있는 추가 자유도가 작다는 정량적 결론이다.
 
-### 3.2 역설계
-자유형 렌즈 프로파일은 [스플라인 제어점 / RBF …]로 파라미터화하고, 기하학적 실현 가능성 제약 하에서
-대리모형 기반 전역 최적화기(RBF surrogate + multi-start + pattern search 정련)로 최적화한다.
-[세부: 변수 수, 평가 예산, multi-start 수 기입]
-
-### 3.3 재활용 모델
-외부층은 각도별 투과·반사로 표현하고, 기판을 통해 반사 전극까지의 왕복은 흡수 확률 *a*로 표현한다. 그 급수를
-합산하면 목표 대역에 전달되는 총 광량이 얻어진다. 각도 선별층의 경우 유전체 다층막의 전달행렬 계산을
-사용하며, 이는 어디까지나 **선별 극한의 대표적 실현**으로서 도입한 것이지 제안하는 소자 구조가 아니다.
+따라서 본 연구는 freeform MLA를 포기하라는 결론이 아니라, 설계 결정을 앞당기는 기준을 제공한다. hemisphere benchmark에서 포화가 확인되면, 다음 개선은 더 많은 lens-shape degrees of freedom이 아니라 source/cavity engineering, aperture expansion, 또는 angular-selective recycling에서 찾아야 한다. 이 design-route map은 OLED뿐 아니라 확장 박막 광원을 사용하는 PeLED, QLED, micro-LED optical packaging에도 적용 가능한 실용적 출발점이 된다.
 
 ---
 
-## 4. 결과
+## 4. 방법
 
-### 4.1 역설계 frontier는 단일 통과 상한에서 포화한다
-[Fig 2] 독립적으로 최적화한 [N]개의 자유형 프로파일 전반에서 대역 광량은 평평한 계면이 달성하는 값을 넘지
-않으며, 최적 설계들은 반구형에 근접한 프로파일로 수렴한다. 이 포화 곡선을 **achievable frontier**라 부른다.
-이는 유한한 탐색의 결과이며, 보존법칙에서 따라 나오는 2절의 **bound**와 개념적으로 구별된다.
+### 4.1 Trans-scale source model
 
-### 4.2 각도 선택성은 설계공간 전반에서 불변이다
-[Fig 2b] 총 추출과 대역 방출 사이의 Pareto front를 가중 목적
-*w*·η̂<sub>ext</sub> + (1−*w*)·*P̂*<sub>band</sub> (*w* = 0, 0.25, 0.5, 0.75, 1) 최적화로 추적하고,
-최적화 표본의 편향 없이 achievable region 내부를 채우기 위해 [N]개의 무작위 valid 설계를 함께 수집하였다.
+OLED stack의 dipole emission은 CPS formalism으로 계산하였다. 파장 및 substrate-side angle에 따른 $I_{\mathrm{sub}}(\theta,\lambda)$는 macroscopic ray tracing의 spectral/angular source로 사용하였다. 광원은 반경 $r_{\mathrm{OLED}}=1$ mm의 확장 면광원으로, 두께 $d_{\mathrm{sub}}=1.295$ mm의 기판 하면에 배치된다. CPS input, material dispersion, dipole orientation, internal radiative efficiency, emission spectrum, layer thickness 및 wavelength sampling은 표 S1에 정리한다. 본 프레임워크는 본 연구 그룹의 선행 MLA-OLED 연구에서 실험 배광 및 EQE와 비교된 바 있다 [5].
 
-Pareto front는 **단일 군집으로 붕괴**한다. 모든 가중치가 사실상 같은 설계를 반환하므로, 방향성 최적화와
-효율 최적화는 경쟁 관계가 아니다. 이에 대응하여 대역 방출은 설계공간 전반에서 총 추출에 비례하며
-(*P*<sub>band</sub> = 0.355 × η<sub>ext</sub>), η<sub>ext</sub>가 0.11에서 0.56까지 **5배 변하는 동안
-선택성은 표류하지 않는다**. Frontier에서의 선택성은 0.355 ± 0.01이다.
+### 4.2 Lens classes와 제조 제약
 
-이는 2.3절이 예측한 Lambertian 값 0.337과 5% 이내로 일치한다. 미소한 초과분은 렌즈 프로파일이 만드는
-약한 실제 집중 효과가 배광을 Lambertian에서 조금 벗어나게 한 것으로 해석되며, 방향성 설계 자유도라 부를
-수 있는 크기에는 한참 못 미친다. 따라서 선택성은 형상 최적화가 다룰 수 있는 양이 아니라 **구조 클래스의
-불변량**이다.
+Hemispherical reference와 축대칭 freeform을 동일 제약 아래 비교하고, 3D 비대칭 freeform은 별도 조건의 보조 연구로 다루었다. 통제 비교의 모든 구조는 동일한 lens material, pitch, fill factor, nominal height, boundary continuity 및 최대 draft angle을 사용하였다. 개별 lenslet(반경 ~10 μm)은 2차원 육각배열로 15×15 mm 전면을 덮는다. 축대칭 freeform surface는 13개 설계변수의 스플라인 제어점으로 매개변수화하였고($x_2$–$x_6$ 단조 제약), LightTools native FreeformEntity로 구현하였다. geometry self-intersection, negative thickness, 제조 불가능한 draft angle을 갖는 후보는 최적화 전에 제거하였다. 보조 연구의 비대칭 freeform은 52개 설계변수를 사용하며, Ag 반사 전극 스택과 이방성 발광 셀 등 통제 비교와 다른 소자 조건에서 수행되었다(2.4절).
 
-> **[편집 주석]** EQE_40_60은 전 방위각(360°) 기준입니다. 40° φ 창 환산 시
-> 0.20 × (40/360) ≈ 2.2%로, 별도 최적화에서 얻은 2.93%와 같은 계열입니다.
+### 4.3 Optimization과 검증
 
-### 4.3 Figure of merit 지도
-[Fig 3] 마스터 관계식을 서로 다른 목표 입체각에 적용하면 정면 증강, 비축 대역 집광, flat-top 균일도에 대한
-한계가 얻어지며, zero-mean-slope 항등식에 의해 순 방위각 조향과 중앙이 어두운 듀얼뷰 배광은 도달
-불가능하다. 나아가 시야각 색 편차를 희석하는 각도 혼합이 각도 집중과 정면으로 상충하므로, 색 안정성과
-방향성은 독립적 목표가 아니라 트레이드오프를 이룬다. [단색 소자 기준]
+목적함수는 total EQE, polar-band EQE, 또는 $(\theta,\phi)$ window EQE로 정의하였다. 각 objective에 대해 surrogate 기반 전역 최적화(surrogateopt)와 patternsearch 정련, 다중 시작점을 사용하고, low-ray search 결과는 independent high-ray repeats로 재평가하였다. achievable region의 편향 없는 표본화를 위해 유효 무작위 feasible 설계 $N=150$개를 수집하고, 가중 목적함수 $J_w$를 $w\in\{0,0.25,0.5,0.75,1\}$에서 최적화하였다. 최적화 예산, ray number, independent run 수, feasible sample 수 및 표준편차는 표 S2에 보고한다. freeform superiority는 single best run이 아니라 고정밀 평균과 hemisphere reference의 차이로 판단하였다.
 
-### 4.4 재활용: 상한, frontier, 그리고 간극
-[Fig 4a,b] 왕복당 *a* = 0.1에서, 허용되는 모든 층에 대한 상한(이상적 각도필터로 실현)은 40–60° 대역에
-발생 광량의 62.1%를 전달하는 반면 비선별 굴절형 층은 29.1%로 2.1배 아래에 머문다. 후자의 선택성은
-산란 비대칭 파라미터 *g* ∈ [−0.5, +0.5] 전 구간에서 완전히 무관함이 확인되어, 비선별 산란에 의한 각도
-재분배가 축적에 기여하지 않음을 보인다. 실현 가능한 유전체 다층막의 경우 도달값은 광원 대역폭에 따라
-저하되어 단색 광원의 48.2%에서 100 nm 대역의 31.0%로 감소한다. 정지대역 가장자리가 파장에 따라
-이동하기 때문이다. 이는 각도 필터를 적용한 OLED에서 각도 선별이 흡수층과의 반복 상호작용에 따른 흡수
-증가를 수반한다고 보고된 거동을 재현한다 [ref].
+2.3절의 선택성 편류가 수치 인공물이 아님을 확인하기 위해 별도의 수렴검사를 수행하였다. 광선 수를 기본 대비 20배(200,000)로 늘리고, 3회 독립 반복하며, 협대역 대신 광대역(450–750 nm) 스펙트럼으로 전체 설계 표본을 재평가하였다. 총 EQE와 band 선택성 $S_j$의 상관계수는 세 반복에서 각각 $R(0\text{–}20^\circ)=0.59,\,0.61,\,0.64$; $R(20\text{–}40^\circ)=0.67,\,0.67,\,0.72$; $R(40\text{–}60^\circ)=0.07,\,0.04,\,0.05$; $R(60\text{–}80^\circ)=-0.70,\,-0.71,\,-0.76$으로 재현되어, 관측된 편류가 Monte-Carlo 노이즈나 협대역 인공물이 아닌 실재 추세임을 보였다(보충자료).
 
-### 4.5 정합성과 일반성
-[Fig 4c,d] 해석적 재활용 모델과 3차원 광선추적은 [N]개 조건에서 [X]% 이내로 일치한다. 본 연구 기하에 대한
-방향성 EQE의 예측값과 시뮬레이션값은 각각 3.2%와 2.93%이다. 상한이 기판 굴절률과 기하에만 의존하므로
-결과는 PeLED, QLED, 마이크로 LED에 직접 전이되며, *n*<sub>s</sub> 스윕이 예상되는 스케일링을 보인다.
+### 4.4 Angular-selective recycling model
+
+각도별 transmission/reflection $T(\theta,\lambda)$를 가진 external layer와 round-trip loss $a$를 갖는 reflective electrode를 Markov recycling model로 표현하였다. 이상적 angular filter는 target band에서 $T=1$, 그 밖에서 $T=0$으로 정의했다. 실현 가능한 filter는 alternating high/low-index dielectric multilayer(8-pair DBR)의 transfer-matrix calculation(Python)으로 계산했다. 비선별 굴절층의 단일 통과 대역 선택성은 해석 모델에서 33.7%, 수치 계산에서 33.8%로 산란 비대칭 파라미터 $g$에 무관하였다. 이 모델은 MLA와 DBR를 결합한 소자 제안이 아니라, non-selective refractive MLA의 포화와 selective recycling의 차이를 분리하기 위한 reference calculation이다.
 
 ---
 
-## 5. 논의
+## 참고문헌
 
-가장 중요한 실용적 함의는 외부 광추출에서 **형상이 소진된 자유도**라는 점이다. 각도 선택성의 불변성이 이를
-구체화한다 — 형상 최적화는 방향성에 대해 단지 수익이 체감하는 것이 아니라 **각도 분배에 아무런 영향도 주지
-못한다**. 특정 각도 대역으로의 방출을 원하는 설계자는 프로파일 정교화에서 총 추출 개선분 이외의 이득을 전혀
-얻지 못한다. 노력은 2.5절이 지목한 레버들 — 각도 선별을 통한 휘도 축적, 마이크로캐비티를 통한 광원 배광 조절, 그리고
-평면성을 포기할 수 있는 경우의 개구 확장 — 과 첫 번째를 제한하는 손실의 저감에 투입되는 편이 낫다.
+1. Brütting, W.; Frischeisen, J.; Schmidt, T. D.; Scholz, B. J.; Mayr, C. **Device Efficiency of Organic Light-Emitting Diodes: Progress by Improved Light Outcoupling.** *Phys. Status Solidi A* **2013**, *210*, 44–65.
 
-재활용 상한과 굴절형 구조가 실제로 달성하는 값 사이의 2배 간극은 강조할 만하다. 설계자가 여전히 작용할 수
-있는 여지가 바로 그것이기 때문이다. 본 연구는 이 간극이 형상 최적화로는 메워지지 않음을 보이고 그것을
-메울 성질이 각도 선별성임을 지목하지만, 굴절형 구조가 그 성질을 가질 수 있는지는 규명하지 않는다.
+2. Yablonovitch, E. **Statistical Ray Optics.** *J. Opt. Soc. Am.* **1982**, *72*, 899–907.
 
-본 연구의 주장은 굴절형·높이 연속 주기 어레이로 한정된다. 메타표면과 공진형 회절 구조는 위상 경사를
-부여하거나 도파 모드 공진을 지원하므로 zero-mean-slope 항등식의 적용 대상이 아니다. 비주기적 픽셀 단위
-구조 역시 이 클래스 밖이며, 다만 주기 어레이가 회피할 수 있는 정렬 및 패터닝 부담을 수반한다.
+3. Möller, S.; Forrest, S. R. **Improved Light Out-Coupling in Organic Light Emitting Diodes Employing Ordered Microlens Arrays.** *J. Appl. Phys.* **2002**, *91*, 3324–3327.
 
-상반성에 의해 본 결과의 기하학적 절반은 흡수 문제로 전이된다. 수동층을 통한 발광의 도달 가능 배광 집합은
-같은 층을 흡수체로 사용할 때의 각도 수용도와 동형이다. 다만 효율 천장은 전이되지 않는다. 유용한 채널이
-서로 다르기 때문이다 — 발광에서는 공기로의 탈출, 검출에서는 활성층에서의 흡수.
+4. Wrzesniewski, E.; et al. **Enhancing Light Extraction in Top-Emitting Organic Light-Emitting Devices Using Molded Transparent Polymer Microlens Arrays.** *Small* **2012**, *8*, 2647–2651. https://doi.org/10.1002/smll.201102662.
 
-끝으로 본 해석의 한계를 밝힌다. 굴절형 구조의 비선별성은 증명이 아니라 논변이며, 산란층은 2-state 근사로
-취급되었고, 전체 해석은 기하광학 극한에서 이루어졌다.
+5. Qu, Y.; et al. **Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays.** *ACS Photonics* **2018**. https://doi.org/10.1021/acsphotonics.8b00255.
 
----
+6. Kim, Y.; et al. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*.
 
-## 6. 결론
+7. **Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging.** *Appl. Opt.* **2025**, *64*, 7875.
 
-우리는 에너지 보존과 상반성만으로 임의의 수동 외부 광추출층에서 나오는 휘도가 유계되고, 따라서 그것이 주어진
-각도 목표에 단일 통과로 전달할 수 있는 광량이 **내부 복잡도와 무관하게** 유계됨을 보였다. 평평한 계면이
-이미 이 상한을 달성하므로, 역설계가 반구형 프로파일에서 포화하는 현상은 최적화가 아니라 보존의 귀결이다.
-수치적으로 각도 선택성은 **설계 불변량**임이 확인되었다 — 탐색한 설계공간 전반에서 Lambertian 값에
-머물렀고, 방향성 최적화가 효율 최적화와 같은 구조를 반환하였다. 즉 방향성 방출은 그 자체의 설계 자유도를
-갖지 않는다. 각도 압축은 출광면/광원 면적비가 1을 넘을 것을
-요구하는데 타일링이 그 수단을 제거한다 — 이는 반구형 macroextractor의 성공과 그 비확장성을 동시에 설명하는
-관계식이다. 단일 통과 상한 너머에는 재활용에 의한 휘도 축적, 마이크로캐비티를 통한 광원 조절, 개구 확장이
-있으며, 이 중 재활용은 굴절형 구조가 달성하는 값보다 2배 높은 상한을 허용한다. 그 간극을 메우려면 각도
-선별성이 필요하나, 굴절형 구조가 그것을 가질 수 있는지는 열린 문제로 남는다.
+8. Buhl, M.; et al. **Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes.** *Adv. Photonics Res.* **2023**. https://doi.org/10.1002/adpr.202200143.
 
----
+9. **Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces.** *Commun. Eng.* **2025**. https://doi.org/10.1038/s44172-025-00401-w.
 
-## 그림 구성
+10. Winston, R.; Jiang, L.; Ricketts, M. **Nonimaging Optics: A Tutorial.** *Adv. Opt. Photon.* **2018**, *10*, 484–511.
 
-| Fig | 내용 | 상태 |
-|---|---|---|
-| 1 | 플랫폼, 에텐듀 그림, **세 개의 레버**(형상 소진 / 재활용 / 캐비티) | 작성 필요 |
-| 2 | 단일 통과 상한, 평면 포화, **선택성 불변성**(Pareto 붕괴), frontier | ✅ **계산 완료** |
-| 3 | FoM 지도 (Ω별 상한, 금지 영역, 색–방향성 트레이드오프) | 계산 일부 필요 |
-| 4 | 재활용 **bound vs frontier 간극**, 대역폭, 일반성, 교차검증 | (a)(b) 계산 완료 |
+11. Rau, U. **Reciprocity Relation between Photovoltaic Quantum Efficiency and Electroluminescent Emission of Solar Cells.** *Phys. Rev. B* **2007**, *76*, 085303.
 
-## 참고문헌 — 우선 확보 목록
-- Yablonovitch, *J. Opt. Soc. Am.* **72**, 899 (1982)
-- Brütting et al., *Phys. Status Solidi A* **210**, 44 (2013) — 70% / macroextractor 단서 포함
-- Winston, Jiang, Ricketts, *Adv. Opt. Photon.* **10**, 484 (2018)
-- 자기 그룹: ACS Photonics **10**, 1775 (2023); Nat. Commun. (2025)
-- Freeform illumination 리뷰 / Monge–Ampère
-- 각도필터 OLED (Adv. Photonics Res. 2023), angle-selective film (2022)
-- 메타표면 방향성 microLED (Comm. Eng. 2025)
-- BSDF 상반성 / radiative transfer 표준 문헌
+12. Xiang, C.; Koo, W.; So, F.; Sasabe, H.; Kido, J. **A Systematic Study on Efficiency Enhancements in Phosphorescent Green, Red and Blue Microcavity Organic Light-Emitting Devices.** *Light: Sci. Appl.* **2013**, *2*, e74. https://doi.org/10.1038/lsa.2013.30.
+
+13. Song, J.; et al. **Lensfree OLEDs with over 50% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters.** *Nat. Commun.* **2018**, *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x.
+
+14. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** **2022**. https://pubmed.ncbi.nlm.nih.gov/36558597/.
+
+15. Kim, H.-J.; et al. **High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling.** *Sci. Rep.* **2017**, *7*, 43063. https://doi.org/10.1038/srep43063.
