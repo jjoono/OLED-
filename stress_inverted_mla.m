@@ -33,18 +33,21 @@
 %
 %  [반전 구현 — 두 경로]
 %   (A) INVERT_METHOD = 'texture'  [기본값, 권장]
-%       .lts 모델의 3D texture 는 unit cell 형상을 표면에 양각(bump)으로 얹을지
+%       .lts 모델의 3D texture 가 unit cell 형상을 표면에 양각(bump)으로 얹을지
 %       음각(hole)으로 파낼지를 자체 속성으로 지정한다. 이 경로에서는 unit cell
-%       프로파일을 기준(볼록) 그대로 만들고 그 속성만 hole 로 돌린다.
+%       프로파일을 기준(볼록) 그대로 만들고, 모델 쪽에서 그 형상이 파이게 한다.
 %       -> 13변수 설계공간과 기하 정의가 freeform 계열과 완전히 동일하므로
 %          계열 간 비교가 가장 공정하고, 모델이 원래 지원하는 경로라 안전하다.
-%       속성 이름/값은 스크립트 상단 TEX_RELIEF_PARAM / TEX_RELIEF_VALUE_HOLE 에
-%       두었다. 레포의 검증된 스크립트에 'StretchZ' 외 텍스처 속성 선례가 없으므로
-%       실제 이름은 probe_texture_keys.m 으로 한 번 확인한 뒤 적어 넣을 것.
-%       설정에 실패하면 즉시 error 를 던진다 (볼록 형상으로 조용히 계산되는 것 방지).
+%       사용 모델: Lens_size_effect_inverted_hole_v1.1.lts
+%         기존 bump 모델(Lens_size_effect_for_PSO_bump_modified_v1.1.lts)에서
+%         LibraryElementUnitCell 의  setBumps: "Yes" -> "No"  한 줄만 바꾼 것.
+%         (그 외 차이는 잔여 시뮬 결과/부동소수점 노이즈뿐 — 광학 설정 동일)
+%       실행 중에는 열린 모델이 정말 음각인지 'Bumps' 값을 확인만 한다. bump
+%       모델을 잘못 열고 돌리면 즉시 error 를 던진다 (볼록 형상으로 조용히
+%       계산되어 freeform 계열과 구분되지 않는 사고 방지).
 %
 %   (B) INVERT_METHOD = 'profile'  [대안]
-%       텍스처 토글 이름을 확인하지 못했을 때 쓰는 경로. 제어점 준비 단계
+%       모델을 바꾸지 않고 형상만으로 오목을 만드는 경로. 제어점 준비 단계
 %       (정규화 공간) 에서 높이를 뒤집는다:
 %           z_max   = max(높이 제어점)            (apex 포함, y_i 는 최대 1.5)
 %           z_inv_i = z_max - z_i
@@ -85,15 +88,15 @@ global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
 %               표면에서 그 형상을 파낸다 — .lts 모델에서 원래 지원하는 경로.
 %               [권장] 기하를 손대지 않으므로 freeform 계열과 형상 정의가 동일하다.
 %  'profile'  : 제어점 공간에서 z -> z_max - z 로 프로파일 자체를 뒤집는다.
-%               텍스처 토글의 DB 속성 이름을 못 찾은 경우의 대안.
+%               bump 모델만 있을 때 쓰는 대안 (모델 파일 경로도 함께 되돌릴 것).
 INVERT_METHOD = 'texture';
 
-%  [!] TEXTURE_PARAMETER 안에서 양각/음각을 지정하는 항목 이름과, 음각에 해당하는
-%      값. 레포의 검증된 스크립트에는 'StretchZ' 외 텍스처 속성 선례가 없으므로,
-%      실제 이름은 probe_texture_keys.m 을 한 번 돌려 확인한 뒤 여기에 적는다.
-%      (GUI Database Browser 에서 직접 확인해도 된다.)
-TEX_RELIEF_PARAM      = 'BumpOrHole';   % <- probe 결과로 교체할 것
-TEX_RELIEF_VALUE_HOLE = 1;              % <- 음각에 해당하는 값 (0=bump, 1=hole 로 가정)
+%  양각/음각 속성은 LIBRARY_ELEMENT_UNIT_CELL 아래의 'Bumps' 이며 값은 "Yes"/"No".
+%  (.lts 파일에서 LibraryElementUnitCell 의 setBumps 로 저장된다. TEXTURE_PARAMETER
+%   목록이 아니라 unit cell 객체의 속성이라 StretchZ 옆에서는 찾을 수 없다.)
+%  아래 두 값은 실행 중 '열린 모델이 정말 음각인지' 확인하는 데만 쓰인다.
+TEX_RELIEF_PARAM      = 'Bumps';
+TEX_RELIEF_VALUE_HOLE = 'No';
 
 % [기하 검증 tolerance] LightTools 제어점 왕복 불일치 허용치.
 GEOM_TOL = 1e-4;
@@ -621,25 +624,29 @@ totalpathmod = [pathname index '.1.ent"'];
 List = ltml.LTDbList(lt2, 'LENS_MANAGER[1]', 'LIBRARY_ELEMENT_UNIT_CELL');
 Key = ltml.LTListByName(lt2, List, 'LibraryElement');
 ltml.LTDbSet(lt2, Key, 'Filename', totalpathmod);
+
+% [음각 확인] 음각(hole)은 모델 파일에 이미 박혀 있다
+%   (Lens_size_effect_inverted_hole_v1.1.lts 의 LibraryElementUnitCell:
+%    setBumps: "No"; bump 모델은 "Yes").
+%   여기서는 잘못된 모델(bump)을 열고 돌리는 사고를 막기 위해 값만 확인한다.
+%   조용히 볼록 형상으로 계산이 끝나면 freeform 계열과 구분되지 않기 때문이다.
+if strcmpi(INVERT_METHOD, 'texture')
+    try
+        bumpsVal = ltml.LTDbGet(lt2, Key, TEX_RELIEF_PARAM);
+    catch
+        bumpsVal = '';   % 속성을 못 읽으면 확인만 건너뛴다 (모델이 이미 음각)
+    end
+    if ~isempty(bumpsVal) && ~strcmpi(char(string(bumpsVal)), TEX_RELIEF_VALUE_HOLE)
+        error(['열려 있는 모델이 음각(hole)이 아니다 (%s = %s). ' ...
+               'MODEL_FILE_LT 가 Lens_size_effect_inverted_hole_v1.1.lts 를 ' ...
+               '가리키는지 확인할 것. (대안: INVERT_METHOD = ''profile'')'], ...
+               TEX_RELIEF_PARAM, char(string(bumpsVal)));
+    end
+end
+
 List = ltml.LTDbList(lt2, 'LENS_MANAGER[1]', 'TEXTURE_PARAMETER');
 Key = ltml.LTListByName(lt2, List, 'StretchZ');
 ltml.LTDbSet(lt2, Key, 'Value', stretchZ);
-
-% [음각 설정] 텍스처의 양각/음각 토글을 hole 로 돌린다.
-%   StretchZ 와 동일한 TEXTURE_PARAMETER 목록/설정 패턴을 그대로 쓴다.
-%   속성 이름을 못 찾으면 조용히 넘어가지 않고 즉시 멈춘다 — 그대로 두면
-%   볼록(bump) 형상으로 계산이 끝나 freeform 계열과 구분되지 않기 때문이다.
-if strcmpi(INVERT_METHOD, 'texture')
-    try
-        KeyRelief = ltml.LTListByName(lt2, List, TEX_RELIEF_PARAM);
-        ltml.LTDbSet(lt2, KeyRelief, 'Value', TEX_RELIEF_VALUE_HOLE);
-    catch ME
-        error(['텍스처 음각 파라미터 ''%s'' 설정 실패: %s\n' ...
-               'probe_texture_keys.m 을 실행해 실제 속성 이름과 음각 값을 확인한 뒤 ' ...
-               '스크립트 상단의 TEX_RELIEF_PARAM / TEX_RELIEF_VALUE_HOLE 을 고칠 것. ' ...
-               '(대안: INVERT_METHOD = ''profile'')'], TEX_RELIEF_PARAM, ME.message);
-    end
-end
 
 %% CPS
 load('nk_JH33.mat');  load('Photopic_400_800.mat');
@@ -824,7 +831,8 @@ function RenewLightTools()
 global ID_LT ID_swept ltml ltloc lt
 lt_exe_path = 'C:\Program Files\Optical Research Associates\LightTools 2023.03\lt.exe';
 model_file_path_swept = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\SweptEntity.2.lts';
-model_file_path_LT = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\Lens_size_effect_for_PSO_bump_modified_v1.1.lts';
+% [!] 이 패밀리는 음각(hole) 텍스처 모델을 쓴다 (bump 모델과 setBumps 한 줄만 다름).
+model_file_path_LT = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\Lens_size_effect_inverted_hole_v1.1.lts';
 
 fprintf('--- Restarting LightTools ---\n');
 target_user = 'jhkim';
