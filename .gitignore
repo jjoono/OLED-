@@ -17,3 +17,14 @@ dft_seedlayer_screen/runs/*_run.log
 # REPORT*.md that interprets them -- both of which are tracked.
 dft_seedlayer_screen/runs/*.log
 dft_seedlayer_screen/runs/tddft_absorption.json.tmp
+# xtb working directories. The optimised geometry (xtbopt.xyz) is kept, matching
+# runs/xtb/*/xtbopt.xyz, and is also copied into structures/. Everything else the
+# driver writes is scratch regenerated on every run.
+dft_seedlayer_screen/runs/**/xtb.log
+dft_seedlayer_screen/runs/**/xtbopt.log
+dft_seedlayer_screen/runs/**/xtbrestart
+dft_seedlayer_screen/runs/**/xtbtopo.mol
+dft_seedlayer_screen/runs/**/charges
+dft_seedlayer_screen/runs/**/wbo
+dft_seedlayer_screen/runs/**/in.xyz
+dft_seedlayer_screen/runs/**/.xtboptok
