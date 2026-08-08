@@ -7,8 +7,9 @@
 %
 %  이 파일의 패밀리: INVERTED (concave) MLA
 %   - 기준(reference) freeform 은 볼록(convex) 렌즈렛이 공기 쪽으로 돌출.
-%   - 여기서는 동일한 13차원 파라미터화의 프로파일을 오목(concave) 대응형으로
-%     뒤집는다: z -> z_max - z  (아래 [반전 구현] 참조).
+%   - 여기서는 동일한 13차원 파라미터화의 렌즈렛을 오목(concave) 대응형으로
+%     바꾼다. 기본 경로는 3D texture 의 양각/음각(bump vs hole) 토글이며,
+%     프로파일 자체를 뒤집는 대안도 둔다 (아래 [반전 구현 — 두 경로] 참조).
 %
 %  프로토콜 (per-family stress protocol, 고정):
 %   1. N_RANDOM = 100 개의 무작위 valid 설계 (search fidelity).
@@ -30,25 +31,31 @@
 %      random / optimization / high-precision 구분은 EVAL_LOG 행 인덱스 경계
 %      (idx_random_end, idx_opt_end) 로 저장한다.
 %
-%  [반전 구현 — 어떤 해석을 골랐고 왜]
-%   기준 코드에서 프로파일은 swept-entity 의 FITTED_CURVE 에 7개 제어점
-%   (col1 = 반경방향 좌표 0..1, col2 = 높이) 으로 들어가고, 회전 sweep 으로
-%   3D 곡면이 된 뒤 RepairEntities 로 solid 가 되며, 높이 배율 stretchZ 는
-%   LightTools 쪽 TEXTURE_PARAMETER 로 별도 적용된다 (uniform scale).
-%   따라서 선호 순위 (1) 의 "z -> z_max - z" 를 제어점 준비 단계(정규화 공간)
-%   에서 그대로 적용할 수 있다:
-%       z_max   = max(높이 제어점)                (apex 포함, y_i 는 최대 1.5)
-%       z_inv_i = z_max - z_i
-%   stretchZ 가 uniform scale 이므로 정규화 공간에서의 반전은 stretch 후
-%   반전과 완전히 동치다. 결과 형상: 이전 apex 높이(z_max)가 슬래브 윗면이
-%   되고, 그 슬래브에 같은 freeform 프로파일의 접시(dish)가 파인다 —
-%   중심(축) 높이 z_max - 1, 림(반경 1) 높이 z_max. 인접 unit cell 과는 림
-%   높이 z_max 에서 만나므로 타일링도 연속적이다.
-%   선호 순위 (2) (stretchZ 부호 반전 / sweep 축 미러) 는 쓰지 않았다:
-%   음수 stretchZ 는 렌즈 재료를 기판 '아래'로 뒤집어 (기판-렌즈-공기 순서
-%   파괴) 물리적으로 다른 문제를 만들고, RepairEntities / 제어점 왕복 검증이
-%   검증된 적 없는 경로가 되기 때문이다. (1) 은 기존 API 호출을 단 하나도
-%   바꾸지 않는다 — 들어가는 숫자만 바뀐다.
+%  [반전 구현 — 두 경로]
+%   (A) INVERT_METHOD = 'texture'  [기본값, 권장]
+%       .lts 모델의 3D texture 는 unit cell 형상을 표면에 양각(bump)으로 얹을지
+%       음각(hole)으로 파낼지를 자체 속성으로 지정한다. 이 경로에서는 unit cell
+%       프로파일을 기준(볼록) 그대로 만들고 그 속성만 hole 로 돌린다.
+%       -> 13변수 설계공간과 기하 정의가 freeform 계열과 완전히 동일하므로
+%          계열 간 비교가 가장 공정하고, 모델이 원래 지원하는 경로라 안전하다.
+%       속성 이름/값은 스크립트 상단 TEX_RELIEF_PARAM / TEX_RELIEF_VALUE_HOLE 에
+%       두었다. 레포의 검증된 스크립트에 'StretchZ' 외 텍스처 속성 선례가 없으므로
+%       실제 이름은 probe_texture_keys.m 으로 한 번 확인한 뒤 적어 넣을 것.
+%       설정에 실패하면 즉시 error 를 던진다 (볼록 형상으로 조용히 계산되는 것 방지).
+%
+%   (B) INVERT_METHOD = 'profile'  [대안]
+%       텍스처 토글 이름을 확인하지 못했을 때 쓰는 경로. 제어점 준비 단계
+%       (정규화 공간) 에서 높이를 뒤집는다:
+%           z_max   = max(높이 제어점)            (apex 포함, y_i 는 최대 1.5)
+%           z_inv_i = z_max - z_i
+%       stretchZ 가 uniform scale 이므로 정규화 공간 반전은 stretch 후 반전과
+%       동치다. 결과 형상: 이전 apex 높이(z_max)가 슬래브 윗면이 되고 그 슬래브에
+%       같은 프로파일의 접시(dish)가 파인다 — 축 높이 z_max-1, 림 높이 z_max.
+%       인접 unit cell 과는 림에서 만나므로 타일링도 연속적이다. 이 경로를 쓰면
+%       첫 실행에서 3D 뷰로 오목 여부와 RepairEntities 의 림 닫힘을 확인할 것.
+%       stretchZ 부호 반전 / sweep 축 미러는 쓰지 않았다: 음수 stretchZ 는 렌즈
+%       재료를 기판 '아래'로 뒤집어 층 순서를 깨고, RepairEntities 와 제어점 왕복
+%       검증이 검증된 적 없는 경로가 되기 때문이다.
 %
 %   [주의 — 재료 방향은 물리적으로 유지되어야 함]
 %   기판(substrate) 아래 / 텍스처된 렌즈 재료 위 / 그 위 공기. 반전은 렌즈
@@ -69,7 +76,24 @@ clear;
 %% For LightTools Connection
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
        ray_nums_current wave_n_current EVAL_LOG EVAL_PHASE EVAL_W ...
-       GEOM_TOL GEOM_MISMATCH_LOG REQUIRE_MONOTONIC_X
+       GEOM_TOL GEOM_MISMATCH_LOG REQUIRE_MONOTONIC_X ...
+       INVERT_METHOD TEX_RELIEF_PARAM TEX_RELIEF_VALUE_HOLE
+
+%% ===== 음각(hole) 구현 방식 =====
+%  'texture'  : LightTools 3D texture 자체의 양각/음각(bump vs hole) 토글을 쓴다.
+%               unit cell 형상은 기준(볼록) 프로파일 그대로 두고 텍스처가
+%               표면에서 그 형상을 파낸다 — .lts 모델에서 원래 지원하는 경로.
+%               [권장] 기하를 손대지 않으므로 freeform 계열과 형상 정의가 동일하다.
+%  'profile'  : 제어점 공간에서 z -> z_max - z 로 프로파일 자체를 뒤집는다.
+%               텍스처 토글의 DB 속성 이름을 못 찾은 경우의 대안.
+INVERT_METHOD = 'texture';
+
+%  [!] TEXTURE_PARAMETER 안에서 양각/음각을 지정하는 항목 이름과, 음각에 해당하는
+%      값. 레포의 검증된 스크립트에는 'StretchZ' 외 텍스처 속성 선례가 없으므로,
+%      실제 이름은 probe_texture_keys.m 을 한 번 돌려 확인한 뒤 여기에 적는다.
+%      (GUI Database Browser 에서 직접 확인해도 된다.)
+TEX_RELIEF_PARAM      = 'BumpOrHole';   % <- probe 결과로 교체할 것
+TEX_RELIEF_VALUE_HOLE = 1;              % <- 음각에 해당하는 값 (0=bump, 1=hole 로 가정)
 
 % [기하 검증 tolerance] LightTools 제어점 왕복 불일치 허용치.
 GEOM_TOL = 1e-4;
@@ -460,7 +484,8 @@ end
 %  (z -> z_max - z) 한 가지만 추가했다. 소스/기판/리시버/코팅/CPS/각도구간
 %  판독은 전부 동일.
 function output = objFcn_both(point)
-global ID_LT ID_swept ltml ltloc count ray_nums_current wave_n_current
+global ID_LT ID_swept ltml ltloc count ray_nums_current wave_n_current ...
+       INVERT_METHOD TEX_RELIEF_PARAM TEX_RELIEF_VALUE_HOLE
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
@@ -497,23 +522,24 @@ xy(1,:) = [0, 1];  xy(7,:) = [1, 0];
 xy(2,:) = [x2, y2];  xy(3,:) = [x3, y3];  xy(4,:) = [x4, y4];
 xy(5,:) = [x5, y5];  xy(6,:) = [x6, y6];
 
-%% !!! VERIFY IN LIGHTTOOLS: inverted-profile construction — inspect the rendered surface on first run !!!
 % [반전 — 이 패밀리의 유일한 물리 변경]
-%   z -> z_max - z  (route (1): 정규화 제어점 공간에서 높이 반전).
-%   - z_max = 모든 제어점 높이의 최댓값 (apex y1=1 포함; y2..y6 은 최대 1.5).
-%   - 이전 apex 높이가 슬래브 윗면이 되고, 같은 프로파일의 접시(dish)가
-%     그 슬래브에 파인다: 축(반경 0) 높이 z_max-1, 림(반경 1) 높이 z_max.
-%   - stretchZ 는 LightTools TEXTURE_PARAMETER 의 uniform scale 이므로
-%     정규화 공간 반전과 순서 교환 가능 (수학적으로 동치).
-%   - 재료 방향: 기판 아래 / 렌즈 재료(윗면이 이 반전 프로파일) / 공기 위 —
-%     기준 모델과 동일하게 유지된다. 반전 후에도 모든 높이 >= 0 이므로 렌즈
-%     재료가 기판 아래로 침범하지 않는다.
-%   - 아래의 SetSweptProfilePoints / 재스케일 / GEOM_TOL 왕복 검증은 전부
-%     '반전된' xy 에 대해 수행되므로, 검증이 변환된 제어점을 그대로 보증한다.
-%   - 첫 실행 시 LightTools 3D 뷰에서 unit cell 이 실제로 오목(dish)인지,
-%     RepairEntities 후 solid 가 림에서 닫히는지 반드시 눈으로 확인할 것.
-z_max = max(xy(:,2));
-xy(:,2) = z_max - xy(:,2);
+%   INVERT_METHOD = 'texture' 일 때는 여기서 프로파일을 건드리지 않는다.
+%   unit cell 은 기준(볼록) 형상 그대로 만들어지고, 아래쪽 텍스처 설정에서
+%   LightTools 의 양각/음각(bump vs hole) 토글로 표면에서 파내진다.
+%   -> 설계공간(13변수)과 기하 정의가 freeform 계열과 완전히 동일해지므로
+%      계열 간 비교가 가장 공정하다.
+%
+%   INVERT_METHOD = 'profile' 은 텍스처 토글의 DB 속성 이름을 확인하지 못한
+%   경우의 대안이다: 정규화 제어점 공간에서 z -> z_max - z 로 프로파일 자체를
+%   뒤집어, 이전 apex 높이가 윗면이 되는 슬래브에 같은 프로파일의 접시가
+%   파인 형상을 만든다. stretchZ 는 uniform scale 이라 정규화 공간 반전과
+%   순서 교환이 가능하고, 아래의 재스케일/GEOM_TOL 왕복 검증은 변환된 xy 에
+%   대해 그대로 수행된다. 이 경로를 쓸 때는 첫 실행에서 3D 뷰로 오목 여부와
+%   RepairEntities 의 림 닫힘을 반드시 확인할 것.
+if strcmpi(INVERT_METHOD, 'profile')
+    z_max = max(xy(:,2));
+    xy(:,2) = z_max - xy(:,2);
+end
 
 lt = ltloc.GetLTAPI(ID_swept);
 ltx= getltpointer(ID_swept);
@@ -598,6 +624,22 @@ ltml.LTDbSet(lt2, Key, 'Filename', totalpathmod);
 List = ltml.LTDbList(lt2, 'LENS_MANAGER[1]', 'TEXTURE_PARAMETER');
 Key = ltml.LTListByName(lt2, List, 'StretchZ');
 ltml.LTDbSet(lt2, Key, 'Value', stretchZ);
+
+% [음각 설정] 텍스처의 양각/음각 토글을 hole 로 돌린다.
+%   StretchZ 와 동일한 TEXTURE_PARAMETER 목록/설정 패턴을 그대로 쓴다.
+%   속성 이름을 못 찾으면 조용히 넘어가지 않고 즉시 멈춘다 — 그대로 두면
+%   볼록(bump) 형상으로 계산이 끝나 freeform 계열과 구분되지 않기 때문이다.
+if strcmpi(INVERT_METHOD, 'texture')
+    try
+        KeyRelief = ltml.LTListByName(lt2, List, TEX_RELIEF_PARAM);
+        ltml.LTDbSet(lt2, KeyRelief, 'Value', TEX_RELIEF_VALUE_HOLE);
+    catch ME
+        error(['텍스처 음각 파라미터 ''%s'' 설정 실패: %s\n' ...
+               'probe_texture_keys.m 을 실행해 실제 속성 이름과 음각 값을 확인한 뒤 ' ...
+               '스크립트 상단의 TEX_RELIEF_PARAM / TEX_RELIEF_VALUE_HOLE 을 고칠 것. ' ...
+               '(대안: INVERT_METHOD = ''profile'')'], TEX_RELIEF_PARAM, ME.message);
+    end
+end
 
 %% CPS
 load('nk_JH33.mat');  load('Photopic_400_800.mat');
