@@ -64,7 +64,8 @@ for d, c in [(8, "#2b7bba"), (15, "#c0392b")]:
 plt.xlabel("Wavelength (nm)"); plt.ylabel("Transmittance (%)")
 plt.title("Ideal smooth Ag on glass — TMM, Johnson & Christy n,k")
 plt.legend(); plt.grid(alpha=0.3); plt.ylim(0, 100)
-png = os.path.join(BASE, "Ag_transmittance.png")
+os.makedirs(os.path.join(BASE, "optics"), exist_ok=True)
+png = os.path.join(BASE, "optics", "Ag_transmittance.png")
 plt.tight_layout(); plt.savefig(png, dpi=160)
 print("saved", png)
 
