@@ -130,8 +130,21 @@ def cluster_eb(syms, x):
     psi4.set_memory(os.environ.get("PSI4_MEM", "6 GB"))
     psi4.set_num_threads(int(os.environ.get("PSI4_THREADS", "4")))
     psi4.core.set_output_file(os.path.join(RUNS, "psi4_f6tcnnq.out"), False)
+    # WHY THIS DIFFERS FROM scripts/30. The first attempt used that script's
+    # settings verbatim (maxiter 150, SAD guess, near-to-far scan) and every single
+    # scan point failed to converge -- 70 minutes, zero usable energies. That is
+    # not a numerical accident, and it is worth recording because it is the same
+    # chemistry the rest of the project is about: F6TCNNQ's electron affinity is
+    # high enough that Ag(0) + neutral molecule and Ag(+) + radical anion are
+    # nearly degenerate, so the SCF oscillates between two charge states. HATCN and
+    # F4TCNQ converged without complaint at this level; F6TCNNQ does not.
+    #
+    # The fix is the one used for the slabs in scripts/39: start FAR, where the two
+    # configurations are cleanly separated and the neutral solution is unambiguous,
+    # then walk inward carrying the converged orbitals forward as the guess. Also
+    # raises maxiter, since a hard case needs iterations more than it needs tricks.
     base = {"basis": "def2-svp", "scf_type": "df", "reference": "uks",
-            "maxiter": 150, "guess": "sad"}
+            "maxiter": 500, "guess": "sad"}
     psi4.set_options(base)
     M = "pbe-d3bj"
 
@@ -146,45 +159,70 @@ def cluster_eb(syms, x):
             s += f"{t} {c[0]:.6f} {c[1]:.6f} {c[2]:.6f}\n"
         return s + "symmetry c1\nno_reorient\nno_com\n"
 
-    def energy(g):
-        for extra in ({}, {"level_shift": 1.0, "level_shift_cutoff": 0.01,
-                           "damping_percentage": 15}, {"soscf": True}):
+    def energy(g, carry=False):
+        """SCF with orbital carry-over. `carry` reads the previous point's orbitals.
+
+        Returns (energy, converged_ok). The guess is only reset to SAD if reading
+        fails, because a converged neighbour is a far better starting point than
+        any atomic guess for a system this close to a charge-transfer crossing.
+        """
+        ladder = [
+            {"guess": "read"} if carry else {},
+            {"guess": "read" if carry else "sad", "damping_percentage": 40,
+             "level_shift": 0.5, "level_shift_cutoff": 1e-4},
+            {"guess": "sad", "damping_percentage": 60,
+             "level_shift": 1.0, "level_shift_cutoff": 1e-5},
+            {"guess": "gwh", "soscf": True, "damping_percentage": 30},
+        ]
+        for i, extra in enumerate(ladder):
             try:
                 psi4.set_options({**base, **extra})
-                e = psi4.energy(M, molecule=psi4.geometry(g))
+                e, wfn = psi4.energy(M, molecule=psi4.geometry(g), return_wfn=True)
                 psi4.set_options(base)
-                return e
+                return e, wfn
             except Exception as ex:
-                print(f"    scf retry ({type(ex).__name__})", flush=True)
-                psi4.core.clean()
-        return None
+                print(f"    scf attempt {i} failed ({type(ex).__name__})", flush=True)
+                if i < len(ladder) - 1:
+                    psi4.core.clean()      # keep scratch on the last try for diagnosis
+        return None, None
 
     ax = xs_all[agi] - xs_all[i_n]
     r0 = np.linalg.norm(ax); ax = ax / r0
-    scan, best = {}, (None, None)
-    # 26 heavy atoms, so the reduced grid of scripts/30 for >25-atom systems
-    for dt in (-0.1, 0.0, 0.15, 0.35):
+    scan = {}
+    # FAR -> NEAR. At 6 A the Ag atom is a spectator and the neutral solution is
+    # unambiguous; each converged point then seeds the next. Scanning the other way
+    # (as the first attempt did) starts in the region where the two charge states
+    # compete, with only an atomic guess to pick between them.
+    radii = [6.0, 5.0, 4.0, 3.4, 3.0, 2.7, 2.45, 2.3, 2.2]
+    first = True
+    for r in radii:
         xs = xs_all.copy()
-        xs[agi] = xs_all[i_n] + (r0 + dt) * ax
-        e = energy(gstr(s_all, xs, None, 2))
+        xs[agi] = xs_all[i_n] + r * ax
+        e, _ = energy(gstr(s_all, xs, None, 2), carry=not first)
         if e is None:
+            print(f"  r = {r:.2f} A   FAILED", flush=True)
             continue
-        scan[round(r0 + dt, 3)] = e
-        if best[1] is None or e < best[1]:
-            best = (dt, e)
-        print(f"  r = {r0+dt:.2f} A   E = {e:.6f}", flush=True)
-    if best[1] is None:
+        first = False
+        scan[round(r, 3)] = e
+        print(f"  r = {r:.2f} A   E = {e:.6f}", flush=True)
+    if not scan:
         return {"error": "scan_failed"}
 
-    rb = r0 + best[0]
+    rb = min(scan, key=scan.get)
+    if rb == max(scan):
+        # Minimum at the outermost point means the curve is still descending
+        # outward, i.e. there is no bound minimum on this grid -- not a binding
+        # energy. Report it rather than quoting the endpoint as if it were one.
+        print("  WARNING: minimum at the largest radius scanned", flush=True)
     xs = xs_all.copy(); xs[agi] = xs_all[i_n] + rb * ax
     write_xyz(os.path.join(STR, f"{TAG}_Ag.xyz"), s_all, xs, f"{TAG}+Ag, DFT scan min")
-    e_cx = scan[round(rb, 3)]
-    e_sub = energy(gstr(s_all, xs, {agi}, 1))          # molecule + Ag ghost
-    e_ag = energy(gstr(s_all, xs, set(range(agi)), 2))  # Ag + molecule ghost
+    e_cx = scan[rb]
+    e_sub, _ = energy(gstr(s_all, xs, {agi}, 1))          # molecule + Ag ghost
+    e_ag, _ = energy(gstr(s_all, xs, set(range(agi)), 2))  # Ag + molecule ghost
     if None in (e_sub, e_ag):
-        return {"error": "cp_failed"}
+        return {"error": "cp_failed", "scan": {str(k): v for k, v in scan.items()}}
     return {"Eb_eV": (e_sub + e_ag - e_cx) * H2EV, "r_A": rb,
+            "n_scan_ok": len(scan), "n_scan_tried": len(radii),
             "scan": {str(k): v for k, v in scan.items()}}
 
 
