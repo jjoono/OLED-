@@ -14,7 +14,7 @@
 
 ## 초록
 
-자유형(freeform) 마이크로렌즈 어레이(MLA)와 수치 역설계(inverse design)는 OLED의 광추출 효율과 배광을 동시에 제어할 수 있는 수단으로 널리 기대되어 왔다. 그러나 이 기대는 대개 점광원 또는 렌즈 개구보다 훨씬 작은 광원을 전제한 광학계에서 비롯되며, 균일한 확장 광원(extended source) 위에 공면적(coextensive)으로 타일링된 MLA에 그대로 적용되지는 않는다. 여기서 우리는 CPS 기반의 OLED 광원 모델과 3차원 광선추적을 결합하여, 반구형 기준 렌즈, 축대칭 자유형 렌즈, 비대칭·off-axis 자유형 렌즈를 동일한 기하·재료·공정 제약 아래 비교하였다. 총 외부양자효율(EQE)과 40–60° polar band는 각각 독립적인 목적함수로 최적화하였고, 나머지 polar band(0–20°, 20–40°, 60–80°)는 가중합 스윕과 **[3-band 최적화 결과: 추후 삽입]** 으로 보완하였다. 그 결과, 높은 형상 자유도와 cavity 공동 최적화에도 불구하고 자유형 MLA가 반구형 MLA 대비 제공하는 추가 이득은 탐색한 조건 전반에서 작았다. 유효 무작위 설계 150개와 가중합 스윕($w=0,0.25,0.5,0.75,1$)을 합친 표본에서 총 EQE는 0.11–0.56에 걸쳐 5배 변했지만, 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴하여 효율–지향성 트레이드오프는 관측되지 않았고, 최적 설계의 40–60° band 선택성은 약 0.355로 Lambertian 값 0.337에 근접하였다. 목표 band를 바꾸거나 비대칭 형상으로 방위각 창을 직접 최적화해도, 총 추출의 개선을 넘어서는 안정적이고 재현 가능한 angular gain은 탐색 범위 내에서 관측되지 않았다.
+자유형(freeform) 마이크로렌즈 어레이(MLA)와 수치 역설계(inverse design)는 OLED의 광추출 효율과 배광을 동시에 제어할 수 있는 수단으로 널리 기대되어 왔다. 그러나 이 기대는 대개 점광원 또는 렌즈 개구보다 훨씬 작은 광원을 전제한 광학계에서 비롯되며, 균일한 확장 광원(extended source) 위에 공면적(coextensive)으로 타일링된 MLA에 그대로 적용되지는 않는다. 여기서 우리는 CPS 기반의 OLED 광원 모델과 3차원 광선추적을 결합하여, 반구형 기준 렌즈, 축대칭 자유형 렌즈, 비대칭·off-axis 자유형 렌즈를 동일한 기하·재료·공정 제약 아래 비교하였다. 총 외부양자효율(EQE)과 네 개의 polar band(0–20°, 20–40°, 40–60°, 60–80°) 각각을 독립적인 단일 목적함수로 최적화하였고, 총 EQE와 40–60° band 사이의 가중합 스윕으로 이를 보완하였다 **[4-band 최적화 결과: 추후 삽입]**. 그 결과, 높은 형상 자유도와 cavity 공동 최적화에도 불구하고 자유형 MLA가 반구형 MLA 대비 제공하는 추가 이득은 탐색한 조건 전반에서 작았다. 유효 무작위 설계 150개와 가중합 스윕($w=0,0.25,0.5,0.75,1$)을 합친 표본에서 총 EQE는 0.11–0.56에 걸쳐 5배 변했지만, 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴하여 효율–지향성 트레이드오프는 관측되지 않았고, 최적 설계의 40–60° band 선택성은 약 0.355로 Lambertian 값 0.337에 근접하였다. 목표 band를 바꾸거나 비대칭 형상으로 방위각 창을 직접 최적화해도, 총 추출의 개선을 넘어서는 안정적이고 재현 가능한 angular gain은 탐색 범위 내에서 관측되지 않았다.
 
 이 실용적 포화(practical saturation)는 세 가지 요인으로 설명된다. 첫째, coextensive tiled array에서는 개구 면적과 유효 광원 면적이 함께 증가하므로 점광원 집광에 필요한 면적 이득이 생기지 않는다. 둘째, 기판 내 횡방향 전파가 인접 lenslet 사이의 광을 혼합하여 국소 형상이 활용할 수 있는 공간 정보를 약화한다. 셋째, 수동 외부 광학계는 주어진 source radiance와 출광 면적 아래에서 특정 angular channel에 전달할 수 있는 power의 상한 경향을 갖는다. 이 결과는 자유형 MLA가 무의미하다는 뜻이 아니라, 확장 OLED에서 형상 복잡도에 계속 투자할지 중단할지를 판정하는 기준을 제공한다. 마지막으로 우리는 MLA 포화 이후의 세 경로—source/cavity engineering, aperture expansion, angular-selective recycling—를 같은 물리적 언어로 정리하고, 목표 성능에 따라 다음 설계 레버를 선택하는 design-route map을 제시한다. 이상적 각도필터 모델은 왕복 손실 10%에서 40–60° band에 발생 광량의 62.1%를 전달할 수 있는 반면, 현실적 8-pair DBR은 단색 광원에서 48.2%, 100 nm 대역폭에서 32.5%에 머물러 source bandwidth와 손실이 이 경로의 실질적 제약임을 보인다.
 
@@ -44,7 +44,7 @@ OLED의 외부 광추출은 여전히 소자 효율과 고휘도 구동 수명�
 
 ### 2.2 목적함수를 바꾸어도 hemispherical reference를 크게 넘지 못한다
 
-그림 2a는 총 EQE와 네 개의 polar angular band(0–20°, 20–40°, 40–60°, 60–80°)를 목적으로 했을 때의 최선 성능을 요약한다. 총 EQE와 40–60° band는 독립적인 전용 최적화로, 나머지 band는 가중합 스윕과 **[3-band 최적화 결과: 추후 삽입]** 으로 다루었다. 각 목적 $j$에 대해 다음의 relative gain을 정의하였다.
+그림 2a는 총 EQE와 네 개의 polar angular band(0–20°, 20–40°, 40–60°, 60–80°)를 목적으로 했을 때의 최선 성능을 요약한다. 총 EQE와 네 band 각각은 독립적인 전용 단일목적 최적화로, 그 사이 영역은 가중합 스윕으로 다루었다 **[4-band 최적화 결과: 추후 삽입]**. 각 목적 $j$에 대해 다음의 relative gain을 정의하였다.
 
 $$
 G_j=\frac{\max\left[\mathrm{EQE}_j\mid\mathrm{freeform}\right]}
@@ -116,7 +116,7 @@ MLA 형상 최적화의 수익이 작다는 결론은 광추출이 더 이상 �
 
 ## 3. 결론
 
-우리는 확장 OLED 위의 제조 가능한 tiled refractive MLA에서 freeform 형상 자유도의 실용적 가치를 체계적으로 시험하였다. 총 EQE와 40–60° polar band를 독립적으로, 나머지 band와 비대칭 off-axis window를 가중합 스윕 및 보조 연구로 최적화했지만, freeform MLA는 동일 조건의 hemispherical MLA를 크게 넘는 안정적인 성능 이득을 보이지 않았다. 유효 무작위 설계 150개와 Pareto 스윕 전반에서 총 EQE가 0.11–0.56으로 5배 변하는 동안 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴했고, 효율–지향성 트레이드오프도, hemispherical reference를 의미 있게 넘는 각도 조향도 관측되지 않았다. 이 결과는 hemisphere가 모든 광학계에서 최적이라는 보편 명제가 아니다. 대신 coextensive tiling, extended source, substrate-mediated lateral mixing, 그리고 주어진 radiance/area 조건이 함께 성립할 때, 탐색한 설계공간 내에서 형상 복잡도만으로 확보할 수 있는 추가 자유도가 작다는 정량적 결론이다.
+우리는 확장 OLED 위의 제조 가능한 tiled refractive MLA에서 freeform 형상 자유도의 실용적 가치를 체계적으로 시험하였다. 총 EQE와 네 polar band 각각을 독립 단일목적으로 최적화하고 가중합 스윕과 비대칭 off-axis 보조 연구로 이를 보완했지만 **[4-band 최적화 결과: 추후 삽입]**, freeform MLA는 동일 조건의 hemispherical MLA를 크게 넘는 안정적인 성능 이득을 보이지 않았다. 유효 무작위 설계 150개와 Pareto 스윕 전반에서 총 EQE가 0.11–0.56으로 5배 변하는 동안 모든 (총 EQE, band EQE) 점은 준선형 경계로 붕괴했고, 효율–지향성 트레이드오프도, hemispherical reference를 의미 있게 넘는 각도 조향도 관측되지 않았다. 이 결과는 hemisphere가 모든 광학계에서 최적이라는 보편 명제가 아니다. 대신 coextensive tiling, extended source, substrate-mediated lateral mixing, 그리고 주어진 radiance/area 조건이 함께 성립할 때, 탐색한 설계공간 내에서 형상 복잡도만으로 확보할 수 있는 추가 자유도가 작다는 정량적 결론이다.
 
 따라서 본 연구는 freeform MLA를 포기하라는 결론이 아니라, 설계 결정을 앞당기는 기준을 제공한다. hemisphere benchmark에서 포화가 확인되면, 다음 개선은 더 많은 lens-shape degrees of freedom이 아니라 source/cavity engineering, aperture expansion, 또는 angular-selective recycling에서 찾아야 한다. 이 design-route map은 OLED뿐 아니라 확장 박막 광원을 사용하는 PeLED, QLED, micro-LED optical packaging에도 적용 가능한 실용적 출발점이 된다.
 

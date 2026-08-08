@@ -1,12 +1,13 @@
 % ============================================================
-%  opt_3band_freeform.m
+%  opt_4band_freeform.m
 %
 %  목적: 원고 abstract 의 "each of the four angular bands was independently
-%        optimized" 주장을 데이터로 채우기 위한 나머지 3개 구간 단일목적 최적화.
-%        (EQE_total(w=1) 과 40-60도(w=0) 는 pareto_front_freeform.m 에서 이미 수행)
+%        optimized" 주장을 데이터로 채우기 위한 네 구간 단일목적 최적화.
+%        (40-60도는 pareto_front_freeform.m 의 w=0 에서도 수행됐지만, 동일 조건
+%         비교를 위해 여기서 한 번에 전부 다시 돌린다)
 %
-%  [실행 내용] 세 구간을 각각 독립적으로 최대화:
-%        0-20도, 20-40도, 60-80도   (목적 = -EQE_band, 단일목적)
+%  [실행 내용] 네 구간을 각각 독립적으로 최대화:
+%        0-20도, 20-40도, 40-60도, 60-80도   (목적 = -EQE_band, 단일목적)
 %    각 구간마다:
 %      (i)  surrogateopt 탐색 (저정밀: RAY_SEARCH / WAVE_N_SEARCH, 예산 60회)
 %      (ii) patternsearch 국소 정련 (예산 15회)
@@ -18,8 +19,8 @@
 %
 %  [수집물] EVAL_LOG (pareto_front_freeform.m 과 동일한 열 구성):
 %        [ x(1:13) | EQE_total | EQE_0_20 | EQE_20_40 | EQE_40_60 | EQE_60_80 | phase | w ]
-%     phase 4 = 이 스크립트 표식,  w 열 = 구간 하한 각도 (0 / 20 / 60) 로 재사용.
-%     구간이 하나 끝날 때마다 opt_3band_result.mat 에 저장 (crash-safe).
+%     phase 4 = 이 스크립트 표식,  w 열 = 구간 하한 각도 (0 / 20 / 40 / 60) 로 재사용.
+%     구간이 하나 끝날 때마다 opt_4band_result.mat 에 저장 (crash-safe).
 %
 %  기반: pareto_front_freeform.m (동일한 LightTools 연동/기하/스택/제약)
 % ============================================================
@@ -58,9 +59,9 @@ RAY_FINAL     = 50000;
 N_FINAL_REP   = 3;
 
 %% ===== 구간별 단일목적 최적화 설정 =====
-BAND_LIST  = {[0 20], [20 40], [60 80]};   % 40-60 은 pareto 스크립트(w=0)에서 완료
-BAND_NAMES = {'0-20 deg', '20-40 deg', '60-80 deg'};
-BAND_COL   = [1, 2, 4];   % bins = [b0_20 b20_40 b40_60 b60_80] 에서의 열 인덱스
+BAND_LIST  = {[0 20], [20 40], [40 60], [60 80]};   % 네 구간 전부 한 번에
+BAND_NAMES = {'0-20 deg', '20-40 deg', '40-60 deg', '60-80 deg'};
+BAND_COL   = [1, 2, 3, 4];   % bins = [b0_20 b20_40 b40_60 b60_80] 에서의 열 인덱스
 nBand = numel(BAND_LIST);
 
 EVALS_PER_BAND  = 60;    % 구간당 surrogateopt 평가 예산
@@ -124,7 +125,7 @@ band_bins_hi     = nan(nBand, 4);      % 고정밀 [b0_20 b20_40 b40_60 b60_80]
 for k = 1:nBand
     band  = BAND_LIST{k};
     bcol  = BAND_COL(k);
-    wtag  = band(1);                   % w 열에 기록할 구간 하한 (0 / 20 / 60)
+    wtag  = band(1);                   % w 열에 기록할 구간 하한 (0 / 20 / 40 / 60)
     refB  = REF_BAND_LIST(k);
     fprintf('\n########## BAND %s  (%d/%d) ##########\n', BAND_NAMES{k}, k, nBand);
     fprintf('  목적 = maximize EQE_%d_%d  (정규화 ref %.4f)\n', band(1), band(2), refB);
@@ -207,7 +208,7 @@ for k = 1:nBand
         100*band_eqe_hi(k)/band_tot_hi(k));
 
     % crash-safe: 구간 하나 끝날 때마다 저장
-    save('opt_3band_result.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
+    save('opt_4band_result.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
          'band_eqe_hi', 'band_tot_hi', 'band_bins_hi', ...
          'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'REF_BAND_LIST', ...
          'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
@@ -216,7 +217,7 @@ end
 %% =====================================================================
 %  결과 정리 — 요약표 + 그림
 %% =====================================================================
-S_LAMB_SEL = S_LAMB_ALL(BAND_COL);   % 이 스크립트가 다룬 세 구간의 Lambertian 선택성
+S_LAMB_SEL = S_LAMB_ALL(BAND_COL);   % 이 스크립트가 다룬 네 구간의 Lambertian 선택성
 
 fprintf('\n################ 3-BAND SUMMARY ################\n');
 fprintf('%-11s | %10s | %10s | %10s | %10s\n', ...
@@ -237,7 +238,7 @@ fprintf('[참고] no-steering 예측 = 선택성 x max EQE_total(%.2f)\n', MAX_E
 
 % --- 그림: 달성치 vs no-steering 예측 ---
 noSteer = S_LAMB_SEL(:) * MAX_EQE_TOTAL_REF;
-figure('Name','3-band independent optimization','Color','w','Position',[120 120 640 420]);
+figure('Name','4-band independent optimization','Color','w','Position',[120 120 720 420]);
 bh = bar([band_eqe_hi(:), noSteer]); %#ok<NASGU>
 set(gca, 'XTickLabel', BAND_NAMES);
 ylabel('EQE_{band}');
@@ -246,15 +247,15 @@ legend({'achieved (independent opt.)', ...
        'Location','best', 'FontSize', 9);
 title('Band-EQE: independent optimization vs no-steering prediction');
 grid on;
-saveas(gcf, 'opt_3band_summary.png');
-fprintf('saved -> opt_3band_summary.png\n');
+saveas(gcf, 'opt_4band_summary.png');
+fprintf('saved -> opt_4band_summary.png\n');
 
-save('opt_3band_result.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
+save('opt_4band_result.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
      'band_eqe_hi', 'band_tot_hi', 'band_bins_hi', ...
      'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'REF_BAND_LIST', ...
      'S_LAMB_ALL', 'MAX_EQE_TOTAL_REF', ...
      'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
-fprintf('saved -> opt_3band_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
+fprintf('saved -> opt_4band_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
 report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);   % 전체 실행 기준 최종 진단
 fprintf('\n########## 완료 ##########\n');
 
