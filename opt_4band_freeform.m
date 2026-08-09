@@ -6,8 +6,13 @@
 %        (40-60도는 pareto_front_freeform.m 의 w=0 에서도 수행됐지만, 동일 조건
 %         비교를 위해 여기서 한 번에 전부 다시 돌린다)
 %
-%  [실행 내용] 네 구간을 각각 독립적으로 최대화:
+%  [실행 내용] 네 구간 + 총 EQE 대조군을 각각 독립적으로 최대화:
 %        0-20도, 20-40도, 40-60도, 60-80도   (목적 = -EQE_band, 단일목적)
+%        + EQE_total (control arm)           (목적 = -EQE_total)
+%    대조군을 같은 스크립트에서 같은 예산/정밀도/기하로 돌리는 이유:
+%    "구간 전용 최적화가 무조향 대비 이득인가" 의 기준선을 외부 숫자에 의존하지
+%    않게 하기 위함. 다른 스크립트의 max EQE_total 을 기준으로 쓰면 예산,
+%    patch 크기(x_pattern/y_pattern), fidelity 차이가 결론에 섞인다.
 %    각 구간마다:
 %      (i)  surrogateopt 탐색 (저정밀: RAY_SEARCH / WAVE_N_SEARCH, 예산 60회)
 %      (ii) patternsearch 국소 정련 (예산 15회)
@@ -19,7 +24,7 @@
 %
 %  [수집물] EVAL_LOG (pareto_front_freeform.m 과 동일한 열 구성):
 %        [ x(1:13) | EQE_total | EQE_0_20 | EQE_20_40 | EQE_40_60 | EQE_60_80 | phase | w ]
-%     phase 4 = 이 스크립트 표식,  w 열 = 구간 하한 각도 (0 / 20 / 40 / 60) 로 재사용.
+%     phase 4 = 이 스크립트 표식,  w 열 = 구간 하한 각도 (0/20/40/60), 대조군 = -1.
 %     구간이 하나 끝날 때마다 opt_4band_result.mat 에 저장 (crash-safe).
 %
 %  기반: pareto_front_freeform.m (동일한 LightTools 연동/기하/스택/제약)
@@ -59,9 +64,14 @@ RAY_FINAL     = 50000;
 N_FINAL_REP   = 3;
 
 %% ===== 구간별 단일목적 최적화 설정 =====
-BAND_LIST  = {[0 20], [20 40], [40 60], [60 80]};   % 네 구간 전부 한 번에
-BAND_NAMES = {'0-20 deg', '20-40 deg', '40-60 deg', '60-80 deg'};
-BAND_COL   = [1, 2, 3, 4];   % bins = [b0_20 b20_40 b40_60 b60_80] 에서의 열 인덱스
+%  네 구간 + 총 EQE 대조군(control arm)을 한 스크립트에서 같은 예산/정밀도/기하로
+%  돌린다. 대조군이 있어야 "구간 전용 최적화가 무조향 대비 이득인가" 를 외부
+%  숫자(다른 스크립트의 max EQE_total) 없이 내부적으로 판정할 수 있다 —
+%  예산, patch 크기(x_pattern/y_pattern), fidelity 차이가 결론에 섞이지 않는다.
+BAND_LIST  = {[0 20], [20 40], [40 60], [60 80], [0 90]};
+BAND_NAMES = {'0-20 deg', '20-40 deg', '40-60 deg', '60-80 deg', 'EQE_total (control)'};
+BAND_COL   = [1, 2, 3, 4, 0];   % bins 열 인덱스. 0 = 총 EQE 대조군
+CTRL_IDX   = find(BAND_COL == 0, 1);
 nBand = numel(BAND_LIST);
 
 EVALS_PER_BAND  = 60;    % 구간당 surrogateopt 평가 예산
@@ -77,8 +87,16 @@ WARMSTART_FILE = 'pareto_front_result.mat';   % pareto_front_freeform.m 이 저�
 % O(1) 로 맞춰준다. 초기값 = Lambertian 선택성 x EQE_total 최고치(0.56) 추정.
 % warm start 로그가 있으면 해당 구간 최댓값의 1.1배로 자동 갱신.
 S_LAMB_ALL = [0.117, 0.296, 0.337, 0.220];    % [0-20, 20-40, 40-60, 60-80] Lambertian 선택성
-MAX_EQE_TOTAL_REF = 0.56;                     % 기존 w=1 최적화 결과 (no-steering 기준)
-REF_BAND_LIST = S_LAMB_ALL(BAND_COL) * MAX_EQE_TOTAL_REF;
+MAX_EQE_TOTAL_REF = 0.56;                     % 정규화 스케일용 초기 추정치일 뿐.
+                                              % no-steering 기준은 대조군 결과로 대체된다.
+REF_BAND_LIST = nan(1, nBand);
+for b = 1:nBand
+    if BAND_COL(b) == 0
+        REF_BAND_LIST(b) = MAX_EQE_TOTAL_REF;                       % 대조군: 총 EQE
+    else
+        REF_BAND_LIST(b) = S_LAMB_ALL(BAND_COL(b)) * MAX_EQE_TOTAL_REF;
+    end
+end
 
 %% Optimization Variables (13-dim, 기존과 동일)
 varNames = {'x2','x3','x4','x5','x6', 'y2','y3','y4','y5','y6', 'dETL','dHTL','stretchZ'};
@@ -104,7 +122,11 @@ if exist(WARMSTART_FILE, 'file')
         fprintf('[Warm start] %s 로드: EVAL_LOG %d행\n', WARMSTART_FILE, size(WARM_LOG,1));
         % 정규화 상수 자동 보정 (구간별)
         for b = 1:nBand
-            mb = max(WARM_LOG(:, nvar+1+BAND_COL(b)), [], 'omitnan');
+            if BAND_COL(b) == 0
+                mb = max(WARM_LOG(:, nvar+1), [], 'omitnan');        % 총 EQE 열
+            else
+                mb = max(WARM_LOG(:, nvar+1+BAND_COL(b)), [], 'omitnan');
+            end
             if isfinite(mb) && mb > 0, REF_BAND_LIST(b) = 1.1*mb; end
         end
     end
@@ -125,10 +147,18 @@ band_bins_hi     = nan(nBand, 4);      % 고정밀 [b0_20 b20_40 b40_60 b60_80]
 for k = 1:nBand
     band  = BAND_LIST{k};
     bcol  = BAND_COL(k);
-    wtag  = band(1);                   % w 열에 기록할 구간 하한 (0 / 20 / 40 / 60)
+    if bcol == 0
+        wtag = -1;                     % 대조군 표식 (구간 하한과 겹치지 않게)
+    else
+        wtag = band(1);                % w 열에 기록할 구간 하한 (0 / 20 / 40 / 60)
+    end
     refB  = REF_BAND_LIST(k);
-    fprintf('\n########## BAND %s  (%d/%d) ##########\n', BAND_NAMES{k}, k, nBand);
-    fprintf('  목적 = maximize EQE_%d_%d  (정규화 ref %.4f)\n', band(1), band(2), refB);
+    fprintf('\n########## ARM %s  (%d/%d) ##########\n', BAND_NAMES{k}, k, nBand);
+    if bcol == 0
+        fprintf('  목적 = maximize EQE_total  (무조향 대조군, 정규화 ref %.4f)\n', refB);
+    else
+        fprintf('  목적 = maximize EQE_%d_%d  (정규화 ref %.4f)\n', band(1), band(2), refB);
+    end
 
     RenewLightTools();
     lt = ltloc.GetLTAPI(ID_swept);
@@ -141,7 +171,11 @@ for k = 1:nBand
     seedMat = genValidPoints(N_SEED_VALID, lb, ub);
     if ~isempty(WARM_LOG)
         Xw = WARM_LOG(:, 1:nvar);
-        Bw = WARM_LOG(:, nvar+1+bcol);           % 현재 구간의 EQE 열
+        if bcol == 0
+            Bw = WARM_LOG(:, nvar+1);            % 대조군: 총 EQE 열
+        else
+            Bw = WARM_LOG(:, nvar+1+bcol);       % 현재 구간의 EQE 열
+        end
         okw = isfinite(Bw) & isValidPoints(Xw);
         if REQUIRE_MONOTONIC_X                    % 비단조 x 는 objconstr 에서 거부되므로 제외
             okw = okw & all(diff(Xw(:,1:5), 1, 2) >= 0, 2);
@@ -186,7 +220,7 @@ for k = 1:nBand
     for c = 1:numel(cands)
         [et, bins] = simulate_bands(cands{c});
         if ~isfinite(et), continue; end
-        sc = bins(bcol);
+        if bcol == 0, sc = et; else, sc = bins(bcol); end
         if sc > bestScore, bestScore = sc; bestX = cands{c}; end
     end
     if isempty(bestX), continue; end
@@ -202,7 +236,11 @@ for k = 1:nBand
     band_x(k,:)      = bestX;
     band_tot_hi(k)   = mean(et_r, 'omitnan');
     band_bins_hi(k,:)= mean(bins_r, 1, 'omitnan');
-    band_eqe_hi(k)   = band_bins_hi(k, bcol);
+    if bcol == 0
+        band_eqe_hi(k) = band_tot_hi(k);        % 대조군의 '목적값' 은 총 EQE 자체
+    else
+        band_eqe_hi(k) = band_bins_hi(k, bcol);
+    end
     fprintf('  >>> %s : EQE_band=%.5f (coarse %.5f)  EQE_total=%.5f  (선택성 %.1f%%)\n', ...
         BAND_NAMES{k}, band_eqe_hi(k), band_eqe_coarse(k), band_tot_hi(k), ...
         100*band_eqe_hi(k)/band_tot_hi(k));
@@ -217,35 +255,74 @@ end
 %% =====================================================================
 %  결과 정리 — 요약표 + 그림
 %% =====================================================================
-S_LAMB_SEL = S_LAMB_ALL(BAND_COL);   % 이 스크립트가 다룬 네 구간의 Lambertian 선택성
-
-fprintf('\n################ 3-BAND SUMMARY ################\n');
-fprintf('%-11s | %10s | %10s | %10s | %10s\n', ...
-    'band', 'EQE_band', 'EQE_total', '선택성', 'Lamb. S');
+% 구간별 Lambertian 선택성 (대조군 자리는 NaN)
+S_LAMB_SEL = nan(nBand,1);
 for k = 1:nBand
-    if isfinite(band_eqe_hi(k))
-        fprintf('%-11s | %10.5f | %10.5f | %9.1f%% | %10.3f\n', ...
+    if BAND_COL(k) ~= 0, S_LAMB_SEL(k) = S_LAMB_ALL(BAND_COL(k)); end
+end
+
+% no-steering 기준: 대조군(총 EQE 최적화)의 고정밀 EQE_total.
+%   같은 스크립트/예산/정밀도/기하에서 나온 값이라 외부 숫자와 달리 교란이 없다.
+if isfinite(band_tot_hi(CTRL_IDX))
+    E_CTRL     = band_tot_hi(CTRL_IDX);
+    CTRL_LABEL = sprintf('control EQE_{total} = %.4f', E_CTRL);
+else
+    E_CTRL     = MAX_EQE_TOTAL_REF;   % 대조군 실패 시에만 폴백
+    CTRL_LABEL = sprintf('fallback %.2f (대조군 실패)', E_CTRL);
+    fprintf('\n[Warn] 대조군 실패 -> no-steering 기준을 폴백 %.2f 로 사용\n', E_CTRL);
+end
+
+fprintf('\n################ 4-BAND + CONTROL SUMMARY ################\n');
+fprintf('%-20s | %10s | %10s | %10s | %10s\n', ...
+    'arm', 'EQE_band', 'EQE_total', '선택성', 'Lamb. S');
+for k = 1:nBand
+    if ~isfinite(band_eqe_hi(k))
+        fprintf('%-20s | %10s | %10s | %10s | %10s\n', BAND_NAMES{k}, 'FAIL', '-', '-', '-');
+    elseif BAND_COL(k) == 0
+        fprintf('%-20s | %10s | %10.5f | %10s | %10s\n', ...
+            BAND_NAMES{k}, '-', band_tot_hi(k), '-', '-');
+    else
+        fprintf('%-20s | %10.5f | %10.5f | %9.1f%% | %10.3f\n', ...
             BAND_NAMES{k}, band_eqe_hi(k), band_tot_hi(k), ...
             100*band_eqe_hi(k)/band_tot_hi(k), S_LAMB_SEL(k));
-    else
-        fprintf('%-11s | %10s | %10s | %10s | %10.3f\n', ...
-            BAND_NAMES{k}, 'FAIL', '-', '-', S_LAMB_SEL(k));
     end
 end
-fprintf('\n[참고] Lambertian 선택성 (전 구간): 0-20=%.3f, 20-40=%.3f, 40-60=%.3f, 60-80=%.3f\n', ...
-    S_LAMB_ALL(1), S_LAMB_ALL(2), S_LAMB_ALL(3), S_LAMB_ALL(4));
-fprintf('[참고] no-steering 예측 = 선택성 x max EQE_total(%.2f)\n', MAX_EQE_TOTAL_REF);
 
-% --- 그림: 달성치 vs no-steering 예측 ---
-noSteer = S_LAMB_SEL(:) * MAX_EQE_TOTAL_REF;
-figure('Name','4-band independent optimization','Color','w','Position',[120 120 720 420]);
-bh = bar([band_eqe_hi(:), noSteer]); %#ok<NASGU>
-set(gca, 'XTickLabel', BAND_NAMES);
+% --- 이득 분해: 선택성 이득 x 총량 비 = 순 band power 비 ---
+%   구간 전용 최적화가 무조향(대조군 + Lambertian 분배) 대비 실제로 이득인가?
+fprintf('\n---- 이득 분해 (기준: %s) ----\n', CTRL_LABEL);
+fprintf('%-20s | %8s | %8s | %8s | %8s\n', ...
+    'arm', 'S/S_Lamb', 'E/E_ctrl', '순이득', '판정');
+gain_sel = nan(nBand,1); gain_tot = nan(nBand,1); gain_net = nan(nBand,1);
+for k = 1:nBand
+    if BAND_COL(k) == 0 || ~isfinite(band_eqe_hi(k)), continue; end
+    Sk = band_eqe_hi(k)/band_tot_hi(k);
+    gain_sel(k) = Sk / S_LAMB_SEL(k);
+    gain_tot(k) = band_tot_hi(k) / E_CTRL;
+    gain_net(k) = band_eqe_hi(k) / (S_LAMB_SEL(k) * E_CTRL);
+    if gain_net(k) > 1.05,      verdict = '이득';
+    elseif gain_net(k) < 0.95,  verdict = '손해';
+    else,                       verdict = '무이득';
+    end
+    fprintf('%-20s | %8.3f | %8.3f | %8.3f | %8s\n', ...
+        BAND_NAMES{k}, gain_sel(k), gain_tot(k), gain_net(k), verdict);
+end
+fprintf(['\n순이득 = (전용 최적화 band EQE) / (Lambertian 선택성 x 대조군 EQE_total)\n' ...
+         '  > 1 이면 조향이 순이득, ~1 이면 선택성 이득이 총량 손실과 상쇄,\n' ...
+         '  < 1 이면 구간 전용 최적화가 오히려 손해.\n']);
+
+% --- 그림: 달성치 vs no-steering 예측 (대조군 기준) ---
+isBand  = BAND_COL(:) ~= 0;
+noSteer = S_LAMB_SEL(isBand) * E_CTRL;
+figure('Name','4-band independent optimization vs control','Color','w', ...
+       'Position',[120 120 760 420]);
+bar([band_eqe_hi(isBand), noSteer(:)]);
+set(gca, 'XTickLabel', BAND_NAMES(isBand));
 ylabel('EQE_{band}');
 legend({'achieved (independent opt.)', ...
-        sprintf('no-steering  S_{Lamb} x %.2f', MAX_EQE_TOTAL_REF)}, ...
+        sprintf('no-steering  S_{Lamb} x %.4f (control)', E_CTRL)}, ...
        'Location','best', 'FontSize', 9);
-title('Band-EQE: independent optimization vs no-steering prediction');
+title('Band-EQE: independent optimization vs no-steering control');
 grid on;
 saveas(gcf, 'opt_4band_summary.png');
 fprintf('saved -> opt_4band_summary.png\n');
@@ -253,7 +330,8 @@ fprintf('saved -> opt_4band_summary.png\n');
 save('opt_4band_result.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
      'band_eqe_hi', 'band_tot_hi', 'band_bins_hi', ...
      'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'REF_BAND_LIST', ...
-     'S_LAMB_ALL', 'MAX_EQE_TOTAL_REF', ...
+     'S_LAMB_ALL', 'MAX_EQE_TOTAL_REF', 'CTRL_IDX', 'E_CTRL', ...
+     'gain_sel', 'gain_tot', 'gain_net', ...
      'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
 fprintf('saved -> opt_4band_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
 report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);   % 전체 실행 기준 최종 진단
@@ -304,11 +382,13 @@ if ~isValidPoints(x)
     out.Ineq = 1;  out.Fval = 1;  return;   % infeasible: 시뮬 없이 반환
 end
 [et, bins] = simulate_bands(x);
-if ~isfinite(et) || ~isfinite(bins(bcol))
+% bcol = 0 -> 총 EQE 대조군 (control arm). 그 외에는 해당 구간 EQE.
+if bcol == 0, val = et; else, val = bins(bcol); end
+if ~isfinite(et) || ~isfinite(val)
     out.Ineq = 1;  out.Fval = 1;
 else
     out.Ineq = -1;
-    out.Fval = -bins(bcol)/refB;   % 최대화 -> 부호 반전
+    out.Fval = -val/refB;   % 최대화 -> 부호 반전
 end
 end
 
@@ -321,8 +401,9 @@ if ~isempty(REQUIRE_MONOTONIC_X) && REQUIRE_MONOTONIC_X && any(diff(x(1:5)) < 0)
 end
 if ~isValidPoints(x), f = 0; return; end
 [et, bins] = simulate_bands(x);
-if ~isfinite(et) || ~isfinite(bins(bcol)), f = 0; return; end
-f = -bins(bcol)/refB;
+if bcol == 0, val = et; else, val = bins(bcol); end
+if ~isfinite(et) || ~isfinite(val), f = 0; return; end
+f = -val/refB;
 end
 
 %% ===== 기하 거부 진단 (pareto_front_freeform.m 과 동일) =====
