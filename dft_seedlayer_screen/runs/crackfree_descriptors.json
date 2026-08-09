@@ -1,0 +1,126 @@
+{
+  "rows": [
+    {
+      "name": "TPBi",
+      "mw": 654.7770000000002,
+      "threeD": 1.2783414287389139,
+      "thick": 2.038467454499925,
+      "nrot": 6,
+      "sym_frac": 0.29411764705882354,
+      "risk": 17.0723762745098,
+      "anchor": "3x benzimidazole N",
+      "transp": "OK"
+    },
+    {
+      "name": "mCPCN",
+      "mw": 433.5140000000001,
+      "threeD": 1.2313841926151534,
+      "thick": 1.7346978069298697,
+      "nrot": 2,
+      "sym_frac": 0.8235294117647058,
+      "risk": 22.827913333333328,
+      "anchor": "1x CN on carbazole",
+      "transp": "OK (UV host)"
+    },
+    {
+      "name": "4CzIPN",
+      "mw": 788.914,
+      "threeD": 1.3137051460373175,
+      "thick": 2.038499831510766,
+      "nrot": 4,
+      "sym_frac": 0.1774193548387097,
+      "risk": 27.365591397849464,
+      "anchor": "2x CN (donor-flanked)",
+      "transp": "ABSORBS VISIBLE (green TADF emitter) -- likely disqualifying"
+    },
+    {
+      "name": "PO-T2T",
+      "mw": 909.9030000000001,
+      "threeD": 1.1334089731444308,
+      "thick": 1.9474243392493493,
+      "nrot": 12,
+      "sym_frac": 0.21212121212121213,
+      "risk": 32.089249142157605,
+      "anchor": "triazine N + 3x P=O",
+      "transp": "OK"
+    },
+    {
+      "name": "2CzPN",
+      "mw": 458.52400000000017,
+      "threeD": 1.3363730797407332,
+      "thick": 1.7591990461161882,
+      "nrot": 2,
+      "sym_frac": 0.3333333333333333,
+      "risk": 34.11465037037037,
+      "anchor": "o-di-CN (donor-flanked)",
+      "transp": "ABSORBS VISIBLE (sky-blue emitter) -- likely disqualifying"
+    },
+    {
+      "name": "TmPyPB",
+      "mw": 537.6660000000002,
+      "threeD": 1.089369437067033,
+      "thick": 1.4926869263607676,
+      "nrot": 6,
+      "sym_frac": 0.3333333333333333,
+      "risk": 40.533169623630414,
+      "anchor": "3x pyridyl N",
+      "transp": "OK"
+    },
+    {
+      "name": "B3PyMPM",
+      "mw": 554.6570000000002,
+      "threeD": 1.055590609374773,
+      "thick": 1.1944488261384254,
+      "nrot": 6,
+      "sym_frac": 0.3488372093023256,
+      "risk": 45.91787871936066,
+      "anchor": "4x pyridyl N",
+      "transp": "OK"
+    },
+    {
+      "name": "Bphen",
+      "mw": 332.406,
+      "threeD": 1.0668172920185905,
+      "thick": 1.0770279108494138,
+      "nrot": 2,
+      "sym_frac": 0.4230769230769231,
+      "risk": 59.54897698089727,
+      "anchor": "phen N,N chelate",
+      "transp": "OK"
+    },
+    {
+      "name": "F6TCNNQ",
+      "mw": 362.192,
+      "threeD": 1.0000000000380986,
+      "thick": 1.6057272410525732e-05,
+      "nrot": 0,
+      "sym_frac": 0.4230769230769231,
+      "risk": 78.6855220436623,
+      "anchor": "4x CN",
+      "transp": "check"
+    },
+    {
+      "name": "F4TCNQ",
+      "mw": 276.152,
+      "threeD": 1.0000001641407874,
+      "thick": 0.0008849328649344235,
+      "nrot": 0,
+      "sym_frac": 0.3,
+      "risk": 88.1042960607314,
+      "anchor": "4x CN",
+      "transp": "OK neutral; anion issue"
+    },
+    {
+      "name": "HATCN",
+      "mw": 384.28200000000015,
+      "threeD": 1.0000000101305577,
+      "thick": 0.00028979321944459194,
+      "nrot": 0,
+      "sym_frac": 0.16666666666666666,
+      "risk": 92.26783427018474,
+      "anchor": "6x CN, pocket",
+      "transp": "OK (<450 nm)"
+    }
+  ],
+  "validated": true
+}
