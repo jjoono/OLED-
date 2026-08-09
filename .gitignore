@@ -9,7 +9,10 @@ dft_seedlayer_screen/slabs/**/*-RESTART*
 dft_seedlayer_screen/psi.*.clean
 timer.dat
 dft_seedlayer_screen/timer.dat
-dft_seedlayer_screen/runs/psi4_*.out
+# psi4 raw output, whatever the driver names it. The prefix-anchored rule
+# missed the diagnostic runs (diag*.out); no .out under runs/ is a result --
+# the numbers that matter land in the .json each script writes.
+dft_seedlayer_screen/runs/*.out
 dft_seedlayer_screen/runs/*_run.log
 # Console logs of the psi4/CP2K driver scripts. These are written incrementally
 # while a calculation is in flight, so committing one captures a truncated file.
