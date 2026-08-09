@@ -166,13 +166,30 @@ def cluster_eb(syms, x):
         fails, because a converged neighbour is a far better starting point than
         any atomic guess for a system this close to a charge-transfer crossing.
         """
+        # SOSCF FIRST, and this is the whole fix. Diagnosis of the failed runs:
+        # near convergence the SCF settles at -1571.9958, which IS the answer (the
+        # fragment sum at 20 A is -1571.9962), and then ADIIS throws it to
+        # -1571.8486 and back, forever. The two states are 0.147 Ha = 4.0 eV apart,
+        # the scale of Ag(0)+neutral versus Ag(+)+anion, so DIIS extrapolation keeps
+        # mixing two charge states instead of picking one.
+        #
+        # More iterations do not help -- the oscillation is stable, and 500 of them
+        # bought nothing. Damping and level shifts do not help either; both failed.
+        # Second-order SCF does, because it stops extrapolating and follows the
+        # gradient once DIIS has got close. soscf_start_convergence hands over at
+        # 1e-2, well before the oscillation sets in.
+        #
+        # (The hundreds-of-Hartree swings visible early in the log are ordinary
+        # start-up transients from the atomic guess, not the failure mode. Reading
+        # them as the failure sent this diagnosis down the wrong path once already.)
+        soscf = {"soscf": True, "soscf_start_convergence": 1.0e-2,
+                 "soscf_max_iter": 60, "soscf_conv": 1.0e-6}
         ladder = [
-            {"guess": "read"} if carry else {},
-            {"guess": "read" if carry else "sad", "damping_percentage": 40,
-             "level_shift": 0.5, "level_shift_cutoff": 1e-4},
-            {"guess": "sad", "damping_percentage": 60,
-             "level_shift": 1.0, "level_shift_cutoff": 1e-5},
-            {"guess": "gwh", "soscf": True, "damping_percentage": 30},
+            {**soscf, **({"guess": "read"} if carry else {})},
+            {**soscf, "guess": "sad", "damping_percentage": 30},
+            {**soscf, "guess": "gwh", "damping_percentage": 50,
+             "level_shift": 0.5, "level_shift_cutoff": 1e-3},
+            {"guess": "sad", "damping_percentage": 60},   # last resort, plain DIIS
         ]
         for i, extra in enumerate(ladder):
             try:
