@@ -62,8 +62,11 @@ try
     Kchk    = ltml.LTListByName(lt_chk, Lchk, 'LibraryElement');
     bumpVal = ltml.LTDbGet(lt_chk, Kchk, 'Bumps');
     fprintf('[Check] LibraryElementUnitCell.Bumps = %s\n', char(string(bumpVal)));
-    if ~isempty(bumpVal) && strcmpi(char(string(bumpVal)), 'Yes')
-        error('열린 모델이 볼록(bump)이다. 음각 모델 경로를 확인할 것.');
+    % API 는 파일의 setBumps:"Yes"/"No" 대신 열거형 이름을 돌려준다:
+    %   'Holes' = 음각(정상), 'Bumps' = 볼록. 두 표기를 모두 검사한다.
+    bv = char(string(bumpVal));
+    if ~isempty(bv) && (strcmpi(bv,'Yes') || strcmpi(bv,'Bumps'))
+        error('열린 모델이 볼록(%s)이다. 음각 모델 경로를 확인할 것.', bv);
     end
 catch ME
     if contains(ME.message, '볼록'), rethrow(ME); end
