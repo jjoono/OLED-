@@ -26,6 +26,11 @@
 %        [ x(1:13) | EQE_total | EQE_0_20 | EQE_20_40 | EQE_40_60 | EQE_60_80 | phase | w ]
 %     phase 4 = 이 스크립트 표식,  w 열 = 구간 하한 각도 (0/20/40/60), 대조군 = -1.
 %     구간이 하나 끝날 때마다 opt_4band_result.mat 에 저장 (crash-safe).
+%     최종 요약은 opt_4band_result_merged.mat 에 저장한다 (건너뛴 arm 을 이전
+%     결과에서 병합하므로, 원본 opt_4band_result.mat 을 덮어쓰지 않는다).
+%
+%  [부분 실행] ARMS_TO_RUN 으로 일부 arm 만 돌릴 수 있다. 예: 네 band 결과가
+%     이미 있고 대조군만 없으면  ARMS_TO_RUN = CTRL_IDX;  (약 1/5 시간)
 %
 %  기반: pareto_front_freeform.m (동일한 LightTools 연동/기하/스택/제약)
 % ============================================================
@@ -80,6 +85,15 @@ BAND_NAMES = {'0-20 deg', '20-40 deg', '40-60 deg', '60-80 deg', 'EQE_total (con
 BAND_COL   = [1, 2, 3, 4, 0];   % bins 열 인덱스. 0 = 총 EQE 대조군
 CTRL_IDX   = find(BAND_COL == 0, 1);
 nBand = numel(BAND_LIST);
+
+%% ===== 어느 arm 을 돌릴지 =====
+%  한 번 다 돌리는 데 오래 걸리므로, 이미 결과가 있는 arm 은 건너뛸 수 있게 한다.
+%    []            -> 전부 (기본)
+%    CTRL_IDX      -> 대조군만 (band 결과를 이미 갖고 있을 때. 약 1/5 시간)
+%    [1 3]         -> 해당 arm 만
+%  건너뛴 arm 은 SKIP_MERGE_FILE 의 이전 결과로 채워 요약표/그림을 그대로 낸다.
+ARMS_TO_RUN     = [];
+SKIP_MERGE_FILE = 'opt_4band_result.mat';   % 건너뛴 arm 을 가져올 이전 결과 파일
 
 EVALS_PER_BAND  = 60;    % 구간당 surrogateopt 평가 예산
 MIN_SURR_POINTS = 25;
@@ -148,10 +162,42 @@ band_eqe_hi      = nan(nBand, 1);      % 고정밀 구간 EQE (N_FINAL_REP 평�
 band_tot_hi      = nan(nBand, 1);      % 고정밀 EQE_total
 band_bins_hi     = nan(nBand, 4);      % 고정밀 [b0_20 b20_40 b40_60 b60_80]
 
+%% ===== 건너뛸 arm 을 이전 결과에서 채운다 =====
+if isempty(ARMS_TO_RUN)
+    ARMS_TO_RUN = 1:nBand;
+end
+skipArms = setdiff(1:nBand, ARMS_TO_RUN);
+if ~isempty(skipArms)
+    if ~exist(SKIP_MERGE_FILE, 'file')
+        error(['arm %s 을(를) 건너뛰려면 이전 결과 파일 %s 이 필요하다. ' ...
+               'ARMS_TO_RUN 을 [] 로 두고 전부 돌리거나 파일을 준비할 것.'], ...
+               mat2str(skipArms), SKIP_MERGE_FILE);
+    end
+    Dp = load(SKIP_MERGE_FILE);
+    for k = skipArms
+        if isfield(Dp,'band_eqe_hi') && numel(Dp.band_eqe_hi) >= k && isfinite(Dp.band_eqe_hi(k))
+            band_x(k,:)       = Dp.band_x(k,:);
+            band_eqe_coarse(k)= Dp.band_eqe_coarse(k);
+            band_eqe_hi(k)    = Dp.band_eqe_hi(k);
+            band_tot_hi(k)    = Dp.band_tot_hi(k);
+            band_bins_hi(k,:) = Dp.band_bins_hi(k,:);
+            fprintf('[Skip] %-20s : 이전 결과 사용 (EQE_band=%.5f, EQE_total=%.5f)\n', ...
+                BAND_NAMES{k}, band_eqe_hi(k), band_tot_hi(k));
+        else
+            fprintf('[Skip] %-20s : 이전 결과에 없음 -> NaN 유지\n', BAND_NAMES{k});
+        end
+    end
+    % 이전 EVAL_LOG 도 이어 붙여 산점도/진단이 전체 표본을 보게 한다.
+    if isfield(Dp,'EVAL_LOG') && size(Dp.EVAL_LOG,2) == nvar+7
+        EVAL_LOG = Dp.EVAL_LOG;
+        fprintf('[Skip] 이전 EVAL_LOG %d행 이어받음\n', size(EVAL_LOG,1));
+    end
+end
+
 %% =====================================================================
 %  구간 루프 — 각 구간을 독립 단일목적으로 최적화
 %% =====================================================================
-for k = 1:nBand
+for k = ARMS_TO_RUN(:).'
     band  = BAND_LIST{k};
     bcol  = BAND_COL(k);
     if bcol == 0
@@ -334,13 +380,13 @@ grid on;
 saveas(gcf, 'opt_4band_summary.png');
 fprintf('saved -> opt_4band_summary.png\n');
 
-save('opt_4band_result.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
+save('opt_4band_result_merged.mat', 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
      'band_eqe_hi', 'band_tot_hi', 'band_bins_hi', ...
      'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'REF_BAND_LIST', ...
-     'S_LAMB_ALL', 'MAX_EQE_TOTAL_REF', 'CTRL_IDX', 'E_CTRL', ...
+     'S_LAMB_ALL', 'MAX_EQE_TOTAL_REF', 'CTRL_IDX', 'E_CTRL', 'PATCH_XY', ...
      'gain_sel', 'gain_tot', 'gain_net', ...
      'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
-fprintf('saved -> opt_4band_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
+fprintf('saved -> opt_4band_result_merged.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
 report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);   % 전체 실행 기준 최종 진단
 fprintf('\n########## 완료 ##########\n');
 
