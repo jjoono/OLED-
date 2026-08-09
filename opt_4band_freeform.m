@@ -33,7 +33,14 @@ clear;
 %% For LightTools Connection
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
        ray_nums_current wave_n_current EVAL_LOG EVAL_PHASE EVAL_W ...
-       GEOM_TOL GEOM_MISMATCH_LOG REQUIRE_MONOTONIC_X
+       GEOM_TOL GEOM_MISMATCH_LOG REQUIRE_MONOTONIC_X PATCH_XY
+
+%% ===== 텍스처 패치 크기 (mm) =====
+%  다른 스크립트와 반드시 같아야 하는 값. 서로 다르면 EQE_total 이 통째로
+%  달라져 스크립트 간 비교가 무의미해진다 (repo 기준: pareto_front_freeform.m
+%  = 15, convergence_check.m = 25).
+%  Fig.2/Fig.3 데이터를 만든 pareto 실행과 반드시 일치시킬 것.
+PATCH_XY = 15;
 
 % [기하 검증 tolerance] LightTools 제어점 왕복 불일치 허용치.
 GEOM_TOL = 1e-4;
@@ -477,11 +484,12 @@ end
 %% ===== Objective (EQE_total 과 네 구간 EQE 동시 산출) =====
 %  pareto_front_freeform.m 의 objFcn_both 를 그대로 복사 (수정 금지 구역).
 function output = objFcn_both(point)
-global ID_LT ID_swept ltml ltloc count ray_nums_current wave_n_current
+global ID_LT ID_swept ltml ltloc count ray_nums_current wave_n_current PATCH_XY
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
-d_sub=1.295;  r_OLED=1;  x_pattern=15;  y_pattern=15;  Lensheight=0.01;
+d_sub=1.295;  r_OLED=1;  Lensheight=0.01;
+x_pattern = PATCH_XY;  y_pattern = PATCH_XY;   % 스크립트 상단 상수에서 받는다
 wavelength_start=453;  wavelength_end=753;
 
 if isempty(wave_n_current), n = 10;    else, n = wave_n_current;    end
