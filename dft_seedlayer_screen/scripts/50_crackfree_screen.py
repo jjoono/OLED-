@@ -250,7 +250,13 @@ def build_fragment_complexes():
         if err:
             print(f"  [!] {tag}: {err}")
             continue
-        write_xyz(os.path.join(STR, f"{tag}.xyz"), d["syms"], d["xyz"], tag)
+        # Never clobber an existing structure file: PhCN.xyz predates this script
+        # and is the committed input of the PhCN_Zn/PhCN_ZnS results, so silently
+        # replacing it would detach those results from their input. The first run
+        # of this script did exactly that; the file was restored from git.
+        frag_path = os.path.join(STR, f"{tag}.xyz")
+        if not os.path.exists(frag_path):
+            write_xyz(frag_path, d["syms"], d["xyz"], tag)
         if not run_xtb(tag):
             print(f"  [!] {tag}: xtb failed")
             continue
