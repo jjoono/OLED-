@@ -6,7 +6,7 @@ function output = objFcn_supercell(hyp, seed)
 %   입력: hyp = [fill, rJitter, posJitter, aspect, aspectJitter, profileMix]
 %         seed = 슈퍼셀 난수 시드 (결정론성 보장)
 %   전역: ID_LT, ltml, ltloc, count, ray_nums_current, wave_n_current
-global ID_LT ltml ltloc count ray_nums_current wave_n_current CACHE_FIXED_STACK
+global ID_LT ltml ltloc count ray_nums_current wave_n_current CACHE_FIXED_STACK RND_NCOLS RND_NGRID
 
 % [고정 스택 캐시] 이 계열은 dETL/dHTL 이 설계변수가 아니라 상수다. 따라서 CPS,
 %   bottom reflectance, 코팅 파일은 매 평가마다 결과가 완전히 동일하다.
@@ -34,7 +34,9 @@ d_sub=1.295;  r_OLED=1;  x_pattern=PATCH_XY;  y_pattern=PATCH_XY;  Lensheight=0.
 %   .ent 안에서 렌즈렛의 반경과 높이가 모두 1/nCols 로 들어가 있으므로,
 %   균일 스케일 x nCols 면 반경·높이가 동시에 원래 값으로 복원된다.
 %   따라서 StretchZ 는 1 그대로 둔다.
-SUPERCELL_NCOLS = 8;
+%   nCols / 격자 해상도는 비용을 지배하므로(추적 비용 ~ 렌즈렛 수 x 메쉬 점수)
+%   calibrate_random_cost.m 이 전역으로 덮어써 가며 측정할 수 있게 해 둔다.
+if isempty(RND_NCOLS), SUPERCELL_NCOLS = 8; else, SUPERCELL_NCOLS = RND_NCOLS; end
 SPACING_X0 = 0.0866;   % [mm] 단일 렌즈렛 기준 간격 (모델 .lts 의 초기값)
 SPACING_Y0 = 0.1000;
 SCALE_BASE = 0.05;     % 단일 렌즈렛 기준 텍스처 Scale (모델 .lts 의 초기값)
@@ -107,6 +109,7 @@ params.aspectJitter = hyp(5);
 params.profileMix   = hyp(6);
 params.templatePath = [BASE 'freeform_template_v2.ent'];   % 원점정렬 검증 템플릿
 params.nCols        = SUPERCELL_NCOLS;    % 위 배치 간격 확대와 반드시 같은 값
+if ~isempty(RND_NGRID), params.n = RND_NGRID; end   % 슈퍼셀 격자 해상도 (기본 201)
 % 파일명: objFcn_both 의 swept_<tag> 관례를 따르되 결정론성은 (seed,hyp) 가 보장
 rng('shuffle');
 charSet = ['a':'z' 'A':'Z' '0':'9'];
