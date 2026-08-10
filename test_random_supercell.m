@@ -50,16 +50,26 @@ fprintf('\n================ RANDOM SUPERCELL SMOKE TEST ================\n');
 %  STAGE 0 — .ent 생성만 (LightTools 불필요)
 %% =====================================================================
 fprintf('\n---- STAGE 0: 슈퍼셀 .ent 생성 (LightTools 없이) ----\n');
+tmplPath = [BASE 'freeform_template_v2.ent'];
+if ~exist(tmplPath, 'file')
+    fprintf(['  [FAIL] 템플릿이 없다: %s\n' ...
+             '         레포의 freeform_template_v2.ent 를 이 경로에 복사할 것.\n'], tmplPath);
+end
+if ~exist('objFcn_supercell', 'file')
+    fprintf(['  [FAIL] objFcn_supercell.m 이 경로에 없다. stress_random_mla.m 에서\n' ...
+             '         분리된 파일이므로 같은 폴더에 함께 두어야 한다.\n']);
+end
 t0 = tic;
 try
     p0 = struct('fill',hypMid(1),'rJitter',hypMid(2),'posJitter',hypMid(3), ...
                 'aspect',hypMid(4),'aspectJitter',hypMid(5),'profileMix',hypMid(6), ...
                 'templatePath',[BASE 'freeform_template_v2.ent'], ...
                 'nCols',8, 'outPath',[scDir 'smoketest_mid.1.ent']);
-    info0 = generate_random_supercell_ent(SEED_BASE, p0);
+    [outPath0, info0] = generate_random_supercell_ent(SEED_BASE, p0);   % 첫 출력이 경로
 
-    d = dir(p0.outPath);
-    fprintf('  파일: %s (%.1f MB)\n', p0.outPath, d.bytes/1e6);
+    d = dir(outPath0);
+    if isempty(d), error('.ent 가 생성되지 않았다: %s', outPath0); end
+    fprintf('  파일: %s (%.1f MB)\n', outPath0, d.bytes/1e6);
     if isstruct(info0)
         fn = fieldnames(info0);
         for i = 1:numel(fn)
@@ -83,7 +93,7 @@ end
 % --- 미리보기: 슈퍼셀 높이맵을 .ent 에서 되읽어 그린다 ---
 if pass.s0
     try
-        txt = fileread(p0.outPath);
+        txt = fileread(outPath0);
         nums = sscanf(txt(strfind(txt,'ORAStartData')+12:end), '%f');
         % 헤더 10개 뒤부터 (x,y,z) 삼중항
         nums = nums(11:end);
@@ -119,27 +129,15 @@ try
     ltml.LTCmd(lt, 'Message "smoke test"');
     fprintf('  [OK] 연결\n');
 
-    % 배치 간격 목록 이름 탐색 (objFcn_supercell 과 같은 후보 순서)
-    placeLists = {'ZONE_TEXTURE_HEXAGONAL_PLACEMENT','HEXAGONAL_PLACEMENT', ...
-                  'ZONE_TEXTURE_PLACEMENT','TEXTURE_PLACEMENT'};
-    foundName = '';
-    for ip = 1:numel(placeLists)
-        try
-            PL = ltml.LTDbList(lt,'lens_manager[1]',placeLists{ip});
-            PK = ltml.LTListAtPos(lt,PL,1);
-            gx = ltml.LTDbGet(lt,PK,'XSpacing');
-            gy = ltml.LTDbGet(lt,PK,'YSpacing');
-            fprintf('  배치 목록 "%s" 발견: XSpacing=%.4f, YSpacing=%.4f\n', ...
-                    placeLists{ip}, gx, gy);
-            foundName = placeLists{ip};  break;
-        catch
-        end
+    % 배치 간격 설정을 실제로 시도해 본다 (본 실행과 같은 코드 경로)
+    SUPERCELL_NCOLS = 8;  SPACING_X0 = 0.0866;  SPACING_Y0 = 0.1000;
+    [okSp, dsc] = set_texture_spacing(lt, SPACING_X0*SUPERCELL_NCOLS, ...
+                                          SPACING_Y0*SUPERCELL_NCOLS, true);
+    if ~okSp
+        error(['배치 간격 설정/검증 실패. probe_texture_placement.m 을 실행해 ' ...
+               '실제 DB 속성 이름을 찾은 뒤 set_texture_spacing.m 에 추가할 것.']);
     end
-    if isempty(foundName)
-        error(['배치 간격 목록을 못 찾음. LightTools Database Browser 에서 ' ...
-               'ZoneTextureHexagonalPlacement 의 DB 목록 이름을 확인해 ' ...
-               'objFcn_supercell.m 과 이 파일의 placeLists 에 추가할 것.']);
-    end
+    fprintf('  간격 설정 경로: %s\n', dsc);
     pass.s1 = true;
 catch ME
     fprintf('  [FAIL] %s\n', ME.message);

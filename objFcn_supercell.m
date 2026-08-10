@@ -45,36 +45,20 @@ List=ltml.LTDbList(lt,'lens_manager[1]','DISK_SOURCE');
 Key=ltml.LTListByName(lt,List,'DiskSource_18');
 ltml.LTDbSet(lt,Key,'Radius',r_OLED);
 
-%% !!! VERIFY IN LIGHTTOOLS: 텍스처 배치 간격 확대 (슈퍼셀 스케일 보존) !!!
-%  모델 .lts 의 ZoneTextureHexagonalPlacement 는 setXSpacing/setYSpacing 을 갖는다.
-%  DB 목록 이름 선례가 레포에 없어 후보를 순회하며 설정하고, 읽어서 검증한다.
-%  설정에 실패하면 렌즈렛 크기가 1/nCols 로 줄어든 채 계산되므로 즉시 멈춘다.
+% [텍스처 배치 간격 확대] 슈퍼셀 스케일 보존. 목록/속성 이름이 모델마다 다르므로
+%   set_texture_spacing.m 이 조합을 훑고 되읽어 확인한다. 실패하면 렌즈렛이
+%   1/nCols 크기가 된 채 계산되므로 즉시 멈춘다.
+persistent SPACING_DESC
 tgtX = SPACING_X0 * SUPERCELL_NCOLS;
 tgtY = SPACING_Y0 * SUPERCELL_NCOLS;
-placedOK = false;
-placeLists = {'ZONE_TEXTURE_HEXAGONAL_PLACEMENT','HEXAGONAL_PLACEMENT', ...
-              'ZONE_TEXTURE_PLACEMENT','TEXTURE_PLACEMENT'};
-for ip = 1:numel(placeLists)
-    try
-        PL = ltml.LTDbList(lt,'lens_manager[1]',placeLists{ip});
-        PK = ltml.LTListAtPos(lt,PL,1);
-        ltml.LTDbSet(lt,PK,'XSpacing',tgtX);
-        ltml.LTDbSet(lt,PK,'YSpacing',tgtY);
-        gx = ltml.LTDbGet(lt,PK,'XSpacing');
-        gy = ltml.LTDbGet(lt,PK,'YSpacing');
-        if abs(gx-tgtX) < 1e-9 && abs(gy-tgtY) < 1e-9
-            placedOK = true;  break;
-        end
-    catch
-        % 이 목록 이름은 이 모델에 없음 -> 다음 후보
-    end
+[okSp, dsc] = set_texture_spacing(lt, tgtX, tgtY, isempty(SPACING_DESC));
+if ~okSp
+    error(['텍스처 배치 간격 설정 실패. 슈퍼셀을 그대로 쓰면 렌즈렛이 1/%d ' ...
+           '크기가 되어 비교가 무의미해진다. probe_texture_placement.m 을 ' ...
+           '실행해 실제 DB 속성 이름을 찾은 뒤 set_texture_spacing.m 의 ' ...
+           'listNames/propPairs 에 추가할 것.'], SUPERCELL_NCOLS);
 end
-if ~placedOK
-    error(['텍스처 배치 간격(XSpacing/YSpacing) 설정 실패. 슈퍼셀을 그대로 쓰면 ' ...
-           '렌즈렛이 1/%d 크기가 되어 비교가 무의미해진다. LightTools Database ' ...
-           'Browser 에서 ZoneTextureHexagonalPlacement 의 실제 DB 목록 이름을 ' ...
-           '확인해 placeLists 에 추가할 것.'], SUPERCELL_NCOLS);
-end
+if isempty(SPACING_DESC), SPACING_DESC = dsc; end
 
 %% --- 슈퍼셀 .ent 생성 + unit-cell 교체 (objFcn_both 의 swept 블록 대체) ---
 BASE = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\';
