@@ -70,7 +70,11 @@ REF = {"HATCN_monolayer": 1.346, "HATCN_isolated": 0.812,
 
 
 def oriented():
-    """TCPM with one nitrile pointing along +z -- the arm an adatom would meet."""
+    """TCPM with one nitrile pointing along +z -- the arm an adatom would meet.
+
+    Returns the index of that nitrile's nitrogen as well, because deriving it
+    again downstream is where the first version went wrong.
+    """
     sym, x = B.read_xyz(os.path.join(RUNS, "TCPM", "xtbopt.xyz"))
     x = x - x.mean(axis=0)
     ns = [i for i, s in enumerate(sym) if s == "N"]
@@ -88,7 +92,10 @@ def oriented():
         vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
         R = np.eye(3) + vx + vx @ vx * (1 / (1 + c))
     x = x @ R.T
-    return sym, x, ns
+    # the rotation put this nitrogen at the top by construction; assert it, since
+    # a silently wrong anchor is exactly the failure this function had
+    assert i_n == max(ns, key=lambda k: x[k, 2]), "orientation did not put i_n on top"
+    return sym, x, i_n
 
 
 def cell_at(a, sym, x, vacuum=VACUUM):
@@ -165,9 +172,13 @@ def energy(path):
 
 def build():
     os.makedirs(OUT, exist_ok=True)
-    sym, x, ns = oriented()
-    i_n = int(np.argmax(x[:, 2] * np.array([1 if s == "N" else -1e9
-                                            for s in sym])))
+    # i_n comes from oriented(), which guarantees it. The first version rederived
+    # it here as argmax(z * [1 if N else -1e9]), which is wrong whenever a
+    # non-nitrogen atom has NEGATIVE z: -5 * -1e9 = +5e9 wins the argmax. It
+    # selected a carbon on the underside, and the Ag was then placed 4 A BELOW the
+    # molecule, giving a spurious repulsive E_b of -0.43 eV at the far point.
+    sym, x, i_n = oriented()
+    assert sym[i_n] == "N", f"anchor is {sym[i_n]}, not a nitrile N"
     a, ml = pack(sym, x)
     contact = min_intermolecular(ml)
     print(f"packed monolayer: a = {a:.2f} A, closest inter-molecular pair "
