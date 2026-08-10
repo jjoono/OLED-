@@ -56,6 +56,14 @@ CUTOFF = 350
 SCAN_R = (4.0, 3.2, 2.8, 2.5, 2.3, 2.2)
 VDW_CONTACT = 3.5        # A, C...C van der Waals contact for the packed monolayer
 CONTROL_GAP = 8.0        # A, lattice stretched until the neighbour is out of reach
+# The control cell comes out at a = 18.7 A, whose grid needs ~17.7 GB at 350 Ry --
+# past the 9 GB budget. Dropping the control triple to 220 Ry brings it under
+# (grid memory goes as cutoff^1.5). That is safe here for the same reason
+# scripts/40 established: the grid offset cancels in E_b provided every system in
+# the difference shares a cell and a grid, and ml_big/ag_big/cx_big do. The
+# measured E_b spread across 300-600 Ry there was 0.014 eV against a 0.376 eV
+# spread in E_total, so the control's E_b is not meaningfully cutoff-dependent.
+CONTROL_CUTOFF = 220
 
 REF = {"HATCN_monolayer": 1.346, "HATCN_isolated": 0.812,
        "HATCN_pocket": 0.534, "F4TCNQ_monolayer": 1.556}
@@ -186,15 +194,15 @@ def build():
     # stretched control
     ab, big = pack(sym, x, target=CONTROL_GAP)
     print(f"\ncontrol lattice: a = {ab:.2f} A")
-    B.write_cp2k(big, "ml_big", OUT, cutoff=CUTOFF,
+    B.write_cp2k(big, "ml_big", OUT, cutoff=CONTROL_CUTOFF,
                  title="TCPM, stretched lattice")
     agb = Atoms("Ag", positions=[[0.0, 0.0, big.get_cell()[2, 2] / 2]],
                 cell=big.get_cell(), pbc=[True, True, True])
-    B.write_cp2k(agb, "ag_big", OUT, cutoff=CUTOFF, uks=True,
+    B.write_cp2k(agb, "ag_big", OUT, cutoff=CONTROL_CUTOFF, uks=True,
                  title="isolated Ag in the stretched cell")
     cxb = place_ag(big, i_n, 2.2)
     ase_write(os.path.join(OUT, "cx_big.xyz"), cxb)
-    B.write_cp2k(cxb, "cx_big", OUT, cutoff=CUTOFF, uks=True,
+    B.write_cp2k(cxb, "cx_big", OUT, cutoff=CONTROL_CUTOFF, uks=True,
                  title="Ag on TCPM, stretched lattice, Ag-N = 2.2 A")
     print(f"control Ag to neighbour: {ag_to_neighbour(cxb):.2f} A")
 
