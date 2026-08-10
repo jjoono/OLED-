@@ -40,13 +40,22 @@
 - 내용: 성형 폴리머 MLA로 top-emitting OLED 광추출 향상 — (준)반구형 MLA의 높은 효율 실증.
 - 사용처: §1 서론 — 반구형/준반구형 MLA의 고효율 실증 사례 [4,5].
 
-### [5] Qu 2018 — embedded hemispherical MLA, very high EQE
+### [5] Qu 2018 — sub-electrode(embedded) MLA. **본 연구 범위 밖 구조**
 - Qu, Y.; et al. "Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices
   Using Embedded Microlens Arrays." *ACS Photonics* **2018**.
   https://doi.org/10.1021/acsphotonics.8b00255 [서지정보 확인 필요: 권/페이지]
-- 내용: embedded hemispherical MLA로 매우 높은 EQE 달성 (nonintrusive 외부 광학).
-- 사용처: §1 서론 — embedded hemispherical MLA의 very high EQE 보고 [4,5];
-  §2.5/§4.5 — 일반성 검사의 embedded MLA family 구조 근거(저굴절 overcoat 평탄화).
+- 내용: sub-electrode microlens array(SEMLA). 유리 기판에 반구형 렌즈를 식각하고
+  고굴절 spacer(TiO2, n~1.8)로 평탄화한 뒤 그 위에 OLED를 제작한다. 렌즈가 전극
+  **아래·소자 내부**에 있어 기판 모드가 아니라 **도파 모드**를 표적한다.
+  녹색 ~70%, WOLED ~50% EQE.
+- 사용처: §1 서론 — 높은 EQE 선례 [4,5]; §2.5 — **범위 밖 구조의 예시**로 인용
+  (외부 필름이 아니므로 고정 광원 프로토콜로 비교 불가함을 명시하는 자리).
+- ⚠ **구조 혼동 주의 (2026-08-09)**: 문헌의 "embedded MLA"는 두 가지를 가리킨다.
+  (a) Qu 2018 = 전극 아래 내부 렌즈(SEMLA), (b) Kim 2023 [16] = 기판 외면에
+  **새겨 넣은** 오목 렌즈(IMLA). 후자가 본 연구의 inverted family에 해당한다.
+  한때 계획했던 "저굴절 overcoat로 평탄화한 외부 MLA" family는 (a)도 (b)도 아닌
+  제3의 구조였고, 외부 광추출 범주 정리 과정에서 **폐기**되었다. [5]를 그
+  family의 근거로 인용하지 말 것.
 - ✔ **번호 불일치 해소 (2026-08-08)**: plan §4.1의 "[5] 본 연구 그룹의 선행 연구"는
   실제로는 그룹 자기 논문(Kim 2023 *ACS Photonics*)을 가리키는 오기였음. 그룹 논문
   2건을 [16]/[17]로 append하고 원고 §4.1(및 §1)의 인용을 [16,17]로 수정하여 해결.
@@ -151,6 +160,10 @@
   [PDF: Kim2023_ACSPhotonics_IMLA_foldable.pdf — 저자·권/페이지 PDF 1면에서 확인]
 - 내용: inverted microlens array(IMLA) 내장 초박형 기판 foldable OLED, EQE 최대 58%.
   trans-scale(CPS+BSDF+LightTools) 방법을 제작 소자의 실측 배광·EQE와 비교 검증.
+- 구조 상세(PDF 확인): NOA63 UV 경화 수지 기판(두께 10 μm)의 한쪽 면에 오목 패턴을
+  몰드로 새김. 렌즈 반경 1.4 μm, 높이 1.8 μm(h=1.3r), 타원형. 굴절률은 유리와 유사.
+  오목 딤플이 공기와 직접 접하므로 **광학적으로 본 연구의 inverted family와 동일**.
+  (제목의 "embedded"는 '덮여 있다'가 아니라 '기판에 새겨져 있다'는 뜻 — [5]와 혼동 금지)
 - 사용처: §1 서론 — 검증된 source model 언급 [16,17]; §2.5/§4.5 — inverted(오목형)
   MLA family의 실현 선례 [16]; §4.1 — trans-scale 파이프라인의 실험 검증 앵커 [16,17].
 - ⚑ self-overlap 관리: trans-scale 방법·EQE 58% 선점 — 방법 인용에 한정, 결과 재주장 금지.
