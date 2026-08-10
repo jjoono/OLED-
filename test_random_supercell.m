@@ -221,6 +221,10 @@ if pass.s2
     end
     pass.s4 = (nOK == size(corners,1));
     fprintf('  [%s] %d/%d 코너 통과\n', tern(pass.s4), nOK, size(corners,1));
+    fprintf(['  [기준] "무질서 0" 은 사실상 주기 반구 배열이므로 EQE_total 이\n' ...
+             '         주기 배열 실행(약 0.5)과 비슷한 대역이어야 한다.\n' ...
+             '         0.3 근처로 낮게 나오면 슈퍼셀 사이에 빈 공간이 생긴 것 —\n' ...
+             '         텍스처 Scale 이 간격과 같은 배수로 커졌는지 확인할 것.\n']);
 else
     fprintf('  (건너뜀)\n');
 end

@@ -64,7 +64,7 @@ for ip = 1:numel(parents)
         if isempty(L) || (isnumeric(L) && L == 0), continue; end
 
         printedHeader = false;
-        for pos = 1:6
+        for pos = 1:12   % Scale/StretchX/Y/Z 는 6번 뒤에 온다
             try
                 K = ltml.LTListAtPos(lt, L, pos);
             catch

@@ -28,9 +28,16 @@ d_sub=1.295;  r_OLED=1;  x_pattern=PATCH_XY;  y_pattern=PATCH_XY;  Lensheight=0.
 %   배치 간격을 같은 배수로 키우지 않으면 렌즈렛 하나의 물리 크기가 1/nCols 로
 %   줄어든다. 그러면 "무작위성의 효과" 가 아니라 "렌즈렛이 작아진 효과" 를 재게 된다.
 %   따라서 간격 = 기준 간격 x nCols 로 설정해 렌즈렛 크기를 보존한다.
+%   [중요] 간격만 키우면 안 된다. 슈퍼셀 자체의 물리 크기(텍스처 Scale)도 같은
+%   배수로 키워야 한다. 간격만 벌리면 슈퍼셀이 원래 크기 그대로라 셀 사이에
+%   맨 기판이 드러나고, 충전율이 떨어져 EQE 가 과소평가된다.
+%   .ent 안에서 렌즈렛의 반경과 높이가 모두 1/nCols 로 들어가 있으므로,
+%   균일 스케일 x nCols 면 반경·높이가 동시에 원래 값으로 복원된다.
+%   따라서 StretchZ 는 1 그대로 둔다.
 SUPERCELL_NCOLS = 8;
 SPACING_X0 = 0.0866;   % [mm] 단일 렌즈렛 기준 간격 (모델 .lts 의 초기값)
 SPACING_Y0 = 0.1000;
+SCALE_BASE = 0.05;     % 단일 렌즈렛 기준 텍스처 Scale (모델 .lts 의 초기값)
 wavelength_start=453;  wavelength_end=753;
 
 if isempty(wave_n_current), n = 10;    else, n = wave_n_current;    end
@@ -68,6 +75,23 @@ if ~okSp
            'listNames/propPairs 에 추가할 것.'], SUPERCELL_NCOLS);
 end
 if isempty(SPACING_DESC), SPACING_DESC = dsc; end
+
+% [형상 스케일 확대] 간격과 같은 배수. 설정 후 되읽어 확인한다.
+tgtScale = SCALE_BASE * SUPERCELL_NCOLS;
+PL = ltml.LTDbList(lt,'LENS_MANAGER[1]','TEXTURE_PARAMETER');
+PK = ltml.LTListByName(lt, PL, 'Scale');
+ltml.LTDbSet(lt, PK, 'Value', tgtScale);
+gsc = ltml.LTDbGet(lt, PK, 'Value');
+if ~isfinite(gsc) || abs(gsc - tgtScale) > 1e-9
+    error(['텍스처 Scale 설정 실패 (읽은 값 %g, 목표 %g). 간격만 커지고 셀 크기가 ' ...
+           '그대로면 셀 사이에 맨 기판이 드러나 EQE 가 과소평가된다. ' ...
+           'probe_texture_placement.m 으로 TEXTURE_PARAMETER 의 Scale 항목을 확인할 것.'], ...
+           gsc, tgtScale);
+end
+if isempty(SPACING_DESC)
+    fprintf('  [scale] 텍스처 Scale = %.4f (기준 %.4f x %d)\n', ...
+            gsc, SCALE_BASE, SUPERCELL_NCOLS);
+end
 
 %% --- 슈퍼셀 .ent 생성 + unit-cell 교체 (objFcn_both 의 swept 블록 대체) ---
 BASE = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\';
