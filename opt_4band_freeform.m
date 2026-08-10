@@ -41,11 +41,10 @@ global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
        GEOM_TOL GEOM_MISMATCH_LOG REQUIRE_MONOTONIC_X PATCH_XY
 
 %% ===== 텍스처 패치 크기 (mm) =====
-%  다른 스크립트와 반드시 같아야 하는 값. 서로 다르면 EQE_total 이 통째로
-%  달라져 스크립트 간 비교가 무의미해진다 (repo 기준: pareto_front_freeform.m
-%  = 15, convergence_check.m = 25).
-%  Fig.2/Fig.3 데이터를 만든 pareto 실행과 반드시 일치시킬 것.
-PATCH_XY = 15;
+%  [통일 규칙] 모든 캠페인 스크립트에서 25 x 25 mm 로 통일한다. 서로 다르면
+%  EQE_total 이 통째로 달라져 스크립트/계열 간 비교가 무의미해진다.
+%  이 값을 바꾸면 이전에 수집한 결과와 더 이상 비교할 수 없다.
+PATCH_XY = 25;
 
 % [기하 검증 tolerance] LightTools 제어점 왕복 불일치 허용치.
 GEOM_TOL = 1e-4;

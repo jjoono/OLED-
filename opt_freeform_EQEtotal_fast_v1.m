@@ -22,7 +22,7 @@
 %   (2) .coa 파일을 LightTools가 읽기 전에 fclose 누락 → 미플러시 값 흔들림.
 %       → coa 작성 직후 fclose 추가.
 %
-%  [바뀌지 않은 것]  swept 7점 스플라인 형상, ITO 스택, x_pattern=15, d_sub=1.295,
+%  [바뀌지 않은 것]  swept 7점 스플라인 형상, ITO 스택, d_sub=1.295,
 %    CPS/TMM 물리, 파장창 453–753. (freeform 형상 자유도는 대칭 baseline과 동일 박스)
 % ============================================================
 clear;
@@ -241,8 +241,10 @@ ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
 d_sub=1.295;
 r_OLED=1;
-x_pattern=15;
-y_pattern=15;
+%   [통일 규칙] 텍스처 패치는 모든 캠페인 스크립트에서 25 x 25 mm 로 통일한다.
+%   서로 다르면 EQE_total 이 통째로 달라져 스크립트/계열 간 비교가 무의미해진다.
+x_pattern=25;
+y_pattern=25;
 Lensheight=0.01;
 wavelength_start=453;
 wavelength_end=753;
