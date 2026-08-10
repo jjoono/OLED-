@@ -6,7 +6,16 @@ function output = objFcn_supercell(hyp, seed)
 %   입력: hyp = [fill, rJitter, posJitter, aspect, aspectJitter, profileMix]
 %         seed = 슈퍼셀 난수 시드 (결정론성 보장)
 %   전역: ID_LT, ltml, ltloc, count, ray_nums_current, wave_n_current
-global ID_LT ltml ltloc count ray_nums_current wave_n_current
+global ID_LT ltml ltloc count ray_nums_current wave_n_current CACHE_FIXED_STACK
+
+% [고정 스택 캐시] 이 계열은 dETL/dHTL 이 설계변수가 아니라 상수다. 따라서 CPS,
+%   bottom reflectance, 코팅 파일은 매 평가마다 결과가 완전히 동일하다.
+%   원본은 이를 평가마다 다시 계산했는데(CPS 301파장 x 499 u-점, TMF 2회,
+%   .coa 파일 fprintf 27,090회), 광선추적보다 훨씬 비싸서 평가 시간의 대부분을
+%   차지했다. 스택 조건이 같으면 한 번만 계산해 재사용한다.
+%   CACHE_FIXED_STACK = false 로 두면 원본 동작(매번 재계산)으로 돌아간다.
+persistent CPSC COAT_LT_ID COAT_COUNT
+if isempty(CACHE_FIXED_STACK), CACHE_FIXED_STACK = true; end
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
@@ -117,20 +126,35 @@ ne_bar=ne_bar(wavelength_start-399:wavelength_end-399,:);
 thickness=[100 dETL 25 10 dHTL 150];
 EML_position=4;  z0=12.5;  u_data_num=499;  max_u=3;
 
-CPS_result=CPS_for_Isub(no_bar,ne_bar,thickness,emission_spectrum,eta_rad,horizontal_dipole_ratio,bottom_air_refractive_index,EML_position,z0,u_data_num,max_u,wavelength);
+stackKey = [dETL, dHTL, wavelength_start, wavelength_end];
+if ~CACHE_FIXED_STACK || isempty(CPSC) || ~isequal(CPSC.key, stackKey)
+    CPS_result=CPS_for_Isub(no_bar,ne_bar,thickness,emission_spectrum,eta_rad,horizontal_dipole_ratio,bottom_air_refractive_index,EML_position,z0,u_data_num,max_u,wavelength);
+
+    % bottom reflectance  (objFcn_both 와 동일)
+    TMF_OLED_bottom_p=TMF_birefringence_whole_p(no_bar(:,layer_num:-1:1),ne_bar(:,layer_num:-1:1),[0 thickness(layer_num-2:-1:1) 0],ne_bar(:,layer_num)*sin089,wavelength);
+    TMF_OLED_bottom_s=TMF_birefringence_whole_s(no_bar(:,layer_num:-1:1),ne_bar(:,layer_num:-1:1),[0 thickness(layer_num-2:-1:1) 0],no_bar(:,layer_num)*sin089,wavelength);
+    R_p_bottom=abs(TMF_OLED_bottom_p.r_p).^2;
+    R_s_bottom=abs(TMF_OLED_bottom_s.r_s).^2;
+    Reflectance=(R_p_bottom+R_s_bottom)/2;
+
+    CPSC = struct('key',stackKey,'CPS_result',CPS_result,'Reflectance',Reflectance);
+    COAT_LT_ID = [];        % 스택이 바뀌었으면 코팅도 다시 써야 한다
+    if CACHE_FIXED_STACK
+        fprintf('  [cache] CPS/reflectance 계산 (이후 평가는 재사용)\n');
+    end
+else
+    CPS_result  = CPSC.CPS_result;
+    Reflectance = CPSC.Reflectance;
+end
 EQE_sub_CPS=CPS_result.EQE_sub;
 
-%% bottom reflectance  (objFcn_both 와 동일)
-TMF_OLED_bottom_p=TMF_birefringence_whole_p(no_bar(:,layer_num:-1:1),ne_bar(:,layer_num:-1:1),[0 thickness(layer_num-2:-1:1) 0],ne_bar(:,layer_num)*sin089,wavelength);
-TMF_OLED_bottom_s=TMF_birefringence_whole_s(no_bar(:,layer_num:-1:1),ne_bar(:,layer_num:-1:1),[0 thickness(layer_num-2:-1:1) 0],no_bar(:,layer_num)*sin089,wavelength);
-R_p_bottom=abs(TMF_OLED_bottom_p.r_p).^2;
-R_s_bottom=abs(TMF_OLED_bottom_s.r_s).^2;
-Reflectance=(R_p_bottom+R_s_bottom)/2;
-
-%% Coating  (objFcn_both 와 동일)
+%% Coating  (objFcn_both 와 동일하되, 고정 스택이면 세션당 1회만)
 lt = ltloc.GetLTAPI(ID_LT);
-fileID = fopen(sprintf('C:\\Users\\jhkim\\Desktop\\Green_CE_Calculation\\TRA_temp\\R_Al_%d.coa', count), 'w');
-fprintf(fileID,'%s\n%s%d\n%s\n%s\n%s\n%s\n ','DFAT Version 1.0', 'DATANAME: R_Bottom_',count, 'ABSORBING: YES', 'INDEX: 1.51', 'DATAITEMS: TAVG RAVG');
+needCoat = ~CACHE_FIXED_STACK || isempty(COAT_LT_ID) || COAT_LT_ID ~= ID_LT;
+if needCoat
+COAT_COUNT = count;
+fileID = fopen(sprintf('C:\\Users\\jhkim\\Desktop\\Green_CE_Calculation\\TRA_temp\\R_Al_%d.coa', COAT_COUNT), 'w');
+fprintf(fileID,'%s\n%s%d\n%s\n%s\n%s\n%s\n ','DFAT Version 1.0', 'DATANAME: R_Bottom_',COAT_COUNT, 'ABSORBING: YES', 'INDEX: 1.51', 'DATAITEMS: TAVG RAVG');
 for i=wavelength_start:wavelength_end
     fprintf(fileID,'%s  %d\n','wv',i);
     for j=0:89
@@ -139,12 +163,17 @@ for i=wavelength_start:wavelength_end
 end
 fclose(fileID);   % LightTools 가 읽기 전에 플러시
 
-ltml.LTCmd(lt,['\O"LENS_MANAGER[1].USER_COATINGS[User Coatings]" LoadFileName="' sprintf('C:\\Users\\jhkim\\Desktop\\Green_CE_Calculation\\TRA_temp\\R_Al_%d.coa', count) '"']);
+ltml.LTCmd(lt,['\O"LENS_MANAGER[1].USER_COATINGS[User Coatings]" LoadFileName="' sprintf('C:\\Users\\jhkim\\Desktop\\Green_CE_Calculation\\TRA_temp\\R_Al_%d.coa', COAT_COUNT) '"']);
 List=ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');
 Key=ltml.LTListByName(lt,List,'R_Al');
 List=ltml.LTDbList(lt,Key,'USER_COATING_AMPLITUDE_ZONE');
 Key=ltml.LTListNext(lt,List);
-ltml.LTDbSet(lt,Key,'SelectedCoatingName',sprintf('R_Bottom_%d', count));
+ltml.LTDbSet(lt,Key,'SelectedCoatingName',sprintf('R_Bottom_%d', COAT_COUNT));
+COAT_LT_ID = ID_LT;
+if CACHE_FIXED_STACK
+    fprintf('  [cache] 코팅 파일 작성/로드 (이 LightTools 세션 동안 재사용)\n');
+end
+end   % needCoat
 
 %% 파장 루프  (objFcn_both 와 동일)
 I_white=0.5*(CPS_result.I_sub_s+CPS_result.I_sub_p);
@@ -213,12 +242,15 @@ end
 output = struct('EQE_0_20',EQE_0_20,'EQE_20_40',EQE_20_40, ...
     'EQE_40_60',EQE_40_60,'EQE_60_80',EQE_60_80,'EQE_total',EQE_total);
 
-List=ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');
-Key=ltml.LTListByName(lt,List,'R_Al');
-List=ltml.LTDbList(lt,Key,'USER_COATING_AMPLITUDE_ZONE');
-Key=ltml.LTListNext(lt,List);
-ltml.LTDbSet(lt,Key,'SelectedCoatingName','R_temp');
-ltml.LTCmd(lt,['\O"LENS_MANAGER[1].USER_COATINGS[User Coatings].COATING[' sprintf('R_Bottom_%d', count) ']" Delete= \Q']);
+% 코팅 정리: 캐시를 쓰는 동안에는 선택/삭제를 건드리지 않는다(다음 평가가 그대로 씀).
+if ~CACHE_FIXED_STACK
+    List=ltml.LTDbList(lt,'lens_manager[1]','PROPERTY');
+    Key=ltml.LTListByName(lt,List,'R_Al');
+    List=ltml.LTDbList(lt,Key,'USER_COATING_AMPLITUDE_ZONE');
+    Key=ltml.LTListNext(lt,List);
+    ltml.LTDbSet(lt,Key,'SelectedCoatingName','R_temp');
+    ltml.LTCmd(lt,['\O"LENS_MANAGER[1].USER_COATINGS[User Coatings].COATING[' sprintf('R_Bottom_%d', COAT_COUNT) ']" Delete= \Q']);
+end
 fclose('all');
 
 % 임시 슈퍼셀 .ent 정리 (디스크 누적 방지; 시뮬 종료 후이므로 안전)

@@ -236,15 +236,34 @@ for i = 1:numel(names)
     fprintf('  %-20s %s\n', names{i}, tern(vals(i)));
 end
 
-if pass.s2 && any(isfinite(tEval))
-    tMed = median(tEval,'omitnan');
-    % 광선 수와 파장 개수에 대략 선형으로 스케일
-    nWaveTest = numel(1:WAVE_N_TEST:301);
-    nWaveFull = numel(1:WAVE_N_FULL:301);
-    scale = (RAY_FULL/RAY_TEST) * (nWaveFull/nWaveTest);
-    tFull = tMed * scale * N_EVAL_FULL / 3600;
-    fprintf('\n  평가당 %.1f초 (테스트 설정) -> 본 설정 환산 x%.0f\n', tMed, scale);
-    fprintf('  본 실행 %d회 예상: 약 %.1f 시간\n', N_EVAL_FULL, tFull);
+% --- 본 설정으로 실제 1~2회 측정해서 환산 (비례 가정은 틀린다) ---
+%   평가 시간의 대부분이 광선/파장에 비례하지 않는 고정 비용이므로,
+%   저정밀 시간에 배율을 곱하면 크게 과대평가된다. 직접 재는 편이 정확하다.
+if pass.s2
+    fprintf('\n---- 본 설정 실측 (ray=%d, 파장 step=%d) ----\n', RAY_FULL, WAVE_N_FULL);
+    ray_nums_current = RAY_FULL;  wave_n_current = WAVE_N_FULL;
+    tFullEval = nan(2,1);
+    for i = 1:2
+        tB = tic;
+        try
+            objFcn_supercell(hypMid, SEED_BASE + 500 + i);
+            tFullEval(i) = toc(tB);
+            fprintf('  full eval %d: %.1f초\n', i, tFullEval(i));
+        catch ME
+            fprintf('  full eval %d [FAIL]: %s\n', i, ME.message);
+        end
+    end
+    % 2회차를 정상 상태로 본다 (1회차는 캐시 준비 비용을 포함)
+    tSteady = tFullEval(min(2, sum(isfinite(tFullEval))));
+    if isfinite(tSteady)
+        fprintf('\n  정상 상태 평가당 %.1f초\n', tSteady);
+        fprintf('  본 실행 %d회 예상: 약 %.1f 시간\n', ...
+                N_EVAL_FULL, tSteady * N_EVAL_FULL / 3600);
+        if isfinite(tFullEval(1)) && tFullEval(1) > 1.3*tSteady
+            fprintf('  (1회차 %.1f초 -> 정상 %.1f초: 고정 스택 캐시가 작동 중)\n', ...
+                    tFullEval(1), tSteady);
+        end
+    end
 end
 
 if all(vals)
