@@ -41,6 +41,15 @@
 % ============================================================
 clear;
 %% For LightTools Connection
+global RND_NCOLS RND_NGRID CACHE_FIXED_STACK
+%% ===== 슈퍼셀 비용 설정 (calibrate_random_cost.m 실측으로 확정) =====
+%  기준(nCols 8 / grid 201 / ray 10000 / 파장 31개) 대비 4.1배 빠르면서
+%  선택성 편차 0.39%p (판정 기준 0.5%p 이내, MC 노이즈와 같은 수준).
+%  논문이 쓰는 값은 비율(선택성)이므로 총 EQE 의 0.5% 차이는 문제되지 않는다.
+RND_NCOLS = 6;      % 슈퍼셀당 렌즈렛 6x6 (기준 8x8). 통계에는 충분.
+RND_NGRID = 141;    % 슈퍼셀 격자 해상도 (기준 201). 렌즈렛 반경당 ~10점 유지.
+CACHE_FIXED_STACK = true;   % dETL/dHTL 이 상수이므로 CPS/코팅은 1회만 계산
+
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
        ray_nums_current wave_n_current EVAL_LOG EVAL_META EVAL_PHASE EVAL_W
 
@@ -57,14 +66,14 @@ lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
 %% ===== Multi-fidelity (pareto_front_freeform.m 과 동일) =====
-WAVE_N_SEARCH = 10;
-WAVE_N_FINAL  = 2;
-RAY_SEARCH    = 10000;
-RAY_FINAL     = 50000;
+WAVE_N_SEARCH = 20;      % 파장 16개 (기준 step 10 = 31개)
+WAVE_N_FINAL  = 2;       % 최종 재평가만 고밀도 (151개)
+RAY_SEARCH    = 5000;
+RAY_FINAL     = 10000;   % 슈퍼셀은 추적이 비싸 50000 은 과함 (MC 노이즈 이미 0.5%)
 N_FINAL_REP   = 3;      % Phase C: 서로 다른 seed 3개 (seed-강건성 검정)
 
 %% ===== 프로토콜 예산 =====
-N_RANDOM     = 100;     % Phase A: 무작위 realization 수
+N_RANDOM     = 50;      % Phase A: 무작위 realization 수 (시그니처 확인엔 충분)
 OPT_EVALS    = 60;      % Phase B: surrogateopt 예산
 POLISH_EVALS = 15;      % Phase B: patternsearch 예산
 MIN_SURR     = 20;

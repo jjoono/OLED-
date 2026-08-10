@@ -89,7 +89,8 @@ fprintf(['판정 기준: 선택성 편차가 0.5%%p 이내면 결론(계열 간 
          '           총 EQE 는 몇 %% 흔들려도 무방 — 논문이 쓰는 값은 비율이다.\n']);
 
 %% ===== 권장 설정 =====
-okIdx = find(isfinite(tSec) & (100*max(abs(Sel-Sel(ref,:)),[],2))' <= 0.5);
+dSelAll = 100*max(abs(Sel - Sel(ref,:)), [], 2);   % 6x1 열벡터로 유지
+okIdx = find(isfinite(tSec) & dSelAll <= 0.5);     % 전치하면 6x6 으로 퍼진다
 if ~isempty(okIdx)
     [~, jj] = max(tSec(ref)./tSec(okIdx));
     best = okIdx(jj);
