@@ -21,16 +21,22 @@ if nargin < 4, verbose = false; end
 ok = false;  desc = '';
 TOL = 1e-9;
 
-% 후보 목록: (a) lens_manager 최상위, (b) zone 키의 자식
-listNames = {'ZONE_TEXTURE_HEXAGONAL_PLACEMENT','HEXAGONAL_PLACEMENT', ...
-             'ZONE_TEXTURE_PLACEMENT','TEXTURE_PLACEMENT','PLACEMENT'};
+% [확인됨 2026-08-09, probe_texture_placement.m]
+%   목록 TEXTURE_PLACEMENT / 항목 Name='Placement' / 속성 X_Spacing, Y_Spacing
+%   (기본값 0.0866, 0.1). 파일 토큰은 setXSpacing 이지만 DB 이름은 언더스코어형.
+%   같은 값이 zone 키(TEXTURE_ZONE_EXTENT)에도 별칭으로 노출된다.
+%   확인된 조합을 맨 앞에 두어 매 평가마다 후보를 훑지 않게 한다.
+listNames = {'TEXTURE_PLACEMENT','ZONE_TEXTURE_HEXAGONAL_PLACEMENT', ...
+             'HEXAGONAL_PLACEMENT','ZONE_TEXTURE_PLACEMENT','PLACEMENT'};
 
-% 후보 속성 쌍 (파일 토큰 / Geometry_n 관례 / 흔한 변형)
-propPairs = { {'XSpacing','YSpacing'}, {'Geometry_1','Geometry_2'}, ...
-              {'X_Spacing','Y_Spacing'}, {'SpacingX','SpacingY'}, ...
-              {'XPitch','YPitch'}, {'Pitch_1','Pitch_2'}, ...
-              {'Spacing_1','Spacing_2'}, {'Value_1','Value_2'}, ...
+% 후보 속성 쌍 (확인된 것 우선, 그 뒤는 다른 모델 대비 예비)
+propPairs = { {'X_Spacing','Y_Spacing'}, {'XSpacing','YSpacing'}, ...
+              {'SpacingX','SpacingY'}, {'XPitch','YPitch'}, ...
+              {'Pitch_1','Pitch_2'}, {'Spacing_1','Spacing_2'}, ...
               {'DeltaX','DeltaY'} };
+%   [주의] Geometry_1/Geometry_2 는 후보에서 뺐다. zone 에서 그 이름은
+%   배치 간격이 아니라 zone 크기(x_pattern/y_pattern)이므로, 잘못 잡으면
+%   패치 크기를 덮어써 EQE_total 이 통째로 달라진다.
 
 % --- 부모 키 후보 수집: [] = 최상위, 그 외 = zone 키 ---
 parents = {[]};
