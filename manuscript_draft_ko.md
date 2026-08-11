@@ -75,7 +75,7 @@ $$
 
 두 가지가 뒤따른다. 첫째, 지향성 필름의 자연스러운 목표인 40–60° band가 바로 전용 최적화의 이득이 없는 구간이다(선택성 +1%, 순이득 1.00). 총 추출을 최대화하는 배광이 이미 그 band를 최대화하고 있기 때문이다. 둘째, 가장 큰 이동은 0–20°에서 일어나는데, 이 구간은 자연 배광이 Lambertian 대비 오히려 **결핍**되어 있다(0.096 vs 0.117). 형상 자유도는 새로운 방향을 만들어내기보다, 플랫폼이 덜 채워 놓은 방향을 되메우는 데 가장 효과적이다.
 
-다만 선택성이 엄밀히 고정된 것은 아니며, **체계적 편류(systematic drift)**가 존재한다. 전체 설계에 대해 총 EQE와 $S_j$의 상관계수를 계산하면 $R(0\text{–}20^\circ)\approx+0.6$, $R(20\text{–}40^\circ)\approx+0.7$, $R(40\text{–}60^\circ)\approx+0.05$, $R(60\text{–}80^\circ)\approx-0.7$이다. 해석은 명료하다. 효율이 오르면 배광이 저각 쪽으로 약간 기울지만, band 간 순서는 어떤 설계에서도 뒤집히지 않으며 40–60° band가 항상 최대 비중을 유지한다. 이 편류가 Monte-Carlo 노이즈나 협대역 인공물이 아님을 확인하기 위해, 광선 수를 20배(200,000)로 늘리고 3회 독립 반복하며 광대역(450–750 nm) 스펙트럼으로 재평가하는 수렴검사를 수행하였고, 동일한 상관 구조가 재현되었다(4.3절 및 보충자료). 따라서 이 편류는 실재하는 미세 추세이되, 설계자가 활용할 수 있는 독립적인 조향 자유도에는 미치지 못한다. 이 편류와 위에서 제시한 좁은 산포는 서로 모순되지 않는다. 상관계수는 경계에서 멀리 떨어진 설계까지 포함한 전 효율 구간에서 계산한 값이고, 산포는 편류가 이미 진행을 끝내고 배광이 수렴한 최고 효율 설계들 사이에서 계산한 값이기 때문이다.
+다만 선택성이 엄밀히 고정된 것은 아니며, **체계적 편류(systematic drift)**가 존재한다. 전체 설계에 대해 총 EQE와 $S_j$의 상관계수를 계산하면 $R(0\text{–}20^\circ)\approx+0.6$, $R(20\text{–}40^\circ)\approx+0.7$, $R(40\text{–}60^\circ)\approx+0.05$, $R(60\text{–}80^\circ)\approx-0.7$이다. 해석은 명료하다. 효율이 오르면 배광이 저각 쪽으로 약간 기울지만, band 간 순서는 어떤 설계에서도 뒤집히지 않으며 40–60° band가 항상 최대 비중을 유지한다. 이 편류가 Monte-Carlo 노이즈나 협대역 인공물이 아님을 확인하기 위해, 광선 수를 20배(200,000)로 늘리고 3회 독립 반복하며 광대역(450–750 nm) 스펙트럼으로 재평가하는 수렴검사를 수행하였고, 동일한 상관 구조가 재현되었다(4.3절 및 보충 표 S4). 따라서 이 편류는 실재하는 미세 추세이되, 설계자가 활용할 수 있는 독립적인 조향 자유도에는 미치지 못한다. 이 편류와 위에서 제시한 좁은 산포는 서로 모순되지 않는다. 상관계수는 경계에서 멀리 떨어진 설계까지 포함한 전 효율 구간에서 계산한 값이고, 산포는 편류가 이미 진행을 끝내고 배광이 수렴한 최고 효율 설계들 사이에서 계산한 값이기 때문이다.
 
 핵심 결과는 효율과 특정 polar band가 수학적으로 절대 불변이라는 것이 아니다. passive optics는 위치와 각도 사이의 power를 재배분할 수 있으므로, étendue 보존만으로 angular selectivity의 절대적 한계를 주장할 수는 없다. 본 연구가 제시하는 것은 더 제한적이면서도 실용적인 명제다. 즉, **탐색한 제조 가능 freeform class에서는 재배분의 크기가 작아 설계자가 활용할 수 있는 polar-shaping freedom이 사실상 포화한다.** 이 명제는 엄밀한 보편 정리 대신, 재현 가능한 benchmark와 uncertainty를 갖춘 수치적 결과로 제시한다.
 
@@ -96,7 +96,7 @@ $$
 
 스코프에 관한 주의가 필요하다. 이 비대칭 탐색은 2.1절의 통제 비교와 **다른 소자 조건**에서 수행된 별도의 보조 연구다. 구체적으로, 반사 전극이 다른 스택(Ag 전극; 통제 비교의 ITO 기반 스택과 상이), 이방성 발광(anisotropic emitter) 셀, 그리고 52개 설계변수(통제 비교의 13개 대비 훨씬 풍부한 매개변수화)를 사용하였다. 따라서 이 결과는 2.1절의 동일 제약 비교에 산입되지 않으며, 다음의 독립적 보조 증거로 읽어야 한다. **훨씬 더 풍부한 매개변수화와 다른 스택 조건에서도, 의미 있는 각도 조향은 관측되지 않았다.**
 
-우리의 계산에서는 비대칭 형상이 far-field의 중심과 세부 분포를 이동시킬 수는 있었지만, hemispherical MLA보다 크게 높은 **절대 window power**를 안정적으로 얻지는 못했다 **[최종 비교 수치 삽입]**. 이 결과는 "주기 array가 어떤 상황에서도 조향할 수 없다"는 뜻이 아니다. 비대칭 prism, diffractive element, metasurface, 또는 충분한 aperture expansion은 방향성 광분배를 만들 수 있다 [8,9]. 다만 균일한 확장 OLED source 위의 coextensive refractive MLA에서는, 탐색한 범위 내에서 그러한 재배분이 hemispherical reference를 크게 넘는 유용한 output channel로 이어지지 않았다는 것이 본 연구의 범위 내 결론이다.
+우리의 계산에서는 비대칭 형상이 far-field의 중심과 세부 분포를 이동시킬 수는 있었지만, hemispherical MLA보다 크게 높은 **절대 window power**를 안정적으로 얻지는 못했다. 이 비교는 의도적으로 비율이 아닌 정성적 진술로 보고한다. 스택·발광 셀·변수 개수가 통제 benchmark와 모두 다르므로, 여기에 수치 이득을 적으면 위에서 분리해 둔 스코프를 무시한 나란한 비교를 유도하게 된다. 이 보조 연구에서 넘어오는 것은 효과의 **부호**이지 그 크기가 아니다. 이 결과는 "주기 array가 어떤 상황에서도 조향할 수 없다"는 뜻이 아니다. 비대칭 prism, diffractive element, metasurface, 또는 충분한 aperture expansion은 방향성 광분배를 만들 수 있다 [8,9]. 다만 균일한 확장 OLED source 위의 coextensive refractive MLA에서는, 탐색한 범위 내에서 그러한 재배분이 hemispherical reference를 크게 넘는 유용한 output channel로 이어지지 않았다는 것이 본 연구의 범위 내 결론이다.
 
 ### 2.5 MLA family 전반의 일반성 (Generality across MLA families)
 
@@ -122,7 +122,7 @@ family 공간의 범위를 명시해 둔다. 여기서 비교하는 세 구성�
 
 첫째, 각도 압축에는 일반적으로 output aperture의 확장이 필요하다. 작은 source와 큰 macro-lens의 조합은 source area보다 큰 output area를 사용해 solid angle을 줄일 수 있다. 반면 large-area OLED를 덮는 tiled MLA에서는 각 lenslet의 aperture와 그 lenslet이 담당하는 source patch가 같은 비율로 증가한다. 따라서 lenslet의 절대 크기를 키우는 것만으로는 point-source collimation의 이득을 얻지 못한다.
 
-둘째, substrate thickness와 source size는 lateral mixing을 결정한다. 기판을 따라 전파한 광은 하나의 lenslet 아래에서 발생한 광만 보지 않으며, 인접 cell에서 온 광과 섞인다. 본 연구의 기하(lenslet 반경 ~10 μm, $d_{\mathrm{sub}}=1.295$ mm)에서는 기판 두께가 lenslet pitch보다 두 자릿수 이상 크므로 이 혼합이 특히 강하다. source radius, substrate thickness, pitch를 sweep하면 source angular extent가 커질수록 attainable steering이 감소하는 경향이 나타난다 **[lateral mixing sweep 수치 삽입: 보충자료 그림 참조]**. 이 결과는 freeform surface가 처리할 수 있는 input phase space가 이미 평균화되어 있음을 보여 준다.
+둘째, substrate thickness와 source size는 lateral mixing을 결정한다. 기판을 따라 전파한 광은 하나의 lenslet 아래에서 발생한 광만 보지 않으며, 인접 cell에서 온 광과 섞인다. 본 연구의 기하(lenslet 반경 ~10 μm, $d_{\mathrm{sub}}=1.295$ mm)에서는 기판 두께가 lenslet pitch보다 두 자릿수 이상 크므로 이 혼합이 특히 강하다. 이 혼합의 크기는 기하만으로 정해진다. 임계각 광선은 1.295 mm 기판을 한 번 가로지르는 동안 $d_{\mathrm{sub}}\tan\theta_c = 1.16$ mm, 재활용 왕복마다 2.32 mm 횡방향으로 이동하며, 이는 렌즈렛 반경 10 μm의 각각 116배와 232배다. 즉 각 lenslet은 자기 자신보다 두 자릿수 넓은 기판 영역에서 출발한 광을 받는다. 이 결과는 freeform surface가 처리할 수 있는 input phase space가 이미 평균화되어 있음을 보여 준다.
 
 셋째, 주어진 source radiance와 출광 면적에서 passive external layer가 특정 solid angle에 공급할 수 있는 power에는 radiance/étendue envelope가 존재한다 [10]. 본 연구에서는 이를 global impossibility theorem이 아니라, numerical frontier를 해석하는 기준으로 사용한다. 평면 계면 또는 hemisphere가 그 envelope에 가까워질수록, 더 복잡한 profile은 새로운 radiance를 만들기보다 기존 power의 작은 재배분만 수행한다. 2.3절에서 관측된 준선형 붕괴와 Lambertian 근방의 선택성은 이 해석과 정합적이다.
 
