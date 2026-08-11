@@ -234,7 +234,12 @@ title('(c) per-band drift correlation');
 
 %% --- 텍스트 판정 ---
 % saturation 서명 3가지 + seed 강건성:
-%  (1) 선택성이 Lambertian 분할의 15% 이내
+%  (1) 선택성이 **볼록 주기 배열의 자연 배광**의 15% 이내
+%      [2026-08-09 정정] 원래 Lambertian 분할을 잣대로 썼으나, 볼록 계열의 자연
+%      배광 자체가 Lambertian 에서 벗어나 있음이 확인되었다(0.096/0.278/0.360/0.237
+%      vs 0.117/0.296/0.337/0.220). 계열 간 비교에서 물어야 할 것은 "Lambertian
+%      인가" 가 아니라 "구성을 바꾸면 배광이 달라지는가" 이므로, 기준을 볼록
+%      계열의 실측 자연 배광으로 바꾼다.
 %  (2) 모든 구간이 효율과 함께 상승: corr(EQE_total, EQE_band_j) > 0, all j
 %  (3) drift 상관 부호 패턴이 freeform 기준선과 일치 (구간 3은 |R|<0.3 = ~0)
 %  (4) seed 간 CV < 5% (슈퍼셀 통계가 realization 에 강건)
@@ -242,7 +247,8 @@ rise = nan(1,4);
 for b = 1:4
     c = corrcoef(Et(okR), Bins(okR,b));  rise(b) = c(1,2);
 end
-dev_ok   = all(abs(S_meas(:) - S_pred(:)) ./ S_pred(:) < 0.15);
+S_CONVEX = [0.096 0.278 0.360 0.237];   % 볼록 주기 배열의 자연 배광 (실측)
+dev_ok   = all(abs(S_meas(:) - S_CONVEX(:)) ./ S_CONVEX(:) < 0.15);
 rise_ok  = all(rise > 0);
 sign_ok  = (sign(R_meas(1))==sign(R_FREEFORM(1))) && ...
            (sign(R_meas(2))==sign(R_FREEFORM(2))) && ...
@@ -251,7 +257,7 @@ sign_ok  = (sign(R_meas(1))==sign(R_FREEFORM(1))) && ...
 seed_ok  = (et_std / max(et_mean,eps)) < 0.05;
 
 verdict = sprintf(['[판정 — 무작위 조립 MLA 의 saturation]\n' ...
-    ' (1) 선택성 Lambertian 15%% 이내 : %s   S=[%.3f %.3f %.3f %.3f]\n' ...
+    ' (1) 선택성 볼록계열 15%% 이내  : %s   S=[%.3f %.3f %.3f %.3f]  (볼록 [0.096 0.278 0.360 0.237])\n' ...
     ' (2) 전 구간 동반 상승 (R>0)    : %s   R_rise=[%+.2f %+.2f %+.2f %+.2f]\n' ...
     ' (3) drift 상관 패턴 재현       : %s   R=[%+.2f %+.2f %+.2f %+.2f] (기준 [%+.2f %+.2f %+.2f %+.2f])\n' ...
     ' (4) seed 강건성 (CV<5%%)       : %s   EQE=%.4f±%.4f\n' ...
