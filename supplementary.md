@@ -98,16 +98,28 @@ band ordering agree.
 
 ## Table S5 | Family comparison
 
-Natural composition is the median selectivity of the twenty designs with the
-highest total EQE in each campaign.
+Two statistics are given for each family, both computed from that family's own
+evaluation log: the **top-20 median**, i.e. the median selectivity of the twenty
+designs with the highest total EQE, and the **population mean** over every
+usable evaluation of the campaign. Reporting both matters, because the gap
+between them within one family is comparable to the gap between families under
+either one — a single-statistic table would create apparent family differences
+that the data do not support.
 
-| Family | best total EQE | natural composition (0–20 / 20–40 / 40–60 / 60–80) |
-|---|---|---|
-| Hemispherical reference | 0.5468 | — |
-| Convex freeform | 0.5556 | 0.096 / 0.278 / 0.360 / 0.237 |
-| Randomly assembled | 0.5216 ± 0.0011 | 0.095 / 0.281 / 0.360 / 0.233 |
-| Inverted (concave) | 0.5165 | 0.113 / 0.303 / 0.340 / 0.215 |
-| Lambertian partition | — | 0.117 / 0.296 / 0.337 / 0.220 |
+| Family | best total EQE | top-20 median (0–20 / 20–40 / 40–60 / 60–80) | population mean |
+|---|---|---|---|
+| Hemispherical reference | 0.5468 | — | — |
+| Convex freeform (per-band campaign) | 0.5481 | 0.094 / 0.278 / 0.361 / 0.236 | 0.097 / 0.278 / 0.350 / 0.242 |
+| Convex freeform (weighted sweep) | 0.5556 | 0.102 / 0.276 / 0.354 / 0.239 | 0.095 / 0.274 / 0.354 / 0.244 |
+| Randomly assembled | 0.5216 ± 0.0011 | 0.111 / 0.299 / 0.347 / 0.213 | 0.102 / 0.289 / 0.355 / 0.224 |
+| Inverted (concave) | 0.5165 | 0.113 / 0.303 / 0.340 / 0.215 | 0.100 / 0.288 / 0.357 / 0.231 |
+| Lambertian partition | — | 0.117 / 0.296 / 0.337 / 0.220 | — |
+
+Every entry lies within 0.094–0.113 (0–20°), 0.274–0.303 (20–40°),
+0.340–0.361 (40–60°) and 0.213–0.244 (60–80°). For the randomly assembled
+family the mean over its unbiased random-sampling phase alone is
+0.095 / 0.281 / 0.360 / 0.233, and the three high-precision winning realisations
+give 0.110 / 0.298 / 0.349 / 0.213; both fall inside the same window.
 
 The uncertainty quoted for the randomly assembled family is the spread over
 three independent disorder realisations of the same assembly statistics
@@ -118,25 +130,49 @@ $G_j = \max[\mathrm{EQE}_j \mid \mathrm{freeform}] / \max[\mathrm{EQE}_j \mid \m
 
 | Objective | freeform | hemisphere | $G_j$ |
 |---|---|---|---|
-| 0–20° | 0.06318 | 0.06682 | 0.945 |
+| 0–20° | 0.06318 | 0.06682 | 0.946 |
 | 20–40° | 0.16032 | 0.16591 | 0.966 |
 | 40–60° | 0.19802 | 0.18503 | 1.070 |
 | 60–80° | 0.13863 | 0.13589 | 1.020 |
 | total EQE | 0.5556 | 0.54679 | 1.016 |
 
+The freeform total is the best of the five high-precision weighted-sum optima.
+The coarse-fidelity search log reaches 0.5591 at 10,000 rays; that value is not
+used anywhere, since it is not comparable with the hemisphere's high-precision
+re-evaluation.
+
 ---
 
 ## Reproducing the figures
 
-| Figure | Script | Inputs |
-|---|---|---|
-| Fig. 2a | `plot_fig2a_selectivity.m` | `opt_4band_result.mat` |
-| Fig. 3 | `pareto_front_freeform.m` (final block) | its own log |
-| Fig. 5 | `plot_fig5_families.m` | `opt_4band_result.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
-| Table S3 | `calibrate_random_cost.m` | — |
-| Table S4 | `convergence_check.m` | `pareto_front_result.mat` |
+All five manuscript figures are produced by a single script,
+`make_figures.py`, run from the repository root:
 
-Result archives: `pareto_front_result.mat`, `opt_4band_result.mat`,
+```
+python3 make_figures.py
+```
+
+It reads only the archived result files, prints every number quoted in the
+captions to `figure_numbers.txt`, and writes each figure as both PNG (300 dpi)
+and PDF. Regenerating the figures therefore cannot silently disagree with the
+text.
+
+| Figure | Output | Inputs |
+|---|---|---|
+| Fig. 1 | `fig1_platform.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
+| Fig. 2 | `fig2_achievable_region.png` / `.pdf` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
+| Fig. 3 | `fig3_selectivity_map.png` / `.pdf` | `pareto_front_result.mat` |
+| Fig. 4 | `fig4_recycling_routes.png` / `.pdf` | `angular_recycling_result.npz`, `angular_recycling_bandwidth.npz` |
+| Fig. 5 | `fig5_families.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
+| Table S3 | — | `calibrate_random_cost.m` |
+| Table S4 | — | `convergence_check.m`, `pareto_front_result.mat` |
+
+The MATLAB plotting scripts `plot_fig2a_selectivity.m` and
+`plot_fig5_families.m` remain in the repository as the in-session views used
+during the campaigns; the published figures come from `make_figures.py`.
+
+Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
 `opt_hemisphere_result.mat`, `opt_4band_inverted_result.mat`,
 `stress_random_result.mat`, `calibrate_random_cost.mat`,
-`convergence_check_result.mat`.
+`convergence_check_result.mat`, `angular_recycling_result.npz`,
+`angular_recycling_bandwidth.npz`.
