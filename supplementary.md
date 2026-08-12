@@ -79,9 +79,13 @@ are noise rather than bias.
 
 ## Table S4 | Convergence of the selectivity–efficiency drift
 
-The correlation $R(\mathrm{EQE}_{\mathrm{total}}, S_j)$ was re-measured at
-twenty-fold ray count and over the full emission band to establish that it is
-neither Monte-Carlo noise nor a narrowband artifact.
+Twenty designs stratified across the efficiency range were re-evaluated at
+twenty-fold ray count and over the full emission band, to establish that the
+drift is neither Monte-Carlo noise nor a narrowband artifact. Because the subset
+is stratified rather than representative, its correlations differ in magnitude
+from the full-population values quoted in Section 2.3
+($+0.60 / +0.56 / -0.12 / -0.57$ over all 691 evaluations); the sign pattern and
+band ordering agree.
 
 | Band | baseline | 200,000 rays, ×3 repeats | broadband 450–750 nm |
 |---|---|---|---|
@@ -100,7 +104,7 @@ highest total EQE in each campaign.
 | Family | best total EQE | natural composition (0–20 / 20–40 / 40–60 / 60–80) |
 |---|---|---|
 | Hemispherical reference | 0.5468 | — |
-| Convex freeform | 0.5481 | 0.096 / 0.278 / 0.360 / 0.237 |
+| Convex freeform | 0.5556 | 0.096 / 0.278 / 0.360 / 0.237 |
 | Randomly assembled | 0.5216 ± 0.0011 | 0.095 / 0.281 / 0.360 / 0.233 |
 | Inverted (concave) | 0.5165 | 0.113 / 0.303 / 0.340 / 0.215 |
 | Lambertian partition | — | 0.117 / 0.296 / 0.337 / 0.220 |
@@ -118,7 +122,7 @@ $G_j = \max[\mathrm{EQE}_j \mid \mathrm{freeform}] / \max[\mathrm{EQE}_j \mid \m
 | 20–40° | 0.16032 | 0.16591 | 0.966 |
 | 40–60° | 0.19802 | 0.18503 | 1.070 |
 | 60–80° | 0.13863 | 0.13589 | 1.020 |
-| total EQE | 0.5481 | 0.54679 | 1.002 |
+| total EQE | 0.5556 | 0.54679 | 1.016 |
 
 ---
 
