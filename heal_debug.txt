@@ -1,0 +1,111 @@
+
+SIMPLIFICATION RESULTS :
+========================
+     Simplification Tolerance = 0.0001
+     no. of initial splines = 1
+     no. of final splines = 1
+
+     no. of planes made = 0
+     no. of cylinders made = 0
+     no. of spheres made = 0
+     no. of tori made = 0
+     no. of cones made = 0
+
+STITCH RESULTS :
+================
+     min_tol = 1e-05
+     max_tol = 0.1
+     no. solid lumps made = 1
+     no. sheet lumps made = 0
+     no. free faces remaining = 0
+     no. unshared loops = 0
+     no. unshared edges = 0
+
+GEOMBUILD ANALYSIS :
+====================
+     geom build tol = 10
+     analytic solver tol = 0
+     no. of edges = 2
+     no. of bad edges = 0
+     no. of coedges = 4
+     no. of bad coedges = 0
+     no. of vertices = 2
+     no. of bad vertices = 0
+     no. of bad tangent edges = 0
+     no. of bad tangent edges analytic = 0
+     no. of G1 bad tangent edges analytic = 0
+     no. of bad tangent edges uv_uv = 0
+     no. of bad tangent edges boundary uv_uv = 0
+     no. of bad tangent edges uv_nonuv = 0
+     no. of bad tangent edges nonuv_nonuv = 0
+     no. of bad tangent edges 3_4_sided = 0
+     no. of surfaces = 2
+     no. of discontinuous surfaces = 0
+     percentage of good geom = 100
+
+GEOMBUILD CALCULATION RESULTS :
+===============================
+
+  Analytic Solver :
+    0 degree of snapper graph
+    0 analytic tangent junctions resolved
+    0 analytic tangent junctions unresolved
+    0 analytic intersections resolved
+    0 analytic intersections unresolved
+    0 vertices resolved (0 intersected, 0 projected)
+    0 unstable vertices corrected
+    0 vertices unresolved
+    0 edges calculated by exact projections
+    0 edges calculated by approx projections
+    0 coincident snaps resolved
+
+  Isospline Solver :
+    0 isospline tangent junctions resolved
+    0 isospline tangent junctions unresolved
+    0 splines bent to vertices
+
+  Sharp Edge Solver :
+    0 sharp edges resolved
+      0 intersected
+      0 exact projections
+      0 approx projections
+    0 sharp edges unresolved
+
+    0 vertices resolved
+      0 intersected
+      0 exact projections
+      0 approx projections
+    0 vertices unresolved
+
+  Generic Spline Solver :
+    0 4-sided patches made
+    0 3-sided patches made
+    0 failures
+    0 unsolvable junctions
+
+  Wrapup Module :
+    0 pcurves computed
+    0 edges trimmed
+
+
+GEOMBUILD FIX RESULTS :
+=======================
+Statistics of the healed body after geombuild fix : 
+     no. of edges = 2
+     no. of bad edges = 0
+     no. of coedges = 4
+     no. of bad coedges = 0
+     no. of vertices = 2
+     no. of bad vertices = 0
+     no. of bad tangent edges = 0
+     no. of bad tangent edges analytic = 0
+     no. of G1 bad tangent edges analytic = 0
+     no. of bad tangent edges uv_uv = 0
+     no. of bad tangent edges boundary uv_uv = 0
+     no. of bad tangent edges uv_nonuv = 0
+     no. of bad tangent edges nonuv_nonuv = 0
+     no. of bad tangent edges 3_4_sided = 0
+     no. of surfaces = 2
+     no. of discontinuous surfaces = 0
+     percentage of good geom = 100
+

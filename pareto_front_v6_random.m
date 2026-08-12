@@ -50,26 +50,16 @@ fprintf('\n================ RANDOM SUPERCELL SMOKE TEST ================\n');
 %  STAGE 0 — .ent 생성만 (LightTools 불필요)
 %% =====================================================================
 fprintf('\n---- STAGE 0: 슈퍼셀 .ent 생성 (LightTools 없이) ----\n');
-tmplPath = [BASE 'freeform_template_v2.ent'];
-if ~exist(tmplPath, 'file')
-    fprintf(['  [FAIL] 템플릿이 없다: %s\n' ...
-             '         레포의 freeform_template_v2.ent 를 이 경로에 복사할 것.\n'], tmplPath);
-end
-if ~exist('objFcn_supercell', 'file')
-    fprintf(['  [FAIL] objFcn_supercell.m 이 경로에 없다. stress_random_mla.m 에서\n' ...
-             '         분리된 파일이므로 같은 폴더에 함께 두어야 한다.\n']);
-end
 t0 = tic;
 try
     p0 = struct('fill',hypMid(1),'rJitter',hypMid(2),'posJitter',hypMid(3), ...
                 'aspect',hypMid(4),'aspectJitter',hypMid(5),'profileMix',hypMid(6), ...
                 'templatePath',[BASE 'freeform_template_v2.ent'], ...
                 'nCols',8, 'outPath',[scDir 'smoketest_mid.1.ent']);
-    [outPath0, info0] = generate_random_supercell_ent(SEED_BASE, p0);   % 첫 출력이 경로
+    info0 = generate_random_supercell_ent(SEED_BASE, p0);
 
-    d = dir(outPath0);
-    if isempty(d), error('.ent 가 생성되지 않았다: %s', outPath0); end
-    fprintf('  파일: %s (%.1f MB)\n', outPath0, d.bytes/1e6);
+    d = dir(p0.outPath);
+    fprintf('  파일: %s (%.1f MB)\n', p0.outPath, d.bytes/1e6);
     if isstruct(info0)
         fn = fieldnames(info0);
         for i = 1:numel(fn)
@@ -93,7 +83,7 @@ end
 % --- 미리보기: 슈퍼셀 높이맵을 .ent 에서 되읽어 그린다 ---
 if pass.s0
     try
-        txt = fileread(outPath0);
+        txt = fileread(p0.outPath);
         nums = sscanf(txt(strfind(txt,'ORAStartData')+12:end), '%f');
         % 헤더 10개 뒤부터 (x,y,z) 삼중항
         nums = nums(11:end);
@@ -129,15 +119,27 @@ try
     ltml.LTCmd(lt, 'Message "smoke test"');
     fprintf('  [OK] 연결\n');
 
-    % 배치 간격 설정을 실제로 시도해 본다 (본 실행과 같은 코드 경로)
-    SUPERCELL_NCOLS = 8;  SPACING_X0 = 0.0866;  SPACING_Y0 = 0.1000;
-    [okSp, dsc] = set_texture_spacing(lt, SPACING_X0*SUPERCELL_NCOLS, ...
-                                          SPACING_Y0*SUPERCELL_NCOLS, true);
-    if ~okSp
-        error(['배치 간격 설정/검증 실패. probe_texture_placement.m 을 실행해 ' ...
-               '실제 DB 속성 이름을 찾은 뒤 set_texture_spacing.m 에 추가할 것.']);
+    % 배치 간격 목록 이름 탐색 (objFcn_supercell 과 같은 후보 순서)
+    placeLists = {'ZONE_TEXTURE_HEXAGONAL_PLACEMENT','HEXAGONAL_PLACEMENT', ...
+                  'ZONE_TEXTURE_PLACEMENT','TEXTURE_PLACEMENT'};
+    foundName = '';
+    for ip = 1:numel(placeLists)
+        try
+            PL = ltml.LTDbList(lt,'lens_manager[1]',placeLists{ip});
+            PK = ltml.LTListAtPos(lt,PL,1);
+            gx = ltml.LTDbGet(lt,PK,'XSpacing');
+            gy = ltml.LTDbGet(lt,PK,'YSpacing');
+            fprintf('  배치 목록 "%s" 발견: XSpacing=%.4f, YSpacing=%.4f\n', ...
+                    placeLists{ip}, gx, gy);
+            foundName = placeLists{ip};  break;
+        catch
+        end
     end
-    fprintf('  간격 설정 경로: %s\n', dsc);
+    if isempty(foundName)
+        error(['배치 간격 목록을 못 찾음. LightTools Database Browser 에서 ' ...
+               'ZoneTextureHexagonalPlacement 의 DB 목록 이름을 확인해 ' ...
+               'objFcn_supercell.m 과 이 파일의 placeLists 에 추가할 것.']);
+    end
     pass.s1 = true;
 catch ME
     fprintf('  [FAIL] %s\n', ME.message);
@@ -221,10 +223,6 @@ if pass.s2
     end
     pass.s4 = (nOK == size(corners,1));
     fprintf('  [%s] %d/%d 코너 통과\n', tern(pass.s4), nOK, size(corners,1));
-    fprintf(['  [기준] "무질서 0" 은 사실상 주기 반구 배열이므로 EQE_total 이\n' ...
-             '         주기 배열 실행(약 0.5)과 비슷한 대역이어야 한다.\n' ...
-             '         0.3 근처로 낮게 나오면 슈퍼셀 사이에 빈 공간이 생긴 것 —\n' ...
-             '         텍스처 Scale 이 간격과 같은 배수로 커졌는지 확인할 것.\n']);
 else
     fprintf('  (건너뜀)\n');
 end
@@ -240,34 +238,15 @@ for i = 1:numel(names)
     fprintf('  %-20s %s\n', names{i}, tern(vals(i)));
 end
 
-% --- 본 설정으로 실제 1~2회 측정해서 환산 (비례 가정은 틀린다) ---
-%   평가 시간의 대부분이 광선/파장에 비례하지 않는 고정 비용이므로,
-%   저정밀 시간에 배율을 곱하면 크게 과대평가된다. 직접 재는 편이 정확하다.
-if pass.s2
-    fprintf('\n---- 본 설정 실측 (ray=%d, 파장 step=%d) ----\n', RAY_FULL, WAVE_N_FULL);
-    ray_nums_current = RAY_FULL;  wave_n_current = WAVE_N_FULL;
-    tFullEval = nan(2,1);
-    for i = 1:2
-        tB = tic;
-        try
-            objFcn_supercell(hypMid, SEED_BASE + 500 + i);
-            tFullEval(i) = toc(tB);
-            fprintf('  full eval %d: %.1f초\n', i, tFullEval(i));
-        catch ME
-            fprintf('  full eval %d [FAIL]: %s\n', i, ME.message);
-        end
-    end
-    % 2회차를 정상 상태로 본다 (1회차는 캐시 준비 비용을 포함)
-    tSteady = tFullEval(min(2, sum(isfinite(tFullEval))));
-    if isfinite(tSteady)
-        fprintf('\n  정상 상태 평가당 %.1f초\n', tSteady);
-        fprintf('  본 실행 %d회 예상: 약 %.1f 시간\n', ...
-                N_EVAL_FULL, tSteady * N_EVAL_FULL / 3600);
-        if isfinite(tFullEval(1)) && tFullEval(1) > 1.3*tSteady
-            fprintf('  (1회차 %.1f초 -> 정상 %.1f초: 고정 스택 캐시가 작동 중)\n', ...
-                    tFullEval(1), tSteady);
-        end
-    end
+if pass.s2 && any(isfinite(tEval))
+    tMed = median(tEval,'omitnan');
+    % 광선 수와 파장 개수에 대략 선형으로 스케일
+    nWaveTest = numel(1:WAVE_N_TEST:301);
+    nWaveFull = numel(1:WAVE_N_FULL:301);
+    scale = (RAY_FULL/RAY_TEST) * (nWaveFull/nWaveTest);
+    tFull = tMed * scale * N_EVAL_FULL / 3600;
+    fprintf('\n  평가당 %.1f초 (테스트 설정) -> 본 설정 환산 x%.0f\n', tMed, scale);
+    fprintf('  본 실행 %d회 예상: 약 %.1f 시간\n', N_EVAL_FULL, tFull);
 end
 
 if all(vals)

@@ -1,25 +1,37 @@
 % ============================================================
-%  pareto_front_freeform.m
+%  opt_4band_inverted.m
 %
-%  목적: "효율(EQE_total)과 방향성(EQE_40_60)이 교환될 뿐인가"를 판정하기 위한
-%        Pareto front 추적 + achievable region 산점도 데이터 수집.
+%  목적: INVERTED(음각, hole) MLA 에 대해 네 구간 단일목적 최적화.
+%        볼록(bump) 실행과 동일한 13변수 설계공간/제약/스택을 쓰고,
+%        음각은 모델 파일(Lens_size_effect_inverted_hole_v1.1.lts) 의
+%        LibraryElementUnitCell setBumps:"No" 로 구현된다.
 %
-%  [왜 이 코드인가]
-%   - 단일 목적 최적화 두 번(각 극단)만으로는 트레이드오프 '곡선의 모양'을 모른다.
-%     가중합 w 를 스윕하며 최적화하면 Pareto front 가 직접 얻어지고,
-%       곡선이 오목하게 휘면 -> 트레이드오프 실재 (원고 2.3절 유지)
-%       한 점에 뭉치면     -> 두 목표가 정렬됨 (2.3절 '교환' 주장 철회)
-%   - 무작위 valid 설계는 frontier 를 못 찾지만(13차원, 차원의 저주)
-%     achievable region '내부'를 편향 없이 채우는 데 필수. 둘을 함께 수집한다.
+%  [bump 실행과 다른 점] 세 가지뿐:
+%    1. 모델 경로  -> ...\backup\Lens_size_effect_inverted_hole_v1.1.lts
+%    2. 결과 파일  -> opt_4band_inverted_result.mat / _summary.png
+%                     (bump 결과 opt_4band_result.mat 을 덮어쓰지 않도록)
+%    3. phase 마커 -> 6 (inverted). bump 실행은 4.
+%    + warm start 비활성화: 볼록 설계 시드는 음각에 맞지 않는다.
+%        (40-60도는 pareto_front_freeform.m 의 w=0 에서도 수행됐지만, 동일 조건
+%         비교를 위해 여기서 한 번에 전부 다시 돌린다)
 %
-%  [수집물]  EVAL_LOG = [x(1:13), EQE_total, EQE_40_60, phase, w]
-%     phase 1 = random sampling, 2 = weighted-sum optimization, 3 = 고정밀 재평가
-%     -> 산점도(내부+포락선), Pareto front, 형상 다양성 비교에 모두 사용.
+%  [실행 내용] 네 구간을 각각 독립적으로 최대화:
+%        0-20도, 20-40도, 40-60도, 60-80도   (목적 = -EQE_band, 단일목적)
+%    각 구간마다:
+%      (i)  surrogateopt 탐색 (저정밀: RAY_SEARCH / WAVE_N_SEARCH, 예산 60회)
+%      (ii) patternsearch 국소 정련 (예산 15회)
+%      (iii) 승자 고정밀 재평가 (RAY_FINAL / WAVE_N_FINAL, N_FINAL_REP회 반복 평균)
 %
-%  [주의] 밀도를 확률로 해석하지 말 것: phase 2 점들은 최적점 근처에 몰린다.
-%         내부 밀도 해석은 phase 1(무작위)만 사용.
+%  [warm start] pareto_front_result.mat 이 pwd 에 있으면 그 EVAL_LOG 에서
+%        해당 구간 EQE 상위 10개 설계를 surrogateopt InitialPoints 시드로 재사용.
+%        파일이 없어도 무작위 valid 시드만으로 그대로 동작한다 (standalone).
 %
-%  기반: opt_freeform_EQEtotal_fast_v1.m (동일한 LightTools 연동/기하/스택)
+%  [수집물] EVAL_LOG (pareto_front_freeform.m 과 동일한 열 구성):
+%        [ x(1:13) | EQE_total | EQE_0_20 | EQE_20_40 | EQE_40_60 | EQE_60_80 | phase | w ]
+%     phase 4 = 이 스크립트 표식,  w 열 = 구간 하한 각도 (0 / 20 / 40 / 60) 로 재사용.
+%     구간이 하나 끝날 때마다 opt_4band_result.mat 에 저장 (crash-safe).
+%
+%  기반: pareto_front_freeform.m (동일한 LightTools 연동/기하/스택/제약)
 % ============================================================
 clear;
 %% For LightTools Connection
@@ -31,13 +43,9 @@ global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
 GEOM_TOL = 1e-4;
 GEOM_MISMATCH_LOG = [];   % 열: [mismatch, max_length, rescale_triggered]
 
-% [수율 개선] x 좌표 단조성 요구.
-%   max_length 는 '곡선의 x 최댓값'이며, x2..x6 를 정렬 없이 무작위로 뽑으면
-%   프로파일이 되돌아가(non-monotonic) 스플라인이 x>1 로 크게 overshoot 한다.
-%   -> 재스케일 발동 -> 재설정 후 제어점 불일치 -> 거부(NaN).
-%   비단조 프로파일은 렌즈 단면으로도 부적절하고 어차피 거부되므로, 생성 단계에서
-%   배제하면 시뮬 낭비 없이 수율이 오른다.
-%   * false 로 두면 기존(정렬 없음) 거동. 가설 검증용으로 비교해 볼 수 있다.
+% [수율 개선] x 좌표 단조성 요구 (pareto_front_freeform.m 과 동일).
+%   비단조 x2..x6 프로파일은 스플라인 overshoot -> 재스케일 -> 제어점 불일치로
+%   어차피 거부(NaN)되므로 생성 단계에서 배제한다 (NaN 40% -> 수율 대폭 개선).
 REQUIRE_MONOTONIC_X = true;
 RenewLightTools();
 try
@@ -46,41 +54,61 @@ catch
     ltml = actxserver('ltcom64.LTAPI2');
     ltloc = actxserver('ltlocator.Locator');
 end
+% [음각 확인] 열린 모델이 정말 hole 인지 1회 확인. 볼록 모델을 잘못 열면
+%   결과가 조용히 bump 실행과 같아지므로 즉시 멈춘다.
+try
+    lt_chk  = ltloc.GetLTAPI(ID_LT);
+    Lchk    = ltml.LTDbList(lt_chk, 'LENS_MANAGER[1]', 'LIBRARY_ELEMENT_UNIT_CELL');
+    Kchk    = ltml.LTListByName(lt_chk, Lchk, 'LibraryElement');
+    bumpVal = ltml.LTDbGet(lt_chk, Kchk, 'Bumps');
+    fprintf('[Check] LibraryElementUnitCell.Bumps = %s\n', char(string(bumpVal)));
+    if ~isempty(bumpVal) && strcmpi(char(string(bumpVal)), 'Yes')
+        error('열린 모델이 볼록(bump)이다. 음각 모델 경로를 확인할 것.');
+    end
+catch ME
+    if contains(ME.message, '볼록'), rethrow(ME); end
+    fprintf('[Check] Bumps 속성 조회 실패 (모델 파일로만 보장): %s\n', ME.message);
+end
+
 count = 1;
 restart_interval = 20;
 lt = ltloc.GetLTAPI(ID_swept);
 ltx= getltpointer(ID_swept);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
-%% ===== Multi-fidelity =====
-% [주의] 파장 step 은 objFcn_both 안의 파장창 폭에 맞춰 정해야 한다.
-%   넓은 창(453-753, 301개): SEARCH=30 -> K=11,  FINAL=10 -> K=31
-%   좁은 창(593-603,  11개): SEARCH=10 -> K=2,   FINAL=2  -> K=6
-%   * 인덱스는 wv_list = 1:n:wavelength_num 로 생성되므로 나누어떨어지지 않아도
-%     오류는 나지 않지만, n 이 파장 개수보다 크면 K=1 이 되어 스펙트럼 정보가 사라진다.
+%% ===== Multi-fidelity (pareto_front_freeform.m 과 동일) =====
 WAVE_N_SEARCH = 10;      % 탐색용 파장 step
 WAVE_N_FINAL  = 2;       % 검증용 파장 step
 RAY_SEARCH    = 10000;
 RAY_FINAL     = 50000;
 N_FINAL_REP   = 3;
 
-%% ===== Pareto 스윕 설정 =====
-W_LIST          = [0, 0.25, 0.5, 0.75, 1.0];   % w=1 -> EQE_total만, w=0 -> EQE_40_60만
-EVALS_PER_W     = 120;   % w 하나당 surrogateopt 평가 예산
-MIN_SURR_POINTS = 25;
-N_SEED_VALID    = 30;    % w 하나당 valid 초기 시드
-POLISH_EVALS    = 15;
+%% ===== 구간별 단일목적 최적화 설정 =====
+BAND_LIST  = {[0 20], [20 40], [40 60], [60 80]};   % 네 구간 전부 한 번에
+BAND_NAMES = {'0-20 deg', '20-40 deg', '40-60 deg', '60-80 deg'};
+BAND_COL   = [1, 2, 3, 4];   % bins = [b0_20 b20_40 b40_60 b60_80] 에서의 열 인덱스
+nBand = numel(BAND_LIST);
 
-%% ===== 무작위 표본 (achievable region 내부 채우기) =====
-N_RANDOM = 150;          % 무작위 valid 설계 개수 (비용 감안해 조정)
-                         % * 이 점들만 밀도 해석에 사용 가능
+EVALS_PER_BAND  = 60;    % 구간당 surrogateopt 평가 예산
+MIN_SURR_POINTS = 25;
+N_SEED_VALID    = 15;    % 무작위 valid 시드 (warm start 10개와 합쳐 예산 내 유지)
+POLISH_EVALS    = 15;
+N_WARM          = 10;    % warm start 로 가져올 상위 설계 수
+
+% [warm start 비활성화] 볼록(bump) 실행의 설계는 음각 형상에 대한 좋은 시드가
+%   아니므로 쓰지 않는다. 음각 전용 로그가 생기면 그 파일명을 넣어 재사용할 것.
+WARMSTART_FILE = '';
+
+RESULT_MAT  = 'opt_4band_inverted_result.mat';
+SUMMARY_PNG = 'opt_4band_inverted_summary.png';
 
 %% ===== 정규화 상수 =====
-% 두 목적의 스케일이 크게 다르므로(EQE_total ~0.5, EQE_40_60 ~0.03) 정규화 필수.
-% 아래 값은 기존 결과 기반 초기값이며, phase 1(무작위) 결과로 자동 갱신된다.
-REF_TOTAL = 0.55;
-REF_BAND  = 0.035;
-AUTO_CALIBRATE = true;   % phase 1 최댓값의 1.1배로 REF 갱신
+% 단일목적이라 정규화가 최적점을 바꾸지는 않지만, surrogateopt 의 Fval 스케일을
+% O(1) 로 맞춰준다. 초기값 = Lambertian 선택성 x EQE_total 최고치(0.56) 추정.
+% warm start 로그가 있으면 해당 구간 최댓값의 1.1배로 자동 갱신.
+S_LAMB_ALL = [0.117, 0.296, 0.337, 0.220];    % [0-20, 20-40, 40-60, 60-80] Lambertian 선택성
+MAX_EQE_TOTAL_REF = 0.56;                     % 기존 w=1 최적화 결과 (no-steering 기준)
+REF_BAND_LIST = S_LAMB_ALL(BAND_COL) * MAX_EQE_TOTAL_REF;
 
 %% Optimization Variables (13-dim, 기존과 동일)
 varNames = {'x2','x3','x4','x5','x6', 'y2','y3','y4','y5','y6', 'dETL','dHTL','stretchZ'};
@@ -88,290 +116,185 @@ lb = [0, 0, 0, 0, 0, 0,   0,   0,   0,   0,   10, 10, 0.1];
 ub = [1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5, 150,150, 3];
 nvar = numel(lb);
 
-EVAL_LOG = [];           % [x(1:13), EQE_total, EQE_4060, phase, w]
+EVAL_LOG = [];           % [x(1:13), EQE_total, b0_20, b20_40, b40_60, b60_80, phase, w]
 
 psOpts = optimoptions('patternsearch', ...
     'MaxFunctionEvaluations', POLISH_EVALS, ...
     'InitialMeshSize', 0.1, 'MeshTolerance', 1e-3, ...
     'Cache', 'on', 'Display', 'off');
 
-%% =====================================================================
-%  PHASE 1 — 무작위 valid 설계 (achievable region 내부, 편향 없음)
-%% =====================================================================
-fprintf('\n########## PHASE 1: random valid designs (N=%d) ##########\n', N_RANDOM);
-EVAL_PHASE = 1;  EVAL_W = NaN;
-ray_nums_current = RAY_SEARCH;  wave_n_current = WAVE_N_SEARCH;
-eval_count = 0;
-Prand = genValidPoints(N_RANDOM, lb, ub);
-for i = 1:N_RANDOM
-    [et, eb] = simulate_both(Prand(i,:));
-    if mod(i,10)==0
-        fprintf('  random %3d/%d : EQE_total=%.4f  EQE_4060=%.4f\n', i, N_RANDOM, et, eb);
+%% ===== Warm start 로그 로드 (있으면) =====
+%  pareto_front_freeform.m 의 EVAL_LOG 는 이 스크립트와 동일한 열 구성이므로
+%  구간별 EQE 열을 그대로 랭킹에 쓸 수 있다. 파일이 없으면 그냥 건너뛴다.
+WARM_LOG = [];
+if ~isempty(WARMSTART_FILE) && exist(WARMSTART_FILE, 'file')
+    Dw = load(WARMSTART_FILE);
+    if isfield(Dw, 'EVAL_LOG') && size(Dw.EVAL_LOG,2) >= nvar+5
+        WARM_LOG = Dw.EVAL_LOG;
+        fprintf('[Warm start] %s 로드: EVAL_LOG %d행\n', WARMSTART_FILE, size(WARM_LOG,1));
+        % 정규화 상수 자동 보정 (구간별)
+        for b = 1:nBand
+            mb = max(WARM_LOG(:, nvar+1+BAND_COL(b)), [], 'omitnan');
+            if isfinite(mb) && mb > 0, REF_BAND_LIST(b) = 1.1*mb; end
+        end
     end
+else
+    fprintf('[Warm start] 사용 안 함 -> 무작위 valid 시드만 사용\n');
 end
-save('pareto_log_partial.mat','EVAL_LOG','varNames','lb','ub');
 
-% --- 기하 거부 진단 (NaN 의 주원인 판별) ---
-report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);
-
-% 정규화 상수 자동 보정
-if AUTO_CALIBRATE && ~isempty(EVAL_LOG)
-    mt = max(EVAL_LOG(:,nvar+1), [], 'omitnan');
-    mb = max(EVAL_LOG(:,nvar+2), [], 'omitnan');
-    if isfinite(mt) && mt>0, REF_TOTAL = 1.1*mt; end
-    if isfinite(mb) && mb>0, REF_BAND  = 1.1*mb; end
-end
-fprintf('  정규화: REF_TOTAL=%.4f, REF_BAND=%.4f\n', REF_TOTAL, REF_BAND);
+%% ===== 결과 컨테이너 =====
+band_x           = nan(nBand, nvar);   % 구간별 최적 설계
+band_eqe_coarse  = nan(nBand, 1);      % 저정밀(탐색 fidelity) 구간 EQE
+band_eqe_hi      = nan(nBand, 1);      % 고정밀 구간 EQE (N_FINAL_REP 평균)
+band_tot_hi      = nan(nBand, 1);      % 고정밀 EQE_total
+band_bins_hi     = nan(nBand, 4);      % 고정밀 [b0_20 b20_40 b40_60 b60_80]
 
 %% =====================================================================
-%  PHASE 2 — 가중합 스윕으로 Pareto front 추적
+%  구간 루프 — 각 구간을 독립 단일목적으로 최적화
 %% =====================================================================
-nW = numel(W_LIST);
-pareto_x    = nan(nW, nvar);
-pareto_tot  = nan(nW,1);
-pareto_band = nan(nW,1);
-
-for k = 1:nW
-    w = W_LIST(k);
-    fprintf('\n########## PHASE 2: w = %.2f  (%d/%d) ##########\n', w, k, nW);
-    fprintf('  목적 = %.2f*EQE_total/%.3f + %.2f*EQE_4060/%.4f\n', ...
-        w, REF_TOTAL, 1-w, REF_BAND);
+for k = 1:nBand
+    band  = BAND_LIST{k};
+    bcol  = BAND_COL(k);
+    wtag  = band(1);                   % w 열에 기록할 구간 하한 (0 / 20 / 40 / 60)
+    refB  = REF_BAND_LIST(k);
+    fprintf('\n########## BAND %s  (%d/%d) ##########\n', BAND_NAMES{k}, k, nBand);
+    fprintf('  목적 = maximize EQE_%d_%d  (정규화 ref %.4f)\n', band(1), band(2), refB);
 
     RenewLightTools();
     lt = ltloc.GetLTAPI(ID_swept);
     ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
     eval_count = 0;
-    EVAL_PHASE = 2;  EVAL_W = w;
+    EVAL_PHASE = 6;  EVAL_W = wtag;       % 6 = inverted family
     ray_nums_current = RAY_SEARCH;  wave_n_current = WAVE_N_SEARCH;
 
+    % --- 시드: warm start 상위 N_WARM + 무작위 valid ---
     seedMat = genValidPoints(N_SEED_VALID, lb, ub);
+    if ~isempty(WARM_LOG)
+        Xw = WARM_LOG(:, 1:nvar);
+        Bw = WARM_LOG(:, nvar+1+bcol);           % 현재 구간의 EQE 열
+        okw = isfinite(Bw) & isValidPoints(Xw);
+        if REQUIRE_MONOTONIC_X                    % 비단조 x 는 objconstr 에서 거부되므로 제외
+            okw = okw & all(diff(Xw(:,1:5), 1, 2) >= 0, 2);
+        end
+        Xw = Xw(okw,:);  Bw = Bw(okw);
+        [Xw, iu] = unique(Xw, 'rows', 'stable');  Bw = Bw(iu);
+        [~, is] = sort(Bw, 'descend');
+        nTake = min(N_WARM, numel(is));
+        if nTake > 0
+            seedMat = [Xw(is(1:nTake), :); seedMat];
+            fprintf('  warm start: 상위 %d개 시드 (최고 EQE_%d_%d = %.4f)\n', ...
+                nTake, band(1), band(2), Bw(is(1)));
+        end
+    end
+
     sopts = optimoptions('surrogateopt', ...
-        'MaxFunctionEvaluations', EVALS_PER_W, ...
+        'MaxFunctionEvaluations', EVALS_PER_BAND, ...
         'MinSurrogatePoints',     MIN_SURR_POINTS, ...
         'InitialPoints',          struct('X', seedMat), ...
         'UseParallel', false, 'PlotFcn', [], 'Display', 'iter');
-    [xS, ~] = surrogateopt(@(x) scalar_objconstr(x, w, REF_TOTAL, REF_BAND), lb, ub, sopts);
+    [xS, ~] = surrogateopt(@(x) band_objconstr(x, bcol, refB), lb, ub, sopts);
 
     % 국소 정련
     if ~isempty(xS) && isValidPoints(xS(:).')
         x0 = xS(:).';
         try
-            xP = patternsearch(@(x) scalar_polish(x, w, REF_TOTAL, REF_BAND), ...
+            xP = patternsearch(@(x) band_polish(x, bcol, refB), ...
                                x0, [],[],[],[], lb, ub, [], psOpts);
             xP = xP(:).';
         catch
             xP = x0;
         end
     else
-        fprintf('  [Warn] w=%.2f: feasible 해 미반환\n', w);
+        fprintf('  [Warn] band %s: feasible 해 미반환\n', BAND_NAMES{k});
         continue;
     end
 
-    % 후보 중 가중합이 더 좋은 쪽 채택 (저정밀 기준)
+    % 후보 중 구간 EQE 가 더 좋은 쪽 채택 (저정밀 기준)
     cands = {x0};
     if ~isequal(xP, x0), cands{end+1} = xP; end
     bestScore = -inf; bestX = [];
     for c = 1:numel(cands)
-        [et, eb] = simulate_both(cands{c});
+        [et, bins] = simulate_bands(cands{c});
         if ~isfinite(et), continue; end
-        sc = w*et/REF_TOTAL + (1-w)*eb/REF_BAND;
+        sc = bins(bcol);
         if sc > bestScore, bestScore = sc; bestX = cands{c}; end
     end
     if isempty(bestX), continue; end
+    band_eqe_coarse(k) = bestScore;
 
-    % 고정밀 재평가
-    EVAL_PHASE = 3;
+    % 고정밀 재평가 (N_FINAL_REP 반복 평균)
     ray_nums_current = RAY_FINAL;  wave_n_current = WAVE_N_FINAL;
-    et_r = nan(1,N_FINAL_REP);  eb_r = nan(1,N_FINAL_REP);
+    et_r   = nan(N_FINAL_REP, 1);
+    bins_r = nan(N_FINAL_REP, 4);
     for r = 1:N_FINAL_REP
-        [et_r(r), eb_r(r)] = simulate_both(bestX);
+        [et_r(r), bins_r(r,:)] = simulate_bands(bestX);
     end
-    pareto_x(k,:)   = bestX;
-    pareto_tot(k)   = mean(et_r,'omitnan');
-    pareto_band(k)  = mean(eb_r,'omitnan');
-    fprintf('  >>> w=%.2f : EQE_total=%.5f  EQE_4060=%.5f  (선택성 %.1f%%)\n', ...
-        w, pareto_tot(k), pareto_band(k), 100*pareto_band(k)/pareto_tot(k));
+    band_x(k,:)      = bestX;
+    band_tot_hi(k)   = mean(et_r, 'omitnan');
+    band_bins_hi(k,:)= mean(bins_r, 1, 'omitnan');
+    band_eqe_hi(k)   = band_bins_hi(k, bcol);
+    fprintf('  >>> %s : EQE_band=%.5f (coarse %.5f)  EQE_total=%.5f  (선택성 %.1f%%)\n', ...
+        BAND_NAMES{k}, band_eqe_hi(k), band_eqe_coarse(k), band_tot_hi(k), ...
+        100*band_eqe_hi(k)/band_tot_hi(k));
 
-    save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band', ...
-         'W_LIST','varNames','lb','ub','REF_TOTAL','REF_BAND');
+    % crash-safe: 구간 하나 끝날 때마다 저장
+    save(RESULT_MAT, 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
+         'band_eqe_hi', 'band_tot_hi', 'band_bins_hi', ...
+         'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'REF_BAND_LIST', ...
+         'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
 end
 
 %% =====================================================================
-%  결과 정리 + 판정
+%  결과 정리 — 요약표 + 그림
 %% =====================================================================
-fprintf('\n################ PARETO FRONT ################\n');
-fprintf('%6s | %12s | %12s | %10s\n','w','EQE_total','EQE_40_60','선택성');
-for k = 1:nW
-    if isfinite(pareto_tot(k))
-        fprintf('%6.2f | %12.5f | %12.5f | %9.1f%%\n', W_LIST(k), ...
-            pareto_tot(k), pareto_band(k), 100*pareto_band(k)/pareto_tot(k));
-    end
-end
+S_LAMB_SEL = S_LAMB_ALL(BAND_COL);   % 이 스크립트가 다룬 네 구간의 Lambertian 선택성
 
-% Test 1 — 트레이드오프 존재 판정
-iT = find(W_LIST==1, 1);  iB = find(W_LIST==0, 1);
-if ~isempty(iT) && ~isempty(iB) && isfinite(pareto_tot(iT)) && isfinite(pareto_tot(iB))
-    dropTot  = 1 - pareto_tot(iB)/pareto_tot(iT);     % 방향성 최적화 시 효율 손실
-    gainBand = pareto_band(iB)/pareto_band(iT) - 1;   % 그 대가로 얻은 방향성 이득
-    fprintf('\n[Test 1] 방향성 최적화(w=0)로 전환 시:\n');
-    fprintf('   EQE_total  %.5f -> %.5f  (%+.1f%%)\n', ...
-        pareto_tot(iT), pareto_tot(iB), -100*dropTot);
-    fprintf('   EQE_40_60  %.5f -> %.5f  (%+.1f%%)\n', ...
-        pareto_band(iT), pareto_band(iB), 100*gainBand);
-    if dropTot > 0.05
-        fprintf('   => 트레이드오프 실재 (효율 %.1f%% 희생). 원고 2.3절 유지.\n', 100*dropTot);
+fprintf('\n########## INVERTED 4-BAND SUMMARY ##########\n');
+fprintf('%-11s | %10s | %10s | %10s | %10s\n', ...
+    'band', 'EQE_band', 'EQE_total', '선택성', 'Lamb. S');
+for k = 1:nBand
+    if isfinite(band_eqe_hi(k))
+        fprintf('%-11s | %10.5f | %10.5f | %9.1f%% | %10.3f\n', ...
+            BAND_NAMES{k}, band_eqe_hi(k), band_tot_hi(k), ...
+            100*band_eqe_hi(k)/band_tot_hi(k), S_LAMB_SEL(k));
     else
-        fprintf('   => 트레이드오프 미미 (효율 손실 %.1f%%). 2.3절 "교환" 주장 재검토 필요.\n', 100*dropTot);
+        fprintf('%-11s | %10s | %10s | %10s | %10.3f\n', ...
+            BAND_NAMES{k}, 'FAIL', '-', '-', S_LAMB_SEL(k));
     end
 end
+fprintf('\n[참고] Lambertian 선택성 (전 구간): 0-20=%.3f, 20-40=%.3f, 40-60=%.3f, 60-80=%.3f\n', ...
+    S_LAMB_ALL(1), S_LAMB_ALL(2), S_LAMB_ALL(3), S_LAMB_ALL(4));
+fprintf('[참고] no-steering 예측 = 선택성 x max EQE_total(%.2f)\n', MAX_EQE_TOTAL_REF);
 
-save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band', ...
-     'W_LIST','varNames','lb','ub','REF_TOTAL','REF_BAND');
-fprintf('\nsaved -> pareto_front_result.mat  (EVAL_LOG %d points)\n', size(EVAL_LOG,1));
+% --- 그림: 달성치 vs no-steering 예측 ---
+noSteer = S_LAMB_SEL(:) * MAX_EQE_TOTAL_REF;
+figure('Name','Inverted MLA: 4-band independent optimization','Color','w','Position',[120 120 720 420]);
+bh = bar([band_eqe_hi(:), noSteer]); %#ok<NASGU>
+set(gca, 'XTickLabel', BAND_NAMES);
+ylabel('EQE_{band}');
+legend({'achieved (independent opt.)', ...
+        sprintf('no-steering  S_{Lamb} x %.2f', MAX_EQE_TOTAL_REF)}, ...
+       'Location','best', 'FontSize', 9);
+title('Inverted MLA - band EQE: independent optimization');
+grid on;
+saveas(gcf, SUMMARY_PNG);
+fprintf('saved -> %s\n', SUMMARY_PNG);
 
-%% =====================================================================
-%  그림 2 — achievable region & Pareto front
-%% =====================================================================
-% EVAL_LOG = [x(1:nvar) | EQE_total | b0_20 | b20_40 | b40_60 | b60_80 | phase | w]
-nv = nvar;
-Et = EVAL_LOG(:,nv+1);              % EQE_total
-Bins = EVAL_LOG(:, nv+2 : nv+5);    % [0-20, 20-40, 40-60, 60-80]
-Eb = Bins(:,3);                     % EQE_40_60
-Ph = EVAL_LOG(:,nv+6);              % phase
-ok = isfinite(Et) & isfinite(Eb) & Et>0;
-
-figure('Name','Fig 2 — achievable region & Pareto front','Color','w','Position',[100 100 1000 420]);
-subplot(1,2,1);
-scatter(Et(ok&Ph==1), Eb(ok&Ph==1), 14, [.6 .6 .6], 'filled'); hold on;
-scatter(Et(ok&Ph==2), Eb(ok&Ph==2), 14, [.2 .5 .8], 'filled');
-plot(pareto_tot, pareto_band, 'r-o', 'LineWidth', 2, 'MarkerFaceColor','r');
-xlabel('EQE_{total}'); ylabel('EQE_{40-60}'); grid on;
-legend({'random (내부)','optimization','Pareto front'},'Location','best','FontSize',8);
-title('(a) achievable region');
-
-subplot(1,2,2);
-Sel = Eb./Et;
-scatter(Et(ok&Ph==1), Sel(ok&Ph==1), 14, [.6 .6 .6], 'filled'); hold on;
-scatter(Et(ok&Ph==2), Sel(ok&Ph==2), 14, [.2 .5 .8], 'filled');
-plot(pareto_tot, pareto_band./pareto_tot, 'r-o','LineWidth',2,'MarkerFaceColor','r');
-xlabel('EQE_{total}'); ylabel('selectivity  EQE_{40-60}/EQE_{total}'); grid on;
-title('(b) efficiency vs selectivity');
-saveas(gcf,'pareto_front.png');
-fprintf('saved -> pareto_front.png\n');
-
-%% =====================================================================
-%  그림 3 — FoM 지도 + 선택성 불변성 검증 (네 각도구간 동시)
-%
-%  마스터 관계식은 목표 입체각 Omega 만 바꾸면 모든 FoM 에 적용된다.
-%  각 구간의 선택성이 Lambertian 값 S = sin^2(th2) - sin^2(th1) 에 고정되어야 하며,
-%  한 번의 시뮬로 네 개의 독립 예측을 동시에 검증한다.
-%% =====================================================================
-edges  = [0 20; 20 40; 40 60; 60 80];
-names  = {'0-20 deg','20-40 deg','40-60 deg','60-80 deg'};
-S_pred = sind(edges(:,2)).^2 - sind(edges(:,1)).^2;   % [0.117 0.296 0.337 0.220]
-
-okB = isfinite(Et) & Et > 0.05 & all(isfinite(Bins),2);   % 저효율 설계는 노이즈 지배
-fprintf('\n################ FIG 3: 선택성 불변성 검증 ################\n');
-fprintf('유효 설계 %d개 (전체 %d개 중)\n\n', sum(okB), size(EVAL_LOG,1));
-
-fid = fopen('fig3_summary.txt','w');
-hdr = sprintf('%-11s | %8s | %18s | %8s | %7s\n', 'band','예측 S','실측 S (mean±std)','편차','상관 R');
-fprintf('%s%s\n', hdr, repmat('-',1,64));
-fprintf(fid,'%s%s\n', hdr, repmat('-',1,64));
-
-S_meas = nan(4,1);  S_std = nan(4,1);  R_corr = nan(4,1);
-for b = 1:4
-    s = Bins(okB,b) ./ Et(okB);
-    S_meas(b) = mean(s,'omitnan');
-    S_std(b)  = std(s,'omitnan');
-    c = corrcoef(Et(okB), s);  R_corr(b) = c(1,2);   % 불변량이면 0 근처
-    line = sprintf('%-11s | %8.3f | %8.3f ± %.3f | %+7.1f%% | %+6.2f\n', ...
-        names{b}, S_pred(b), S_meas(b), S_std(b), ...
-        100*(S_meas(b)-S_pred(b))/S_pred(b), R_corr(b));
-    fprintf('%s', line);  fprintf(fid,'%s',line);
-end
-
-% --- 자동 판정 ---
-dev_ok = all(abs(S_meas-S_pred)./S_pred < 0.15);
-cor_ok = all(abs(R_corr) < 0.3);
-verdict = sprintf(['\n[판정] 예측 편차 15%% 이내: %s | 상관 |R|<0.3: %s\n' ...
-    '  => %s\n'], ternary(dev_ok,'통과','실패'), ternary(cor_ok,'통과','실패'), ...
-    ternary(dev_ok&&cor_ok, ...
-      '선택성은 설계 불변량. 원고 2.3/4.2절 주장 성립.', ...
-      '불변성 미확인. 원고 2.3절 재검토 필요 (구간별 편차/상관 확인).'));
-fprintf('%s', verdict);  fprintf(fid,'%s',verdict);
-fprintf(fid,'\n* 상관 R 이 0 근처 = 선택성이 EQE_total 과 무관 = 설계 불변량\n');
-fclose(fid);
-fprintf('saved -> fig3_summary.txt\n');
-
-% --- 4패널 그림 ---
-figure('Name','Fig 3 — FoM map','Color','w','Position',[80 80 1200 780]);
-cols = lines(4);  n_s = 1.51;
-
-subplot(2,2,1);   % (a) 하나의 식, 여러 목표 입체각 (해석적)
-thg = linspace(0,90,200);
-plot(thg, 100*sind(thg).^2/n_s^2, 'k-', 'LineWidth', 2); hold on;
-for b = 1:4
-    bb = (sind(edges(b,2))^2 - sind(edges(b,1))^2)/n_s^2;
-    plot(mean(edges(b,:)), 100*bb, 'o','MarkerSize',9, ...
-        'MarkerFaceColor',cols(b,:),'MarkerEdgeColor','k');
-end
-yline(100/n_s^2,'--','전 반구 1/n_s^2','LabelHorizontalAlignment','left');
-xlabel('\theta (deg)'); ylabel('단일통과 상한 P_\Omega/P_{sub} (%)');
-title('(a) 하나의 식, 여러 목표 입체각'); grid on;
-legend({'정면 원뿔 [0,\theta]','각 구간 밴드'},'Location','northwest','FontSize',8);
-
-subplot(2,2,2);   % (b) 불변성의 핵심 증거
-for b = 1:4
-    scatter(Et(okB), Bins(okB,b)./Et(okB), 10, cols(b,:), 'filled', ...
-        'MarkerFaceAlpha',0.35); hold on;
-    yline(S_pred(b), '--', 'Color', cols(b,:), 'LineWidth', 1.6);
-end
-xlabel('EQE_{total}'); ylabel('선택성 S = EQE_{band}/EQE_{total}');
-title('(b) 선택성은 설계 불변량 (점선 = Lambertian 예측)'); grid on;
-legend(names,'Location','east','FontSize',8);
-
-subplot(2,2,3);   % (c) 네 구간 독립 검증
-errorbar(S_pred, S_meas, S_std, 'o','MarkerSize',9,'LineWidth',1.4, ...
-    'MarkerFaceColor',[.2 .4 .7]); hold on;
-lim = [0 0.45];  plot(lim, lim, 'k--','LineWidth',1.2);
-for b = 1:4, text(S_pred(b)+0.012, S_meas(b), names{b}, 'FontSize',8); end
-xlim(lim); ylim(lim); axis square; grid on;
-xlabel('예측  sin^2\theta_2 - sin^2\theta_1'); ylabel('실측 선택성');
-title('(c) 네 구간 독립 검증');
-
-subplot(2,2,4);   % (d) 가능 / 금지 지도
-axis([0 1 0 1]); axis off; hold on;
-rectangle('Position',[0.05 0.55 0.42 0.35],'FaceColor',[.85 .95 .90],'EdgeColor',[.2 .5 .4]);
-text(0.26,0.86,'REACHABLE','HorizontalAlignment','center','FontWeight','bold','Color',[.15 .45 .35]);
-text(0.26,0.73,sprintf('총 추출\n정면 증강\n밴드 집광 (S 고정)'),'HorizontalAlignment','center','FontSize',8);
-rectangle('Position',[0.53 0.55 0.42 0.35],'FaceColor',[.98 .93 .82],'EdgeColor',[.7 .55 .2]);
-text(0.74,0.86,'BOUNDED','HorizontalAlignment','center','FontWeight','bold','Color',[.6 .45 .15]);
-text(0.74,0.73,sprintf('재활용 축적\n(각도 선별 필요,\n손실이 제한)'),'HorizontalAlignment','center','FontSize',8);
-rectangle('Position',[0.05 0.10 0.90 0.35],'FaceColor',[.98 .88 .88],'EdgeColor',[.7 .3 .3]);
-text(0.50,0.40,'FORBIDDEN','HorizontalAlignment','center','FontWeight','bold','Color',[.6 .2 .2]);
-text(0.50,0.25,sprintf(['순 방위각 조향  (\\oint\\nablaz dA = 0)\n' ...
-    '중앙이 어두운 듀얼뷰\n타일링 어레이의 각도 압축  (A_{out}/A_{src} = 1)']), ...
-    'HorizontalAlignment','center','FontSize',8);
-title('(d) 가능 / 금지 지도');
-
-saveas(gcf,'fig3_fom_map.png');
-fprintf('saved -> fig3_fom_map.png\n');
-
-save('pareto_front_result.mat','EVAL_LOG','pareto_x','pareto_tot','pareto_band', ...
-     'W_LIST','varNames','lb','ub','REF_TOTAL','REF_BAND', ...
-     'S_pred','S_meas','S_std','R_corr','edges');
+save(RESULT_MAT, 'EVAL_LOG', 'band_x', 'band_eqe_coarse', ...
+     'band_eqe_hi', 'band_tot_hi', 'band_bins_hi', ...
+     'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'REF_BAND_LIST', ...
+     'S_LAMB_ALL', 'MAX_EQE_TOTAL_REF', ...
+     'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
+fprintf('saved -> %s  (EVAL_LOG %d points)\n', RESULT_MAT, size(EVAL_LOG,1));
 report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);   % 전체 실행 기준 최종 진단
 fprintf('\n########## 완료 ##########\n');
-fprintf('  pareto_front_result.mat / pareto_front.png / fig3_fom_map.png / fig3_summary.txt\n');
 
 
 %% ===== 평가 래퍼 (네 각도구간을 모두 로그에 기록) =====
-%  EVAL_LOG 열 구성:
+%  EVAL_LOG 열 구성 (pareto_front_freeform.m 과 동일):
 %    [ x(1:13) | EQE_total | EQE_0_20 | EQE_20_40 | EQE_40_60 | EQE_60_80 | phase | w ]
-%  -> 한 번의 시뮬로 네 구간 선택성을 동시에 얻어, Fig 3(FoM 지도)에서
-%     S = sin^2(th2) - sin^2(th1) 예측을 네 구간 독립 검증할 수 있다.
-function [eqe_total, eqe_band] = simulate_both(pt)
+%  phase = 4 (이 스크립트), w = 구간 하한 각도.
+function [eqe_total, bins] = simulate_bands(pt)
 global ID_swept ltml ltloc eval_count restart_interval EVAL_LOG EVAL_PHASE EVAL_W
 eval_count = eval_count + 1;
 if mod(eval_count, restart_interval) == 0
@@ -384,22 +307,22 @@ bins = [NaN NaN NaN NaN];
 try
     out = objFcn_both(pt);
     eqe_total = out.EQE_total;
-    eqe_band  = out.EQE_40_60;
     bins = [out.EQE_0_20, out.EQE_20_40, out.EQE_40_60, out.EQE_60_80];
     if eqe_total == 0
-        eqe_total = NaN; eqe_band = NaN; bins = [NaN NaN NaN NaN];
+        eqe_total = NaN; bins = [NaN NaN NaN NaN];
     end
 catch err
     fprintf('\n[Error] eval %d LightTools 충돌: %s\n', eval_count, err.message);
-    eqe_total = NaN;  eqe_band = NaN;
+    eqe_total = NaN;
     RenewLightTools();
     lt = ltloc.GetLTAPI(ID_swept);  ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 end
 EVAL_LOG(end+1,:) = [pt(:).', eqe_total, bins, EVAL_PHASE, EVAL_W];
 end
 
-%% ===== 가중합 목적 (surrogateopt: 제약 결합형) =====
-function out = scalar_objconstr(x, w, refT, refB)
+%% ===== 구간 단일목적 (surrogateopt: 제약 결합형) =====
+%  pareto 의 scalar_objconstr 에서 가중합 대신 단일 구간 열(bcol)만 최대화.
+function out = band_objconstr(x, bcol, refB)
 global REQUIRE_MONOTONIC_X
 x = x(:).';
 % 비단조 x 는 LightTools 표현 불가로 어차피 거부되므로, 제약 단계에서 배제해
@@ -410,34 +333,29 @@ end
 if ~isValidPoints(x)
     out.Ineq = 1;  out.Fval = 1;  return;   % infeasible: 시뮬 없이 반환
 end
-[et, eb] = simulate_both(x);
-if ~isfinite(et) || ~isfinite(eb)
+[et, bins] = simulate_bands(x);
+if ~isfinite(et) || ~isfinite(bins(bcol))
     out.Ineq = 1;  out.Fval = 1;
 else
     out.Ineq = -1;
-    out.Fval = -( w*et/refT + (1-w)*eb/refB );   % 최대화 -> 부호 반전
+    out.Fval = -bins(bcol)/refB;   % 최대화 -> 부호 반전
 end
 end
 
-%% ===== 가중합 목적 (patternsearch) =====
-function f = scalar_polish(x, w, refT, refB)
+%% ===== 구간 단일목적 (patternsearch) =====
+function f = band_polish(x, bcol, refB)
 global REQUIRE_MONOTONIC_X
 x = x(:).';
 if ~isempty(REQUIRE_MONOTONIC_X) && REQUIRE_MONOTONIC_X && any(diff(x(1:5)) < 0)
     f = 0; return;
 end
 if ~isValidPoints(x), f = 0; return; end
-[et, eb] = simulate_both(x);
-if ~isfinite(et) || ~isfinite(eb), f = 0; return; end
-f = -( w*et/refT + (1-w)*eb/refB );
+[et, bins] = simulate_bands(x);
+if ~isfinite(et) || ~isfinite(bins(bcol)), f = 0; return; end
+f = -bins(bcol)/refB;
 end
 
-%% ===== 판정 문구 헬퍼 =====
-function s = ternary(cond, a, b)
-if cond, s = a; else, s = b; end
-end
-
-%% ===== 기하 거부 진단 =====
+%% ===== 기하 거부 진단 (pareto_front_freeform.m 과 동일) =====
 %  NaN 이 자주 뜨는 원인이 '수치 오차'인지 '형상 왜곡'인지 분포로 판별한다.
 function report_geom_rejection(mismLog, tol)
 if isempty(mismLog), return; end
@@ -485,7 +403,7 @@ if any(~rej)
 end
 end
 
-%% ===== 무작위 valid 시드 생성 =====
+%% ===== 무작위 valid 시드 생성 (pareto_front_freeform.m 과 동일) =====
 %  REQUIRE_MONOTONIC_X 가 true 면 x2..x6 를 오름차순으로 정렬해 생성한다.
 %  (기하 제약을 만족하면서도 LightTools 가 표현하지 못하던 비단조 프로파일을 배제)
 function P = genValidPoints(K, lb, ub)
@@ -505,14 +423,13 @@ end
 end
 
 
-%% ===== Objective (EQE_total 과 EQE_40_60 동시 산출) =====
+%% ===== Objective (EQE_total 과 네 구간 EQE 동시 산출) =====
+%  pareto_front_freeform.m 의 objFcn_both 를 그대로 복사 (수정 금지 구역).
 function output = objFcn_both(point)
 global ID_LT ID_swept ltml ltloc count ray_nums_current wave_n_current
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
-%   [통일 규칙] 텍스처 패치는 모든 캠페인 스크립트에서 25 x 25 mm 로 통일한다.
-%   서로 다르면 EQE_total 이 통째로 달라져 스크립트/계열 간 비교가 무의미해진다.
 d_sub=1.295;  r_OLED=1;  x_pattern=25;  y_pattern=25;  Lensheight=0.01;
 wavelength_start=453;  wavelength_end=753;
 
@@ -578,8 +495,6 @@ for j=1:7
 end
 % [기하 검증] LightTools 에 설정한 제어점과 읽어온 값의 불일치 검사.
 %   불일치가 크면 의도한 형상이 아니므로 거부한다(EQE_total=0 -> 상위에서 NaN).
-%   불일치 크기를 global 로 내보내, 거부가 '수치 오차'인지 '형상 왜곡'인지
-%   통계로 판별할 수 있게 한다 (GEOM_MISMATCH_LOG).
 global GEOM_TOL GEOM_MISMATCH_LOG
 if isempty(GEOM_TOL), GEOM_TOL = 1e-4; end
 mism = max(abs(xy(:) - xy_l(:)));
@@ -681,11 +596,8 @@ I_white=0.5*(CPS_result.I_sub_s+CPS_result.I_sub_p);
 sin089=sind(0:89);
 P_white=I_white.*repmat(sin089,wavelength_num,1);
 weight_factor=sum(P_white,2);
-% [수정] 파장 샘플 인덱스를 명시적으로 생성.
-%   기존 (wavelength_num+n-1)/n 식은 (wavelength_num-1)이 n으로 나누어떨어질 때만
-%   정수가 되어, 좁은 파장창(예: 593-603, span 10)에 n=30 을 쓰면 zeros() 에서
-%   "크기 입력값은 정수여야 합니다" 오류가 났다. 아래처럼 인덱스 벡터를 쓰면
-%   파장창과 n 의 조합에 무관하게 안전하다.
+% [주의] 파장 샘플 인덱스는 반드시 아래처럼 명시적으로 생성할 것.
+%   나눗셈 기반 배열 크기 계산은 파장창/step 조합에 따라 비정수가 되어 오류를 냈다.
 wv_list = 1:n:wavelength_num;
 K = numel(wv_list);
 I_air_1_2 = zeros(90, K);
@@ -815,7 +727,7 @@ function RenewLightTools()
 global ID_LT ID_swept ltml ltloc lt
 lt_exe_path = 'C:\Program Files\Optical Research Associates\LightTools 2023.03\lt.exe';
 model_file_path_swept = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\SweptEntity.2.lts';
-model_file_path_LT = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\Lens_size_effect_for_PSO_bump_modified_v1.1.lts';
+model_file_path_LT = 'C:\Users\jhkim\Desktop\Green_CE_Calculation\backup\Lens_size_effect_inverted_hole_v1.1.lts';
 
 fprintf('--- Restarting LightTools ---\n');
 target_user = 'jhkim';

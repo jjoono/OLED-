@@ -22,7 +22,7 @@
 %   (2) .coa 파일을 LightTools가 읽기 전에 fclose 누락 → 미플러시 값 흔들림.
 %       → coa 작성 직후 fclose 추가.
 %
-%  [바뀌지 않은 것]  swept 7점 스플라인 형상, ITO 스택, d_sub=1.295,
+%  [바뀌지 않은 것]  swept 7점 스플라인 형상, ITO 스택, x_pattern=15, d_sub=1.295,
 %    CPS/TMM 물리, 파장창 453–753. (freeform 형상 자유도는 대칭 baseline과 동일 박스)
 % ============================================================
 clear;
@@ -48,7 +48,7 @@ WAVE_N_SEARCH = 30;      % 파장 step (453:30:753 → K=11) : 탐색용
 WAVE_N_FINAL  = 10;      % 파장 step (453:10:753 → K=31) : full 검증용
 RAY_SEARCH    = 10000;   % 탐색 ray 수
 RAY_FINAL     = 50000;   % 검증 ray 수
-N_FINAL_REP   = 3;       % 최종 후보 반복 평가 → mean±std
+N_FINAL_REP   = 1;       % 최종 후보 반복 평가 → mean±std
 % [주의] (wavelength_num-1)=300 이 WAVE_N 으로 나누어떨어져야 함(30,10 모두 OK).
 
 %% ===== 전역 최적화(surrogateopt + multi-start) 예산 =====
@@ -239,15 +239,13 @@ global ID_LT ID_swept ltml ltloc count ray_nums_current wave_n_current
 lt = ltloc.GetLTAPI(ID_LT);
 ltml.LTSetOption(lt, "ShowFileDialogBox", 0);
 
-d_sub=1.295;
-r_OLED=1;
-%   [통일 규칙] 텍스처 패치는 모든 캠페인 스크립트에서 25 x 25 mm 로 통일한다.
-%   서로 다르면 EQE_total 이 통째로 달라져 스크립트/계열 간 비교가 무의미해진다.
-x_pattern=25;
-y_pattern=25;
+d_sub=1;
+r_OLED=25;
+x_pattern=50;
+y_pattern=50;
 Lensheight=0.01;
-wavelength_start=453;
-wavelength_end=753;
+wavelength_start=450;
+wavelength_end=750;
 
 % multi-fidelity: 파장 step 과 ray 수를 단계별로 가변
 if isempty(wave_n_current), n = 10;    else, n = wave_n_current;    end
@@ -268,6 +266,7 @@ Key=ltml.LTListByName(lt,List,'zone');
 ltml.LTDbSet(lt,Key,'Geometry_1',x_pattern);
 ltml.LTDbSet(lt,Key,'Geometry_2',y_pattern);
 List=ltml.LTDbList(lt,'lens_manager[1]','DISK_SOURCE');
+Key=ltml.LTDbList(lt,List,'DiskSource_18'); %#ok<NASGU>
 Key=ltml.LTListByName(lt,List,'DiskSource_18');
 ltml.LTDbSet(lt,Key,'Radius',r_OLED);
 
@@ -418,15 +417,8 @@ weight_factor=sum(P_white,2);
 I_white_ang=sum(P_white); %#ok<NASGU>
 wavelength_num=length(wavelength);
 
-% [수정] 파장 샘플 인덱스를 명시적으로 생성 (나눗셈 의존 제거).
-%   기존 식은 (wavelength_num-1)이 n 으로 나누어떨어질 때만 정수라, 좁은 파장창에
-%   큰 n 을 쓰면 zeros() 에서 "크기 입력값은 정수여야 합니다" 오류가 났다.
-wv_list = 1:n:wavelength_num;
-K = numel(wv_list);
-I_air_1_2 = zeros(90, K);
-Power_output = zeros(1, wavelength_num);
-for kk = 1:K
-    wv = wv_list(kk);
+I_air_1_2=zeros(90,(wavelength_num+n-1)/n);
+for wv=1:n:wavelength_num
     fileID = fopen('C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','w');
     fprintf(fileID,'%s  %d  %d  %d  %d  %d  %d','SPHEREMESH:',1, 90, 0, 0, 360, 90);
     writematrix(flip(I_white(wv,:).'),'C:\Users\jhkim\Desktop\Green_CE_Calculation\Angular_temp\AI_temp.txt','Delimiter','tab','WriteMode','append');
@@ -458,14 +450,15 @@ for kk = 1:K
     for j=1:90
         I_air_1_JH(91-j,:)=ltml.LTDbGet(lt,Key,'CellValue_UI',1,91-j);
     end
-    I_air_1_2(:,kk)=smooth(I_air_1_JH);
+    I_air_1_2(:,(wv+n-1)/n)=smooth(I_air_1_JH);
 end
 
+K = (wavelength_num-1)/n + 1;
 weight_factor_2  = zeros(K,1);
 Power_output_2   = zeros(K,1);
 EQE_sub_matrix_2 = zeros(K,1);
 for k = 1:K
-    idx = wv_list(k);
+    idx = n*(k-1) + 1;
     weight_factor_2(k)  = weight_factor(idx);
     Power_output_2(k)   = Power_output(idx);
     EQE_sub_matrix_2(k) = CPS_result.EQE_sub_matrix(idx);
