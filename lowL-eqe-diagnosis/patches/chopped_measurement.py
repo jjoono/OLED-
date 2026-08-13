@@ -71,15 +71,16 @@ class ChoppedSweep:
         self,
         keithley_source,
         keithley_multimeter,
-        samples_per_burst=5,
+        samples_per_burst=1,
         settle_time=0.02,
         multimeter_range=10,
         nplc=1,
         target_relative_sigma=0.02,
         min_cycles=16,
-        max_cycles=2000,
+        max_cycles=20000,
         max_time_per_point=240.0,
-        baseline_period=5.0,
+        baseline_period=0.0,
+        chop_pattern="AB",
         scan_compliance=None,
     ):
         """
@@ -89,14 +90,26 @@ class ChoppedSweep:
             +-1% -> +-2% 로 완화하면 측정 시간이 4배 줄고 (1 cd/m2 기준 3.5분 -> 50초)
             "1/10/100 cd/m2 효율이 일치하는가" 판정 결론은 달라지지 않는다.
 
-        baseline_period:
-            off(baseline) 를 매 사이클 재지 않고 이 시간(초)마다 한 번만 다시 잰다.
-            인접 포인트가 baseline 을 공유하므로 약 2배 빨라진다. 드리프트가
-            의심되면 0 으로 두면 매 사이클 측정(가장 안전, 대신 2배 느림).
+        samples_per_burst:
+            2026-08 벤치 테스트 4 결과 **1 이 최적**이다.
+            앰프 노이즈는 백색이 아니라 1/f 플리커라서, 인접 블록 차분으로 본
+            사이클당 노이즈가 블록 크기 1~500 샘플에서 13~15 uV 로 평평했다.
+            즉 버스트를 길게 잡아도 사이클당 오차가 줄지 않는다. 그러면 버스트를
+            최소로 하고 사이클 수를 늘리는 쪽이 이긴다 (반복은 1/sqrt(N) 로 듣는다).
 
-            적정값은 bench_test/noise_test2_averaging.py 로 정한다. 앰프 노이즈가
-            백색이면 넉넉히(5 s 이상) 두고, 드리프트 knee 가 있으면 그 시간의
-            절반 이하로 줄일 것.
+        baseline_period:
+            off(baseline) 를 이 시간(초)마다 한 번만 다시 잰다. 0 이면 매 사이클 재측정.
+            **2026-08 벤치 테스트 4 결과 0 을 쓴다.** 드리프트가 25 ms 스케일에서
+            이미 지배적이라 baseline 공유가 성립하지 않는다
+            (그냥 평균은 12 초를 평균해도 37.5 -> 23.8 uV 밖에 안 내려갔다).
+            앰프를 저잡음 TIA 로 교체한 뒤 같은 테스트를 다시 돌려서 재판단할 것.
+
+        chop_pattern:
+            "AB"   : off -> on 을 반복 (기본값). 사이클당 노이즈 21.6 uV 로 실측된 방식.
+            "ABBA" : off -> on -> on -> off 로 대칭 배치해 선형 드리프트를 상쇄한다.
+                     드리프트에 램프 성분이 있으면 유리하지만 아직 실측 검증은 안 했다.
+                     사이클당 시간은 2배, 대신 사이클당 노이즈가 줄어든다.
+                     둘 다 돌려보고 같은 목표 정밀도에 걸리는 시간을 비교할 것.
 
         min_cycles:
             수렴 판정을 시작하기 전 최소 사이클 수. 표본이 적으면 sigma 추정 자체가
@@ -120,6 +133,7 @@ class ChoppedSweep:
         self.max_cycles = int(max_cycles)
         self.max_time_per_point = max_time_per_point
         self.baseline_period = baseline_period
+        self.chop_pattern = chop_pattern
         self.scan_compliance = scan_compliance
 
         # 공유 baseline 상태
@@ -194,6 +208,42 @@ class ChoppedSweep:
         self._baseline_time = now
         self._baseline_id += 1
 
+    def _measure_on(self, voltage):
+        """on 구간 하나. (PD 평균, OLED 전류) 를 반환한다."""
+        self.keithley_source.set_voltage(str(voltage))
+        time.sleep(self.settle_time)
+        on_values = self._read_pd_burst()
+        oled_current = float(self.keithley_source.read_current())
+
+        return float(np.nanmean(on_values)), oled_current
+
+    def _measure_cycle(self, voltage):
+        """
+        chop 사이클 하나를 돌고 (dPD, OLED 전류) 를 반환한다.
+
+        "AB"   : off -> on
+        "ABBA" : off -> on -> on -> off. off 와 on 의 시간 무게중심이 같아지므로
+                 드리프트의 선형 성분이 상쇄된다. 대신 사이클 시간이 2배다.
+        """
+        if self.chop_pattern == "ABBA":
+            self._measure_baseline(force=True)
+            off_first = self._baseline_mean
+
+            on_first, current_first = self._measure_on(voltage)
+            on_second, current_second = self._measure_on(voltage)
+
+            self._measure_baseline(force=True)
+            off_second = self._baseline_mean
+
+            delta = (on_first + on_second) / 2.0 - (off_first + off_second) / 2.0
+            return delta, (current_first + current_second) / 2.0
+
+        # "AB" (기본값)
+        self._measure_baseline()
+        on_mean, oled_current = self._measure_on(voltage)
+
+        return on_mean - self._baseline_mean, oled_current
+
     @staticmethod
     def _combine(deltas, groups):
         """
@@ -243,16 +293,7 @@ class ChoppedSweep:
         compliance_hit = False
 
         while True:
-            # --- off (baseline) ---
-            self._measure_baseline()
-
-            # --- on ---
-            self.keithley_source.set_voltage(str(voltage))
-            time.sleep(self.settle_time)
-            on_values = self._read_pd_burst()
-            oled_current = float(self.keithley_source.read_current())
-
-            delta = float(np.nanmean(on_values)) - self._baseline_mean
+            delta, oled_current = self._measure_cycle(voltage)
             deltas.append(delta)
             groups.setdefault(self._baseline_id, []).append(delta)
             currents.append(oled_current)
