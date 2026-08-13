@@ -38,6 +38,7 @@ gives 0.117 / 0.296 / 0.337 / 0.220.
 |---|---|---|---|---|---|---|
 | Convex, weighted sweep | `pareto_front_freeform.m` | 13 | 150 random + 120/weight + 15 polish, $w \in \{0,\,0.25,\,0.5,\,0.75,\,1\}$ | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 1–3 |
 | Convex, per-band | `opt_4band_freeform.m` | 13 | 60 + 15 polish per arm, 5 arms | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 4 |
+| Convex, total EQE only | `freeform_EQEtotal.m` | 13 | 140 per start, 3 independent starts | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | — |
 | Hemispherical reference | `opt_hemisphere_arms.m` | 3 (cavity + height; shape fixed on a quarter circle) | 30 + 10 polish per arm, 5 arms | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 8 |
 | Inverted (concave) | `opt_4band_inverted.m` | 13 | 60 + 15 polish per arm, 4 arms (identical protocol to the convex benchmark) | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 6 |
 | Randomly assembled | `stress_random_mla.m` | 6 assembly statistics | 50 random + 60 + 15 polish | 5,000 rays, 16 λ | 10,000 rays, 151 λ, ×3 seeds | phase 7 |
@@ -117,6 +118,7 @@ that the data do not support.
 | Hemispherical reference | 0.5468 | — | — |
 | Convex freeform (per-band campaign) | 0.5481 | 0.094 / 0.278 / 0.361 / 0.236 | 0.097 / 0.278 / 0.350 / 0.242 |
 | Convex freeform (weighted sweep) | 0.5556 | 0.102 / 0.276 / 0.354 / 0.239 | 0.095 / 0.274 / 0.354 / 0.244 |
+| Convex freeform (total EQE only) | 0.5539 | — | — |
 | Randomly assembled | 0.5216 ± 0.0011 | 0.111 / 0.299 / 0.347 / 0.213 | 0.102 / 0.289 / 0.355 / 0.224 |
 | Inverted (concave) | 0.5165 | 0.113 / 0.303 / 0.340 / 0.215 | 0.100 / 0.288 / 0.357 / 0.231 |
 | Lambertian partition | — | 0.117 / 0.296 / 0.337 / 0.220 | — |
@@ -146,6 +148,13 @@ The freeform total is the best of the five high-precision weighted-sum optima.
 The coarse-fidelity search log reaches 0.5591 at 10,000 rays; that value is not
 used anywhere, since it is not comparable with the hemisphere's high-precision
 re-evaluation.
+
+The freeform ceiling is confirmed independently. A campaign optimizing total EQE
+alone, over three starts of 140 evaluations each, returns 0.5495, 0.5530 and
+0.5539 — a spread of 0.8% across starts, and 0.3% below the 0.5556 obtained by
+the weighted sweep at $w = 0.75$. Both figures are high-precision, and the gap
+between them is smaller than the spread within either campaign, so two different
+objectives locate the same ceiling.
 
 ---
 
@@ -178,7 +187,8 @@ The MATLAB plotting scripts `plot_fig2a_selectivity.m` and
 during the campaigns; the published figures come from `make_figures.py`.
 
 Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
-`opt_hemisphere_result.mat`, `opt_4band_inverted_result.mat`,
+`freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`,
+`opt_4band_inverted_result.mat`,
 `stress_random_result.mat`, `calibrate_random_cost.mat`,
 `convergence_check_result.mat`, `angular_recycling_result.npz`,
 `angular_recycling_bandwidth.npz`.
