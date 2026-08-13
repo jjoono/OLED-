@@ -60,20 +60,26 @@ each setting. The acceptance criterion is band selectivity, since the reported
 quantities are ratios; total EQE may shift by a few tenths of a percent without
 consequence.
 
-| Setting | lenslets | grid | rays | λ | time (s) | speed-up | EQE | Δ selectivity (pp) |
-|---|---|---|---|---|---|---|---|---|
-| reference | 8 × 8 | 201 | 10,000 | 31 | 789 | 1.00 | 0.4975 | — |
-| half rays | 8 × 8 | 201 | 5,000 | 31 | 544 | 1.45 | 0.4992 | 0.38 |
-| coarser λ | 8 × 8 | 201 | 10,000 | 16 | 453 | 1.74 | 0.5012 | 0.66 |
-| coarser grid | 8 × 8 | 141 | 10,000 | 31 | 725 | 1.09 | 0.5016 | 0.28 |
-| fewer lenslets | 6 × 6 | 201 | 10,000 | 31 | 559 | 1.41 | 0.4948 | 0.54 |
-| **adopted** | **6 × 6** | **141** | **5,000** | **16** | **191** | **4.13** | **0.4950** | **0.39** |
+Δ selectivity is the largest absolute deviation from the reference across the
+four bands, in percentage points.
 
-The adopted combination is 4.13× faster while shifting selectivity by 0.39
+| Setting | lenslets | grid | rays | λ step | λ | time (s) | speed-up | EQE | Δ selectivity (pp) |
+|---|---|---|---|---|---|---|---|---|---|
+| reference | 8 × 8 | 201 | 10,000 | 10 nm | 31 | 777.5 | 1.00 | 0.4975 | — |
+| half rays | 8 × 8 | 201 | 5,000 | 10 nm | 31 | 529.3 | 1.47 | 0.4992 | 0.38 |
+| coarser λ | 8 × 8 | 201 | 10,000 | 20 nm | 16 | 446.5 | 1.74 | 0.5012 | 0.66 |
+| coarser grid | 8 × 8 | 141 | 10,000 | 10 nm | 31 | 704.6 | 1.10 | 0.5016 | 0.28 |
+| fewer lenslets | 6 × 6 | 201 | 10,000 | 10 nm | 31 | 543.3 | 1.43 | 0.4947 | 0.54 |
+| **adopted** | **6 × 6** | **141** | **5,000** | **20 nm** | **16** | **181.0** | **4.30** | **0.4950** | **0.39** |
+
+The adopted combination is 4.3× faster while shifting selectivity by 0.39
 percentage points — the same size as the Monte-Carlo spread measured by
 repeating one design (0.5% relative on total EQE). Two individual reductions
 exceed 0.5 pp on their own; that they do not accumulate confirms the deviations
 are noise rather than bias.
+
+Because the seed is fixed (7777), the accuracy columns are reproducible exactly;
+the wall-clock times are not, and vary by a few percent with machine load.
 
 ---
 
