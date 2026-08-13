@@ -65,6 +65,11 @@ def parse_arguments():
     )
     parser.add_argument("--output", type=str, default=None, help="저장 파일 경로")
     parser.add_argument(
+        "--bracket",
+        action="store_true",
+        help="스캔 후 첫 전압을 재측정해 소자가 변했는지 확인 (수명 짧은 소자에 권장)",
+    )
+    parser.add_argument(
         "--measure-settle",
         action="store_true",
         help="스캔 대신 SMU 정착 시간을 실측한다",
@@ -169,7 +174,7 @@ def main():
         sweep.prepare()
         try:
             started = time.time()
-            df_data = sweep.run_sweep(voltages)
+            df_data = sweep.run_sweep(voltages, bracket=args.bracket)
         finally:
             sweep.finish()
 
@@ -198,7 +203,7 @@ def main():
         print(
             df_data[
                 ["voltage", "current", "pd_voltage", "pd_voltage_std", "cycles",
-                 "elapsed", "converged"]
+                 "trend", "elapsed", "converged", "repeat"]
             ].to_string(index=False)
         )
         print()

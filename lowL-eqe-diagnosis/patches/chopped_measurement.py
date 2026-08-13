@@ -245,6 +245,45 @@ class ChoppedSweep:
         return on_mean - self._baseline_mean, oled_current
 
     @staticmethod
+    def _trend(deltas, sigma):
+        """
+        측정하는 동안 신호가 한 방향으로 변했는지 본다.
+
+        저전류 영역의 OLED 는 전하 축적/트랩 채움 때문에 초~분 단위의 느린 과도
+        응답을 보일 수 있고, 수명이 짧은 소자는 측정 중에 열화할 수도 있다.
+        어느 쪽이든 "측정하는 동안 값이 변했다" 는 것이고, 그러면 평균값의 의미가
+        흐려진다. 사이클 순서에 대해 직선을 맞춰서 처음과 끝의 차이를 본다.
+
+        반환: (변화량[%], 유의한가)
+
+        유의성 판단에 쓰는 기준은 평균의 오차가 아니라 **기울기의 오차**다.
+        같은 데이터에서 직선 기울기는 평균보다 훨씬 못 정해진다 - 처음과 끝의
+        차이로 환산하면 불확실도가 평균의 sqrt(12) = 3.46 배다.
+        평균의 오차와 비교하면 정상 소자에서도 절반쯤 경보가 뜬다.
+
+        그래서 이 판정은 **큰 변화만 잡는다**. 목표 정밀도 +-2% 로 측정하면
+        20% 이상 변해야 걸린다. 더 민감하게 보려면 run_sweep(bracket=True) 를 쓸 것 -
+        독립적인 두 측정을 비교하므로 8% 정도부터 잡힌다.
+        """
+        n = len(deltas)
+        if n < 8:
+            return float("nan"), False
+
+        index = np.arange(n)
+        slope, intercept = np.polyfit(index, deltas, 1)
+        change = slope * (n - 1)
+        mean = float(np.mean(deltas))
+
+        if mean == 0:
+            return float("nan"), False
+
+        # 처음-끝 차이의 표준오차 = sqrt(12) x 평균의 표준오차
+        change_error = np.sqrt(12) * sigma
+        significant = bool(np.isfinite(change_error) and abs(change) > 3 * change_error)
+
+        return change / mean * 100.0, significant
+
+    @staticmethod
     def _combine(deltas, groups):
         """
         누적한 사이클들에서 (평균, 평균의 불확실도) 를 계산한다.
@@ -322,6 +361,7 @@ class ChoppedSweep:
 
         n = len(deltas)
         delta_mean, sigma = self._combine(deltas, groups)
+        trend, trend_significant = self._trend(deltas, sigma)
         converged = (
             not compliance_hit
             and abs(delta_mean) > 0
@@ -340,6 +380,8 @@ class ChoppedSweep:
                 else np.nan
             ),
             "cycles": n,
+            "trend": trend,
+            "trend_significant": trend_significant,
             "elapsed": time.time() - start,
             "converged": bool(converged),
             "compliance": bool(compliance_hit),
@@ -347,8 +389,15 @@ class ChoppedSweep:
 
     # -- sweep --------------------------------------------------------------
 
-    def run_sweep(self, voltages, progress_callback=None):
-        """전압 리스트를 순서대로 측정하고 DataFrame 으로 반환한다."""
+    def run_sweep(self, voltages, progress_callback=None, bracket=False):
+        """
+        전압 리스트를 순서대로 측정하고 DataFrame 으로 반환한다.
+
+        bracket=True 면 스캔이 끝난 뒤 **첫 전압을 한 번 더 측정**한다.
+        처음과 끝의 값이 일치하면 측정하는 동안 소자가 변하지 않았다는 직접적인
+        증거가 된다(열화든 과도 응답이든). 수명이 짧거나 처음 다루는 소자에 쓴다.
+        재측정 포인트는 `repeat` 컬럼이 True 로 표시되며, 평가에서는 제외하면 된다.
+        """
         rows = []
         self.keithley_source.activate_output()
         try:
@@ -376,17 +425,74 @@ class ChoppedSweep:
                     )
                 )
 
+                if row["trend_significant"]:
+                    log_message(
+                        "  주의: 측정 중 신호가 %+.1f%% 변했다 (통계 오차보다 큼). "
+                        "소자의 느린 과도 응답이거나 열화다. 이 포인트의 평균값은 "
+                        "'측정 구간의 평균'이지 정상상태 값이 아니다." % row["trend"]
+                    )
+
                 if row["compliance"]:
                     log_message("Current compliance reached")
                     break
                 if progress_callback is not None:
                     progress_callback(int((index + 1) / len(voltages) * 100))
+
+            if bracket and rows and not self.stop:
+                log_message("bracket: 첫 전압 %.3f V 재측정" % voltages[0])
+                repeat = self.measure_point(voltages[0])
+                repeat["repeat"] = True
+                rows.append(repeat)
+                self._report_bracket(rows[0], repeat)
         finally:
             # 어떤 경로로 빠져나가도 소자에 전압이 남지 않게 한다
             self.keithley_source.set_voltage(str(0))
             self.keithley_source.deactivate_output()
 
-        return pd.DataFrame(rows)
+        frame = pd.DataFrame(rows)
+        if "repeat" not in frame.columns:
+            frame["repeat"] = False
+        frame["repeat"] = frame["repeat"].fillna(False)
+
+        return frame
+
+    @staticmethod
+    def _report_bracket(first, repeat):
+        """
+        스캔 처음과 끝에 잰 같은 전압의 값을 비교한다.
+
+        두 측정의 오차를 합쳐서(제곱합) 판단한다. 차이가 그 3배를 넘으면
+        측정하는 동안 소자가 실제로 변한 것이다.
+        """
+        if not first["pd_voltage"]:
+            return
+
+        difference = repeat["pd_voltage"] - first["pd_voltage"]
+        percent = difference / first["pd_voltage"] * 100.0
+        combined = float(
+            np.sqrt(first["pd_voltage_std"] ** 2 + repeat["pd_voltage_std"] ** 2)
+        )
+
+        log_message(
+            "bracket 결과: %.3f V 에서 처음 %.1f uV -> 끝 %.1f uV (%+.1f%%), "
+            "두 측정의 합성 오차 %.1f uV"
+            % (
+                first["voltage"],
+                first["pd_voltage"] * 1e6,
+                repeat["pd_voltage"] * 1e6,
+                percent,
+                combined * 1e6,
+            )
+        )
+
+        if abs(difference) > 3 * combined:
+            log_message(
+                "  -> 유의한 변화다. 스캔 동안 소자가 변했다(열화 또는 느린 과도 응답). "
+                "이 스캔의 저휘도 값은 신뢰하지 말 것. 목표 정밀도를 완화해 "
+                "총 측정 시간을 줄이거나, 소자를 바꿔서 다시 잴 것."
+            )
+        else:
+            log_message("  -> 측정 오차 범위 안이다. 스캔 동안 소자는 변하지 않았다.")
 
 
 # ---------------------------------------------------------------------------
