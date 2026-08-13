@@ -7,10 +7,16 @@
 최신 커밋이다. 랩 로컬 사본(`<데이터폴더>\Software\`)은 upstream 과 몇 군데 다르므로
 아래 "로컬 사본과의 차이" 항목을 먼저 확인할 것.
 
+**적용 절차는 `INTEGRATION.md` 를 따를 것.** 단독 스크립트로 먼저 검증하고
+GUI 연결은 마지막에 하는 순서로 정리해 뒀다.
+
 | 파일 | 대상 저장소 | 관련 단계 |
 |---|---|---|
+| `INTEGRATION.md` | — | **적용 절차 (여기서 시작)** |
 | `hardware.diff` | OLED-jvl-measurement `src/hardware.py` | 2-A(레인지 전환), 4(버스트 판독), 5(SMU 설정) |
+| `hardware_snippets.txt` | 위 diff 가 안 붙을 때 손으로 붙여 넣을 코드 | 〃 |
 | `chopped_measurement.py` | OLED-jvl-measurement `src/` 에 새 파일로 추가 | 4 |
+| `run_lowlight_scan.py` | OLED-jvl-measurement `src/` 에 새 파일로 추가 (단독 실행용) | 4 |
 | `evaluation_functions.diff` | OLED-evaluation `src/evaluation_functions.py` | 6 |
 | `photodiode_gain.json` | OLED-evaluation `usr/photodiode_gain.json` 교체 | 8 |
 

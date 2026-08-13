@@ -1,0 +1,90 @@
+# hardware.py 수동 적용용 코드 조각
+#
+# git apply 가 안 되는 경우(로컬 사본이 upstream 과 다름) 아래 두 덩어리를
+# 손으로 붙여 넣으면 된다. 붙여 넣는 위치는 INTEGRATION.md 1단계 참고.
+
+# ============================================================================
+# [A] KeithleyMultimeter 클래스 안, measure_voltage() 바로 위에 붙여 넣을 것.
+#     기존에 주석 처리돼 있던 set_fixed_range / set_auto_range 블록은 지운다.
+# ============================================================================
+
+    def set_fixed_range(self, value):
+        """
+        Sets a fixed voltage range (in V).
+
+        저휘도 모드에서 0.1 (100 mV) 레인지를 쓰기 위한 함수. 10 V 레인지에서
+        측정한 PD 노이즈는 ~20 uV이고, 100 mV 레인지로 내리면 노이즈 밀도가
+        크게 떨어진다 (개선폭은 bench_test/noise_test.py 로 확인할 것).
+
+        원래 주석 처리돼 있던 코드는 "CONF:VOLTage:DC:RANGe <v>" 를 썼는데
+        2100 에서 유효한 문법이 아니다. SENSe:VOLTage:DC:RANGe 로 직접 쓰면
+        auto range 는 자동으로 꺼진다.
+        """
+        self.mutex.lock()
+        self.keithmulti.write("SENSe:VOLTage:DC:RANGe:AUTO OFF")
+        self.keithmulti.write("SENSe:VOLTage:DC:RANGe " + str(value))
+        self.mutex.unlock()
+
+    def set_auto_range(self):
+        """
+        Sets automatic detection of the multimeter range
+        """
+        self.mutex.lock()
+        self.keithmulti.write("SENSe:VOLTage:DC:RANGe:AUTO ON")
+        self.mutex.unlock()
+
+    def configure_burst(self, sample_count, multimeter_range=0.1, nplc=1):
+        """
+        버스트 판독 준비. 한 번의 READ? 로 sample_count 개의 샘플을 받아온다.
+
+        기존 measure_voltage() 는 호출할 때마다 MEASure? 를 보내기 때문에
+        매번 기기가 재설정(range/resolution 자동 결정)돼서 느리다. chopped
+        스캔은 포인트마다 수십~수천 샘플을 읽어야 하므로 CONFigure 를 한 번만
+        하고 READ? 만 반복하는 구조가 필요하다.
+
+        multimeter_range: V 단위 (2100 DCV: 0.1 / 1 / 10 / 100 / 1000)
+        """
+        self.mutex.lock()
+        self.keithmulti.write("*RST")
+        self.keithmulti.write("CONFigure:VOLTage:DC " + str(multimeter_range))
+        self.keithmulti.write("SENSe:VOLTage:DC:NPLCycles " + str(nplc))
+        self.keithmulti.write("TRIGger:SOURce IMMediate")
+        self.keithmulti.write("TRIGger:DELay 0")
+        self.keithmulti.write("SAMPle:COUNt " + str(int(sample_count)))
+        self.burst_sample_count = int(sample_count)
+        self.burst_range = multimeter_range
+        self.mutex.unlock()
+
+    def read_burst(self):
+        """
+        configure_burst 로 설정한 개수만큼 읽어서 numpy array 로 반환한다.
+        overload 는 9.9e37 로 들어오므로 호출한 쪽에서 확인할 것.
+        """
+        self.mutex.lock()
+        answer = self.keithmulti.query("READ?")
+        self.mutex.unlock()
+
+        return np.array([float(value) for value in answer.split(",")])
+
+
+# ============================================================================
+# [B] KeithleySource 클래스 안, as_current_source() 바로 위에 붙여 넣을 것.
+# ============================================================================
+
+    def set_low_light_mode(self, on):
+        """
+        저휘도 정밀 스캔 전용 SMU 설정.
+
+        as_voltage_source() 의 기본값은 NPLC 1 + autozero OFF 다. 1 cd/m2 를
+        구동하는 전류는 수십 nA 수준이라 이 설정으로는 EQE 의 분모(전류)가
+        오차를 지배하게 된다. 저휘도 모드에서만 autozero 를 켜고 NPLC 를 10 으로
+        올린 뒤, 모드가 끝나면 반드시 원복한다.
+        """
+        self.mutex.lock()
+        if on:
+            self.keith.write("Current:NPLCycles 10")
+            self.keith.write("Current:AZero ON")
+        else:
+            self.keith.write("Current:NPLCycles 1")
+            self.keith.write("Current:AZero OFF")
+        self.mutex.unlock()
