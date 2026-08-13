@@ -91,7 +91,7 @@ twenty-fold ray count and over the full emission band, to establish that the
 drift is neither Monte-Carlo noise nor a narrowband artifact. Because the subset
 is stratified rather than representative, its correlations differ in magnitude
 from the full-population values quoted in Section 2.3
-($+0.60 / +0.56 / -0.12 / -0.57$ over all 691 evaluations); the sign pattern and
+($+0.60 / +0.56 / -0.12 / -0.57$ over all 606 usable of the 691 logged evaluations); the sign pattern and
 band ordering agree.
 
 | Band | baseline | 200,000 rays, ×3 repeats | broadband 450–750 nm |

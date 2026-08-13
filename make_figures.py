@@ -303,10 +303,10 @@ def fig2():
     for j in range(4):
         ax.text(xx[j] + w, gain_net[j] + 0.012, f'{gain_net[j]:.2f}', ha='center', fontsize=6.0)
     ax.set_xticks(xx); ax.set_xticklabels(BANDS, fontsize=7.0)
-    ax.set_xlim(0.5, 4.5); ax.set_ylim(0.82, 1.40)
+    ax.set_xlim(0.5, 4.5); ax.set_ylim(0.82, 1.50)
     ax.set_ylabel('ratio')
     ax.set_title(r'(b) gain decomposition', loc='left')
-    ax.legend(loc='upper right', framealpha=0.92)
+    ax.legend(loc='upper right', framealpha=0.95, fontsize=6.6)
     ax.grid(alpha=0.25, axis='y')
 
     # ---- (c) Pareto collapse ----
