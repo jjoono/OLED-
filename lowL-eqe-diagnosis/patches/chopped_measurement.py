@@ -23,9 +23,11 @@ OLED-jvl-measurement/src/ 에 그대로 넣고 쓰는 파일이다. 기존 Autot
   - hardware.diff 가 먼저 적용돼 있어야 한다
     (KeithleyMultimeter.configure_burst / read_burst / set_fixed_range,
      KeithleySource.set_low_light_mode)
-  - 벤치 테스트(bench_test/noise_test.py) 결과에 따라 multimeter_range 를 정한다.
-    DMM 지배로 나오면 0.1 (100 mV), 앰프 지배로 나오면 10 을 그대로 두고
-    앰프 교체 후 다시 내린다.
+  - multimeter_range 는 10 (V) 로 둔다. 2026-08 벤치 테스트 결과 노이즈는 앰프
+    지배로 확정됐다 (DMM 단독 1.02 uV vs 앰프 연결 28.62 uV -> DMM 은 분산의 0.13%).
+    100 mV 레인지로 내려도 sigma 가 28.62 -> 28.60 uV 로밖에 안 줄고, 앰프 DC
+    오프셋(8.2 mV)이 드리프트하면 overload 위험만 생긴다. 앰프를 저잡음 TIA 로
+    교체한 뒤에 다시 판단할 것.
 
 하드웨어 없이 로직만 확인:
     python chopped_measurement.py --simulate
@@ -71,7 +73,7 @@ class ChoppedSweep:
         keithley_multimeter,
         samples_per_burst=5,
         settle_time=0.02,
-        multimeter_range=0.1,
+        multimeter_range=10,
         nplc=1,
         target_relative_sigma=0.02,
         min_cycles=16,
@@ -91,6 +93,10 @@ class ChoppedSweep:
             off(baseline) 를 매 사이클 재지 않고 이 시간(초)마다 한 번만 다시 잰다.
             인접 포인트가 baseline 을 공유하므로 약 2배 빨라진다. 드리프트가
             의심되면 0 으로 두면 매 사이클 측정(가장 안전, 대신 2배 느림).
+
+            적정값은 bench_test/noise_test2_averaging.py 로 정한다. 앰프 노이즈가
+            백색이면 넉넉히(5 s 이상) 두고, 드리프트 knee 가 있으면 그 시간의
+            절반 이하로 줄일 것.
 
         min_cycles:
             수렴 판정을 시작하기 전 최소 사이클 수. 표본이 적으면 sigma 추정 자체가

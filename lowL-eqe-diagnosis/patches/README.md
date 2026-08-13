@@ -39,7 +39,33 @@ self.spectrometerr.close()   ->   self.spectrometer.close()
 `OceanSpectrometer.close_connection()` 안에 있다(로컬 477행 근처). 지금은 spectrometer close 가
 항상 AttributeError 로 실패한다.
 
-### 벤치 테스트(1단계) 후에 적용
+### 벤치 테스트(1단계) 결과 — 2026-08, 완료
+
+| 테스트 | 조건 | 평균 | sigma |
+|---|---|---|---|
+| ① | DMM 입력 단락, 10 V 레인지 | 0.2 uV | **1.02 uV** |
+| ② | 앰프 연결 + PD 암전, 10 V 레인지 | 8198 uV | **28.62 uV** |
+
+```
+앰프 기여분 = sqrt(28.62^2 - 1.02^2) = 28.60 uV
+DMM 기여분 =                            1.02 uV   (분산 기준 0.13%)
+```
+
+**앰프(PDA200C) 지배로 확정.** 결과:
+
+- **레인지 전환(2-A)은 폐기.** DMM 노이즈를 0으로 만들어도 sigma 가 28.62 -> 28.60 uV 다.
+  `hardware.diff` 의 `set_fixed_range` 는 적용은 하되 쓰지 않는다(앰프 교체 후 재확인용).
+  테스트 ③은 결과가 이미 확정이라 생략 가능.
+- **저잡음 TIA 교체가 유일한 하드웨어 레버.** 475 kOhm 의 Johnson 노이즈 한계(0.089 uV/sqrt(Hz))보다
+  약 42배 위에 있고, PD 산탄노이즈는 완전히 무시 가능하다(1 cd/m2 신호 기준 0.04 pA).
+  10~30배 개선 시 측정 시간은 sigma^2 에 비례하므로 100~900배 단축된다.
+- **측정 시간 추정 상향**: 원 추정이 sigma = 20 uV 가정이었으므로 (28.62/20)^2 = 2.05배.
+  1 cd/m2 +-2% 가 50초 -> 약 100초 (PD 거리 60 mm 적용 후 기준).
+- **후속 테스트 추가**: 앰프 노이즈가 백색인지 1/f 드리프트가 섞였는지에 따라
+  `baseline_period` 와 `samples_per_burst` 가 달라진다.
+  `../bench_test/noise_test2_averaging.py` (테스트 ②와 같은 셋업, 물리 작업 없음, 약 3분).
+
+### 적용
 
 **3. `hardware.diff`** — `git apply hardware.diff` (OLED-jvl-measurement 루트에서). 내용:
 
@@ -83,10 +109,8 @@ GUI 에 붙일 때는 `LowLuminanceMeasurement` (QThread 래퍼) 를 쓰면 되�
 `voltages`, `scan_compliance`, `samples_per_burst`, `settle_time`, `multimeter_range`,
 `target_relative_sigma`, `baseline_period`.
 
-`multimeter_range` 는 벤치 테스트 결과로 정한다.
-DMM 지배 → `0.1`(100 mV), 앰프 지배 → 일단 `10` 유지하고 앰프 교체 후 내린다.
-`0.1` 에서 overload(9.9e37) 가 나오면 앰프 DC 오프셋이 100 mV 를 넘는 것이므로 `1` 로 올린다
-(코드가 overload 를 감지해 메시지를 낸다).
+`multimeter_range` 는 **10 (V) 로 둔다**. 2026-08 벤치 테스트에서 노이즈가 앰프 지배로 확정됐다
+(아래 참조). 저잡음 TIA 로 교체한 뒤에 다시 판단할 것.
 
 **5. `evaluation_functions.diff`** — `git apply evaluation_functions.diff` (OLED-evaluation 루트에서).
 
