@@ -238,10 +238,20 @@ def run():
             print(f"[skip] {n} = {ck.get(n)}", flush=True)
             prev = n if n.startswith("cx_r") else prev
             continue
-        if n.startswith("cx_r") and prev:
-            src = os.path.join(OUT, f"{prev}-RESTART.wfn")
-            if os.path.exists(src):
+        if n.startswith("cx_r"):
+            src = os.path.join(OUT, f"{prev}-RESTART.wfn") if prev else ""
+            inp = os.path.join(OUT, f"{n}.inp")
+            if src and os.path.exists(src):
                 shutil.copy(src, os.path.join(OUT, f"{n}-RESTART.wfn"))
+            elif not os.path.exists(os.path.join(OUT, f"{n}-RESTART.wfn")):
+                # Rollbacks wipe the .wfn files (gitignored), so a resumed scan can
+                # meet an input that says SCF_GUESS RESTART with nothing to restart
+                # from -- CP2K then aborts on the missing file. Fall back to ATOMIC
+                # for this point; slower, but it runs.
+                txt = open(inp).read().replace("SCF_GUESS RESTART",
+                                               "SCF_GUESS ATOMIC")
+                open(inp, "w").write(txt)
+                print(f"       (no restart wfn -> ATOMIC guess)", flush=True)
         print(f"[run ] {n}", flush=True)
         subprocess.run([cp2k, "-i", f"{n}.inp", "-o", f"{n}.out"], cwd=OUT, env=env,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
