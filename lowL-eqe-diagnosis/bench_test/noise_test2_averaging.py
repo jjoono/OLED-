@@ -80,7 +80,7 @@ def analyze(values, sample_period):
     print("  블록   시간      백색 예측    sigma_avg    sigma_chop    avg/예측")
     print("  " + "-" * 62)
 
-    knee = None
+    rows = []
     for m in BLOCK_SIZES:
         n_blocks = len(values) // m
         if n_blocks < 8:
@@ -91,42 +91,71 @@ def analyze(values, sample_period):
         sigma_avg = float(np.std(blocks, ddof=1))
         # 인접 블록 차분 -> 드리프트 제거. /sqrt(2) 로 블록 1개 기준 노이즈로 환산
         sigma_chop = float(np.std(np.diff(blocks), ddof=1)) / np.sqrt(2)
-        ratio = sigma_avg / white
-
-        if knee is None and ratio > 1.5:
-            knee = m
+        rows.append((m, white, sigma_avg, sigma_chop))
 
         print(
-            "  %5d  %6.2f s   %8.2f uV  %8.2f uV   %8.2f uV     %5.2fx%s"
-            % (
-                m,
-                m * sample_period,
-                white * 1e6,
-                sigma_avg * 1e6,
-                sigma_chop * 1e6,
-                ratio,
-                "  <- knee" if knee == m else "",
-            )
+            "  %5d  %6.2f s   %8.2f uV  %8.2f uV   %8.2f uV     %5.2fx"
+            % (m, m * sample_period, white * 1e6, sigma_avg * 1e6,
+               sigma_chop * 1e6, sigma_avg / white)
         )
 
     print()
     print("=" * 70)
-    if knee is None:
-        print("결론: 드리프트 없음 (백색). 측정한 구간 전체에서 1/sqrt(N) 이 그대로 성립.")
-        print("  -> chopped_measurement.py 의 baseline_period 를 넉넉히(5 s 이상) 두고")
-        print("     baseline 공유로 약 2배 시간 이득을 그대로 챙길 것.")
+
+    # 1) 입력 개방 의심 -- 이 경우 나머지 해석이 전부 무의미하다
+    mean_uv = abs(float(np.mean(values))) * 1e6
+    if mean_uv < 1000 and sigma_1 * 1e6 > 100:
+        print("경고: 평균이 %.0f uV 로 작은데 sigma 가 %.0f uV 로 크다." % (mean_uv, sigma_1 * 1e6))
+        print("  TIA 입력이 개방된 상태일 가능성이 높다. 개방된 입력은 고임피던스")
+        print("  안테나로 동작해 주변 픽업을 다 받으므로 이 데이터로는 앰프 노이즈를")
+        print("  판정할 수 없다. PD 를 연결한 상태에서 다시 측정할 것.")
+        print("=" * 70)
+        return sigma_1, None
+
+    # 2) 백색 성분과 드리프트 성분 분리
+    #    가장 짧은 시간(블록 1)의 차분 노이즈가 사실상 백색 성분이다.
+    sigma_white = rows[0][3]
+    drift_ratio = sigma_1 / sigma_white
+
+    # 3) sigma_chop 이 1/sqrt(m) 로 떨어지는가, 평평한가
+    #    평평하면 1/f 플리커 (Allan deviation 이 평평한 것이 그 시그니처)
+    m_last, _, _, chop_last = rows[-1]
+    chop_expected = sigma_white / np.sqrt(m_last)
+    flatness = chop_last / chop_expected
+
+    print("백색 성분 (25 ms 차분)     : %.2f uV" % (sigma_white * 1e6))
+    print("전체 산포 / 백색 성분      : %.2fx" % drift_ratio)
+    print("sigma_chop 평탄도(m=%d)   : %.1fx (1.0 = 백색, 클수록 1/f)" % (m_last, flatness))
+    print()
+
+    # 드리프트는 두 가지 방식으로 드러난다. 짧은 시간(25 ms)부터 이미 지배적이면
+    # drift_ratio 가 크고, 긴 시간에서만 드러나면 sigma_chop 평탄도가 크다. 둘 중
+    # 하나만 걸려도 드리프트 지배로 본다.
+    if drift_ratio < 1.3 and flatness < 2.0:
+        print("결론: 드리프트 없음 (백색). 측정 구간 전체에서 1/sqrt(N) 이 성립.")
+        print("  -> baseline_period 를 넉넉히(5 s 이상) 두고 baseline 공유로 시간을 벌 것.")
+        print("  -> samples_per_burst 를 늘리면 그만큼 사이클당 오차가 줄어든다.")
     else:
-        knee_time = knee * sample_period
-        print("결론: 약 %.2f 초(%d 샘플)부터 드리프트가 지배한다." % (knee_time, knee))
-        print("  -> 그냥 평균하는 방식은 이 시간 이상 돌려도 소용없다.")
-        print("  -> chopping 한 사이클(on+off)을 %.2f 초보다 짧게 유지할 것." % knee_time)
-        print("     chopped_measurement.py: samples_per_burst 를 줄이고")
-        print("     baseline_period 를 %.1f 초 이하로 (의심스러우면 0 = 매 사이클 재측정)."
-              % (knee_time / 2))
-        print("  -> sigma_chop 열이 계속 내려가고 있으면 chopping 이 실제로 벌어주는 이득이다.")
+        if drift_ratio >= 1.3:
+            print("결론: 전체 산포의 %.0f%% 가 저주파 드리프트다. 그냥 평균은 무력하다."
+                  % ((1 - 1 / drift_ratio) * 100))
+        else:
+            print("결론: 짧은 시간에서는 백색으로 보이지만 긴 시간에서 드리프트가 드러난다.")
+        print("  -> baseline_period = 0 (매 사이클 baseline 재측정). 공유 불가.")
+        if flatness > 2.0:
+            print("  -> sigma_chop 이 블록 크기에 거의 무관하다 = 1/f 플리커.")
+            print("     버스트를 늘려도 사이클당 오차가 안 줄어든다. samples_per_burst = 1 로 두고")
+            print("     사이클 수를 최대화할 것 (반복은 1/sqrt(N) 로 듣는다).")
+            print("  -> chop_pattern = \"ABBA\" 도 시도해 볼 것 (선형 드리프트 상쇄).")
+        else:
+            print("  -> sigma_chop 은 1/sqrt(m) 를 대체로 따른다. samples_per_burst 를 늘려도 된다.")
+        print()
+        print("  chopped 스캔의 사이클당 노이즈 예상치 = %.1f uV (= 백색 x sqrt(2))"
+              % (sigma_white * np.sqrt(2) * 1e6))
+
     print("=" * 70)
 
-    return sigma_1, knee
+    return sigma_1, None
 
 
 def _simulate():
