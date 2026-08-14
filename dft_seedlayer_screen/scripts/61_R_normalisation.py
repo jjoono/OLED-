@@ -182,5 +182,48 @@ def main():
   weaker dispersion.""")
 
 
+def rref_bound():
+    """If R is 'relative', relative to WHAT? Invert energy conservation for it.
+
+    The user reports the R file is a relative measurement. The reference's own
+    reflectance R_ref then satisfies R_abs = R_file * R_ref, and two physical
+    constraints bound R_ref without knowing the instrument at all:
+
+        A >= 0        ->  R_ref <= (1 - T_abs) / R_file   at every wavelength
+        A <= 20 %     ->  R_ref >= (0.8 - T_abs) / R_file (generous cap for a
+                          granular few-nm Ag film's plasmonic absorption)
+
+    The window comes out 0.64-0.69 <= R_ref <= 1.0 for any plausible HATCN
+    baseline thickness. That EXCLUDES the HATCN/glass sample (~0.10) and bare
+    glass (~0.08) as the reflectance reference -- physically, not procedurally:
+    had the accessory been baselined on a ~10 % reflector, the file's 26 % at
+    800 nm would mean an absolute R of 2.6 % and leave a third of the light
+    unaccounted for. Whatever the bench notes say, the reference the R beam
+    actually saw reflected >= 64 %: a mirror or a white standard, or the
+    software wrote calibrated %R. The surviving spread (mirror 0.90 vs
+    calibrated 1.0) moves the visible-average absorptance only from 9.1 to
+    11.1 % -- quotable as A = 9-11 % with the reference as the stated systematic.
+    """
+    wl, Trel = load(F_T)
+    _, Rfile = load(F_R)
+    m = (wl >= FIT[0]) & (wl <= FIT[1]) & ~((wl > LAMP[0]) & (wl < LAMP[1]))
+    hat = np.conj(np.full_like(wl, N_HATCN + 1j * K_HATCN, dtype=complex))
+    print("\n" + "=" * 74)
+    print("R REFERENCE BOUND (R reported as a relative measurement)")
+    print("=" * 74)
+    for dh in (15.0, 20.0, 30.0):
+        Tb = np.array([sample_TR([(hat[i], dh)], wl[i])[0] for i in range(len(wl))])
+        Tabs = Trel / 100 * Tb
+        U = (1 - Tabs) / (Rfile / 100)
+        L = (1 - 0.20 - Tabs) / (Rfile / 100)
+        print(f"  HATCN {dh:>4.0f} nm baseline:  "
+              f"{float(L[m].max()):.3f} <= R_ref <= {float(min(U[m].min(), 1.0)):.3f}")
+    print("  HATCN/glass (~0.10) and bare glass (~0.08) are outside the window;")
+    print("  an Al mirror (0.88-0.92), a white standard (0.97-0.99) or software-")
+    print("  calibrated output (1.0) are inside it. Across that surviving range")
+    print("  the visible-average absorptance moves 9.1 -> 11.1 %.")
+
+
 if __name__ == "__main__":
     main()
+    rref_bound()
