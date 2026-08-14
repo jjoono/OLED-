@@ -184,6 +184,33 @@ Inverted MLA는 동일 freeform profile class의 오목형 대응물로, 4.2절�
 
 ---
 
+## Funding
+
+[TBD — 과제/기관 정보 입력 필요]
+
+## Acknowledgments
+
+[TBD]
+
+## Disclosures
+
+저자들은 이해상충이 없음을 밝힌다.
+
+## Data availability
+
+본 논문의 그림과 표의 기반이 되는 모든 결과 아카이브 — 각 최적화 캠페인의 평가
+로그와 최적해(`pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
+`freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`,
+`opt_4band_inverted_result.mat`, `stress_random_result.mat`,
+`warmstart_hemisphere_result.mat`, `convergence_check_result.mat`,
+`calibrate_random_cost.mat`) 및 재활용 모델 출력(`angular_recycling_result.npz`,
+`angular_recycling_bandwidth.npz`) — 는 이를 생성한 스크립트, 그리고 아카이브에서
+모든 그림을 직접 재생성하는 `make_figures.py` 와 함께 합리적 요청 시 교신저자로부터
+제공받을 수 있다. 2.4절의 별도 조건 비대칭 탐색 데이터도 합리적 요청 시 제공된다.
+CPS 광원 모델과 LightTools 프로젝트 파일의 실행에는 LightTools 라이선스가 필요하다.
+
+---
+
 ## 참고문헌
 
 1. Brütting, W.; Frischeisen, J.; Schmidt, T. D.; Scholz, B. J.; Mayr, C. **Device Efficiency of Organic Light-Emitting Diodes: Progress by Improved Light Outcoupling.** *Phys. Status Solidi A* **2013**, *210*, 44–65.
@@ -194,15 +221,15 @@ Inverted MLA는 동일 freeform profile class의 오목형 대응물로, 4.2절�
 
 4. Wrzesniewski, E.; et al. **Enhancing Light Extraction in Top-Emitting Organic Light-Emitting Devices Using Molded Transparent Polymer Microlens Arrays.** *Small* **2012**, *8*, 2647–2651. https://doi.org/10.1002/smll.201102662.
 
-5. Qu, Y.; et al. **Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays.** *ACS Photonics* **2018**. https://doi.org/10.1021/acsphotonics.8b00255.
+5. Qu, Y.; Kim, J.; Coburn, C.; Forrest, S. R. **Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays.** *ACS Photonics* **2018**, *5*, 2453–2458. https://doi.org/10.1021/acsphotonics.8b00255.
 
-6. Kim, Y.; et al. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*.
+6. Kim, S.; Shin, J. M.; Lee, J.; Park, C.; Lee, S.; Park, J.; Seo, D.; Park, S.; Park, C. Y.; Jang, M. S. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*, 4533–4541. https://doi.org/10.1515/nanoph-2021-0434.
 
-7. **Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging.** *Appl. Opt.* **2025**, *64*, 7875.
+7. Ni, Y.; Feng, D.; Ma, D. **Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging.** *Appl. Opt.* **2025**, *64*, 7875–7884. https://opg.optica.org/ao/abstract.cfm?uri=ao-64-27-7875.
 
-8. Buhl, M.; et al. **Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes.** *Adv. Photonics Res.* **2023**. https://doi.org/10.1002/adpr.202200143.
+8. Buhl, M.; et al. **Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes.** *Adv. Photonics Res.* **2023**, *4*, 2200143. https://doi.org/10.1002/adpr.202200143.
 
-9. **Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces.** *Commun. Eng.* **2025**. https://doi.org/10.1038/s44172-025-00401-w.
+9. Abdelkhalik, M. S.; Garcia-Santiago, X.; van Raaij, T.-J.; López, T.; Berghuis, A. M.; de Jong, L. M. A.; Gómez Rivas, J. **Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces.** *Commun. Eng.* **2025**, *4*, 63. https://doi.org/10.1038/s44172-025-00401-w.
 
 10. Winston, R.; Jiang, L.; Ricketts, M. **Nonimaging Optics: A Tutorial.** *Adv. Opt. Photon.* **2018**, *10*, 484–511.
 
@@ -212,10 +239,10 @@ Inverted MLA는 동일 freeform profile class의 오목형 대응물로, 4.2절�
 
 13. Song, J.; et al. **Lensfree OLEDs with over 50% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters.** *Nat. Commun.* **2018**, *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x.
 
-14. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** **2022**. https://pubmed.ncbi.nlm.nih.gov/36558597/.
+14. Liao, P.-H.; Lee, W.-K.; Lee, C.-C.; Huang, C.-W.; Wen, S.-W.; Chen, Y.-T.; Chen, C.-C.; Lin, W.-Y.; Kwak, B. L.; Visser, R. J.; Wu, C.-C. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** *Opt. Express* **2022**, *30*, 46435–46449. https://doi.org/10.1364/OE.477797.
 
 15. Kim, H.-J.; et al. **High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling.** *Sci. Rep.* **2017**, *7*, 43063. https://doi.org/10.1038/srep43063.
 
 16. Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. **Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays.** *ACS Photonics* **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017.
 
-17. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**. https://www.nature.com/articles/s41467-025-66538-6. [서지정보 확인 필요: 저자·권/논문번호]
+17. Kim, M.; Kim, J.; Yoo, S. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**, *16*, 11606. https://doi.org/10.1038/s41467-025-66538-6.
