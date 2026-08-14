@@ -142,3 +142,35 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# RESULT (run 2026-08-14, 2 min):
+#
+#   step                                          true EQE  Lamb.read    F
+#   A  window 590-600, red, no Yb, Tpar .95          54.4%      9.6%  0.98
+#   B  full red spectrum (600/45)                    50.9%     11.7%  1.06
+#   C  + Yb 3 nm wetting layer                       30.2%      7.4%  1.42
+#   D  green 518/20, Yb, reopt (ETL200/HTL40/cap60)  53.9%     26.1%  1.64
+#   E  same, Theta_par 0.85                          49.3%     23.9%  1.61
+#
+# READING.
+# - A replicates the user's MATLAB optimum to within ~5 points (54 vs 60 %);
+#   the residual gap is model detail (McPeak vs J&C silver, birefringence,
+#   the real phosphor spectrum vs a Gaussian). So the user's code and this
+#   model agree: ~55-60 % TRUE EQE is genuinely reachable in that
+#   architecture - red emission, NO Yb, high-index (n=2.3) capping, no ITO
+#   inside the cavity, eta_rad = 1, Theta_par 0.95.
+# - Yb is the single biggest killer: 20 points (B -> C) at fixed geometry.
+# - Even after re-optimising every spacer FOR green WITH Yb but KEEPING the
+#   user's other advantages (n=2.3 cap, no ITO, q=1), the ceiling is 53.9 %
+#   at Theta_par 0.95 and 49.3 % at the realistic 0.85.
+# - The Liu device gives up three of those advantages simultaneously:
+#   BPBPA capping (n~1.75, not 2.3), ITO 15 nm inside the cavity on the
+#   mirror side, HATCN 5 nm, q = 0.97 - which is how the bound falls to
+#   the 44.1 % (optimised) / 35.8 % (published thicknesses) of scripts/66.
+#
+# CONCLUSION: "~60 % is possible" and "this paper's 59.2 % is unsupported"
+# are BOTH true. A red, Yb-free, high-index-capped TE-OLED can genuinely
+# approach 60 % true EQE; the published green device with Yb, ITO-in-cavity
+# and a low-index cap cannot - its optics top out in the 40s under every
+# assumption tested, in two independent implementations (user's MATLAB
+# framework and this CPS model).
