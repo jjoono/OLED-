@@ -13,6 +13,7 @@ Inputs
   opt_hemisphere_result.mat      hemispherical reference               -> Fig 2c
   opt_4band_inverted_result.mat  inverted (concave) family             -> Fig 5
   stress_random_result.mat       randomly assembled family             -> Fig 5
+  warmstart_hemisphere_result.mat  hemisphere-seeded control run       -> Fig 2e,f
   angular_recycling_result.npz   Markov recycling / DBR angular data   -> Fig 4
   angular_recycling_bandwidth.npz  DBR bandwidth sweep                 -> Fig 4
 
@@ -111,6 +112,7 @@ C = loadmat('opt_4band_result_25by25.mat')
 H = loadmat('opt_hemisphere_result.mat')
 I = loadmat('opt_4band_inverted_result.mat')
 Rn = loadmat('stress_random_result.mat')
+W  = loadmat('warmstart_hemisphere_result.mat')
 d1 = np.load('angular_recycling_result.npz')
 d3 = np.load('angular_recycling_bandwidth.npz')
 
@@ -336,7 +338,7 @@ def fig2():
          f'{P["pareto_tot"].ravel().min():.4f}-{P["pareto_tot"].ravel().max():.4f}')
 
     # ---- (d) best profiles ----
-    ax = fig.add_subplot(gs[1, 0:3])
+    ax = fig.add_subplot(gs[1, 0:2])
     hx = np.concatenate(([0.0], HEMI_X, [1.0]))
     hy = np.concatenate(([1.0], HEMI_Y, [0.0]))
     th = np.linspace(0, 1, 300)
@@ -351,15 +353,25 @@ def fig2():
     ax.set_xlabel('radial coordinate  $r / r_{\\rm lens}$')
     ax.set_ylabel('height  $z / r_{\\rm lens}$')
     ax.set_title('(d) best freeform profiles', loc='left')
-    ax.legend(loc='upper right', ncol=2, framealpha=0.92, fontsize=6.4)
+    ax.legend(loc='upper right', ncol=1, framealpha=0.92, fontsize=5.8)
     ax.grid(alpha=0.25)
 
     # ---- (e) freeform vs hemisphere ----
-    ax = fig.add_subplot(gs[1, 3:6])
-    lab = BAND_TEX + [r'EQE$_{\rm total}$']
-    ff = np.concatenate((band_eqe, [E_star]))
-    hm = np.concatenate((hemi_val[:4], [hemi_val[4]]))
+    #  The freeform entry is the best over BOTH freeform campaigns: the original
+    #  per-band search and the hemisphere-seeded control run. Taking only the
+    #  first would report a search artifact (two bands came out below the
+    #  hemisphere there purely because a 13-variable search from random seeds
+    #  had not converged) rather than what the design class can reach.
+    ax = fig.add_subplot(gs[1, 2:4])
+    ws_val = W['ws_val'].ravel()
+    ff_orig = np.concatenate((band_eqe, [E_star]))
+    ff = np.fmax(ff_orig, np.nan_to_num(ws_val, nan=-np.inf))
+    hm = hemi_val[:5]
     G = ff / hm
+    note('freeform best per objective (orig / warm-start / adopted):')
+    for j, nm in enumerate(BANDS + ['total']):
+        note(f'  {nm:>6} {ff_orig[j]:.5f} / '
+             f'{ws_val[j] if np.isfinite(ws_val[j]) else float("nan"):.5f} -> {ff[j]:.5f}')
     xx5 = np.arange(1, 6)
     ax.bar(xx5 - 0.19, ff, 0.38, color='#C6512F', ec='k', lw=0.5, label='freeform (13 vars)')
     ax.bar(xx5 + 0.19, hm, 0.38, color='#3B6EA5', ec='k', lw=0.5, label='hemisphere (3 vars)')
@@ -367,13 +379,45 @@ def fig2():
         ax.text(xx5[j], max(ff[j], hm[j]) + 0.013, f'{G[j]:.3f}',
                 ha='center', fontsize=6.4,
                 color=('#2E6B3C' if G[j] >= 1 else '#9A3324'))
-    ax.set_xticks(xx5); ax.set_xticklabels(BANDS + ['total'], fontsize=7.0)
+    ax.set_xticks(xx5); ax.set_xticklabels(BANDS + ['total'], fontsize=6.2)
     ax.set_ylim(0, 0.72)
     ax.set_ylabel('EQE at the matching objective')
-    ax.set_title(r'(e) freeform / hemisphere gain  $G_j$', loc='left')
-    ax.legend(loc='upper left', framealpha=0.92)
+    ax.set_title(r'(e) gain $G_j$ over hemisphere', loc='left')
+    ax.legend(loc='upper left', framealpha=0.92, fontsize=6.2)
     ax.grid(alpha=0.25, axis='y')
-    note('G_j (freeform / hemisphere): ' + ' '.join(f'{g:.3f}' for g in G))
+    note('G_j (best freeform / hemisphere): ' + ' '.join(f'{g:.3f}' for g in G))
+
+    # ---- (f) hemisphere-seeded control ----
+    #  Answers the objection that G_j < 1 in the original campaign meant an
+    #  under-converged search rather than an absent gain. Each arm's search is
+    #  restarted AT that arm's hemisphere optimum. Where a gain exists the same
+    #  procedure finds it at enormous significance; where the original campaign
+    #  fell short, restarting recovers the deficit and then stops.
+    ax = fig.add_subplot(gs[1, 4:6])
+    base = W['base_val'].ravel()
+    sd_b, sd_w = W['base_sd'].ravel(), W['ws_sd'].ravel()
+    se = np.sqrt(sd_b ** 2 + sd_w ** 2) / np.sqrt(3)
+    tval = (ws_val - base) / se
+    rel = 100 * (ws_val - base) / base
+    T_CRIT = 2.132
+    ok = np.isfinite(rel)
+    idx = np.arange(5)[ok]
+    cols = ['#4F8F5B' if tval[j] > T_CRIT else '#9AA7B5' for j in idx]
+    ax.bar(np.arange(len(idx)), rel[idx], 0.6, color=cols, ec='k', lw=0.5)
+    for i, j in enumerate(idx):
+        ax.text(i, rel[j] + 0.16, f'$t$={tval[j]:.0f}' if tval[j] > 10 else f'$t$={tval[j]:.1f}',
+                ha='center', fontsize=6.2)
+    ax.axhline(0, color='k', lw=0.9)
+    ax.set_xticks(np.arange(len(idx)))
+    ax.set_xticklabels([(BANDS + ['total'])[j] for j in idx], fontsize=6.2)
+    ax.set_ylim(-0.4, 6.2)
+    ax.set_ylabel('gain over hemisphere (%)')
+    ax.set_title('(f) restarted at the hemisphere', loc='left')
+    ax.text(0.04, 0.97, 'green: exceeds noise ($t>2.13$)\ngrey: does not',
+            transform=ax.transAxes, fontsize=5.8, va='top')
+    ax.grid(alpha=0.25, axis='y')
+    note('warm start vs hemisphere: ' +
+         ' '.join(f'{(BANDS+["total"])[j]} {rel[j]:+.2f}% (t={tval[j]:.1f})' for j in idx))
 
     save(fig, 'fig2_achievable_region')
 

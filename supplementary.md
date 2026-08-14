@@ -39,6 +39,7 @@ gives 0.117 / 0.296 / 0.337 / 0.220.
 | Convex, weighted sweep | `pareto_front_freeform.m` | 13 | 150 random + 120/weight + 15 polish, $w \in \{0,\,0.25,\,0.5,\,0.75,\,1\}$ | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 1–3 |
 | Convex, per-band | `opt_4band_freeform.m` | 13 | 60 + 15 polish per arm, 5 arms | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 4 |
 | Convex, total EQE only | `freeform_EQEtotal.m` | 13 | 140 per start, 3 independent starts | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | — |
+| Hemisphere-seeded control | `warmstart_from_hemisphere.m` | 13 | 40 + 15 + 15 polish per arm, 4 arms | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 9 |
 | Hemispherical reference | `opt_hemisphere_arms.m` | 3 (cavity + height; shape fixed on a quarter circle) | 30 + 10 polish per arm, 5 arms | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 8 |
 | Inverted (concave) | `opt_4band_inverted.m` | 13 | 60 + 15 polish per arm, 4 arms (identical protocol to the convex benchmark) | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 6 |
 | Randomly assembled | `stress_random_mla.m` | 6 assembly statistics | 50 random + 60 + 15 polish | 5,000 rays, 16 λ | 10,000 rays, 151 λ, ×3 seeds | phase 7 |
@@ -138,11 +139,16 @@ $G_j = \max[\mathrm{EQE}_j \mid \mathrm{freeform}] / \max[\mathrm{EQE}_j \mid \m
 
 | Objective | freeform | hemisphere | $G_j$ |
 |---|---|---|---|
-| 0–20° | 0.06318 | 0.06682 | 0.946 |
-| 20–40° | 0.16032 | 0.16591 | 0.966 |
+| 0–20° | 0.06699 | 0.06682 | 1.003 |
+| 20–40° | 0.16628 | 0.16591 | 1.002 |
 | 40–60° | 0.19802 | 0.18503 | 1.070 |
 | 60–80° | 0.13863 | 0.13589 | 1.020 |
 | total EQE | 0.5556 | 0.54679 | 1.016 |
+
+The freeform column is the best of the two freeform campaigns for that
+objective. The 0–20° and 20–40° entries come from the hemisphere-seeded control
+(Table S6); the others from the per-band and weighted-sweep campaigns, which the
+control did not surpass (0.19355 against 0.19802, and 0.55231 against 0.5556).
 
 The freeform total is the best of the five high-precision weighted-sum optima.
 The coarse-fidelity search log reaches 0.5591 at 10,000 rays; that value is not
@@ -155,6 +161,43 @@ alone, over three starts of 140 evaluations each, returns 0.5495, 0.5530 and
 the weighted sweep at $w = 0.75$. Both figures are high-precision, and the gap
 between them is smaller than the spread within either campaign, so two different
 objectives locate the same ceiling.
+
+---
+
+## Table S6 | Hemisphere-seeded control
+
+Each arm's search restarted at that arm's hemispherical optimum, with the
+hemisphere point in the seed set, eight perturbations within 8% of each
+variable's range, and a pattern search launched directly from the hemisphere
+point. The hemisphere baseline is re-measured in the same session at final
+fidelity; the archived value is a cross-check only.
+
+| Arm | hemisphere (archived) | hemisphere (re-measured) | dev. | warm start | gain | $t$ | winning branch |
+|---|---|---|---|---|---|---|---|
+| 0–20° | 0.06682 | 0.06677 ± 0.00017 | 0.07% | 0.06699 ± 0.00013 | +0.32% | 1.7 | polish from hemisphere |
+| 20–40° | 0.16591 | 0.16595 ± 0.00017 | 0.02% | 0.16628 ± 0.00020 | +0.20% | 2.1 | surrogateopt |
+| 40–60° | 0.18503 | 0.18486 ± 0.00008 | 0.09% | 0.19355 ± 0.00010 | **+4.70%** | **114.6** | polish from surrogate |
+| 60–80° | 0.13589 | — | — | — | — | — | not run |
+| total EQE | 0.54679 | 0.54679 ± 0.00013 | 0.00% | 0.55231 ± 0.00004 | **+1.01%** | **68.7** | polish from surrogate |
+
+Uncertainties are the standard deviation over three high-precision repeats. The
+threshold is the pooled one-sided 95% $t$ value at four degrees of freedom,
+2.13. The 60–80° arm was not run because its original gain, 1.020, already
+exceeded unity, so it carries no search-failure ambiguity.
+
+Two properties of this control matter for how it should be read. It is
+one-sided: the hemisphere is among the screened candidates, so the result cannot
+fall meaningfully below it. And it is biased toward reporting a gain, since the
+winner is the maximum over roughly seventy noisy search evaluations. The two
+near-zero outcomes are therefore conservative, and the contrast in significance
+between them and the two positive arms—1.7 and 2.1 against 114.6 and 68.7—is the
+evidence that they reflect an absent margin rather than a weak search. Running
+four arms raises the chance of one crossing the threshold by luck to about 19%,
+which is immaterial here because both positive arms clear it by more than a
+factor of thirty.
+
+The total run took 7.6 h, 108–118 min per arm, and 1 of 192 evaluations was
+rejected on geometry.
 
 ---
 
@@ -175,7 +218,7 @@ text.
 | Figure | Output | Inputs |
 |---|---|---|
 | Fig. 1 | `fig1_platform.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
-| Fig. 2 | `fig2_achievable_region.png` / `.pdf` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
+| Fig. 2 | `fig2_achievable_region.png` / `.pdf` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat`, `warmstart_hemisphere_result.mat` |
 | Fig. 3 | `fig3_selectivity_map.png` / `.pdf` | `pareto_front_result.mat` |
 | Fig. 4 | `fig4_recycling_routes.png` / `.pdf` | `angular_recycling_result.npz`, `angular_recycling_bandwidth.npz` |
 | Fig. 5 | `fig5_families.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
@@ -190,5 +233,6 @@ Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
 `freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`,
 `opt_4band_inverted_result.mat`,
 `stress_random_result.mat`, `calibrate_random_cost.mat`,
-`convergence_check_result.mat`, `angular_recycling_result.npz`,
+`warmstart_hemisphere_result.mat`, `convergence_check_result.mat`,
+`angular_recycling_result.npz`,
 `angular_recycling_bandwidth.npz`.
