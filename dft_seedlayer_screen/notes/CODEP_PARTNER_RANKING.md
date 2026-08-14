@@ -75,3 +75,28 @@ sheet resistance vs the pure-HATCN sample 5 baseline. TPBi first because it
 is the only partner our own risk screen has already quantified (17 vs
 HATCN's 92), and stock is deepest. PO-T2T 1:1 as the second arm — it tests
 whether P=O anchoring adds nucleation density on top of dilution.
+
+## ANODE-SIDE variant: HTL/HIL-only ranking (user request, 2026-08-14)
+
+When the mixed seed sits on the ANODE side, the partner must come from the
+hole-side materials. That makes some CT absorption unavoidable (HATCN p-dopes
+donors -- that is its HIL mechanism), so the ranking metric flips to
+"deepest HOMO = weakest CT", then glass formation:
+
+1. mCBP   (HOMO ~ -6.0, Tg ~95)  -- edge of HATCN's doping window, weak CT
+   tail at worst; biggest Creaphys stock. Best absorption compromise.
+2. TCTA   (HOMO ~ -5.7, Tg ~151) -- clear CT expected, but the strongest
+   glass former / crystallization suppressant in the lab. Control arm.
+3. mCPCN / mCPPO1 (HOMO ~ -6.0)  -- mCBP-class HOMO + CN/P=O Ag anchors.
+4. mCP    (HOMO ok, Tg ~60: itself marginal against crystallization)
+5. CBP    (HOMO ok, but planar + notorious crystallizer -- self-defeating)
+6. TSBF   (spiro shape ideal; properties unverified -- promote if confirmed)
+7. TAPC, 8. NPB, 9. Spiro-TAD/TTB -- HOMO -5.5..-5.3, textbook HATCN CT
+   pairs, visible-NIR polaron/CT absorption. Not recommended.
+
+Injection note: HATCN charge generation (electron extraction from the
+adjacent HTL's HOMO into HATCN's LUMO) survives dilution; keep the mix
+HATCN-rich (3:1) rather than 1:1 on the anode side.
+
+Cheap pre-check: absorption spectrum of glass / HATCN:mCBP 20 nm mixed film
+BEFORE any Ag work -- a CT band shows as a broad visible-NIR hump.
