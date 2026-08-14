@@ -112,6 +112,20 @@ N_SEED_RANDOM = 0;       % 무작위 시드 개수. 0 을 기본으로 두는 �
 
 HEMI_FILE = 'opt_hemisphere_result.mat';
 
+%% ===== 개선 판정 문턱 =====
+%  [주의] 이 시험은 구조적으로 '개선' 쪽에 기울어 있다. 반구 점이 후보에
+%  들어가 있어 결과가 반구보다 의미 있게 낮게 나올 수 없고, 승자는 노이즈가
+%  섞인 저정밀 평가 수십 회 중 최댓값으로 뽑힌다. 그래서 판정에서 조심해야 할
+%  것은 '개선을 놓치는 것' 이 아니라 '노이즈를 개선으로 착각하는 것' 이다.
+%
+%  반복이 N_FINAL_REP=3 회뿐이라 표준편차 추정 자체가 부정확하므로, 정규분포의
+%  2.0 이 아니라 pooled t 분포를 쓴다. df = 2*(N_FINAL_REP-1) = 4,
+%  단측 95% -> t = 2.132. (df 가 커지면 2.0 으로 수렴한다.)
+T_CRIT_TABLE = [6.314 2.920 2.353 2.132 2.015 1.943 1.895 1.860];  % df=1..8, 단측 95%
+df_pool  = 2*(N_FINAL_REP-1);
+T_CRIT   = T_CRIT_TABLE(min(max(df_pool,1), numel(T_CRIT_TABLE)));
+fprintf('[판정] 문턱 t = %.3f (pooled df = %d, 단측 95%%)\n', T_CRIT, df_pool);
+
 %% Optimization Variables (13-dim, 다른 캠페인과 동일)
 varNames = {'x2','x3','x4','x5','x6', 'y2','y3','y4','y5','y6', 'dETL','dHTL','stretchZ'};
 lb = [0, 0, 0, 0, 0, 0,   0,   0,   0,   0,   10, 10, 0.1];
@@ -314,13 +328,14 @@ for k = ARMS_TO_RUN(:).'
     se   = sqrt(base_sd(k)^2 + ws_sd(k)^2) / sqrt(N_FINAL_REP);
     dlt  = ws_val(k) - base_val(k);
     rel  = 100*dlt/base_val(k);
-    if dlt > 2*se
-        verdict{k} = sprintf('개선 (%+.2f%%, %.1f sigma) — 형상 자유도 실재', rel, dlt/max(se,eps));
+    tval = dlt / max(se, eps);
+    if tval > T_CRIT
+        verdict{k} = sprintf('개선 (%+.2f%%, t=%.1f > %.2f) — 형상 자유도 실재', rel, tval, T_CRIT);
     else
-        verdict{k} = sprintf('정체 (%+.2f%%, %.1f sigma) — 반구가 국소 최적', rel, dlt/max(se,eps));
+        verdict{k} = sprintf('정체 (%+.2f%%, t=%.1f <= %.2f) — 반구가 국소 최적', rel, tval, T_CRIT);
     end
-    fprintf('  >>> 승자 %s : %.5f (기준 %.5f, %+.2f%%, %.1f sigma)\n', ...
-            bestSrc, ws_val(k), base_val(k), rel, dlt/max(se,eps));
+    fprintf('  >>> 승자 %s : %.5f (기준 %.5f, %+.2f%%, t=%.1f)\n', ...
+            bestSrc, ws_val(k), base_val(k), rel, tval);
     fprintf('      %s\n', verdict{k});
 
     % crash-safe 저장
@@ -335,8 +350,8 @@ end
 %% =====================================================================
 fprintf('\n############ WARM START FROM HEMISPHERE ############\n');
 fprintf('%-12s | %10s | %10s | %8s | %7s | %s\n', ...
-        'arm', 'hemisphere', 'warm start', 'delta%', 'sigma', 'winner');
-anyImproved = false;
+        'arm', 'hemisphere', 'warm start', 'delta%', 't', 'winner');
+anyImproved = false;  nRun = 0;  nFlag = 0;
 for k = 1:nBand
     if ~isfinite(ws_val(k))
         fprintf('%-12s | %10s | %10s | %8s | %7s | %s\n', BAND_NAMES{k}, '-','-','-','-','(미실행)');
@@ -344,10 +359,19 @@ for k = 1:nBand
     end
     se  = sqrt(base_sd(k)^2 + ws_sd(k)^2) / sqrt(N_FINAL_REP);
     dlt = ws_val(k) - base_val(k);
+    nRun = nRun + 1;
     fprintf('%-12s | %10.5f | %10.5f | %+7.2f%% | %6.1f | %s\n', ...
             BAND_NAMES{k}, base_val(k), ws_val(k), 100*dlt/base_val(k), ...
             dlt/max(se,eps), ws_src{k});
-    if dlt > 2*se, anyImproved = true; end
+    if dlt > T_CRIT*se, anyImproved = true; nFlag = nFlag + 1; end
+end
+
+%  [다중비교] arm 을 여러 개 돌리면 그중 하나가 우연히 문턱을 넘을 확률이
+%  arm 수만큼 늘어난다 (arm 당 5%, 5개면 약 23%). 하나만 넘었다면 그 arm 을
+%  반복 수를 늘려 재확인하기 전에는 '개선' 으로 보고하지 말 것.
+if nRun > 1
+    fprintf('\n[다중비교] arm %d개 실행 -> 우연히 하나 이상 넘을 확률 약 %.0f%%.\n', ...
+            nRun, 100*(1-0.95^nRun));
 end
 
 fprintf('\n---- 판정 ----\n');
@@ -356,14 +380,18 @@ for k = 1:nBand
 end
 
 if anyImproved
-    fprintf(['\n=> 일부 arm 에서 반구를 유의하게 넘었다.\n' ...
+    fprintf(['\n=> arm %d개에서 반구를 문턱 이상으로 넘었다.\n' ...
              '   원래 캠페인의 G_j < 1 은 탐색 예산 부족이었다는 뜻이므로,\n' ...
-             '   원고 2.2절의 saturation 서술을 개선폭에 맞춰 수정해야 한다.\n']);
+             '   원고 2.2절의 saturation 서술을 개선폭에 맞춰 수정해야 한다.\n' ...
+             '   단, 넘은 arm 이 1개뿐이고 여러 arm 을 돌렸다면 다중비교를\n' ...
+             '   의심하고 N_FINAL_REP 를 늘려 그 arm 만 재확인할 것.\n'], nFlag);
 else
     fprintf(['\n=> 어느 arm 도 반구를 노이즈 이상으로 넘지 못했다.\n' ...
-             '   반구 해에서 출발한 국소 탐색조차 개선하지 못했으므로,\n' ...
-             '   반구는 13차원 설계공간의 국소 최적점이다. 원고 2.2절의\n' ...
-             '   "차원의 비용" 서술을 이 결과로 대체할 수 있다.\n']);
+             '   이 시험은 구조상 개선 쪽에 기울어 있다 — 반구 점이 후보에\n' ...
+             '   포함되고, 승자는 노이즈 섞인 저정밀 평가 수십 회 중 최댓값으로\n' ...
+             '   뽑히며, 국소 정련을 반구에서 직접 한 번 더 돌린다. 그렇게 하고도\n' ...
+             '   개선이 없다는 것이므로, 반구는 13차원 설계공간의 국소 최적점이다.\n' ...
+             '   원고 2.2절의 "차원의 비용" 서술을 이 결과로 대체할 수 있다.\n']);
 end
 
 save('warmstart_hemisphere_result.mat', 'EVAL_LOG', 'ws_x', 'ws_val', 'ws_tot', ...
