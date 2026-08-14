@@ -1,6 +1,7 @@
 ==============================================================
-best high-precision total EQE                E* = 0.5556
+weighted-sweep best (large-patch norm.)      E* = 0.5556
 coarse search log maximum                         0.5591
+fixed-patch freeform total ceiling                0.5539 (EQEtotal) / 0.5523 (warm start)
 total EQE range                              0.1227 - 0.5591
 full-population selectivity-efficiency R     +0.60 +0.55 -0.12 -0.57
 natural composition (convex, top-20 median)  0.094 0.278 0.361 0.236
@@ -22,8 +23,8 @@ freeform best per objective (orig / warm-start / adopted):
    20-40 0.16032 / 0.16628 -> 0.16628
    40-60 0.19802 / 0.19355 -> 0.19802
    60-80 0.13863 / nan -> 0.13863
-   total 0.55556 / 0.55231 -> 0.55556
-G_j (best freeform / hemisphere): 1.003 1.002 1.070 1.020 1.016
+   total 0.55386 / 0.55231 -> 0.55386
+G_j (best freeform / hemisphere): 1.003 1.002 1.070 1.020 1.013
 warm start vs hemisphere: 0-20 +0.32% (t=1.7) 20-40 +0.20% (t=2.1) 40-60 +4.70% (t=114.6) total +1.01% (t=68.7)
   saved -> fig2_achievable_region.png / .pdf
 

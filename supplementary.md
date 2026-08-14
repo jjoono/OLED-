@@ -44,6 +44,7 @@ gives 0.117 / 0.296 / 0.337 / 0.220.
 | Inverted (concave) | `opt_4band_inverted.m` | 13 | 60 + 15 polish per arm, 4 arms (identical protocol to the convex benchmark) | 10,000 rays, 31 λ | 50,000 rays, 151 λ, ×3 | phase 6 |
 | Randomly assembled | `stress_random_mla.m` | 6 assembly statistics | 50 random + 60 + 15 polish | 5,000 rays, 16 λ | 10,000 rays, 151 λ, ×3 seeds | phase 7 |
 | Convergence check | `convergence_check.m` | — (re-evaluation only) | 20 designs re-evaluated | — | 200,000 rays ×3, and 450–750 nm broadband | — |
+| Patch-size check | `check_patch_convergence.m` | — (re-evaluation only) | 1 design × 3 patch sizes × 3 repeats | — | 50,000 rays, 151 λ | phase 11 |
 
 The randomly assembled family is the only campaign with reduced sampling. Its
 supercell carries 6 × 6 lenslets on a 141 × 141 height grid, so one evaluation
@@ -118,11 +119,16 @@ that the data do not support.
 |---|---|---|---|
 | Hemispherical reference | 0.5468 | — | — |
 | Convex freeform (per-band campaign) | 0.5481 | 0.094 / 0.278 / 0.361 / 0.236 | 0.097 / 0.278 / 0.350 / 0.242 |
-| Convex freeform (weighted sweep) | 0.5556 | 0.102 / 0.276 / 0.354 / 0.239 | 0.095 / 0.274 / 0.354 / 0.244 |
+| Convex freeform (weighted sweep) † | 0.5556 | 0.102 / 0.276 / 0.354 / 0.239 | 0.095 / 0.274 / 0.354 / 0.244 |
 | Convex freeform (total EQE only) | 0.5539 | — | — |
 | Randomly assembled | 0.5216 ± 0.0011 | 0.111 / 0.299 / 0.347 / 0.213 | 0.102 / 0.289 / 0.355 / 0.224 |
 | Inverted (concave) | 0.5165 | 0.113 / 0.303 / 0.340 / 0.215 | 0.100 / 0.288 / 0.357 / 0.231 |
 | Lambertian partition | — | 0.117 / 0.296 / 0.337 / 0.220 | — |
+
+† Large-patch normalization: this campaign's absolute totals correspond to the
+infinite-patch limit (Table S7); its best design re-measures at 0.5428 on the
+fixed 25 mm patch. Its compositions, being ratios, are comparable with the
+other rows.
 
 Every entry lies within 0.094–0.113 (0–20°), 0.274–0.303 (20–40°),
 0.340–0.361 (40–60°) and 0.213–0.244 (60–80°). For the randomly assembled
@@ -143,24 +149,20 @@ $G_j = \max[\mathrm{EQE}_j \mid \mathrm{freeform}] / \max[\mathrm{EQE}_j \mid \m
 | 20–40° | 0.16628 | 0.16591 | 1.002 |
 | 40–60° | 0.19802 | 0.18503 | 1.070 |
 | 60–80° | 0.13863 | 0.13589 | 1.020 |
-| total EQE | 0.5556 | 0.54679 | 1.016 |
+| total EQE | 0.5539 | 0.54679 | 1.013 |
 
-The freeform column is the best of the two freeform campaigns for that
-objective. The 0–20° and 20–40° entries come from the hemisphere-seeded control
-(Table S6); the others from the per-band and weighted-sweep campaigns, which the
-control did not surpass (0.19355 against 0.19802, and 0.55231 against 0.5556).
+Every entry in this table is from a fixed-patch (25 × 25 mm) campaign, so the
+two columns share one normalization. The 0–20° and 20–40° freeform entries come
+from the hemisphere-seeded control (Table S6); 40–60° and 60–80° from the
+per-band campaign, which the control did not surpass in the one arm where both
+exist (0.19355 against 0.19802); and the total from the dedicated total-EQE
+campaign (0.5495 / 0.5530 / 0.5539 over three independent starts), which the
+control's same-session value of 0.5523 confirms to within 0.3%.
 
-The freeform total is the best of the five high-precision weighted-sum optima.
-The coarse-fidelity search log reaches 0.5591 at 10,000 rays; that value is not
-used anywhere, since it is not comparable with the hemisphere's high-precision
-re-evaluation.
-
-The freeform ceiling is confirmed independently. A campaign optimizing total EQE
-alone, over three starts of 140 evaluations each, returns 0.5495, 0.5530 and
-0.5539 — a spread of 0.8% across starts, and 0.3% below the 0.5556 obtained by
-the weighted sweep at $w = 0.75$. Both figures are high-precision, and the gap
-between them is smaller than the spread within either campaign, so two different
-objectives locate the same ceiling.
+The weighted-sweep campaign's 0.5556 does not appear in this table because its
+normalization is the large-patch limit (Table S7), not the fixed patch; its
+coarse-fidelity log maximum of 0.5591 at 10,000 rays is likewise not used
+anywhere.
 
 ---
 
@@ -201,6 +203,37 @@ rejected on geometry.
 
 ---
 
+## Table S7 | Patch-size dependence
+
+One fixed high-efficiency design (the weighted-sweep optimum at $w = 0.75$),
+re-evaluated at final fidelity (50,000 rays, 151 λ, 3 repeats) with only the
+textured patch size varied.
+
+| Patch (mm) | total EQE | s.d. | vs 25 mm | selectivity (0–20 / 20–40 / 40–60 / 60–80) |
+|---|---|---|---|---|
+| 15 × 15 | 0.51681 | 0.00016 | −4.79% | 0.108 / 0.283 / 0.346 / 0.233 |
+| 25 × 25 | 0.54282 | 0.00008 | — | 0.106 / 0.280 / 0.346 / 0.238 |
+| 35 × 35 | 0.55128 | 0.00003 | +1.56% | 0.106 / 0.279 / 0.346 / 0.239 |
+
+The three totals follow a saturating exponential
+$E(p) = E_\infty - A\,e^{-p/L}$ with decay length $L = 8.9$ mm — about four
+critical-angle round trips of 2.32 mm each — and infinite-patch limit
+$E_\infty = 0.5554$. Three observations follow.
+
+1. The 25 mm patch captures 97.7% of the infinite-film value (35 mm: 99.3%),
+   so fixed-patch absolute EQE values are lower bounds truncated by ~2.3%.
+2. The angular composition is patch-converged: no band selectivity changes by
+   more than 0.11 pp between 25 and 35 mm (at most 0.6 pp even from 15 mm).
+   All ratios, correlations and class comparisons, which are evaluated at equal
+   patch, are unaffected.
+3. The extrapolated limit reproduces the weighted-sweep campaign's 0.5556 to
+   0.04%. That campaign's absolute normalization therefore corresponds to the
+   large-patch limit, which is why its totals are excluded from the
+   fixed-patch $G_j$ comparison of Table S5; re-measuring its best design at
+   the fixed 25 mm patch gives 0.5428.
+
+---
+
 ## Reproducing the figures
 
 All five manuscript figures are produced by a single script,
@@ -218,7 +251,7 @@ text.
 | Figure | Output | Inputs |
 |---|---|---|
 | Fig. 1 | `fig1_platform.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
-| Fig. 2 | `fig2_achievable_region.png` / `.pdf` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat`, `warmstart_hemisphere_result.mat` |
+| Fig. 2 | `fig2_achievable_region.png` / `.pdf` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat`, `warmstart_hemisphere_result.mat`, `freeform_EQEtotal_result.mat` |
 | Fig. 3 | `fig3_selectivity_map.png` / `.pdf` | `pareto_front_result.mat` |
 | Fig. 4 | `fig4_recycling_routes.png` / `.pdf` | `angular_recycling_result.npz`, `angular_recycling_bandwidth.npz` |
 | Fig. 5 | `fig5_families.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
@@ -233,6 +266,6 @@ Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
 `freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`,
 `opt_4band_inverted_result.mat`,
 `stress_random_result.mat`, `calibrate_random_cost.mat`,
-`warmstart_hemisphere_result.mat`, `convergence_check_result.mat`,
-`angular_recycling_result.npz`,
+`warmstart_hemisphere_result.mat`, `patch_convergence_result.mat`,
+`convergence_check_result.mat`, `angular_recycling_result.npz`,
 `angular_recycling_bandwidth.npz`.

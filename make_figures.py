@@ -113,6 +113,7 @@ H = loadmat('opt_hemisphere_result.mat')
 I = loadmat('opt_4band_inverted_result.mat')
 Rn = loadmat('stress_random_result.mat')
 W  = loadmat('warmstart_hemisphere_result.mat')
+F  = loadmat('freeform_EQEtotal_result.mat')
 d1 = np.load('angular_recycling_result.npz')
 d3 = np.load('angular_recycling_bandwidth.npz')
 
@@ -142,8 +143,11 @@ R_full = band_corr(Tp, Bp)
 S_nat, S_lo, S_hi = natural_composition(Tc, Bc)
 
 note('=' * 62)
-note(f'best high-precision total EQE                E* = {E_star:.4f}')
+note(f'weighted-sweep best (large-patch norm.)      E* = {E_star:.4f}')
 note(f'coarse search log maximum                         {np.max(Tp):.4f}')
+note(f'fixed-patch freeform total ceiling                '
+     f'{float(np.asarray(F["gBestEQE"]).ravel()[0]):.4f} (EQEtotal) / '
+     f'{float(W["ws_val"].ravel()[4]):.4f} (warm start)')
 note(f'total EQE range                              {Tp.min():.4f} - {Tp.max():.4f}')
 note('full-population selectivity-efficiency R     ' +
      ' '.join(f'{r:+.2f}' for r in R_full))
@@ -362,9 +366,15 @@ def fig2():
     #  first would report a search artifact (two bands came out below the
     #  hemisphere there purely because a 13-variable search from random seeds
     #  had not converged) rather than what the design class can reach.
+    #  The total-EQE entry must come from a matched-patch campaign. The weighted
+    #  sweep's 0.5556 is the large-patch limit (patch_convergence_result.mat:
+    #  the same design re-measures at 0.5428 on the fixed 25 mm patch, and the
+    #  infinite-patch extrapolation 0.5554 matches 0.5556 to 0.04%), so using it
+    #  against the patch-25 hemisphere would inflate G_total.
     ax = fig.add_subplot(gs[1, 2:4])
     ws_val = W['ws_val'].ravel()
-    ff_orig = np.concatenate((band_eqe, [E_star]))
+    gbest_tot = float(np.asarray(F['gBestEQE']).ravel()[0])
+    ff_orig = np.concatenate((band_eqe, [gbest_tot]))
     ff = np.fmax(ff_orig, np.nan_to_num(ws_val, nan=-np.inf))
     hm = hemi_val[:5]
     G = ff / hm
