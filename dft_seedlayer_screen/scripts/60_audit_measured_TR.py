@@ -24,9 +24,11 @@ the two need not agree.
 import os, sys
 import numpy as np
 
-UP = "/root/.claude/uploads/965acd1b-0fc7-5d29-a851-865963011861"
-F_T = os.path.join(UP, "952615e2-24T.csv")
-F_R = os.path.join(UP, "2ddd872d-24R.csv")
+# The upload directory is wiped by rollbacks (it took the only copy of these
+# measurements with it once); the repo copy in data/ is authoritative now.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+F_T = os.path.join(_HERE, "..", "data", "24T.csv")
+F_R = os.path.join(_HERE, "..", "data", "24R.csv")
 
 JC_WL = np.array([397.4, 413.3, 430.5, 450.9, 471.4, 495.9,
                   521.0, 548.6, 582.1, 616.8, 659.5, 704.5])
