@@ -137,5 +137,40 @@ def main():
     print(f"  (published geometry, same model: true 35.8%, Lambertian 81.7%)")
 
 
+# RESULT (run 2026-08-14, 3 min):
+#
+#   coarse optimum:  HTL 140 / ETL 60 / cap 80   (true EQE ~42 %)
+#   refined optimum: HTL 145 / ETL 55 / cap 80, dipole z 24.5, F 1.52
+#       eta_out 45.0 %   TRUE EQE 44.1 %   Lambertian-read 26.3 %
+#   published stack, same model: true 35.8 %, Lambertian-read 81.7 %
+#
+# THREE READINGS.
+#
+# 1. Full 300 nm freedom on all three spacers buys ~8 points of true EQE
+#    (35.8 -> 44.1 %). The optimiser REFUSES the thick-layer route: the
+#    optimum sits a few nm from the published design (145/55/80 vs
+#    135/45/75). Moving to a higher cavity order with 100-300 nm spacers
+#    loses more to per-pass metal absorption than it gains from SPP
+#    suppression, so "thicker ETL kills SPP" does not pay in this
+#    two-Ag-mirror architecture. The published thicknesses are essentially
+#    optimal; the claimed NUMBER, not the design, is the anomaly. Even the
+#    44.1 % bound (and ~50 % at a perfect Theta_par = 1) stays far below
+#    the claimed 59.2 %.
+#
+# 2. The metric inversion is the striking part: at the true-EQE optimum
+#    the forward-Lambertian reading COLLAPSES to 26.3 % (sub-Lambertian,
+#    wide angular lobe), while the published geometry reads 81.7 % on the
+#    same instrument logic while genuinely delivering 35.8 %. A forward-
+#    only IVL metric therefore actively mis-ranks TE designs: it rewards
+#    piling photons at normal incidence and penalises the geometry that
+#    actually emits the most light. Chasing the IVL number and chasing
+#    real efficiency lead to DIFFERENT devices.
+#
+# 3. For the editor letter: no spacer configuration reachable with these
+#    materials supports 59.2 % as an angle-integrated EQE (optics-only
+#    upper bounds, gamma = 1). Electrical caveat unchanged: 300 nm
+#    transport layers would also cost drive voltage, so even the 44 %
+#    optimum would sacrifice power efficiency.
+
 if __name__ == "__main__":
     main()

@@ -104,6 +104,20 @@ physics-based leg of the claim (independent of the instrument-disclosure
 and CE/EQE-ratio legs), and it survives even if the authors assert the
 sphere was used.
 
+## Spacer-optimisation extension (scripts/66_te_cavity_optimize.py)
+
+Freeing HTL/ETL/capping up to 300 nm each (same model, Theta_par 0.85):
+optimum lands at 145/55/80 nm - within nanometres of the published
+135/45/75 - giving true EQE 44.1 % (eta_out 45 %). The thick-spacer route
+never wins: higher cavity orders lose more to per-pass metal absorption
+than they gain from SPP suppression. So (a) the published DESIGN is
+near-optimal and the claimed NUMBER is the anomaly, and (b) no spacer
+configuration with these materials reaches 59.2 % as a true EQE (~50 %
+even at perfect dipole orientation). Bonus finding: at the true-EQE
+optimum the forward-Lambertian reading collapses to 26.3 % - the
+forward-only metric actively mis-ranks TE designs (it rewards the
+forward-peaked geometry that reads 81.7 % while delivering 35.8 %).
+
 ## Status / open items
 
 - Not yet checked: Liu et al. Adv. Mater. 2025 (adma.202411610,
