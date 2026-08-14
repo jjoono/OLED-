@@ -118,6 +118,21 @@ optimum the forward-Lambertian reading collapses to 26.3 % - the
 forward-only metric actively mis-ranks TE designs (it rewards the
 forward-peaked geometry that reads 81.7 % while delivering 35.8 %).
 
+## Cross-check against the user's own MATLAB framework (scripts/67)
+
+The user's lab dipole model (birefringent CPS, PSO-optimised red TE stack,
+no Yb, capping n = 2.3, Theta_par 0.95, eta_rad 1) reports ~60 % true EQE
+at ETL/HTL/cap = 229/252/129. Replicated here at 54 % - the two
+implementations agree within model detail. Assumption ladder from there to
+the Liu conditions: full red spectrum -3.5 pts; adding Yb 3 nm -20 pts
+(the single biggest loss); green + Yb with every spacer re-optimised but
+keeping the n=2.3 cap and no-ITO advantages: 53.9 % (Tpar 0.95) / 49.3 %
+(0.85). The Liu device additionally uses a low-index BPBPA cap (~1.75),
+ITO 15 nm inside the cavity, and q = 0.97, landing at the 44.1/35.8 %
+bounds of scripts/66. So "~60 % is physically reachable in a red, Yb-free,
+high-index-capped TE-OLED" and "59.2 % is unsupported for THIS green
+device" are both true - two independent codes agree.
+
 ## Status / open items
 
 - Not yet checked: Liu et al. Adv. Mater. 2025 (adma.202411610,
