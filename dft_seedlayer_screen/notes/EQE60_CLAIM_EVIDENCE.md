@@ -51,6 +51,40 @@ cavity produces; genuine sphere-verified TE enhancements are typically
   a "TE-OLED EQE approaching 60%". WRONG - primary source shows BE-only,
   41.9% max. Corrected 2026-08-14 after reading the actual PDF+SI.
 
+## Paper 3 checked (2026-08-14): Xue et al., Adv. Mater. 2026, adma.74082
+("Ultra-Narrow ... FWHM of 12 nm ... TE OLEDs with EQE Approaching 60%",
+DBFCN emitter; archived as Xue_AdvMater_12nm.pdf / _SI.docx)
+
+- BE device: EQE_max 38.5%; TE device: EQE_max 58.9%, CE_max 232.5 cd/A,
+  PE > 300 lm/W. The 60% claim is again in the TITLE.
+- The SI "Device Fabrication and Measurement" paragraph mentions ONLY the
+  Hamamatsu C9920-12 sphere - and it is verbatim boilerplate copied from
+  the group's BE-only TPS paper (adma.72684), with no TE instrument
+  named, unlike the Liu Angew SI which explicitly names the F-Star for TE.
+  So this paper does not disclose how the TE device was measured at all.
+- No angle-resolved EL anywhere. (Angle-resolved PL for dipole
+  orientation, Fig. S25, is film PL - not device EL.)
+
+## The Lambertian-ratio arithmetic (applies to both TE papers)
+
+For emission at lambda with luminous efficacy K(lambda), a Lambertian
+device obeys CE [cd/A] = EQE x E_photon[eV] x K / pi. At 520-521 nm
+(V ~ 0.71, K ~ 485-490 lm/W) that is 3.68-3.8 cd/A per %EQE.
+
+  Liu Angew TE:  218.0 / 59.2 = 3.682   (Lambertian prediction: 3.68)
+  Xue 12nm TE:   232.5 / 58.9 = 3.947   (prediction at 521 nm: ~3.8)
+  (BE reference: Liu binary BE 110.7 / 29.4 = 3.77 - same family.)
+
+A strong-microcavity TE device is forward-peaked, so its true CE/EQE
+ratio must sit ABOVE the Lambertian value if both quantities were
+measured independently. Landing exactly ON the Lambertian line proves
+that in each TE dataset only ONE of {EQE, CE} is an independent
+measurement and the other is an arithmetic Lambertian derivative:
+either forward luminance -> EQE (inflated EQE), or sphere EQE ->
+CE/PE (fabricated-by-assumption CE and PE for a non-Lambertian
+device). Under either reading, the headline pair {EQE ~60%, PE >300
+lm/W} is not supported without angular data - which neither paper has.
+
 ## Status / open items
 
 - Not yet checked: Liu et al. Adv. Mater. 2025 (adma.202411610,
