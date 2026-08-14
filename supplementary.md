@@ -45,6 +45,7 @@ gives 0.117 / 0.296 / 0.337 / 0.220.
 | Randomly assembled | `stress_random_mla.m` | 6 assembly statistics | 50 random + 60 + 15 polish | 5,000 rays, 16 λ | 10,000 rays, 151 λ, ×3 seeds | phase 7 |
 | Convergence check | `convergence_check.m` | — (re-evaluation only) | 20 designs re-evaluated | — | 200,000 rays ×3, and 450–750 nm broadband | — |
 | Patch-size check | `check_patch_convergence.m` | — (re-evaluation only) | 1 design × 3 patch sizes × 3 repeats | — | 50,000 rays, 151 λ | phase 11 |
+| 20–40° confirmation | `reeval_confirm_2040.m` | — (re-evaluation only) | 2 designs × 5 repeats | — | 50,000 rays, 151 λ | phase 10 |
 
 The randomly assembled family is the only campaign with reduced sampling. Its
 supercell carries 6 × 6 lenslets on a 141 × 141 height grid, so one evaluation
@@ -148,16 +149,18 @@ $G_j = \max[\mathrm{EQE}_j \mid \mathrm{freeform}] / \max[\mathrm{EQE}_j \mid \m
 | 0–20° | 0.06699 | 0.06682 | 1.003 |
 | 20–40° | 0.16628 | 0.16591 | 1.002 |
 | 40–60° | 0.19802 | 0.18503 | 1.070 |
-| 60–80° | 0.13863 | 0.13589 | 1.020 |
+| 60–80° | 0.14075 | 0.13589 | 1.036 |
 | total EQE | 0.5539 | 0.54679 | 1.013 |
 
 Every entry in this table is from a fixed-patch (25 × 25 mm) campaign, so the
-two columns share one normalization. The 0–20° and 20–40° freeform entries come
-from the hemisphere-seeded control (Table S6); 40–60° and 60–80° from the
-per-band campaign, which the control did not surpass in the one arm where both
-exist (0.19355 against 0.19802); and the total from the dedicated total-EQE
-campaign (0.5495 / 0.5530 / 0.5539 over three independent starts), which the
-control's same-session value of 0.5523 confirms to within 0.3%.
+two columns share one normalization. The 0–20°, 20–40° and 60–80° freeform entries
+come from the hemisphere-seeded control (Table S6) — in the 60–80° arm the
+control surpassed the per-band campaign's own optimum (0.14075 against
+0.13863); the 40–60° entry is from the per-band campaign, which the control did
+not surpass there (0.19355 against 0.19802); and the total is from the
+dedicated total-EQE campaign (0.5495 / 0.5530 / 0.5539 over three independent
+starts), which the control's same-session value of 0.5523 confirms to within
+0.3%.
 
 The weighted-sweep campaign's 0.5556 does not appear in this table because its
 normalization is the large-patch limit (Table S7), not the fixed patch; its
@@ -177,29 +180,37 @@ fidelity; the archived value is a cross-check only.
 | Arm | hemisphere (archived) | hemisphere (re-measured) | dev. | warm start | gain | $t$ | winning branch |
 |---|---|---|---|---|---|---|---|
 | 0–20° | 0.06682 | 0.06677 ± 0.00017 | 0.07% | 0.06699 ± 0.00013 | +0.32% | 1.7 | polish from hemisphere |
-| 20–40° | 0.16591 | 0.16595 ± 0.00017 | 0.02% | 0.16628 ± 0.00020 | +0.20% | 2.1 | surrogateopt |
+| 20–40° | 0.16591 | 0.16595 ± 0.00017 | 0.02% | 0.16628 ± 0.00020 | +0.20% ‡ | 2.1 ‡ | surrogateopt |
 | 40–60° | 0.18503 | 0.18486 ± 0.00008 | 0.09% | 0.19355 ± 0.00010 | **+4.70%** | **114.6** | polish from surrogate |
-| 60–80° | 0.13589 | — | — | — | — | — | not run |
+| 60–80° | 0.13589 | 0.13581 ± 0.00014 | 0.06% | 0.14075 ± 0.00025 | **+3.64%** | **29.6** | surrogateopt |
 | total EQE | 0.54679 | 0.54679 ± 0.00013 | 0.00% | 0.55231 ± 0.00004 | **+1.01%** | **68.7** | polish from surrogate |
 
 Uncertainties are the standard deviation over three high-precision repeats. The
 threshold is the pooled one-sided 95% $t$ value at four degrees of freedom,
-2.13. The 60–80° arm was not run because its original gain, 1.020, already
-exceeded unity, so it carries no search-failure ambiguity.
+2.13.
+
+‡ The 20–40° arm was the one borderline case, and was settled by a dedicated
+confirmation run: both stored designs re-measured with five fresh repeats each,
+search excluded. This gives hemisphere 0.16583 ± 0.00015 against warm start
+0.16631 ± 0.00021, a residue of +0.29% at $t = 4.1$ (five-repeat threshold
+1.86) — statistically real, three tenths of a percent in size
+(`reeval_confirm_2040_result.mat`).
 
 Two properties of this control matter for how it should be read. It is
 one-sided: the hemisphere is among the screened candidates, so the result cannot
 fall meaningfully below it. And it is biased toward reporting a gain, since the
-winner is the maximum over roughly seventy noisy search evaluations. The two
-near-zero outcomes are therefore conservative, and the contrast in significance
-between them and the two positive arms—1.7 and 2.1 against 114.6 and 68.7—is the
-evidence that they reflect an absent margin rather than a weak search. Running
-four arms raises the chance of one crossing the threshold by luck to about 19%,
-which is immaterial here because both positive arms clear it by more than a
-factor of thirty.
+winner is the maximum over roughly seventy noisy search evaluations per arm. The
+near-zero outcomes are therefore conservative, and the separation in scale
+between the two groups—residues of +0.29% to +0.32% against margins of +1.01%
+to +4.70% at $t = 30$ to $115$—is the evidence that the residues reflect an
+essentially absent margin rather than a weak search. In the 60–80° arm the
+control exceeded the original per-band campaign's own optimum (0.14075 against
+0.13863), so restarting at the hemisphere is also simply a better search
+protocol in this design space.
 
-The total run took 7.6 h, 108–118 min per arm, and 1 of 192 evaluations was
-rejected on geometry.
+The first four arms took 7.6 h (108–118 min per arm) with 1 of 192 evaluations
+rejected on geometry; the 60–80° arm and the confirmation run completed in a
+second overnight session.
 
 ---
 
@@ -266,6 +277,7 @@ Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
 `freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`,
 `opt_4band_inverted_result.mat`,
 `stress_random_result.mat`, `calibrate_random_cost.mat`,
-`warmstart_hemisphere_result.mat`, `patch_convergence_result.mat`,
-`convergence_check_result.mat`, `angular_recycling_result.npz`,
+`warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat`,
+`patch_convergence_result.mat`, `convergence_check_result.mat`,
+`angular_recycling_result.npz`,
 `angular_recycling_bandwidth.npz`.

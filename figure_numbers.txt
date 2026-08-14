@@ -22,10 +22,10 @@ freeform best per objective (orig / warm-start / adopted):
     0-20 0.06318 / 0.06699 -> 0.06699
    20-40 0.16032 / 0.16628 -> 0.16628
    40-60 0.19802 / 0.19355 -> 0.19802
-   60-80 0.13863 / nan -> 0.13863
+   60-80 0.13863 / 0.14075 -> 0.14075
    total 0.55386 / 0.55231 -> 0.55386
-G_j (best freeform / hemisphere): 1.003 1.002 1.070 1.020 1.013
-warm start vs hemisphere: 0-20 +0.32% (t=1.7) 20-40 +0.20% (t=2.1) 40-60 +4.70% (t=114.6) total +1.01% (t=68.7)
+G_j (best freeform / hemisphere): 1.003 1.002 1.070 1.036 1.013
+warm start vs hemisphere: 0-20 +0.32% (t=1.7) 20-40 +0.20% (t=2.1) 40-60 +4.70% (t=114.6) 60-80 +3.64% (t=29.6) total +1.01% (t=68.7)
   saved -> fig2_achievable_region.png / .pdf
 
 [Fig. 3]
