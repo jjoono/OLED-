@@ -42,13 +42,34 @@
 %      verdict                              : arm 별 판정 문자열
 %    EVAL_LOG 열 구성은 다른 캠페인과 동일. phase 9 = 이 스크립트 표식.
 %
-%  [실행 시간] arm 당 고정밀 6회 + 저정밀 약 70회. 5 arm 전부면
-%    opt_4band_freeform.m 한 번과 비슷하거나 조금 짧다. 시간이 부족하면
-%    ARMS_TO_RUN = [1 2] 로 G_j < 1 인 두 arm 만 돌려도 반론 차단에는 충분하다.
+%  [실행 시간] arm 당 저정밀 약 74회 + 고정밀 6회. 고정밀 6회가 전체의 약 2/3 를
+%    차지한다 (변수 개수가 아니라 광선수 x 파장수가 비용을 정한다). arm 당 대략
+%    2시간이며, 정확한 값은 첫 arm 이 끝나면 콘솔에 실측으로 찍힌다.
+%
+%  [야간 실행] 이 스크립트는 이어붙이기(merge)를 지원한다. 이미 끝난 arm 은
+%    warmstart_hemisphere_result.mat 에서 그대로 읽어와 보존하고, ARMS_TO_RUN 에
+%    적힌 arm 만 새로 돌린다. 덮어쓰기 전에 타임스탬프 백업을 남긴다.
+%    ARMS_TO_RUN 의 **순서대로** 실행하므로 중요한 arm 을 앞에 둘 것.
+%    TIME_BUDGET_H 를 넘기면 새 arm 을 시작하지 않고 정리 후 종료한다.
+%    콘솔 전체는 warmstart_log_<시각>.txt 로 저장된다.
+%
+%  [우선순위] arm 1, 2 (G_j = 0.946, 0.966) 가 심사 반론이 실제로 걸린 곳이다.
+%    arm 3, 4, 5 (G_j = 1.070, 1.020, 1.016) 는 이미 freeform 이 반구를 넘은
+%    구간이므로, 여기서 개선이 검출되면 '이 시험이 개선을 찾아낼 수 있다' 는
+%    양성 대조군이 된다. 둘 다 있어야 결과 해석이 단단해진다.
 %
 %  기반: opt_4band_freeform.m (동일한 LightTools 연동/기하/스택/제약/헬퍼)
 % ============================================================
 clear;
+
+%% ===== 야간 실행 설정 =====
+TIME_BUDGET_H = 9;                % 이 시간을 넘기면 새 arm 을 시작하지 않는다
+PREV_FILE     = 'warmstart_hemisphere_result.mat';   % 이어붙일 이전 결과
+DIARY_FILE    = sprintf('warmstart_log_%s.txt', datestr(now,'yyyymmdd_HHMMSS'));
+diary(DIARY_FILE);  diary on;
+fprintf('[Log] 콘솔 저장 -> %s\n', DIARY_FILE);
+tRun = tic;  armMin = [];
+
 %% For LightTools Connection
 global ID_swept ID_LT ltml ltloc count eval_count restart_interval ...
        ray_nums_current wave_n_current EVAL_LOG EVAL_PHASE EVAL_W ...
@@ -92,8 +113,9 @@ BAND_NAMES = {'0-20 deg', '20-40 deg', '40-60 deg', '60-80 deg', 'EQE_total'};
 BAND_COL   = [1, 2, 3, 4, 0];     % bins 열 인덱스. 0 = 총 EQE
 nBand = numel(BAND_LIST);
 
-%  [부분 실행] G_j < 1 인 arm 만 돌리려면 ARMS_TO_RUN = [1 2];
-ARMS_TO_RUN = [];                 % [] = 전부
+%  [부분 실행] 앞에 적은 arm 부터 실행된다. arm 4 를 이미 돌렸다면 아래가 기본값.
+%    1,2 = 반론이 걸린 arm (먼저)   3,5 = 양성 대조군 (나중)
+ARMS_TO_RUN = [1 2 3 5];          % [] = 전부
 
 %% ===== 탐색 예산 =====
 %  원래 캠페인(60+15)보다 적게 잡아도 된다. 시드가 이미 최적점 근방이므로
@@ -165,16 +187,77 @@ ws_src    = repmat({''}, nBand, 1);
 verdict   = repmat({''}, nBand, 1);
 
 if isempty(ARMS_TO_RUN), ARMS_TO_RUN = 1:nBand; end
+ARMS_TO_RUN = ARMS_TO_RUN(:).';   % 방향 고정 (아래에서 논리 인덱싱에 쓰인다)
+
+%% ===== 이전 결과 이어붙이기 =====
+%  [왜] 결과 파일 하나에 arm 별 행으로 쌓이는 구조라, 병합 없이 다시 돌리면
+%  이전 arm 의 행이 NaN 으로 초기화되어 날아간다. 여기서 미리 채워 넣고
+%  ARMS_TO_RUN 에 적힌 arm 만 덮어쓴다.
+if exist(PREV_FILE, 'file')
+    Dp  = load(PREV_FILE);
+    bak = sprintf('warmstart_backup_%s.mat', datestr(now,'yyyymmdd_HHMMSS'));
+    copyfile(PREV_FILE, bak);
+    fprintf('\n[Merge] %s 로드 (백업 -> %s)\n', PREV_FILE, bak);
+    nKeep = 0;
+    if isfield(Dp,'ws_val') && isfield(Dp,'base_val')
+        m = min(numel(Dp.ws_val), nBand);
+        base_val(1:m)   = Dp.base_val(1:m);
+        base_tot(1:m)   = Dp.base_tot(1:m);
+        base_sd(1:m)    = Dp.base_sd(1:m);
+        base_bins(1:m,:)= Dp.base_bins(1:m,:);
+        ws_val(1:m)     = Dp.ws_val(1:m);
+        ws_tot(1:m)     = Dp.ws_tot(1:m);
+        ws_sd(1:m)      = Dp.ws_sd(1:m);
+        ws_bins(1:m,:)  = Dp.ws_bins(1:m,:);
+        ws_x(1:m,:)     = Dp.ws_x(1:m,:);
+        for i = 1:m
+            if isfinite(Dp.ws_val(i))
+                if isfield(Dp,'ws_src'),  ws_src{i}  = Dp.ws_src{i};  end
+                if isfield(Dp,'verdict'), verdict{i} = Dp.verdict{i}; end
+                nKeep = nKeep + 1;
+                fprintf('  [보존] %-12s : 기준 %.5f -> warm %.5f\n', ...
+                        BAND_NAMES{i}, Dp.base_val(i), Dp.ws_val(i));
+            end
+        end
+    end
+    if isfield(Dp,'EVAL_LOG') && size(Dp.EVAL_LOG,2) == nvar+7
+        EVAL_LOG = Dp.EVAL_LOG;
+        fprintf('  [보존] 이전 EVAL_LOG %d행\n', size(EVAL_LOG,1));
+    end
+    fprintf('[Merge] 완료된 arm %d개 보존. 이번에 돌릴 arm: %s\n', ...
+            nKeep, mat2str(ARMS_TO_RUN));
+    % 이번에 다시 도는 arm 은 보존값을 비워 혼동을 막는다
+    for i = ARMS_TO_RUN(:).'
+        ws_val(i) = NaN;  ws_src{i} = '';  verdict{i} = '';
+    end
+else
+    fprintf('\n[Merge] 이전 결과 없음 -> 처음부터 실행\n');
+end
 
 %% =====================================================================
 %  arm 루프
 %% =====================================================================
+try
 for k = ARMS_TO_RUN(:).'
     band = BAND_LIST{k};
     bcol = BAND_COL(k);
     if bcol == 0, wtag = -1; else, wtag = band(1); end
 
-    fprintf('\n########## ARM %s  (%d/%d) ##########\n', BAND_NAMES{k}, k, nBand);
+    % --- 시간 예산: 남은 시간이 직전 arm 소요보다 짧으면 시작하지 않는다 ---
+    elapsedH = toc(tRun)/3600;
+    needH    = 0;
+    if ~isempty(armMin), needH = mean(armMin)/60; end
+    if elapsedH + needH > TIME_BUDGET_H && elapsedH > 0.05
+        pend = ARMS_TO_RUN(~isfinite(ws_val(ARMS_TO_RUN)));
+        fprintf(['\n[Budget] %.1f h 경과, arm 당 약 %.1f h 필요 -> 예산 %.1f h 초과.\n' ...
+                 '         남은 arm %s 은 건너뛴다. 다음 실행에서 이어붙는다.\n'], ...
+                 elapsedH, needH, TIME_BUDGET_H, mat2str(pend(:).'));
+        break;
+    end
+
+    tArm = tic;
+    fprintf('\n########## ARM %s  (%d/%d)  [경과 %.1f h] ##########\n', ...
+            BAND_NAMES{k}, k, nBand, elapsedH);
 
     if size(Dh.hemi_x,1) < k || any(~isfinite(Dh.hemi_x(k,:)))
         fprintf('  [Skip] 반구 결과에 이 arm 이 없다.\n');
@@ -338,11 +421,28 @@ for k = ARMS_TO_RUN(:).'
             bestSrc, ws_val(k), base_val(k), rel, tval);
     fprintf('      %s\n', verdict{k});
 
-    % crash-safe 저장
+    % --- 실측 소요시간 및 남은 arm ETA ---
+    thisMin  = toc(tArm)/60;
+    armMin(end+1) = thisMin;  %#ok<SAGROW>
+    nLeft    = sum(~isfinite(ws_val(ARMS_TO_RUN)));
+    fprintf('  [시간] 이 arm %.0f 분 (누적 %.1f h). 남은 arm %d개, 예상 %.1f h\n', ...
+            thisMin, toc(tRun)/3600, nLeft, nLeft*mean(armMin)/60);
+
+    % crash-safe 저장 (arm 하나 끝날 때마다)
     save('warmstart_hemisphere_result.mat', 'EVAL_LOG', 'ws_x', 'ws_val', 'ws_tot', ...
          'ws_bins', 'ws_sd', 'ws_src', 'base_val', 'base_tot', 'base_bins', 'base_sd', ...
          'verdict', 'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'HEMI_X', 'HEMI_Y', ...
          'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
+end
+catch ME
+    % 야간 실행 중 치명적 오류가 나도 여기까지의 결과와 로그를 남긴다.
+    fprintf('\n[치명적 오류] %s\n', ME.message);
+    fprintf('%s\n', getReport(ME, 'extended'));
+    save('warmstart_hemisphere_result.mat', 'EVAL_LOG', 'ws_x', 'ws_val', 'ws_tot', ...
+         'ws_bins', 'ws_sd', 'ws_src', 'base_val', 'base_tot', 'base_bins', 'base_sd', ...
+         'verdict', 'BAND_LIST', 'BAND_NAMES', 'BAND_COL', 'HEMI_X', 'HEMI_Y', ...
+         'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
+    fprintf('[복구] 여기까지의 결과는 저장했다. 다시 실행하면 이어붙는다.\n');
 end
 
 %% =====================================================================
@@ -400,6 +500,14 @@ save('warmstart_hemisphere_result.mat', 'EVAL_LOG', 'ws_x', 'ws_val', 'ws_tot', 
      'varNames', 'lb', 'ub', 'GEOM_MISMATCH_LOG');
 fprintf('\nsaved -> warmstart_hemisphere_result.mat\n');
 report_geom_rejection(GEOM_MISMATCH_LOG, GEOM_TOL);
+
+fprintf('\n총 실행 시간 %.1f h\n', toc(tRun)/3600);
+pend = ARMS_TO_RUN(~isfinite(ws_val(ARMS_TO_RUN)));
+if ~isempty(pend)
+    fprintf('아직 안 돈 arm: %s  -> ARMS_TO_RUN 에 넣고 다시 실행하면 이어붙는다.\n', ...
+            mat2str(pend(:).'));
+end
+diary off;
 
 %% =====================================================================
 %  이하 헬퍼 — opt_4band_freeform.m 과 동일 (MATLAB local function 규칙상 복제)
