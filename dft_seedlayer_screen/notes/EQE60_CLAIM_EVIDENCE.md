@@ -85,6 +85,25 @@ CE/PE (fabricated-by-assumption CE and PE for a non-Lambertian
 device). Under either reading, the headline pair {EQE ~60%, PE >300
 lm/W} is not supported without angular data - which neither paper has.
 
+## Optical simulation of the published stack (scripts/65_te_cavity_eqe.py)
+
+CPS dipole-cavity model of the exact Liu-Angew TE stack (all thicknesses
+as published; Ag J&C, Yb 1.1+2.6i, organics n=1.75; gamma = exciton
+utilisation = 1, q_PL = 0.97; best dipole plane in the 35 nm EML):
+
+  Horizontal fraction 0.85:  true EQE <= 35.8 %,  Lambertian-read 81.7 %
+  Horizontal fraction 1.00:  true EQE <= 42.1 %,  Lambertian-read 96.8 %
+  SPP/evanescent loss 12-15 %; metal/ITO absorption ~50 % of dipole power.
+
+The claimed 59.2 % exceeds the perfect-orientation upper bound by 17
+points -> not reachable as an angle-integrated EQE in this structure.
+A forward-luminance x Lambertian reading of 59.2 % corresponds to a true
+EQE in the mid-20s to ~30 % (model inflation factor ~2.3), i.e. BELOW the
+group's own sphere-measured bottom-emitting 33.8 %. This is the third,
+physics-based leg of the claim (independent of the instrument-disclosure
+and CE/EQE-ratio legs), and it survives even if the authors assert the
+sphere was used.
+
 ## Status / open items
 
 - Not yet checked: Liu et al. Adv. Mater. 2025 (adma.202411610,
