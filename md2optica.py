@@ -186,7 +186,7 @@ def optica_item(it):
     authors, title, tail = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
     title = title.rstrip('.').rstrip(',')
     # tail: *Journal* **year**, *vol*, pages/artno .  [ URL/DOI ]
-    jm = re.match(r'\*([^*]+)\*\s+\*\*(\d{4})\*\*,\s*\*(\d+)\*,\s*([0-9\u2013\u2014-]+)\.?\s*(.*)', tail)
+    jm = re.match(r'\*([^*]+)\*\s+\*\*(\d{4})\*\*,\s*\*(\d+)\*,\s*([\w\u2013\u2014-]+)\.?\s*(.*)', tail)
     if jm:
         journal, year, vol, pages, rest = jm.groups()
         ref = (optica_authors(authors) + ', ``' + title + ',\'\' '

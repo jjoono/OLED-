@@ -31,13 +31,12 @@ python3 md2optica.py
 
 1. **저자/소속/이메일** — `main.tex` 상단 `\author` 블록 (마커: `[Affiliation`,
    `[corresponding@email]`)과 Funding/Acknowledgments 자리표시.
-2. **초록 축약** — 현재 초록은 원고 전체 요약이라 매우 길다(~600단어). OE는
-   형식 제한은 없으나 관행상 ~200단어를 권장. 축약본을 만들면 Markdown 쪽
-   Abstract를 바꾸고 재생성.
-3. **참고문헌 서식** — 현재는 Markdown의 세미콜론 스타일을 그대로 옮겼다
-   (성, 약자 순서). Optica 스타일은 "A. B. Author, ..." 순서라 cosmetic 정리
-   필요 — 내용(권·쪽·DOI)은 전부 검증 완료 상태.
-4. 컴파일 후 그림 배치/줄바꿈 확인 (figure* 3개: Fig. 1, 2, 5).
+2. 컴파일 후 그림 배치/줄바꿈 확인 (figure* 3개: Fig. 1, 2, 5).
+
+완료된 것: 초록은 ~214단어로 축약 완료(장문판은 git 이력에 있음), 참고문헌
+17건 전부 Optica 형식("A. B. Author, ``Title,'' J. Abbrev. **vol**, pages
+(year). DOI")으로 자동 변환됨 — 서식 규칙은 `md2optica.py`에 있으므로 재생성해도
+유지된다.
 
 ## 변환 규칙 요약
 
