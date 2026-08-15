@@ -66,8 +66,9 @@ def robust_energy(geom_str, mult):
         attempts.append(("uks", {}))
     attempts += [("uks", {"level_shift": 2.0, "level_shift_cutoff": 0.005,
                           "damping_percentage": 30}),
-                 ("uks", {"soscf": True, "soscf_max_iter": 30,
-                          "damping_percentage": 20})]
+                 # NOTE: soscf hangs psi4 here (0% CPU deadlock) -- do not use.
+                 ("uks", {"guess_mix": True, "damping_percentage": 20,
+                          "level_shift": 1.0, "level_shift_cutoff": 0.01})]
     for i, (ref, extra) in enumerate(attempts):
         try:
             psi4.set_options({**base_opts, "reference": ref, **extra})
