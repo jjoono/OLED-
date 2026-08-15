@@ -4,10 +4,22 @@ Question: are all seed-candidate E_b and EA values literature-validated?
 Answer: NO - and half of them cannot be, in principle. Three tiers.
 
 ## A. Experimentally anchored (method-level validation)
-- Ag2 dimer BE: 1.86 eV calc (PBE-D3/def2-SVP+CP) vs 1.65 eV exp (+13%).
-  The only experimental anchor for the E_b machinery. REPORT.md sec.1.
-- Ag bulk cohesion 2.95 eV (exp) as upper reference.
-- EA(F4TCNQ)-EA(TCNQ) = 0.48 eV calc vs ~0.55 eV lit (scripts/45).
+
+BENCHMARK TABLE (canonical; quote this in the paper's methods/SI):
+
+| quantity                    | calc      | experiment | error  | level               |
+|-----------------------------|-----------|------------|--------|---------------------|
+| Ag2 dimer BE                | 1.86 eV   | 1.65 eV    | +13 %  | PBE-D3/def2-SVP+CP  |
+| TCNQ gas-phase EA (adiab.)  | 3.54 eV   | 3.383 eV*  | +4.5 % | wB97X/def2-TZVP     |
+| EA(F4TCNQ) - EA(TCNQ)       | 0.48 eV   | ~0.55 eV   | -0.07  | wB97X/def2-TZVP     |
+| Ag bulk cohesion (ref only) | --        | 2.95 eV    | --     | upper reference     |
+
+*cryogenic photoelectron spectroscopy of TCNQ(-) (X.-B. Wang group);
+ calc value from runs/ea_cache.json ("TCNQ|wb97x|def2-tzvp": 3.5358).
+ Added 2026-08-15 -- the calculation was already cached, only the
+ comparison was missing.
+
+Also documented:
 - F4TCNQ solid EA 5.24 eV (UPS/IPES) referenced with the gas->solid
   polarisation shift carried as an explicit separate term.
 - xTB deliberately invalidated for energies (Ag2 5.04 vs 1.65) and
@@ -39,10 +51,8 @@ Answer: NO - and half of them cannot be, in principle. Three tiers.
    not literature - calibration tool only.
 
 ## Action items
-- FREE WIN: add TCNQ absolute gas EA benchmark row - modern photoelectron
-  experiment gives 3.383 eV vs our 3.54 (wB97X/TZVP, +0.15 eV / 4%).
-  Calculation already cached (runs/ea_cache.json); just record the
-  comparison in the benchmark table.
+- DONE 2026-08-15: TCNQ absolute gas EA benchmark row added to the table
+  above and to MANUSCRIPT_DRAFT Fig. 2(d) + REPORT.md methods paragraph.
 - Complete TCPSi EA (local queue, scripts/54).
 - Resolve TCPM slab state consistency (local queue, LOCAL_HANDOFF sec.5).
 - 42_lit_harvest.py (local) may surface prior Ag-on-organic DFT numbers

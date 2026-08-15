@@ -65,7 +65,8 @@ PBE-D3(BJ)/def2-SVP, CP 보정된 Ag 원자 결합에너지:
 | Ag/HATCN | nitrile N 1.03 eV | HATCN/Ag(111) 흡착 -2.97~-3.05 eV/molecule (여러 CN 동시 결합), CN기가 Ag와 특이적 상호작용 ([arXiv 2312.08233](https://arxiv.org/pdf/2312.08233)) — 방향 **일치** (분자당 다중 CN ⇒ 흡착합산) |
 | Ag/phenanthroline | 킬레이트 0.87 eV | BCP:Ag에서 Ag–phen 배위결합 형성, Ag 확산 억제 보고 ([Org. Electron. 2014](https://www.sciencedirect.com/science/article/abs/pii/S1566119914001608)); **p-bPPhenB/Ag/p-bPPhenB 샌드위치 전극에서 p-bPPhenB가 wetting inducer로 실제 사용됨** — **일치** |
 | Ag/TPBi | 0.89 eV | 직접적 wetting 보고는 없음; TPBi/Ag 계면 UPS 연구 존재. 유사 N-헤테로고리 ETL 위 Ag는 중간 수준 상호작용 |
-| Ag₂ 기준 | 1.86 eV | 실험 1.65 eV — 방법 검증 |
+| Ag₂ 기준 | 1.86 eV | 실험 1.65 eV — 방법 검증 (E_b 축) |
+| TCNQ EA 기준 | 3.54 eV (wB97X/def2-TZVP) | 실험 3.383 eV (TCNQ⁻ 저온 광전자분광, X.-B. Wang 그룹) — +4.5%, **방법 검증 (EA 축)**. 상대 검증: EA(F4TCNQ)−EA(TCNQ) 0.48 vs 문헌 ~0.55 eV |
 
 기타 문헌 보고 seed: Ge ([Nano Lett. 2009](https://pubs.acs.org/doi/abs/10.1021/nl8027476)), Al ([Micromachines 2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC9565528/)), PEDOT:PSS, PEI, ZnO, Cu 등. 금속 seed(Ge, Al, Cu)는 강력하지만 가시광 흡수 페널티가 있어 top-emitting 소자에서는 유기/산화물 seed가 유리.
 
