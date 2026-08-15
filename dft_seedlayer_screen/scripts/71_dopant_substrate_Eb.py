@@ -28,13 +28,16 @@ import psi4
 psi4.set_memory("20 GB")
 psi4.set_num_threads(12)
 psi4.core.set_output_file(os.path.join(RUNS, "psi4_dopant_substrate.out"), False)
-base_opts = {"basis": "def2-svp", "scf_type": "df", "maxiter": 200, "guess": "sad"}
+base_opts = {"basis": "def2-svp", "scf_type": "df", "maxiter": 80, "guess": "sad"}
 
 
 def clear_scratch():
     psi4.core.clean()
     for p in glob.glob("/tmp/psi.*"):
-        shutil.rmtree(p, ignore_errors=True)
+        try:
+            os.remove(p) if os.path.isfile(p) else shutil.rmtree(p, ignore_errors=True)
+        except OSError:
+            pass
 
 
 def read_xyz(path):
@@ -59,10 +62,11 @@ def robust_energy(geom_str, mult):
     attempts = []
     if mult == 1:
         attempts.append(("rks", {}))
-    attempts += [("uks", {}),
-                 ("uks", {"level_shift": 1.0, "level_shift_cutoff": 0.01,
-                          "damping_percentage": 20}),
-                 ("uks", {"soscf": True, "soscf_max_iter": 40, "guess": "core",
+    else:
+        attempts.append(("uks", {}))
+    attempts += [("uks", {"level_shift": 2.0, "level_shift_cutoff": 0.005,
+                          "damping_percentage": 30}),
+                 ("uks", {"soscf": True, "soscf_max_iter": 30,
                           "damping_percentage": 20})]
     for i, (ref, extra) in enumerate(attempts):
         try:
