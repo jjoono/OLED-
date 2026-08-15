@@ -218,15 +218,16 @@ second overnight session.
 
 One fixed high-efficiency design (the weighted-sweep optimum at $w = 0.75$),
 re-evaluated at final fidelity (50,000 rays, 151 λ) with only the textured
-patch size varied. The 15/25/35 mm rows are 3 repeats; the 100 mm row is 2
-repeats from a follow-up run.
+patch size varied. The 15/25/35 mm rows are 3 repeats
+(`patch_convergence_result.mat`); the 100 mm row is 2 repeats from a follow-up
+run (`patch_convergence_100.mat`).
 
 | Patch (mm) | total EQE | s.d. | vs 25 mm | selectivity (0–20 / 20–40 / 40–60 / 60–80) |
 |---|---|---|---|---|
 | 15 × 15 | 0.51681 | 0.00016 | −4.79% | 0.108 / 0.283 / 0.346 / 0.233 |
 | 25 × 25 | 0.54282 | 0.00008 | — | 0.106 / 0.280 / 0.346 / 0.238 |
 | 35 × 35 | 0.55128 | 0.00003 | +1.56% | 0.106 / 0.279 / 0.346 / 0.239 |
-| 100 × 100 | 0.5636 | 0.00003 | +3.83% | — |
+| 100 × 100 | 0.5636 | 0.00003 | +3.83% | 0.106 / 0.277 / 0.347 / 0.240 |
 
 Three observations follow.
 
@@ -240,10 +241,11 @@ Three observations follow.
    laterally over many tens of round trips before escaping, so the total EQE
    of a finite film increases slowly with its extent, and the 25 mm value is a
    lower bound sitting 3.7% below the 100 mm value.
-2. The angular composition is patch-converged where measured: no band
-   selectivity changes by more than 0.11 pp between 25 and 35 mm (at most
-   0.6 pp even from 15 mm). All ratios, correlations and class comparisons,
-   which are evaluated at equal patch, are unaffected.
+2. The angular composition is patch-converged: while the total gains 3.8%
+   from 25 to 100 mm, no band selectivity changes by more than 0.24 pp over
+   the same fourfold enlargement (0.11 pp between 25 and 35 mm). All ratios,
+   correlations and class comparisons, which are evaluated at equal patch,
+   are unaffected by the patch choice.
 3. The weighted-sweep campaign's archived 0.5556 falls between the 35 mm and
    100 mm values of the same design (0.5513 and 0.5636), while the design
    re-measures at 0.5428 on the fixed 25 mm patch. That campaign's absolute
@@ -286,6 +288,7 @@ Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`,
 `opt_4band_inverted_result.mat`,
 `stress_random_result.mat`, `calibrate_random_cost.mat`,
 `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat`,
-`patch_convergence_result.mat`, `convergence_check_result.mat`,
+`patch_convergence_result.mat`, `patch_convergence_100.mat`,
+`convergence_check_result.mat`,
 `angular_recycling_result.npz`,
 `angular_recycling_bandwidth.npz`.

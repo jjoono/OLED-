@@ -128,7 +128,7 @@ family 공간의 범위를 명시해 둔다. 여기서 비교하는 세 구성�
 
 둘째, substrate thickness와 source size는 lateral mixing을 결정한다. 기판을 따라 전파한 광은 하나의 lenslet 아래에서 발생한 광만 보지 않으며, 인접 cell에서 온 광과 섞인다. 본 연구의 기하(lenslet 반경 ~10 μm, $d_{\mathrm{sub}}=1.295$ mm)에서는 기판 두께가 lenslet pitch보다 두 자릿수 이상 크므로 이 혼합이 특히 강하다. 이 혼합의 크기는 기하만으로 정해진다. 임계각 광선은 1.295 mm 기판을 한 번 가로지르는 동안 $d_{\mathrm{sub}}\tan\theta_c = 1.16$ mm, 재활용 왕복마다 2.32 mm 횡방향으로 이동하며, 이는 렌즈렛 반경 10 μm의 각각 116배와 232배다. 즉 각 lenslet은 자기 자신보다 두 자릿수 넓은 기판 영역에서 출발한 광을 받는다. 이 결과는 freeform surface가 처리할 수 있는 input phase space가 이미 평균화되어 있음을 보여 준다.
 
-전용 패치 크기 연구가 이 혼합 스케일을 직접 잰다(보충 표 S7). 고효율 설계 하나를 고정하고 텍스처 패치만 15 / 25 / 35 / 100 mm 로 바꿔 최종 정밀도로 재평가하면 총 EQE 는 0.5168 / 0.5428 / 0.5513 / 0.5636 이다. 초기 상승은 감쇠길이 약 9 mm — 임계각 왕복 변위 2.32 mm 의 4배 — 로 포화하는 듯 보이지만 먼 꼬리는 그렇지 않다. 35 mm 와 100 mm 사이에서도 총합이 2.2% 더 오르는데, 이는 앞의 세 점에 맞춘 단일 지수 꼬리가 허용하는 양의 약 3배다. 즉 여러 번 재활용된 광은 탈출 전에 수십 회의 왕복에 걸쳐 횡방향으로 이동하며, 이것이 이 절의 혼합 기구가 장거리에서 작동하는 모습이고, 유한 필름의 총 EQE 를 크기에 대해 느리게 증가하는 함수로 만든다. 전 캠페인에 쓴 25 mm 패치는 100 mm 값보다 3.7% 낮으므로 고정 패치의 절대 EQE 는 하한이다. 반면 배광은 측정한 범위에서 패치 수렴 상태다. 25 mm 와 35 mm 사이에서 어느 band 선택성도 0.11 %p 이상 변하지 않는다. 이 논문의 모든 비율·상관·클래스 비교는 동일 패치에서 평가되어 영향을 받지 않는다.
+전용 패치 크기 연구가 이 혼합 스케일을 직접 잰다(보충 표 S7). 고효율 설계 하나를 고정하고 텍스처 패치만 15 / 25 / 35 / 100 mm 로 바꿔 최종 정밀도로 재평가하면 총 EQE 는 0.5168 / 0.5428 / 0.5513 / 0.5636 이다. 초기 상승은 감쇠길이 약 9 mm — 임계각 왕복 변위 2.32 mm 의 4배 — 로 포화하는 듯 보이지만 먼 꼬리는 그렇지 않다. 35 mm 와 100 mm 사이에서도 총합이 2.2% 더 오르는데, 이는 앞의 세 점에 맞춘 단일 지수 꼬리가 허용하는 양의 약 3배다. 즉 여러 번 재활용된 광은 탈출 전에 수십 회의 왕복에 걸쳐 횡방향으로 이동하며, 이것이 이 절의 혼합 기구가 장거리에서 작동하는 모습이고, 유한 필름의 총 EQE 를 크기에 대해 느리게 증가하는 함수로 만든다. 전 캠페인에 쓴 25 mm 패치는 100 mm 값보다 3.7% 낮으므로 고정 패치의 절대 EQE 는 하한이다. 반면 배광은 패치 수렴 상태다. 25 mm 에서 100 mm 로 총합이 3.8% 오르는 동안, 같은 4배 확대에서 어느 band 선택성도 0.24 %p 이상 변하지 않는다. 이 논문의 모든 비율·상관·클래스 비교는 동일 패치에서 평가되어 영향을 받지 않는다.
 
 셋째, 주어진 source radiance와 출광 면적에서 passive external layer가 특정 solid angle에 공급할 수 있는 power에는 radiance/étendue envelope가 존재한다 [10]. 본 연구에서는 이를 global impossibility theorem이 아니라, numerical frontier를 해석하는 기준으로 사용한다. 평면 계면 또는 hemisphere가 그 envelope에 가까워질수록, 더 복잡한 profile은 새로운 radiance를 만들기보다 기존 power의 작은 재배분만 수행한다. 2.3절에서 관측된 준선형 붕괴와 Lambertian 근방의 선택성은 이 해석과 정합적이다.
 
@@ -205,7 +205,7 @@ Inverted MLA는 동일 freeform profile class의 오목형 대응물로, 4.2절�
 `freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`,
 `opt_4band_inverted_result.mat`, `stress_random_result.mat`,
 `warmstart_hemisphere_result.mat`, `convergence_check_result.mat`,
-`calibrate_random_cost.mat`, `patch_convergence_result.mat`, `reeval_confirm_2040_result.mat`) 및 재활용 모델 출력(`angular_recycling_result.npz`,
+`calibrate_random_cost.mat`, `patch_convergence_result.mat`, `patch_convergence_100.mat`, `reeval_confirm_2040_result.mat`) 및 재활용 모델 출력(`angular_recycling_result.npz`,
 `angular_recycling_bandwidth.npz`) — 는 이를 생성한 스크립트, 그리고 아카이브에서
 모든 그림을 직접 재생성하는 `make_figures.py` 와 함께 합리적 요청 시 교신저자로부터
 제공받을 수 있다. 2.4절의 별도 조건 비대칭 탐색 데이터도 합리적 요청 시 제공된다.
