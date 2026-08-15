@@ -217,31 +217,39 @@ second overnight session.
 ## Table S7 | Patch-size dependence
 
 One fixed high-efficiency design (the weighted-sweep optimum at $w = 0.75$),
-re-evaluated at final fidelity (50,000 rays, 151 λ, 3 repeats) with only the
-textured patch size varied.
+re-evaluated at final fidelity (50,000 rays, 151 λ) with only the textured
+patch size varied. The 15/25/35 mm rows are 3 repeats; the 100 mm row is 2
+repeats from a follow-up run.
 
 | Patch (mm) | total EQE | s.d. | vs 25 mm | selectivity (0–20 / 20–40 / 40–60 / 60–80) |
 |---|---|---|---|---|
 | 15 × 15 | 0.51681 | 0.00016 | −4.79% | 0.108 / 0.283 / 0.346 / 0.233 |
 | 25 × 25 | 0.54282 | 0.00008 | — | 0.106 / 0.280 / 0.346 / 0.238 |
 | 35 × 35 | 0.55128 | 0.00003 | +1.56% | 0.106 / 0.279 / 0.346 / 0.239 |
+| 100 × 100 | 0.5636 | 0.00003 | +3.83% | — |
 
-The three totals follow a saturating exponential
-$E(p) = E_\infty - A\,e^{-p/L}$ with decay length $L = 8.9$ mm — about four
-critical-angle round trips of 2.32 mm each — and infinite-patch limit
-$E_\infty = 0.5554$. Three observations follow.
+Three observations follow.
 
-1. The 25 mm patch captures 97.7% of the infinite-film value (35 mm: 99.3%),
-   so fixed-patch absolute EQE values are lower bounds truncated by ~2.3%.
-2. The angular composition is patch-converged: no band selectivity changes by
-   more than 0.11 pp between 25 and 35 mm (at most 0.6 pp even from 15 mm).
-   All ratios, correlations and class comparisons, which are evaluated at equal
-   patch, are unaffected.
-3. The extrapolated limit reproduces the weighted-sweep campaign's 0.5556 to
-   0.04%. That campaign's absolute normalization therefore corresponds to the
-   large-patch limit, which is why its totals are excluded from the
-   fixed-patch $G_j$ comparison of Table S5; re-measuring its best design at
-   the fixed 25 mm patch gives 0.5428.
+1. The initial rise saturates with a decay length of about 9 mm — four
+   critical-angle round trips of 2.32 mm each — but the far tail does not:
+   between 35 and 100 mm the total still gains 2.2%, about three times what a
+   single-exponential tail fitted to the first three points would allow.
+   (An earlier draft of this table extrapolated an infinite-patch limit of
+   0.5554 from the first three points alone; the 100 mm measurement falsifies
+   that extrapolation, and it is withdrawn.) Multiply recycled light migrates
+   laterally over many tens of round trips before escaping, so the total EQE
+   of a finite film increases slowly with its extent, and the 25 mm value is a
+   lower bound sitting 3.7% below the 100 mm value.
+2. The angular composition is patch-converged where measured: no band
+   selectivity changes by more than 0.11 pp between 25 and 35 mm (at most
+   0.6 pp even from 15 mm). All ratios, correlations and class comparisons,
+   which are evaluated at equal patch, are unaffected.
+3. The weighted-sweep campaign's archived 0.5556 falls between the 35 mm and
+   100 mm values of the same design (0.5513 and 0.5636), while the design
+   re-measures at 0.5428 on the fixed 25 mm patch. That campaign's absolute
+   normalization therefore corresponds to a larger effective patch than the
+   unified 25 mm one, which is why its totals are excluded from the
+   fixed-patch $G_j$ comparison of Table S5.
 
 ---
 
