@@ -155,16 +155,58 @@ for sec in ['Funding', 'Acknowledgments', 'Disclosures', 'Data availability']:
 out.append('\\bmsection{Supplemental document}\nSee Supplement 1 for supporting content.\n')
 out.append('\\end{backmatter}')
 
-# ---- references ----
+# ---- references: Markdown "Last, F. M.; ..." -> Optica "F. M. Last, ..." ----
+def optica_authors(raw):
+    """'Brütting, W.; Frischeisen, J.; et al.' -> 'W. Brütting, J. Frischeisen, et al.'"""
+    parts = [a.strip().rstrip('.') + ('.' if a.strip().endswith('.') else '')
+             for a in raw.split(';') if a.strip()]
+    names, etal = [], False
+    for a in parts:
+        a = a.strip()
+        if a.lower().startswith('et al'):
+            etal = True; continue
+        if ',' in a:                       # "Last(, compound), Initials"
+            last, inits = a.rsplit(',', 1)
+            names.append(inits.strip() + ' ' + last.strip())
+        else:
+            names.append(a)
+    if etal:
+        return names[0] + ' et al.' if names else 'et al.'
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return names[0] + ' and ' + names[1]
+    return ', '.join(names[:-1]) + ', and ' + names[-1]
+
+def optica_item(it):
+    it = ' '.join(it.split())
+    m = re.match(r'(.+?)\*\*(.+?)\*\*\s*(.*)', it)
+    if not m:
+        return it                                          # 형식 불명 -> 원문 유지
+    authors, title, tail = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
+    title = title.rstrip('.').rstrip(',')
+    # tail: *Journal* **year**, *vol*, pages/artno .  [ URL/DOI ]
+    jm = re.match(r'\*([^*]+)\*\s+\*\*(\d{4})\*\*,\s*\*(\d+)\*,\s*([0-9\u2013\u2014-]+)\.?\s*(.*)', tail)
+    if jm:
+        journal, year, vol, pages, rest = jm.groups()
+        ref = (optica_authors(authors) + ', ``' + title + ',\'\' '
+               + journal.strip() + ' \\textbf{' + vol + '}, ' + pages + ' (' + year + ').')
+    else:
+        # 저널 패턴이 안 잡히면 최소 변환 (저자 순서만 교정)
+        rest = re.sub(r'\*\*(\d{4})\*\*', r'(\1)', tail)
+        rest = re.sub(r'\*([^*]+)\*', r'\1', rest)
+        ref = optica_authors(authors) + ', ``' + title + ',\'\' ' + rest
+    rest_url = re.search(r'https?://\S+', rest if jm else '')
+    if rest_url:
+        ref += ' \\url{' + rest_url.group().rstrip('.') + '}'
+    ref = ref.replace('&', '\\&').replace('%', '\\%')
+    ref = re.sub(r'https?://\S+(?<!\})', lambda m: m.group() if '\\url' in ref[:m.start()][-30:] else m.group(), ref)
+    return ref
+
 items = re.findall(r'^\d+\.\s+(.+?)(?=\n\n\d+\.|\n*$)', refs_md.strip(), re.S | re.M)
 out.append('\\begin{thebibliography}{%d}' % len(items))
 for i, it in enumerate(items, 1):
-    it = ' '.join(it.split())
-    it = re.sub(r'\*\*([^*]+)\*\*', r'``\1"', it)         # bold title -> quoted
-    it = re.sub(r'\*([^*]+)\*', r'\\textit{\1}', it)      # italic journal
-    it = it.replace('&', '\\&').replace('%', '\\%')
-    it = re.sub(r'https?://\S+', lambda m: '\\url{' + m.group().rstrip('.') + '}', it)
-    out.append(f'\\bibitem{{r{i}}} {it}\n')
+    out.append(f'\\bibitem{{r{i}}} {optica_item(it)}\n')
 out.append('\\end{thebibliography}\n\n\\end{document}')
 
 (Path(OUT) / 'main.tex').write_text('\n\n'.join(out), encoding='utf-8')

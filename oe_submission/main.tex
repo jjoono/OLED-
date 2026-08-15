@@ -19,9 +19,7 @@
 
 
 \begin{abstract*}
-Freeform microlens arrays (MLAs) and numerical inverse design are widely expected to give simultaneous control over the light-extraction efficiency and the angular emission profile of organic light-emitting diodes (OLEDs). This expectation, however, largely originates in illumination optics built around point-like sources far smaller than the lens aperture, and it does not automatically transfer to an MLA tiled coextensively over a uniform, extended emitter. Here we combine a dipole microcavity source model based on the classical power spectrum (CPS) formalism with three-dimensional ray tracing to compare hemispherical reference lenses and axisymmetric freeform lenses under identical geometric, material, and process constraints, supplemented by a separately constrained asymmetric, off-axis freeform exploration. Total external quantum efficiency (EQE) and each of the four polar bands (0–20\ensuremath{^\circ}, 20–40\ensuremath{^\circ}, 40–60\ensuremath{^\circ}, 60–80\ensuremath{^\circ}) were optimized as independent single objectives, complemented by a weighted-sum sweep between total EQE and the 40–60\ensuremath{^\circ} band. Against a hemispherical reference optimized under the same constraints, the best freeform design exceeds the hemisphere by at most 7\% in any polar objective and by 1.3\% in total EQE, and never falls below it. Restarting each search at the hemispherical optimum confirms that the two bands where a randomly seeded search had fallen short were search artifacts: the deficit is recovered and the residual gain is at most +0.3\%—a five-repeat re-measurement resolves it as statistically real ($t = 4.1$) yet practically negligible—while the identical procedure recovers margins of +1.0\% to +4.7\%, at significances of $t = 30$ to $115$, in the three objectives where they genuinely exist. Across 150 randomly sampled feasible designs and all optimized designs, spanning total EQE from 0.12 to 0.56, the (total EQE, band EQE) points collapse onto a single near-linear frontier: efficiency and band power rise together, and no efficiency-versus-directionality trade-off is observed. Among the twenty most efficient designs the band selectivity is nearly invariant—its 10–90\% spread is 0.092–0.096, 0.277–0.281, 0.358–0.364 and 0.233–0.238 for the four bands—even though these designs were located by four different objectives. Dedicating the objective to a single band does move the distribution: selectivity rises by up to 27\% (0–20\ensuremath{^\circ}) and 20\% (60–80\ensuremath{^\circ}) above that natural spread. The gain is not free, however, as the same designs give up to 11\% of total extraction, so the net band power of a band-dedicated optimum exceeds the best design found while pursuing any other objective by at most 6\% in every band. Beyond this benchmark family, we stress-test two further manufacturable external-film MLA families—an inverted (concave) MLA and a randomly assembled MLA represented by a pseudo-random supercell—under the same protocol. The inverted family reproduces every signature at 6\% lower total extraction, and its largest steering budget, 1.19 in the 60–80\ensuremath{^\circ} band, matches the convex value of 1.20 obtained in a different band. Its natural composition shifts slightly relative to the convex one under identical patch size, source and stack (0.113/0.303/0.340/0.215 versus 0.094/0.278/0.361/0.236), by an amount comparable to the difference between two reasonable ways of averaging within a single family. The randomly assembled family lands inside the same window despite randomised lenslet positions and an independently drawn profile for every lenslet, and is insensitive to the particular disorder realisation (0.2\% coefficient of variation across three seeds). Across all three constructions and both averaging conventions, every high-efficiency composition falls within 0.09–0.11 / 0.28–0.30 / 0.34–0.36 / 0.21–0.24. The angular composition is therefore a property of the platform—extended source, thick substrate, coextensive external film—rather than a design variable that shape freedom, array construction, or disorder can command.
-
-We explain this practical saturation by three factors. First, in a coextensively tiled array the lens aperture and the effective source patch grow in the same proportion, so the area leverage that underlies point-source collimation does not arise. Second, lateral propagation in the substrate mixes light between neighboring lenslets and erases the spatial information a local surface shape could exploit. Third, a passive external layer operating on a given source radiance and exit area faces a practical ceiling on the power it can deliver into a chosen angular channel. These results do not render freeform MLAs meaningless; across the three tested manufacturable external-film families they provide a quantitative criterion for deciding when further investment in shape complexity on extended OLEDs should stop. Finally, we organize the three routes that remain productive after MLA saturation—source/cavity engineering, aperture expansion, and angular-selective recycling—in the same physical language, and present a design-route map for choosing the next lever. In an idealized recycling model with 10\% round-trip loss, an angular filter delivers 62.1\% of the generated power into the 40–60\ensuremath{^\circ} band, whereas the planar non-selective reference stays at 29.1\%; a realizable eight-pair dielectric multilayer reaches 48.2\% for a monochromatic source but degrades to 32.5\% over a 100 nm bandwidth, identifying source bandwidth and loss as the practical constraints of this route.
+Freeform microlens arrays (MLAs) and numerical inverse design are widely expected to give simultaneous control over the light-extraction efficiency and the angular emission of organic light-emitting diodes (OLEDs). That expectation originates in illumination optics built around point-like sources, and does not automatically transfer to an MLA tiled coextensively over an extended emitter. Combining an experimentally validated dipole-microcavity source model with three-dimensional ray tracing, we compare hemispherical and axisymmetric freeform lenses under identical constraints, optimizing total external quantum efficiency (EQE) and four polar bands as independent objectives. The best freeform design never exceeds an equally optimized hemisphere by more than 7\% in any objective—1.3\% in total EQE—and never falls below it; searches restarted at the hemispherical optimum confirm that the residual band gains are below 0.4\%. All sampled designs collapse onto a single efficiency–band-power locus, and the angular composition of efficient designs is nearly invariant: across convex, inverted (concave), and randomly assembled arrays it stays within a narrow window that neither shape freedom, array construction, nor disorder can command. We attribute this practical saturation to the absence of area leverage in coextensive tiling, to substrate-mediated lateral mixing, and to the radiance limit of a passive external layer, and we map the design routes that remain productive beyond it: source/cavity engineering, aperture expansion, and angular-selective recycling.
 \end{abstract*}
 
 
@@ -255,55 +253,55 @@ See Supplement 1 for supporting content.
 
 \begin{thebibliography}{17}
 
-\bibitem{r1} Brütting, W.; Frischeisen, J.; Schmidt, T. D.; Scholz, B. J.; Mayr, C. ``Device Efficiency of Organic Light-Emitting Diodes: Progress by Improved Light Outcoupling." \textit{Phys. Status Solidi A} ``2013", \textit{210}, 44–65.
+\bibitem{r1} W. Brütting, J. Frischeisen, T. D. Schmidt, B. J. Scholz, and C. Mayr, ``Device Efficiency of Organic Light-Emitting Diodes: Progress by Improved Light Outcoupling,'' Phys. Status Solidi A \textbf{210}, 44–65 (2013).
 
 
-\bibitem{r2} Yablonovitch, E. ``Statistical Ray Optics." \textit{J. Opt. Soc. Am.} ``1982", \textit{72}, 899–907.
+\bibitem{r2} E. Yablonovitch, ``Statistical Ray Optics,'' J. Opt. Soc. Am. \textbf{72}, 899–907 (1982).
 
 
-\bibitem{r3} Möller, S.; Forrest, S. R. ``Improved Light Out-Coupling in Organic Light Emitting Diodes Employing Ordered Microlens Arrays." \textit{J. Appl. Phys.} ``2002", \textit{91}, 3324–3327.
+\bibitem{r3} S. Möller and S. R. Forrest, ``Improved Light Out-Coupling in Organic Light Emitting Diodes Employing Ordered Microlens Arrays,'' J. Appl. Phys. \textbf{91}, 3324–3327 (2002).
 
 
-\bibitem{r4} Wrzesniewski, E.; et al. ``Enhancing Light Extraction in Top-Emitting Organic Light-Emitting Devices Using Molded Transparent Polymer Microlens Arrays." \textit{Small} ``2012", \textit{8}, 2647–2651. \url{https://doi.org/10.1002/smll.201102662}
+\bibitem{r4} E. Wrzesniewski et al., ``Enhancing Light Extraction in Top-Emitting Organic Light-Emitting Devices Using Molded Transparent Polymer Microlens Arrays,'' Small \textbf{8}, 2647–2651 (2012). \url{https://doi.org/10.1002/smll.201102662}
 
 
-\bibitem{r5} Qu, Y.; Kim, J.; Coburn, C.; Forrest, S. R. ``Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays." \textit{ACS Photonics} ``2018", \textit{5}, 2453–2458. \url{https://doi.org/10.1021/acsphotonics.8b00255}
+\bibitem{r5} Y. Qu, J. Kim, C. Coburn, and S. R. Forrest, ``Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays,'' ACS Photonics \textbf{5}, 2453–2458 (2018). \url{https://doi.org/10.1021/acsphotonics.8b00255}
 
 
-\bibitem{r6} Kim, S.; Shin, J. M.; Lee, J.; Park, C.; Lee, S.; Park, J.; Seo, D.; Park, S.; Park, C. Y.; Jang, M. S. ``Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks." \textit{Nanophotonics} ``2021", \textit{10}, 4533–4541. \url{https://doi.org/10.1515/nanoph-2021-0434}
+\bibitem{r6} S. Kim, J. M. Shin, J. Lee, C. Park, S. Lee, J. Park, D. Seo, S. Park, C. Y. Park, and M. S. Jang, ``Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks,'' Nanophotonics \textbf{10}, 4533–4541 (2021). \url{https://doi.org/10.1515/nanoph-2021-0434}
 
 
-\bibitem{r7} Ni, Y.; Feng, D.; Ma, D. ``Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging." \textit{Appl. Opt.} ``2025", \textit{64}, 7875–7884. \url{https://opg.optica.org/ao/abstract.cfm?uri=ao-64-27-7875}
+\bibitem{r7} Y. Ni, D. Feng, and D. Ma, ``Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging,'' Appl. Opt. \textbf{64}, 7875–7884 (2025). \url{https://opg.optica.org/ao/abstract.cfm?uri=ao-64-27-7875}
 
 
-\bibitem{r8} Buhl, M.; et al. ``Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes." \textit{Adv. Photonics Res.} ``2023", \textit{4}, 2200143. \url{https://doi.org/10.1002/adpr.202200143}
+\bibitem{r8} M. Buhl et al., ``Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes,'' Adv. Photonics Res. \textbf{4}, 2200143 (2023). \url{https://doi.org/10.1002/adpr.202200143}
 
 
-\bibitem{r9} Abdelkhalik, M. S.; Garcia-Santiago, X.; van Raaij, T.-J.; López, T.; Berghuis, A. M.; de Jong, L. M. A.; Gómez Rivas, J. ``Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces." \textit{Commun. Eng.} ``2025", \textit{4}, 63. \url{https://doi.org/10.1038/s44172-025-00401-w}
+\bibitem{r9} M. S. Abdelkhalik, X. Garcia-Santiago, T.-J. van Raaij, T. López, A. M. Berghuis, L. M. A. de Jong, and J. Gómez Rivas, ``Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces,'' Commun. Eng. \textbf{4}, 63 (2025). \url{https://doi.org/10.1038/s44172-025-00401-w}
 
 
-\bibitem{r10} Winston, R.; Jiang, L.; Ricketts, M. ``Nonimaging Optics: A Tutorial." \textit{Adv. Opt. Photon.} ``2018", \textit{10}, 484–511.
+\bibitem{r10} R. Winston, L. Jiang, and M. Ricketts, ``Nonimaging Optics: A Tutorial,'' Adv. Opt. Photon. \textbf{10}, 484–511 (2018).
 
 
-\bibitem{r11} Rau, U. ``Reciprocity Relation between Photovoltaic Quantum Efficiency and Electroluminescent Emission of Solar Cells." \textit{Phys. Rev. B} ``2007", \textit{76}, 085303.
+\bibitem{r11} U. Rau, ``Reciprocity Relation between Photovoltaic Quantum Efficiency and Electroluminescent Emission of Solar Cells,'' Phys. Rev. B \textbf{76}, 085303 (2007).
 
 
-\bibitem{r12} Xiang, C.; Koo, W.; So, F.; Sasabe, H.; Kido, J. ``A Systematic Study on Efficiency Enhancements in Phosphorescent Green, Red and Blue Microcavity Organic Light-Emitting Devices." \textit{Light: Sci. Appl.} ``2013", \textit{2}, e74. \url{https://doi.org/10.1038/lsa.2013.30}
+\bibitem{r12} C. Xiang, W. Koo, F. So, H. Sasabe, and J. Kido, ``A Systematic Study on Efficiency Enhancements in Phosphorescent Green, Red and Blue Microcavity Organic Light-Emitting Devices,'' Light: Sci. Appl. (2013), 2, e74. https://doi.org/10.1038/lsa.2013.30.
 
 
-\bibitem{r13} Song, J.; et al. ``Lensfree OLEDs with over 50\% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters." \textit{Nat. Commun.} ``2018", \textit{9}, 3207. \url{https://doi.org/10.1038/s41467-018-05671-x}
+\bibitem{r13} J. Song et al., ``Lensfree OLEDs with over 50\% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters,'' Nat. Commun. \textbf{9}, 3207 (2018). \url{https://doi.org/10.1038/s41467-018-05671-x}
 
 
-\bibitem{r14} Liao, P.-H.; Lee, W.-K.; Lee, C.-C.; Huang, C.-W.; Wen, S.-W.; Chen, Y.-T.; Chen, C.-C.; Lin, W.-Y.; Kwak, B. L.; Visser, R. J.; Wu, C.-C. ``Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays." \textit{Opt. Express} ``2022", \textit{30}, 46435–46449. \url{https://doi.org/10.1364/OE.477797}
+\bibitem{r14} P.-H. Liao, W.-K. Lee, C.-C. Lee, C.-W. Huang, S.-W. Wen, Y.-T. Chen, C.-C. Chen, W.-Y. Lin, B. L. Kwak, R. J. Visser, and C.-C. Wu, ``Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays,'' Opt. Express \textbf{30}, 46435–46449 (2022). \url{https://doi.org/10.1364/OE.477797}
 
 
-\bibitem{r15} Kim, H.-J.; et al. ``High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling." \textit{Sci. Rep.} ``2017", \textit{7}, 43063. \url{https://doi.org/10.1038/srep43063}
+\bibitem{r15} H.-J. Kim et al., ``High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling,'' Sci. Rep. \textbf{7}, 43063 (2017). \url{https://doi.org/10.1038/srep43063}
 
 
-\bibitem{r16} Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. ``Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays." \textit{ACS Photonics} ``2023", \textit{10}, 1775–1782. \url{https://doi.org/10.1021/acsphotonics.3c00017}
+\bibitem{r16} J. Kim, E. Kim, J. Park, J. Song, S. Kim, H. Moon, and S. Yoo, ``Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays,'' ACS Photonics \textbf{10}, 1775–1782 (2023). \url{https://doi.org/10.1021/acsphotonics.3c00017}
 
 
-\bibitem{r17} Kim, M.; Kim, J.; Yoo, S. ``Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays." \textit{Nat. Commun.} ``2025", \textit{16}, 11606. \url{https://doi.org/10.1038/s41467-025-66538-6}
+\bibitem{r17} M. Kim, J. Kim, and S. Yoo, ``Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays,'' Nat. Commun. \textbf{16}, 11606 (2025). \url{https://doi.org/10.1038/s41467-025-66538-6}
 
 
 \end{thebibliography}
