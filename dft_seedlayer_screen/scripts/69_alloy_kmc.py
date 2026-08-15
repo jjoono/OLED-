@@ -206,3 +206,61 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# RESULT (run 2026-08-15, L=128, R=1e4, 3 seeds; runs/alloy_kmc.json)
+#
+#     y   N_sat@.15  th_perc  w_rms@3ML  w_rms@6ML  void@6ML
+#   0.00    0.0975    0.422     0.777      0.964     0.0033
+#   0.02    0.0974    0.424     0.968      1.233     0.0093
+#   0.05    0.0972    0.424     1.108      1.435     0.0160
+#   0.10    0.0983    0.437     1.245      1.651     0.0251
+#   0.15    0.0989    0.452     1.316      1.767     0.0298
+#   0.20    0.0992    0.455     1.390      1.872     0.0340
+#   (seed-to-seed std <= 0.02 ML on w_rms, <= 0.024 on theta_perc: every
+#    step in the table is significant.)
+#
+# 1. DOES ROUGHNESS DECREASE MONOTONICALLY WITH y?  NO - the opposite.
+#    w_rms INCREASES monotonically at both 3 and 6 ML, roughly ~ sqrt(y)
+#    at small y (+28 % already at y = 0.02, +94 % at y = 0.20, theta = 6),
+#    with NO minimum anywhere in 0 < y <= 0.20. There is no saturation
+#    plateau to name an optimum; the morphology-side optimum candidate ON
+#    A STRONG SEED is y = 0. The void proxy and theta_perc agree: voids
+#    0.3 % -> 3.4 % and percolation 0.42 -> 0.46 ML, all worsening with y.
+#    N_sat at 0.15 ML barely moves (0.097 -> 0.099): the HATCN trap map
+#    already pins every first-layer atom, so dopants cannot add first-layer
+#    nucleation - they only act ABOVE layer 1, and there they roughen.
+#
+# 2. WHY PINNING ROUGHENS HERE. Renucleation smooths a film only when it
+#    replaces something worse (few far-apart islands growing tall). On the
+#    x = 0 HATCN seed the baseline is already quasi-layer-by-layer
+#    (w_rms = 0.96 ML at 6 ML, 0.3 % voids) - there is nothing left to
+#    smooth. What dynamic pinning does instead is freeze atoms at whatever
+#    height they land: a pinned Ag on top of a growing terrace is a static
+#    bump that seeds a mound one level early, and the pin also blocks the
+#    downhill hop that would have healed it. Poisson deposition noise gets
+#    locked in instead of relaxed away - w_rms drifts toward the random-
+#    deposition limit sqrt(theta) (= 2.45 ML at theta = 6; y = 0.20 reaches
+#    1.87, i.e. 76 % of the way from the smooth baseline).
+#
+# 3. RECONCILING WITH EXPERIMENT (Ag:Mg / Ag:Yb films DO come out smoother).
+#    The experimental smoothing operates on BARE, weakly-interacting
+#    substrates, where pure Ag dewets into tall widely-spaced 3D islands via
+#    adatom detachment / ripening / island coarsening. Dopants kill THAT
+#    channel. This SOS model has irreversible attachment and no detachment,
+#    so dewetting is absent by construction, and the strong seed layer
+#    performs the same function chemically: it already supplies the maximum
+#    possible nucleation density at layer 1. What remains for the dopant is
+#    only its negative role - ES-current disruption above layer 1.
+#
+# 4. IMPLICATION FOR THE ELECTRODE STACK (ties to 70_alloy_optics, which
+#    found doping never wins optically under all three smoothing scenarios
+#    s(y)): this kMC says that ON A HATCN-CLASS SEED the correct scenario is
+#    s(y) >= 1, i.e. NO morphology dividend at any y - if anything the void
+#    fraction grows. Seed layer and alloy doping are REDUNDANT smoothing
+#    strategies, and the seed is the better one: it buys the full nucleation
+#    density without the optical/resistive penalty of a lossy dopant that
+#    70 quantifies. Doping remains a candidate only for seed-free processes
+#    (or seeds much weaker than HATCN) - testing y > 0 with the trap map
+#    OFF (or partial, 68-style x-mixing) is the natural follow-up, and a
+#    dewetting/detachment channel would have to be added to the model for
+#    that comparison to be fair to the dopant.
