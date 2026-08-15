@@ -215,3 +215,38 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# RESULT (run 2026-08-15, L=128, R=1e4, 3 seeds; runs/mixed_seed_kmc.json)
+#
+# 1. Trap classes held: TPBi tau 1.4e5 s, NBPhen 6.4e4 s (permanent);
+#    pyridyls 2-6 s (traps at deposition timescale, but within one E_b
+#    error bar +-0.15 eV of the boundary -> class uncertain); P=O /
+#    carbazole / mono-CN 1e-6..1e-5 s (safely diluents).
+#
+# 2. kMC N_sat at 1:1 mixing (x = 0.50), relative to pure HATCN 0.0966:
+#       trap partner (theta_p 0.50):  0.0911   (-6 %)
+#       trap partner (theta_p 0.35):  0.0890   (-8 %)
+#       pure diluent (theta_p 0.00):  0.0769   (-20 %)
+#    theta_perc stays 0.42-0.43 everywhere: HATCN's trap density is so far
+#    above the kinetic limit that even 50 % dilution costs little - the
+#    seeding function is ROBUST to co-deposition. Island spacing penalty
+#    at 1:1: trap partners +3 %, diluents +12 %.
+#
+# 3. Crystallisation kill: HATCN-domain spanning survives to x = 0.40
+#    (p_span 0.92) and dies at x = 0.45 (0.00); largest domain collapses
+#    3048 -> 683 -> 228 molecules across x = 0.40/0.45/0.50.
+#    -> the mixing ratio must reach ~45-50 vol% partner; the 3:1 mix
+#    suggested earlier is NOT enough to break domain connectivity.
+#
+# 4. Pocket dilution: HATCN site E_b 1.35 -> 1.19 eV at 1:1 (W_adh -12 %,
+#    slightly taller islands; equal for all partners, does not reorder).
+#
+# VERDICT (cathode-side / glass-side seed, 1:1 HATCN:partner):
+#   1. TPBi    - permanent trap, lowest crystallisation risk (17), -6 %
+#                N_sat at 1:1, no CT, deepest stock. The simulation's answer.
+#   2. 3TPYMB  - trap (marginal class), risk 25.
+#   3. NBPhen  - permanent trap, risk 30.
+#   4. PO-T2T / DPEPO - optically ideal diluents; cost -20 % N_sat.
+#   5. B3PYMPM / TmPyPB - traps but high self-risk (45/40).
+#   ANODE-side variant: mCBP is a pure diluent -> accept -20 % N_sat, or
+#   use TCTA (also diluent, 0.28 eV) with the CT caveat from the ranking note.
