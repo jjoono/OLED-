@@ -57,7 +57,7 @@ construction and in nothing else.
 
 ---
 
-## Table S3 | Cost calibration for the randomly assembled family
+## Table S3 | Cost calibration for the randomly assembled family (Fig. S3)
 
 One fixed geometry (seed 7777, mid-range assembly statistics) re-evaluated under
 each setting. The acceptance criterion is band selectivity, since the reported
@@ -87,7 +87,7 @@ the wall-clock times are not, and vary by a few percent with machine load.
 
 ---
 
-## Table S4 | Convergence of the selectivity–efficiency drift
+## Table S4 | Convergence of the selectivity–efficiency drift (Fig. S4)
 
 Twenty designs stratified across the efficiency range were re-evaluated at
 twenty-fold ray count and over the full emission band, to establish that the
@@ -169,7 +169,7 @@ anywhere.
 
 ---
 
-## Table S6 | Hemisphere-seeded control
+## Table S6 | Hemisphere-seeded control (Fig. S2)
 
 Each arm's search restarted at that arm's hemispherical optimum, with the
 hemisphere point in the seed set, eight perturbations within 8% of each
@@ -214,7 +214,7 @@ second overnight session.
 
 ---
 
-## Table S7 | Patch-size dependence
+## Table S7 | Patch-size dependence (Fig. S1)
 
 One fixed high-efficiency design (the weighted-sweep optimum at $w = 0.75$),
 re-evaluated at final fidelity (50,000 rays, 151 λ) with only the textured
@@ -257,17 +257,24 @@ Three observations follow.
 
 ## Reproducing the figures
 
-All five manuscript figures are produced by a single script,
-`make_figures.py`, run from the repository root:
+All five manuscript figures are produced by `make_figures.py`; the
+supplementary figures S1–S4 and the raw-data workbooks by
+`make_supp_figures_and_data.py`, run from the repository root in that order:
 
 ```
 python3 make_figures.py
+python3 make_supp_figures_and_data.py
 ```
 
-It reads only the archived result files, prints every number quoted in the
-captions to `figure_numbers.txt`, and writes each figure as both PNG (300 dpi)
-and PDF. Regenerating the figures therefore cannot silently disagree with the
-text.
+The first script reads only the archived result files, prints every number
+quoted in the captions to `figure_numbers.txt`, and writes each figure as both
+PNG (300 dpi) and PDF. The second exports, for **every** figure (main and
+supplementary), an Excel workbook named after the figure — e.g.
+`fig2_achievable_region.xlsx` alongside `fig2_achievable_region.png` — with one
+sheet per panel containing exactly the plotted arrays, so any figure can be
+re-plotted or restyled from its workbook without touching the `.mat` archives.
+Because the export script imports the plotting script, the workbooks cannot
+drift from the figures.
 
 | Figure | Output | Inputs |
 |---|---|---|
@@ -276,6 +283,10 @@ text.
 | Fig. 3 | `fig3_selectivity_map.png` / `.pdf` | `pareto_front_result.mat` |
 | Fig. 4 | `fig4_recycling_routes.png` / `.pdf` | `angular_recycling_result.npz`, `angular_recycling_bandwidth.npz` |
 | Fig. 5 | `fig5_families.png` / `.pdf` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
+| Fig. S1 | `figS1_patch_dependence.png` / `.pdf` | `patch_convergence_result.mat`, `patch_convergence_100.mat` |
+| Fig. S2 | `figS2_warmstart_control.png` / `.pdf` | `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat` |
+| Fig. S3 | `figS3_cost_calibration.png` / `.pdf` | `calibrate_random_cost.mat` |
+| Fig. S4 | `figS4_convergence.png` / `.pdf` | `convergence_check_result.mat` |
 | Table S3 | — | `calibrate_random_cost.m` |
 | Table S4 | — | `convergence_check.m`, `pareto_front_result.mat` |
 
