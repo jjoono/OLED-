@@ -100,3 +100,26 @@ HATCN-rich (3:1) rather than 1:1 on the anode side.
 
 Cheap pre-check: absorption spectrum of glass / HATCN:mCBP 20 nm mixed film
 BEFORE any Ag work -- a CT band shows as a broad visible-NIR hump.
+
+## CORRECTIONS from the mixed-seed kMC (2026-08-15, scripts/68)
+
+Two claims above are superseded by simulation grounded in our own DFT:
+
+1. **P=O is NOT an Ag anchor.** The PO-T2T entry cited "three P=O groups =
+   strong Ag anchors"; our own screening (REPORT2) measured P=O/triazine
+   sites at 0.25-0.29 eV -> escape time ~1e-5 s at 300 K -> pure optical
+   diluent, zero contribution to nucleation density. PO-T2T drops below
+   TPBi/3TPYMB/NBPhen for the SEED function (it remains excellent on the
+   CT-safety axis).
+2. **3:1 HATCN-rich mixing is NOT enough to kill crystallisation.**
+   HATCN-domain spanning survives to x = 0.40 partner fraction and dies at
+   x = 0.45 (largest domain 3048 -> 228 molecules across 0.40 -> 0.50).
+   Use ~1:1 (45-55 vol% partner). The seeding function survives this:
+   with a trap-class partner (TPBi) N_sat drops only 6-8 % at 1:1
+   (pure diluents cost 20 %); percolation coverage is unchanged.
+
+Simulation verdict (cathode/glass side): **HATCN:TPBi ~ 1:1** - permanent
+trap sites (tau ~ 1e5 s), lowest crystallisation risk (17), no CT band,
+N_sat within 6 % of pure HATCN. Runners-up: 3TPYMB, NBPhen. Anode side:
+mCBP stays the pick but as a pure diluent costs ~20 % nucleation density
+- compensate with the two-step Ag deposition.
