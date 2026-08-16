@@ -31,3 +31,8 @@ dft_seedlayer_screen/runs/**/charges
 dft_seedlayer_screen/runs/**/wbo
 dft_seedlayer_screen/runs/**/in.xyz
 dft_seedlayer_screen/runs/**/.xtboptok
+
+# ellipsometry: data and outputs stay local
+ellipsometry/data/
+ellipsometry/out/
+ellipsometry/**/*.npz
