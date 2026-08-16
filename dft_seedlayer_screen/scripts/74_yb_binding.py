@@ -49,6 +49,13 @@ psi4.core.set_output_file(os.path.join(RUNS, "psi4_yb.out"), False)
 psi4.set_num_threads(3)
 psi4.set_memory("8 GB")
 s71.base_opts["basis"] = "def2svp_yb"
+# SAD is psi4's default guess and 71 sets it explicitly, but the SAD-FIT
+# auxiliary basis is undefined for Yb -- that, not the SCF itself, is what
+# killed the first Yb attempt (error names SAD-FIT, not BASIS). GWH needs no
+# per-element fit basis and converges Ag-Yb at 3.0 A on the first try
+# (E = -1306.525174 Ha). The guess cannot change a converged energy, only
+# which solution is reached, so this stays comparable to the SAD-guessed rows.
+s71.base_opts["guess"] = "gwh"
 
 from _ckpt import Checkpoint                                    # noqa: E402
 s71.ck = Checkpoint(os.path.join(RUNS, "yb_binding_eV.json"), label="Yb binding")
