@@ -45,6 +45,28 @@
     "E_h": -399.74919754163585,
     "mult": 1
   },
+  "Mg_PhCN": {
+    "Eb_eV": 0.0851,
+    "complex_mult": 1,
+    "level": "PBE-D3BJ/def2-SVP(+def2-ECP for Yb), CP-corrected rigid scan",
+    "min_at_scan_edge": false,
+    "n_failed_points": 1,
+    "r_A": 3.0,
+    "scan_E_h": {
+      "2.20": -523.7283608077704,
+      "2.40": -523.7319377114194,
+      "2.70": -523.7345496846972,
+      "3.00": -523.7349312207066,
+      "3.40": -523.7341126367057,
+      "3.80": -523.732860356638
+    }
+  },
+  "Mg_PhCN|cpA": {
+    "E_h": -323.85993323808003
+  },
+  "Mg_PhCN|cpB": {
+    "E_h": -199.87187158482874
+  },
   "Mg_PhCN|r2.00": {
     "error": "scf_unconverged"
   },
@@ -69,6 +91,7 @@
     "mult": 1
   },
   "Mg_PhCN|r3.80": {
-    "error": "scf_unconverged"
+    "E_h": -523.732860356638,
+    "mult": 1
   }
 }
