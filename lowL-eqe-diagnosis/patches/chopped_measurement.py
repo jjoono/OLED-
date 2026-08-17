@@ -83,6 +83,7 @@ class ChoppedSweep:
         chop_pattern="AB",
         scan_compliance=None,
         current_samples=3,
+        dark_give_up=15.0,
     ):
         """
         target_relative_sigma:
@@ -141,6 +142,13 @@ class ChoppedSweep:
         # 1회가 ~0.6 s 라, 매 사이클 읽으면 사이클이 10배 느려진다.
         # 포인트당 처음 current_samples 사이클만 읽고 평균한다.
         self.current_samples = int(current_samples)
+        # 신호가 0인 포인트(turn-on 이전)는 상대오차 목표에 영원히 수렴하지
+        # 못해서 max_time_per_point 를 꽉 채운다. dark_give_up 초가 지나도
+        # 신호가 3 sigma 유의성에 못 미치면 "빛 없음"으로 판정하고 넘어간다.
+        # 15 s 시점의 sigma 는 ~1.7 uV = 3 sigma 로 ~5 uV (52 mm 기준
+        # ~0.1 cd/m2) 까지 가려낸다. 그보다 어두운 포인트는 evaluation 에서
+        # 어차피 NaN 이다. None 이면 이 판정을 끈다.
+        self.dark_give_up = dark_give_up
 
         # 공유 baseline 상태
         self._baseline_mean = None
@@ -338,6 +346,7 @@ class ChoppedSweep:
         currents = []
         start = time.time()
         compliance_hit = False
+        dark = False
 
         while True:
             with_current = len(currents) < self.current_samples
@@ -363,6 +372,15 @@ class ChoppedSweep:
                 if abs(delta_mean) > 0 and (
                     sigma / abs(delta_mean) <= self.target_relative_sigma
                 ):
+                    break
+
+                # 충분히 재도 신호가 유의하지 않으면 빛이 없는 포인트다
+                if (
+                    self.dark_give_up is not None
+                    and elapsed >= self.dark_give_up
+                    and abs(delta_mean) < 3 * sigma
+                ):
+                    dark = True
                     break
 
             if n >= self.max_cycles or elapsed >= self.max_time_per_point:
@@ -391,6 +409,7 @@ class ChoppedSweep:
                 else np.nan
             ),
             "cycles": n,
+            "dark": dark,
             "trend": trend,
             "trend_significant": trend_significant,
             "elapsed": time.time() - start,
@@ -432,7 +451,15 @@ class ChoppedSweep:
                         ),
                         row["cycles"],
                         row["elapsed"],
-                        "" if row["converged"] else "  <- 수렴 실패",
+                        (
+                            ""
+                            if row["converged"]
+                            else (
+                                "  <- 빛 없음"
+                                if row.get("dark")
+                                else "  <- 수렴 실패"
+                            )
+                        ),
                     )
                 )
 

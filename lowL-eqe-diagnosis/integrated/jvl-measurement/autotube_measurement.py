@@ -248,7 +248,15 @@ class AutotubeMeasurement(QtCore.QThread):
                                 diode_voltage_std * 1e6,
                                 point["cycles"],
                                 point["elapsed"],
-                                "" if point["converged"] else "  <- not converged",
+                                (
+                                ""
+                                if point["converged"]
+                                else (
+                                    "  <- no light"
+                                    if point.get("dark")
+                                    else "  <- not converged"
+                                )
+                            ),
                             )
                         )
                         if point["trend_significant"]:

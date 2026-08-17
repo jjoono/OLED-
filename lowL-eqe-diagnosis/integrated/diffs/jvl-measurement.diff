@@ -62,7 +62,7 @@ index d7f5181..977662e 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..aa76370 100755
+index 296ba96..96d17cc 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -148,7 +148,7 @@ index 296ba96..aa76370 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +183,209 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +183,217 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -230,7 +230,15 @@ index 296ba96..aa76370 100755
 +                                diode_voltage_std * 1e6,
 +                                point["cycles"],
 +                                point["elapsed"],
-+                                "" if point["converged"] else "  <- not converged",
++                                (
++                                ""
++                                if point["converged"]
++                                else (
++                                    "  <- no light"
++                                    if point.get("dark")
++                                    else "  <- not converged"
++                                )
++                            ),
 +                            )
 +                        )
 +                        if point["trend_significant"]:
@@ -481,7 +489,7 @@ index 296ba96..aa76370 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +575,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +583,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -506,7 +514,7 @@ index 296ba96..aa76370 100755
  
          header_lines = [
              line03,
-@@ -503,19 +615,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +623,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  
@@ -540,10 +548,10 @@ index 296ba96..aa76370 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..cd5bc26
+index 0000000..ff21ef5
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,738 @@
+@@ -0,0 +1,765 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -629,6 +637,7 @@ index 0000000..cd5bc26
 +        chop_pattern="AB",
 +        scan_compliance=None,
 +        current_samples=3,
++        dark_give_up=15.0,
 +    ):
 +        """
 +        target_relative_sigma:
@@ -687,6 +696,13 @@ index 0000000..cd5bc26
 +        # 1회가 ~0.6 s 라, 매 사이클 읽으면 사이클이 10배 느려진다.
 +        # 포인트당 처음 current_samples 사이클만 읽고 평균한다.
 +        self.current_samples = int(current_samples)
++        # 신호가 0인 포인트(turn-on 이전)는 상대오차 목표에 영원히 수렴하지
++        # 못해서 max_time_per_point 를 꽉 채운다. dark_give_up 초가 지나도
++        # 신호가 3 sigma 유의성에 못 미치면 "빛 없음"으로 판정하고 넘어간다.
++        # 15 s 시점의 sigma 는 ~1.7 uV = 3 sigma 로 ~5 uV (52 mm 기준
++        # ~0.1 cd/m2) 까지 가려낸다. 그보다 어두운 포인트는 evaluation 에서
++        # 어차피 NaN 이다. None 이면 이 판정을 끈다.
++        self.dark_give_up = dark_give_up
 +
 +        # 공유 baseline 상태
 +        self._baseline_mean = None
@@ -884,6 +900,7 @@ index 0000000..cd5bc26
 +        currents = []
 +        start = time.time()
 +        compliance_hit = False
++        dark = False
 +
 +        while True:
 +            with_current = len(currents) < self.current_samples
@@ -909,6 +926,15 @@ index 0000000..cd5bc26
 +                if abs(delta_mean) > 0 and (
 +                    sigma / abs(delta_mean) <= self.target_relative_sigma
 +                ):
++                    break
++
++                # 충분히 재도 신호가 유의하지 않으면 빛이 없는 포인트다
++                if (
++                    self.dark_give_up is not None
++                    and elapsed >= self.dark_give_up
++                    and abs(delta_mean) < 3 * sigma
++                ):
++                    dark = True
 +                    break
 +
 +            if n >= self.max_cycles or elapsed >= self.max_time_per_point:
@@ -937,6 +963,7 @@ index 0000000..cd5bc26
 +                else np.nan
 +            ),
 +            "cycles": n,
++            "dark": dark,
 +            "trend": trend,
 +            "trend_significant": trend_significant,
 +            "elapsed": time.time() - start,
@@ -978,7 +1005,15 @@ index 0000000..cd5bc26
 +                        ),
 +                        row["cycles"],
 +                        row["elapsed"],
-+                        "" if row["converged"] else "  <- 수렴 실패",
++                        (
++                            ""
++                            if row["converged"]
++                            else (
++                                "  <- 빛 없음"
++                                if row.get("dark")
++                                else "  <- 수렴 실패"
++                            )
++                        ),
 +                    )
 +                )
 +
