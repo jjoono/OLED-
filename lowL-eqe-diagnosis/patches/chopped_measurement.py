@@ -82,6 +82,7 @@ class ChoppedSweep:
         baseline_period=0.0,
         chop_pattern="AB",
         scan_compliance=None,
+        current_samples=3,
     ):
         """
         target_relative_sigma:
@@ -135,6 +136,11 @@ class ChoppedSweep:
         self.baseline_period = baseline_period
         self.chop_pattern = chop_pattern
         self.scan_compliance = scan_compliance
+        # 전류(분모)는 PD 와 달리 드리프트 문제가 없으므로 chopping 이 필요 없다.
+        # 게다가 저휘도 모드의 SMU 설정(NPLC 10 + autozero)에서는 전류 판독
+        # 1회가 ~0.6 s 라, 매 사이클 읽으면 사이클이 10배 느려진다.
+        # 포인트당 처음 current_samples 사이클만 읽고 평균한다.
+        self.current_samples = int(current_samples)
 
         # 공유 baseline 상태
         self._baseline_mean = None
@@ -208,16 +214,18 @@ class ChoppedSweep:
         self._baseline_time = now
         self._baseline_id += 1
 
-    def _measure_on(self, voltage):
-        """on 구간 하나. (PD 평균, OLED 전류) 를 반환한다."""
+    def _measure_on(self, voltage, with_current=True):
+        """on 구간 하나. (PD 평균, OLED 전류 또는 None) 를 반환한다."""
         self.keithley_source.set_voltage(str(voltage))
         time.sleep(self.settle_time)
         on_values = self._read_pd_burst()
-        oled_current = float(self.keithley_source.read_current())
+        oled_current = (
+            float(self.keithley_source.read_current()) if with_current else None
+        )
 
         return float(np.nanmean(on_values)), oled_current
 
-    def _measure_cycle(self, voltage):
+    def _measure_cycle(self, voltage, with_current=True):
         """
         chop 사이클 하나를 돌고 (dPD, OLED 전류) 를 반환한다.
 
@@ -229,18 +237,18 @@ class ChoppedSweep:
             self._measure_baseline(force=True)
             off_first = self._baseline_mean
 
-            on_first, current_first = self._measure_on(voltage)
-            on_second, current_second = self._measure_on(voltage)
+            on_first, current_first = self._measure_on(voltage, with_current)
+            on_second, _ = self._measure_on(voltage, with_current=False)
 
             self._measure_baseline(force=True)
             off_second = self._baseline_mean
 
             delta = (on_first + on_second) / 2.0 - (off_first + off_second) / 2.0
-            return delta, (current_first + current_second) / 2.0
+            return delta, current_first
 
         # "AB" (기본값)
         self._measure_baseline()
-        on_mean, oled_current = self._measure_on(voltage)
+        on_mean, oled_current = self._measure_on(voltage, with_current)
 
         return on_mean - self._baseline_mean, oled_current
 
@@ -332,13 +340,16 @@ class ChoppedSweep:
         compliance_hit = False
 
         while True:
-            delta, oled_current = self._measure_cycle(voltage)
+            with_current = len(currents) < self.current_samples
+            delta, oled_current = self._measure_cycle(voltage, with_current)
             deltas.append(delta)
             groups.setdefault(self._baseline_id, []).append(delta)
-            currents.append(oled_current)
+            if oled_current is not None:
+                currents.append(oled_current)
 
             if (
-                self.scan_compliance is not None
+                oled_current is not None
+                and self.scan_compliance is not None
                 and abs(oled_current) >= self.scan_compliance
             ):
                 compliance_hit = True
@@ -375,8 +386,8 @@ class ChoppedSweep:
             "pd_voltage_std": sigma,
             "current": float(np.mean(currents)) * 1e3,  # mA
             "current_std": (
-                float(np.std(currents, ddof=1)) / np.sqrt(n) * 1e3
-                if n > 1
+                float(np.std(currents, ddof=1)) / np.sqrt(len(currents)) * 1e3
+                if len(currents) > 1
                 else np.nan
             ),
             "cycles": n,

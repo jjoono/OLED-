@@ -227,11 +227,19 @@ class KeithleySource:
         """
         self.mutex.lock()
         if on:
+            # NPLC 10 + autozero ON 이면 전류 판독 1회가 최대 ~0.6 s 걸린다.
+            # 기본 VISA 타임아웃(2 s, 로컬 설정에 따라 더 짧을 수 있음)이
+            # 빠듯해서 MEASure:CURRent:DC? 가 VI_ERROR_TMO 로 죽는다.
+            # 모드가 켜져 있는 동안만 넉넉히 잡고, 끌 때 원복한다.
+            self._timeout_before_low_light = self.keith.timeout
+            self.keith.timeout = 10000
             self.keith.write("Current:NPLCycles 10")
             self.keith.write("Current:AZero ON")
         else:
             self.keith.write("Current:NPLCycles 1")
             self.keith.write("Current:AZero OFF")
+            if hasattr(self, "_timeout_before_low_light"):
+                self.keith.timeout = self._timeout_before_low_light
         self.mutex.unlock()
 
     def as_current_source(self, voltage_compliance):

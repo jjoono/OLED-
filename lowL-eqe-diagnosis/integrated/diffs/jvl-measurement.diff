@@ -540,10 +540,10 @@ index 296ba96..aa76370 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..0f36855
+index 0000000..cd5bc26
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,727 @@
+@@ -0,0 +1,738 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -628,6 +628,7 @@ index 0000000..0f36855
 +        baseline_period=0.0,
 +        chop_pattern="AB",
 +        scan_compliance=None,
++        current_samples=3,
 +    ):
 +        """
 +        target_relative_sigma:
@@ -681,6 +682,11 @@ index 0000000..0f36855
 +        self.baseline_period = baseline_period
 +        self.chop_pattern = chop_pattern
 +        self.scan_compliance = scan_compliance
++        # 전류(분모)는 PD 와 달리 드리프트 문제가 없으므로 chopping 이 필요 없다.
++        # 게다가 저휘도 모드의 SMU 설정(NPLC 10 + autozero)에서는 전류 판독
++        # 1회가 ~0.6 s 라, 매 사이클 읽으면 사이클이 10배 느려진다.
++        # 포인트당 처음 current_samples 사이클만 읽고 평균한다.
++        self.current_samples = int(current_samples)
 +
 +        # 공유 baseline 상태
 +        self._baseline_mean = None
@@ -754,16 +760,18 @@ index 0000000..0f36855
 +        self._baseline_time = now
 +        self._baseline_id += 1
 +
-+    def _measure_on(self, voltage):
-+        """on 구간 하나. (PD 평균, OLED 전류) 를 반환한다."""
++    def _measure_on(self, voltage, with_current=True):
++        """on 구간 하나. (PD 평균, OLED 전류 또는 None) 를 반환한다."""
 +        self.keithley_source.set_voltage(str(voltage))
 +        time.sleep(self.settle_time)
 +        on_values = self._read_pd_burst()
-+        oled_current = float(self.keithley_source.read_current())
++        oled_current = (
++            float(self.keithley_source.read_current()) if with_current else None
++        )
 +
 +        return float(np.nanmean(on_values)), oled_current
 +
-+    def _measure_cycle(self, voltage):
++    def _measure_cycle(self, voltage, with_current=True):
 +        """
 +        chop 사이클 하나를 돌고 (dPD, OLED 전류) 를 반환한다.
 +
@@ -775,18 +783,18 @@ index 0000000..0f36855
 +            self._measure_baseline(force=True)
 +            off_first = self._baseline_mean
 +
-+            on_first, current_first = self._measure_on(voltage)
-+            on_second, current_second = self._measure_on(voltage)
++            on_first, current_first = self._measure_on(voltage, with_current)
++            on_second, _ = self._measure_on(voltage, with_current=False)
 +
 +            self._measure_baseline(force=True)
 +            off_second = self._baseline_mean
 +
 +            delta = (on_first + on_second) / 2.0 - (off_first + off_second) / 2.0
-+            return delta, (current_first + current_second) / 2.0
++            return delta, current_first
 +
 +        # "AB" (기본값)
 +        self._measure_baseline()
-+        on_mean, oled_current = self._measure_on(voltage)
++        on_mean, oled_current = self._measure_on(voltage, with_current)
 +
 +        return on_mean - self._baseline_mean, oled_current
 +
@@ -878,13 +886,16 @@ index 0000000..0f36855
 +        compliance_hit = False
 +
 +        while True:
-+            delta, oled_current = self._measure_cycle(voltage)
++            with_current = len(currents) < self.current_samples
++            delta, oled_current = self._measure_cycle(voltage, with_current)
 +            deltas.append(delta)
 +            groups.setdefault(self._baseline_id, []).append(delta)
-+            currents.append(oled_current)
++            if oled_current is not None:
++                currents.append(oled_current)
 +
 +            if (
-+                self.scan_compliance is not None
++                oled_current is not None
++                and self.scan_compliance is not None
 +                and abs(oled_current) >= self.scan_compliance
 +            ):
 +                compliance_hit = True
@@ -921,8 +932,8 @@ index 0000000..0f36855
 +            "pd_voltage_std": sigma,
 +            "current": float(np.mean(currents)) * 1e3,  # mA
 +            "current_std": (
-+                float(np.std(currents, ddof=1)) / np.sqrt(n) * 1e3
-+                if n > 1
++                float(np.std(currents, ddof=1)) / np.sqrt(len(currents)) * 1e3
++                if len(currents) > 1
 +                else np.nan
 +            ),
 +            "cycles": n,
@@ -1272,10 +1283,10 @@ index 0000000..0f36855
 +    else:
 +        print(__doc__)
 diff --git a/src/hardware.py b/src/hardware.py
-index 4be9008..aa45ba3 100755
+index 4be9008..7dff69b 100755
 --- a/src/hardware.py
 +++ b/src/hardware.py
-@@ -216,6 +216,24 @@ class KeithleySource:
+@@ -216,6 +216,32 @@ class KeithleySource:
          self.mode = "voltage"
          self.mutex.unlock()
  
@@ -1290,17 +1301,25 @@ index 4be9008..aa45ba3 100755
 +        """
 +        self.mutex.lock()
 +        if on:
++            # NPLC 10 + autozero ON 이면 전류 판독 1회가 최대 ~0.6 s 걸린다.
++            # 기본 VISA 타임아웃(2 s, 로컬 설정에 따라 더 짧을 수 있음)이
++            # 빠듯해서 MEASure:CURRent:DC? 가 VI_ERROR_TMO 로 죽는다.
++            # 모드가 켜져 있는 동안만 넉넉히 잡고, 끌 때 원복한다.
++            self._timeout_before_low_light = self.keith.timeout
++            self.keith.timeout = 10000
 +            self.keith.write("Current:NPLCycles 10")
 +            self.keith.write("Current:AZero ON")
 +        else:
 +            self.keith.write("Current:NPLCycles 1")
 +            self.keith.write("Current:AZero OFF")
++            if hasattr(self, "_timeout_before_low_light"):
++                self.keith.timeout = self._timeout_before_low_light
 +        self.mutex.unlock()
 +
      def as_current_source(self, voltage_compliance):
          """
          Initialise (or reinitialise) class as current source
-@@ -385,21 +403,63 @@ class KeithleyMultimeter:
+@@ -385,21 +411,63 @@ class KeithleyMultimeter:
          self.keithmulti.write("INITiate")
          self.mutex.unlock()
  
