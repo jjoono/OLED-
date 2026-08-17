@@ -701,7 +701,20 @@ class AutotubeMeasurement(QtCore.QThread):
         # broke every later use (plotting, the next pixel's assignments).
         df_save = self.df_data.copy()
         df_save["voltage"] = df_save["voltage"].map(lambda x: "{0:.2f}".format(x))
-        df_save["current"] = df_save["current"].map(lambda x: "{0:.6f}".format(x))
+        # 6 decimals in mA quantizes the current to 1 nA: sub-0.5 nA points
+        # get written as exactly zero, which the evaluation's divide guard
+        # turns into EQE = 0 while the luminance stays finite, and points
+        # driven at a few nA inherit percent-level quantization error in the
+        # EQE denominator. The accurate mode measures the current at NPLC 10,
+        # so store it with pA resolution; the normal scan keeps its format.
+        if self.accurate_eqe_mode:
+            df_save["current"] = df_save["current"].map(
+                lambda x: "{0:.9f}".format(x)
+            )
+        else:
+            df_save["current"] = df_save["current"].map(
+                lambda x: "{0:.6f}".format(x)
+            )
         df_save["pd_voltage"] = df_save["pd_voltage"].map(
             lambda x: "{0:.7f}".format(x)
         )

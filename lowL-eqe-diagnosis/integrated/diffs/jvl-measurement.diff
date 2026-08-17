@@ -91,7 +91,7 @@ index d7f5181..06e03c7 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..e91e334 100755
+index 296ba96..1d721ec 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -616,7 +616,7 @@ index 296ba96..e91e334 100755
  
          header_lines = [
              line03,
-@@ -503,19 +696,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +696,35 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  
@@ -633,7 +633,20 @@ index 296ba96..e91e334 100755
 +        # broke every later use (plotting, the next pixel's assignments).
 +        df_save = self.df_data.copy()
 +        df_save["voltage"] = df_save["voltage"].map(lambda x: "{0:.2f}".format(x))
-+        df_save["current"] = df_save["current"].map(lambda x: "{0:.6f}".format(x))
++        # 6 decimals in mA quantizes the current to 1 nA: sub-0.5 nA points
++        # get written as exactly zero, which the evaluation's divide guard
++        # turns into EQE = 0 while the luminance stays finite, and points
++        # driven at a few nA inherit percent-level quantization error in the
++        # EQE denominator. The accurate mode measures the current at NPLC 10,
++        # so store it with pA resolution; the normal scan keeps its format.
++        if self.accurate_eqe_mode:
++            df_save["current"] = df_save["current"].map(
++                lambda x: "{0:.9f}".format(x)
++            )
++        else:
++            df_save["current"] = df_save["current"].map(
++                lambda x: "{0:.6f}".format(x)
++            )
 +        df_save["pd_voltage"] = df_save["pd_voltage"].map(
              lambda x: "{0:.7f}".format(x)
          )
