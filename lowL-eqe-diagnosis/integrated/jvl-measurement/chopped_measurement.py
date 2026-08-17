@@ -78,7 +78,7 @@ class ChoppedSweep:
         target_relative_sigma=0.02,
         min_cycles=16,
         max_cycles=20000,
-        max_time_per_point=240.0,
+        max_time_per_point=90.0,
         baseline_period=0.0,
         chop_pattern="AB",
         scan_compliance=None,
@@ -126,6 +126,9 @@ class ChoppedSweep:
         max_cycles / max_time_per_point:
             수렴하지 않는 포인트(신호가 노이즈에 묻힌 경우)에서 무한정 도는 것을 막는다.
             이 한계에 걸려 끝난 포인트는 converged=False 로 기록된다.
+            90 s 기준: 1 cd/m2 포인트는 +-2% 에 수렴하고(~50 s), turn-on 직후의
+            경계 포인트(0.1~0.5 cd/m2)는 +-4~8% 값으로 끊는다. 그런 포인트에
+            +-2% 를 고집하면 개당 4분 이상을 쓰고도 대부분 미달이다.
         """
         self.keithley_source = keithley_source
         self.keithley_multimeter = keithley_multimeter

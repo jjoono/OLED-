@@ -239,28 +239,6 @@ class AutotubeMeasurement(QtCore.QThread):
                     # New pixel: its own baseline, and back to chopped mode
                     self.chopped.reset_pixel_state()
 
-                    # Off-bias chopping: verify once per pixel that there is
-                    # truly no EL at the changeover voltage (15 s, sensitive
-                    # to ~0.1 cd/m2). If dark, chop against the changeover
-                    # bias so the traps stay filled during the off halves and
-                    # the chopped EL sits close to the DC value. If any EL is
-                    # detected, fall back to chopping against 0 V.
-                    off_bias = self.measurement_parameters["changeover_voltage"]
-                    if off_bias > 0:
-                        self.chopped.off_voltage = 0.0
-                        check = self.chopped.measure_point(off_bias)
-                        if check["dark"]:
-                            self.chopped.off_voltage = off_bias
-                            cf.log_message(
-                                "No EL at %.2f V: chopping against this"
-                                " off-bias (traps stay filled)" % off_bias
-                            )
-                        else:
-                            cf.log_message(
-                                "EL detected at %.2f V (%.1f uV): off-bias"
-                                " disabled, chopping against 0 V"
-                                % (off_bias, check["pd_voltage"] * 1e6)
-                            )
 
                 # Take PD voltage reading from Multimeter for background.
                 # In accurate EQE mode the background is re-measured every chop
@@ -277,6 +255,42 @@ class AutotubeMeasurement(QtCore.QThread):
 
                 # Turn on the voltage
                 self.keithley_source.activate_output()
+
+                if self.accurate_eqe_mode:
+                    # Off-bias chopping: verify once per pixel that there is
+                    # truly no EL at the changeover voltage. Must run with
+                    # the relay closed and the output on - the device has to
+                    # actually be driven. Only the dark verdict (15 s,
+                    # sensitive to ~0.1 cd/m2) is needed, so the point is cut
+                    # off right after it instead of trying to converge on
+                    # marginal EL for minutes.
+                    off_bias = self.measurement_parameters["changeover_voltage"]
+                    if off_bias > 0:
+                        self.chopped.off_voltage = 0.0
+                        cf.log_message(
+                            "Checking for EL at %.2f V (up to ~16 s)..."
+                            % off_bias
+                        )
+                        cap = self.chopped.max_time_per_point
+                        self.chopped.max_time_per_point = (
+                            self.chopped.dark_give_up + 1.0
+                        )
+                        try:
+                            check = self.chopped.measure_point(off_bias)
+                        finally:
+                            self.chopped.max_time_per_point = cap
+                        if check["dark"]:
+                            self.chopped.off_voltage = off_bias
+                            cf.log_message(
+                                "No EL at %.2f V: chopping against this"
+                                " off-bias (traps stay filled)" % off_bias
+                            )
+                        else:
+                            cf.log_message(
+                                "EL detected at %.2f V (%.1f uV): off-bias"
+                                " disabled, chopping against 0 V"
+                                % (off_bias, check["pd_voltage"] * 1e6)
+                            )
 
                 # Low Voltage Readings
                 i = 0
@@ -295,6 +309,15 @@ class AutotubeMeasurement(QtCore.QThread):
                         # dPD = mean(on) - mean(off) is averaged until the target
                         # precision is reached. Returns the background-free signal
                         # and its measured uncertainty.
+                        cf.log_message(
+                            "Measuring %.3f V (%s)..."
+                            % (
+                                voltage,
+                                "continuous"
+                                if self._coarse_now
+                                else "chopped",
+                            )
+                        )
                         try:
                             if self._coarse_now:
                                 # Bright region: the signal dwarfs the

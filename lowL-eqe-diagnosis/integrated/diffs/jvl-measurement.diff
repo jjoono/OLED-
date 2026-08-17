@@ -91,7 +91,7 @@ index d7f5181..06e03c7 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..d3a1b46 100755
+index 296ba96..c18e268 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -209,7 +209,7 @@ index 296ba96..d3a1b46 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +215,321 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +215,344 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -250,28 +250,6 @@ index 296ba96..d3a1b46 100755
 +                    # New pixel: its own baseline, and back to chopped mode
 +                    self.chopped.reset_pixel_state()
 +
-+                    # Off-bias chopping: verify once per pixel that there is
-+                    # truly no EL at the changeover voltage (15 s, sensitive
-+                    # to ~0.1 cd/m2). If dark, chop against the changeover
-+                    # bias so the traps stay filled during the off halves and
-+                    # the chopped EL sits close to the DC value. If any EL is
-+                    # detected, fall back to chopping against 0 V.
-+                    off_bias = self.measurement_parameters["changeover_voltage"]
-+                    if off_bias > 0:
-+                        self.chopped.off_voltage = 0.0
-+                        check = self.chopped.measure_point(off_bias)
-+                        if check["dark"]:
-+                            self.chopped.off_voltage = off_bias
-+                            cf.log_message(
-+                                "No EL at %.2f V: chopping against this"
-+                                " off-bias (traps stay filled)" % off_bias
-+                            )
-+                        else:
-+                            cf.log_message(
-+                                "EL detected at %.2f V (%.1f uV): off-bias"
-+                                " disabled, chopping against 0 V"
-+                                % (off_bias, check["pd_voltage"] * 1e6)
-+                            )
 +
 +                # Take PD voltage reading from Multimeter for background.
 +                # In accurate EQE mode the background is re-measured every chop
@@ -288,6 +266,42 @@ index 296ba96..d3a1b46 100755
 +
 +                # Turn on the voltage
 +                self.keithley_source.activate_output()
++
++                if self.accurate_eqe_mode:
++                    # Off-bias chopping: verify once per pixel that there is
++                    # truly no EL at the changeover voltage. Must run with
++                    # the relay closed and the output on - the device has to
++                    # actually be driven. Only the dark verdict (15 s,
++                    # sensitive to ~0.1 cd/m2) is needed, so the point is cut
++                    # off right after it instead of trying to converge on
++                    # marginal EL for minutes.
++                    off_bias = self.measurement_parameters["changeover_voltage"]
++                    if off_bias > 0:
++                        self.chopped.off_voltage = 0.0
++                        cf.log_message(
++                            "Checking for EL at %.2f V (up to ~16 s)..."
++                            % off_bias
++                        )
++                        cap = self.chopped.max_time_per_point
++                        self.chopped.max_time_per_point = (
++                            self.chopped.dark_give_up + 1.0
++                        )
++                        try:
++                            check = self.chopped.measure_point(off_bias)
++                        finally:
++                            self.chopped.max_time_per_point = cap
++                        if check["dark"]:
++                            self.chopped.off_voltage = off_bias
++                            cf.log_message(
++                                "No EL at %.2f V: chopping against this"
++                                " off-bias (traps stay filled)" % off_bias
++                            )
++                        else:
++                            cf.log_message(
++                                "EL detected at %.2f V (%.1f uV): off-bias"
++                                " disabled, chopping against 0 V"
++                                % (off_bias, check["pd_voltage"] * 1e6)
++                            )
 +
 +                # Low Voltage Readings
 +                i = 0
@@ -306,6 +320,15 @@ index 296ba96..d3a1b46 100755
 +                        # dPD = mean(on) - mean(off) is averaged until the target
 +                        # precision is reached. Returns the background-free signal
 +                        # and its measured uncertainty.
++                        cf.log_message(
++                            "Measuring %.3f V (%s)..."
++                            % (
++                                voltage,
++                                "continuous"
++                                if self._coarse_now
++                                else "chopped",
++                            )
++                        )
 +                        try:
 +                            if self._coarse_now:
 +                                # Bright region: the signal dwarfs the
@@ -654,7 +677,7 @@ index 296ba96..d3a1b46 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +719,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +742,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -679,7 +702,7 @@ index 296ba96..d3a1b46 100755
  
          header_lines = [
              line03,
-@@ -503,19 +759,35 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +782,35 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  
@@ -726,10 +749,10 @@ index 296ba96..d3a1b46 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..333dc2a
+index 0000000..2fcb36b
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,928 @@
+@@ -0,0 +1,931 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -810,7 +833,7 @@ index 0000000..333dc2a
 +        target_relative_sigma=0.02,
 +        min_cycles=16,
 +        max_cycles=20000,
-+        max_time_per_point=240.0,
++        max_time_per_point=90.0,
 +        baseline_period=0.0,
 +        chop_pattern="AB",
 +        scan_compliance=None,
@@ -858,6 +881,9 @@ index 0000000..333dc2a
 +        max_cycles / max_time_per_point:
 +            수렴하지 않는 포인트(신호가 노이즈에 묻힌 경우)에서 무한정 도는 것을 막는다.
 +            이 한계에 걸려 끝난 포인트는 converged=False 로 기록된다.
++            90 s 기준: 1 cd/m2 포인트는 +-2% 에 수렴하고(~50 s), turn-on 직후의
++            경계 포인트(0.1~0.5 cd/m2)는 +-4~8% 값으로 끊는다. 그런 포인트에
++            +-2% 를 고집하면 개당 4분 이상을 쓰고도 대부분 미달이다.
 +        """
 +        self.keithley_source = keithley_source
 +        self.keithley_multimeter = keithley_multimeter
