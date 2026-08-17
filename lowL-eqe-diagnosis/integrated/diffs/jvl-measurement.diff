@@ -1,7 +1,25 @@
 diff --git a/src/UI_main_window.py b/src/UI_main_window.py
-index d7f5181..647dd91 100755
+index d7f5181..977662e 100755
 --- a/src/UI_main_window.py
 +++ b/src/UI_main_window.py
+@@ -548,7 +548,7 @@ class Ui_MainWindow(object):
+         self.aw_select_pixel_label = QtWidgets.QLabel(self.aw_scrollAreaWidgetContents)
+         self.aw_select_pixel_label.setStyleSheet('font: 63 bold 10pt "Segoe UI";')
+         self.aw_select_pixel_label.setObjectName("aw_select_pixel_label")
+-        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 14, 0, 1, 1)
++        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 16, 0, 1, 1)
+ 
+         # Pixel 1
+         self.aw_pixel1_pushButton = QtWidgets.QPushButton(self.aw_select_pixel_widget)
+@@ -619,7 +619,7 @@ class Ui_MainWindow(object):
+         self.gridLayout_4.addWidget(self.aw_pixel8_pushButton, 4, 1, 1, 1)
+ 
+         self.gridLayout_3.addWidget(
+-            self.aw_select_pixel_widget, 15, 0, 1, 1, QtCore.Qt.AlignHCenter
++            self.aw_select_pixel_widget, 17, 0, 1, 1, QtCore.Qt.AlignHCenter
+         )
+ 
+         # Min voltage
 @@ -682,6 +682,31 @@ class Ui_MainWindow(object):
          self.aw_auto_measure_HLayout.addWidget(self.aw_auto_measure_label)
          self.gridLayout_3.addLayout(self.aw_auto_measure_HLayout, 13, 0, 1, 1)
@@ -34,6 +52,15 @@ index d7f5181..647dd91 100755
          # PD saturation checkbox
          # self.aw_pd_saturation_HLayout = QtWidgets.QHBoxLayout()
          # self.aw_pd_saturation_toggleSwitch = ToggleSwitch()
+@@ -725,7 +750,7 @@ class Ui_MainWindow(object):
+         self.aw_start_measurement_pushButton.setObjectName(
+             "aw_start_measurement_pushButton"
+         )
+-        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 16, 0, 1, 1)
++        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 18, 0, 1, 1)
+ 
+         self.tabWidget.addTab(self.autotube_widget, "")
+ 
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
 index 296ba96..aa76370 100755
 --- a/src/autotube_measurement.py
