@@ -91,10 +91,16 @@ index d7f5181..06e03c7 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..c18e268 100755
+index 296ba96..d9f1afc 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
-@@ -7,6 +7,8 @@ import core_functions as cf
+@@ -2,11 +2,14 @@ from PySide6 import QtCore
+ 
+ import time
+ import datetime as dt
++import traceback
+ import core_functions as cf
+ 
  import pandas as pd
  import numpy as np
  
@@ -103,7 +109,7 @@ index 296ba96..c18e268 100755
  
  class AutotubeMeasurement(QtCore.QThread):
      """
-@@ -54,10 +56,37 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -54,10 +57,37 @@ class AutotubeMeasurement(QtCore.QThread):
          self.selected_pixels = selected_pixels
          self.photodiode_position = photodiode_position
  
@@ -142,7 +148,7 @@ index 296ba96..c18e268 100755
  
          # Connect the signals
          self.update_plot.connect(parent.plot_autotube_measurement)
-@@ -68,11 +97,54 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -68,11 +98,54 @@ class AutotubeMeasurement(QtCore.QThread):
              parent.aw_start_measurement_pushButton.setChecked
          )
  
@@ -198,7 +204,7 @@ index 296ba96..c18e268 100755
      def run(self):
          """
          Function that does the actual measurement. I am not sure yet, if I
-@@ -83,10 +155,6 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -83,10 +156,6 @@ class AutotubeMeasurement(QtCore.QThread):
          done in this function!
          """
  
@@ -209,7 +215,7 @@ index 296ba96..c18e268 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +215,344 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +216,360 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -358,6 +364,22 @@ index 296ba96..c18e268 100755
 +                        except RuntimeError as error:
 +                            # All PD readings overloaded (multimeter range too low)
 +                            cf.log_message(str(error))
++                            break
++                        except Exception:
++                            # Instrument/communication error. Without this an
++                            # exception killed the measurement thread silently
++                            # (the only trace being the settings-restored log
++                            # from the finally). Log it loudly, end this pixel
++                            # keeping the data measured so far, and let the
++                            # scan continue with the next pixel.
++                            cf.log_message(
++                                "MEASUREMENT ERROR at %.3f V:\n%s"
++                                % (voltage, traceback.format_exc())
++                            )
++                            cf.log_message(
++                                "Ending this pixel, keeping the data"
++                                " measured so far"
++                            )
 +                            break
 +
 +                        oled_current = point["current"] * 1e-3  # back to A
@@ -677,7 +699,7 @@ index 296ba96..c18e268 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +742,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +759,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -702,7 +724,7 @@ index 296ba96..c18e268 100755
  
          header_lines = [
              line03,
-@@ -503,19 +782,35 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +799,35 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  

@@ -2,6 +2,7 @@ from PySide6 import QtCore
 
 import time
 import datetime as dt
+import traceback
 import core_functions as cf
 
 import pandas as pd
@@ -347,6 +348,22 @@ class AutotubeMeasurement(QtCore.QThread):
                         except RuntimeError as error:
                             # All PD readings overloaded (multimeter range too low)
                             cf.log_message(str(error))
+                            break
+                        except Exception:
+                            # Instrument/communication error. Without this an
+                            # exception killed the measurement thread silently
+                            # (the only trace being the settings-restored log
+                            # from the finally). Log it loudly, end this pixel
+                            # keeping the data measured so far, and let the
+                            # scan continue with the next pixel.
+                            cf.log_message(
+                                "MEASUREMENT ERROR at %.3f V:\n%s"
+                                % (voltage, traceback.format_exc())
+                            )
+                            cf.log_message(
+                                "Ending this pixel, keeping the data"
+                                " measured so far"
+                            )
                             break
 
                         oled_current = point["current"] * 1e-3  # back to A
