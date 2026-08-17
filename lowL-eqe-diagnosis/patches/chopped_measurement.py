@@ -86,6 +86,8 @@ class ChoppedSweep:
         dark_give_up=15.0,
         quick_cycles=8,
         warmup_time=1.0,
+        continuous_settle=0.1,
+        continuous_samples=10,
     ):
         """
         target_relative_sigma:
@@ -163,6 +165,16 @@ class ChoppedSweep:
         # 그것이 포인트마다 뜨던 trend 경고의 정체다. 워밍업으로 과도를
         # 보낸 뒤 기록하면 평균이 준정상상태 값이 된다. 0 이면 끈다.
         self.warmup_time = warmup_time
+        # 연속(비-chopped) 측정 파라미터. 신호가 background 오차(~30 uV)를
+        # 압도하는 밝은 구간에서는 chopping 이 필요 없고, 오히려 해롭다:
+        # off 구간마다 트랩이 비워져서 on 구간 EL 이 DC 정상상태에 못 미치는
+        # "chopped 준정상상태" 를 재게 된다 (실측에서 일반 스윕 대비 PD 가
+        # 계통적으로 낮게 나온 원인). 밝은 포인트는 소자를 계속 켠 채
+        # 일반 스윕과 같은 조건으로 재고, 버스트 평균으로 노이즈만 줄인다.
+        self.continuous_settle = continuous_settle
+        self.continuous_samples = int(continuous_samples)
+        # 연속 구간에 이미 들어와 있는지 (첫 연속 포인트는 DC 워밍업이 필요)
+        self._continuous_on = False
 
         # 공유 baseline 상태
         self._baseline_mean = None
@@ -173,6 +185,13 @@ class ChoppedSweep:
         self.stop = False
 
     # -- 저수준 -------------------------------------------------------------
+
+    def reset_pixel_state(self):
+        """픽셀이 바뀔 때 호출: baseline 과 연속 모드 상태를 초기화한다."""
+        self._baseline_mean = None
+        self._baseline_sem = None
+        self._baseline_time = None
+        self._continuous_on = False
 
     def prepare(self):
         """저휘도 모드 진입. 반드시 finish() 와 짝으로 쓸 것."""
@@ -463,6 +482,81 @@ class ChoppedSweep:
             "trend_significant": trend_significant,
             "elapsed": time.time() - start,
             "converged": bool(converged),
+            "compliance": bool(compliance_hit),
+        }
+
+    def measure_point_continuous(self, voltage):
+        """
+        밝은 포인트용 연속 측정. 소자를 끄지 않는다.
+
+        일반 스윕과 같은 조건(연속 구동 = DC 정상상태)에서 PD 를 버스트 평균으로
+        읽고, background 는 마지막으로 잰 chopped baseline 을 재사용한다.
+        신호가 수 mV 이상이면 baseline 오차(~30 uV 드리프트 포함)는 1% 미만이다.
+
+        반환 형식은 measure_point 와 동일하다.
+        """
+        start = time.time()
+
+        # 이 픽셀에서 아직 baseline 을 잰 적이 없으면 한 번만 잰다
+        # (스캔 전체가 밝은 구간에서 시작하는 경우)
+        if self._baseline_mean is None:
+            self._measure_baseline(force=True)
+
+        self.keithley_source.set_voltage(str(voltage))
+
+        if not self._continuous_on:
+            # 첫 연속 포인트: 직전까지 chopped(50% duty)로 돌았으므로 트랩
+            # 상태가 DC 정상상태에 못 미친다. 소자를 켠 채 워밍업해서 DC 로
+            # 채운 뒤 읽는다. 이후 연속 포인트들은 켜진 상태를 이어받는다.
+            time.sleep(max(self.warmup_time, self.continuous_settle))
+            self._continuous_on = True
+        else:
+            time.sleep(self.continuous_settle)
+
+        samples = []
+        for _ in range(self.continuous_samples):
+            samples.append(float(np.nanmean(self._read_pd_burst())))
+            if self.stop:
+                break
+
+        delta_mean = float(np.mean(samples)) - self._baseline_mean
+        n = len(samples)
+        sem = float(np.std(samples, ddof=1)) / np.sqrt(n) if n > 1 else np.nan
+        sigma = float(np.sqrt(np.nan_to_num(sem, nan=0.0) ** 2
+                              + (self._baseline_sem or 0.0) ** 2))
+
+        currents = []
+        for _ in range(self.current_samples):
+            currents.append(float(self.keithley_source.read_current()))
+
+        compliance_hit = (
+            self.scan_compliance is not None
+            and abs(float(np.mean(currents))) >= self.scan_compliance
+        )
+        trend, trend_significant = self._trend(samples, sigma)
+
+        # 주의: 소자를 끄지 않는다. 다음 연속 포인트가 이어서 켠 채 진행된다.
+        return {
+            "voltage": voltage,
+            "pd_voltage": delta_mean,
+            "pd_voltage_std": sigma,
+            "current": float(np.mean(currents)) * 1e3,  # mA
+            "current_std": (
+                float(np.std(currents, ddof=1))
+                / np.sqrt(len(currents))
+                * 1e3
+                if len(currents) > 1
+                else np.nan
+            ),
+            "cycles": n,
+            "dark": False,
+            "trend": trend,
+            "trend_significant": trend_significant,
+            "elapsed": time.time() - start,
+            "converged": bool(
+                abs(delta_mean) > 0
+                and sigma / abs(delta_mean) <= self.target_relative_sigma
+            ),
             "compliance": bool(compliance_hit),
         }
 

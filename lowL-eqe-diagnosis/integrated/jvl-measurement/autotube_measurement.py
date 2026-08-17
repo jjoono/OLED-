@@ -235,6 +235,9 @@ class AutotubeMeasurement(QtCore.QThread):
 
                 # Accurate mode steps adaptively; every pixel starts fine
                 self._coarse_now = False
+                if self.accurate_eqe_mode:
+                    # New pixel: its own baseline, and back to chopped mode
+                    self.chopped.reset_pixel_state()
 
                 # Take PD voltage reading from Multimeter for background.
                 # In accurate EQE mode the background is re-measured every chop
@@ -270,19 +273,31 @@ class AutotubeMeasurement(QtCore.QThread):
                         # precision is reached. Returns the background-free signal
                         # and its measured uncertainty.
                         try:
-                            # Below the changeover voltage no light is
-                            # expected: spend only a few cycles confirming
-                            # darkness, and escalate to the full averaging
-                            # automatically if the device does emit there
-                            point = self.chopped.measure_point(
-                                voltage,
-                                quick=(
+                            if self._coarse_now:
+                                # Bright region: the signal dwarfs the
+                                # background error, so chopping is unnecessary
+                                # and harmful - interrupting the drive every
+                                # cycle drains trapped charge and reads a
+                                # pulsed EL below the DC steady state.
+                                # Measure continuously, exactly like the
+                                # plain sweep, with burst averaging.
+                                point = self.chopped.measure_point_continuous(
                                     voltage
-                                    < self.measurement_parameters[
-                                        "changeover_voltage"
-                                    ]
-                                ),
-                            )
+                                )
+                            else:
+                                # Below the changeover voltage no light is
+                                # expected: spend only a few cycles confirming
+                                # darkness, and escalate to the full averaging
+                                # automatically if the device does emit there
+                                point = self.chopped.measure_point(
+                                    voltage,
+                                    quick=(
+                                        voltage
+                                        < self.measurement_parameters[
+                                            "changeover_voltage"
+                                        ]
+                                    ),
+                                )
                         except RuntimeError as error:
                             # All PD readings overloaded (multimeter range too low)
                             cf.log_message(str(error))
@@ -304,7 +319,8 @@ class AutotubeMeasurement(QtCore.QThread):
                         ):
                             self._coarse_now = True
                             cf.log_message(
-                                "PD %.2f mV > threshold: switching to %.2f V steps"
+                                "PD %.2f mV > threshold: switching to"
+                                " %.2f V steps and continuous readout"
                                 % (
                                     diode_voltage * 1e3,
                                     self.measurement_parameters[
