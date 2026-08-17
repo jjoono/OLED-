@@ -1,0 +1,114 @@
+diff --git a/src/core_functions.py b/src/core_functions.py
+index 1086f99..a7394ac 100644
+--- a/src/core_functions.py
++++ b/src/core_functions.py
+@@ -89,12 +89,23 @@ def read_multiple_files(
+ 
+     i = 0
+     for filename in file_paths:
++        # Accurate EQE (chopped) files carry a fourth column with the
++        # per-point measurement uncertainty. Detect it from the header:
++        # reading a 4-column file with 3 names silently shifts every column
++        # by one (pandas turns the first column into the index).
++        file_column_names = list(column_names)
++        if skip_row > 0:
++            with open(filename) as file_handle:
++                header = [next(file_handle, "") for _ in range(skip_row)]
++            if any("Photodiode Voltage Sigma" in line for line in header):
++                file_column_names = file_column_names + ["pd_voltage_std"]
++
+         file_data_list = pd.read_csv(
+             filename,
+             skiprows=skip_row,
+             skipfooter=skip_footer,
+             sep=separator,
+-            names=column_names,
++            names=file_column_names,
+             engine="python",
+             skip_blank_lines=False,
+         )
+@@ -104,6 +115,21 @@ def read_multiple_files(
+         for name in column_names:
+             data_frame.loc[file_synonyms[i], name] = file_data_list[name].to_list()
+ 
++        # The extra sigma column only exists for accurate EQE files; create it
++        # on demand and set the single cell with .at (setting a list into a
++        # not-yet-existing column via .loc raises on newer pandas)
++        for name in file_column_names:
++            if name not in column_names:
++                if name not in data_frame.columns:
++                    data_frame[name] = pd.Series(
++                        [None] * len(data_frame),
++                        index=data_frame.index,
++                        dtype=object,
++                    )
++                data_frame.at[file_synonyms[i], name] = file_data_list[
++                    name
++                ].to_list()
++
+         i += 1
+ 
+     return data_frame
+diff --git a/src/evaluation_functions.py b/src/evaluation_functions.py
+index 59a7d18..6bf3647 100644
+--- a/src/evaluation_functions.py
++++ b/src/evaluation_functions.py
+@@ -347,6 +347,7 @@ class JVLData:
+         pd_distance,
+         pd_cutoff,
+         correction_factor=[],
++        sigma_threshold=3.0,
+     ):
+         """
+         All data must be provided in SI units!
+@@ -364,16 +365,46 @@ class JVLData:
+         """
+         self.pd_resistance = pd_resistance
+         self.pixel_area = pixel_area
++        # chopped 데이터에서 유의성 판정에 쓰는 기준 (기본 3 sigma)
++        self.sigma_threshold = sigma_threshold
+         # Taking into account finite size of PD
+         self.sqsinalpha = pd_radius**2 / (pd_distance**2 + pd_radius**2)
+ 
+         self.voltage = np.array(jvl_data["voltage"])
+         self.pd_voltage = np.array(jvl_data["pd_voltage"])
+ 
+-        # All pd voltages that are below cutoff are now cut off and set to zero.
+-        # This is done using a helper array to preserve the original data
+-        self.pd_voltage_cutoff = copy.copy(self.pd_voltage)
+-        self.pd_voltage_cutoff[self.pd_voltage_cutoff <= pd_cutoff] = 0
++        # chopped (저휘도 정밀) 스캔은 포인트마다 on/off 를 반복하며 background 를
++        # 매번 다시 재기 때문에 sweep 공통 오프셋이 없고, 포인트별 측정 불확실도
++        # sigma 가 파일에 함께 저장된다. 이 경우 pd_cutoff (노이즈의 5 sigma 언저리로
++        # 손으로 채워 넣은 가드값) 를 적용할 이유가 없다. 대신 신호가 자기 자신의
++        # 측정 오차보다 유의하게 크지 않은 포인트만 NaN 으로 표시한다.
++        #
++        # 0 과 NaN 을 구분하는 것이 핵심이다.
++        #   0   = "빛이 없다" (물리적 결론)
++        #   NaN = "이 포인트는 측정 불가" (정보 없음)
++        # 기존 cutoff 는 후자를 전자로 바꿔 기록해서, 저휘도 데이터가 통째로
++        # L = 0.00 / EQE = 0.00 으로 남는 원인이 됐다.
++        self.pd_voltage_cutoff = np.array(copy.copy(self.pd_voltage), dtype=float)
++
++        # jvl_data 가 DataFrame 의 행(Series)이면 "in" 은 인덱스 존재만 보므로,
++        # 값이 실제 리스트인지 (일반 스캔 행은 NaN) 까지 확인한다
++        sigma_raw = (
++            jvl_data["pd_voltage_std"] if "pd_voltage_std" in jvl_data else None
++        )
++        if (
++            sigma_raw is not None
++            and np.ndim(sigma_raw) > 0
++            and len(sigma_raw) == len(self.pd_voltage)
++        ):
++            self.pd_voltage_std = np.array(sigma_raw, dtype=float)
++            insignificant = self.pd_voltage_cutoff < (
++                self.sigma_threshold * self.pd_voltage_std
++            )
++            self.pd_voltage_cutoff[insignificant] = np.nan
++        else:
++            # 기존 일반 JVL 스캔: 종래 동작 그대로 유지
++            self.pd_voltage_std = None
++            self.pd_voltage_cutoff[self.pd_voltage_cutoff <= pd_cutoff] = 0
+ 
+         self.current = np.array(jvl_data["current"]) / 1000
+         # Current density directly in mA/cm^2
