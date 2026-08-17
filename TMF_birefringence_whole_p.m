@@ -21,6 +21,11 @@ no_bar_u_num_1=repmat(no_bar,u_num,1);
 
 cos_theta_p=sqrt(1-(repmat(reshape(u,wavelength_num*u_num,1),1,layer_num)./repmat(ne_bar,u_num,1)).^2);
 
+% Physical branch: decay along +z requires imag(n*cos_theta)>=0 (see TMF_birefringence_whole.m).
+flip_p=imag(repmat(ne_bar,u_num,1).*cos_theta_p)<0;
+cos_theta_p(flip_p)=-cos_theta_p(flip_p);
+clear flip_p
+
 NL1vector=1:NL1;
 NL1vector_plus1=NL1vector+1;
 
