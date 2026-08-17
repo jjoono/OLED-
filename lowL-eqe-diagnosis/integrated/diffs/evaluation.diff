@@ -112,3 +112,33 @@ index 59a7d18..6bf3647 100644
  
          self.current = np.array(jvl_data["current"]) / 1000
          # Current density directly in mA/cm^2
+diff --git a/src/show_heros.py b/src/show_heros.py
+index 6809859..343dd0a 100644
+--- a/src/show_heros.py
++++ b/src/show_heros.py
+@@ -51,15 +51,22 @@ class ShowHeros(QtWidgets.QDialog, Ui_ShowHeros):
+                     temp_df.masked == False,
+                 )
+             ]
+-            # Obtain entry with maximum luminance for each group
++            # Obtain entry with maximum luminance for each group.
++            # Accurate-EQE files mark unmeasurable points as NaN, so use
++            # nanmax - plain max() returns NaN when the list contains one and
++            # the hero selection then picks the wrong device.
+             luminance_list.append(
+                 temp_data.iloc[
+-                    np.argmax([max(x) for x in temp_data.luminance.values])
++                    np.nanargmax(
++                        [np.nanmax(x) for x in temp_data.luminance.values]
++                    )
+                 ].name
+             )
+             # Obtain entry with maximum eqe for each group
+             eqe_list.append(
+-                temp_data.iloc[np.argmax([max(x) for x in temp_data.eqe.values])].name
++                temp_data.iloc[
++                    np.nanargmax([np.nanmax(x) for x in temp_data.eqe.values])
++                ].name
+             )
+ 
+         self.plot_max_luminance.clicked.connect(
