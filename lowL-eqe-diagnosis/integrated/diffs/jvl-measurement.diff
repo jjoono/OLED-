@@ -91,7 +91,7 @@ index d7f5181..06e03c7 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..e4bc668 100755
+index 296ba96..d3a1b46 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -209,7 +209,7 @@ index 296ba96..e4bc668 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +215,298 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +215,321 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -249,6 +249,29 @@ index 296ba96..e4bc668 100755
 +                if self.accurate_eqe_mode:
 +                    # New pixel: its own baseline, and back to chopped mode
 +                    self.chopped.reset_pixel_state()
++
++                    # Off-bias chopping: verify once per pixel that there is
++                    # truly no EL at the changeover voltage (15 s, sensitive
++                    # to ~0.1 cd/m2). If dark, chop against the changeover
++                    # bias so the traps stay filled during the off halves and
++                    # the chopped EL sits close to the DC value. If any EL is
++                    # detected, fall back to chopping against 0 V.
++                    off_bias = self.measurement_parameters["changeover_voltage"]
++                    if off_bias > 0:
++                        self.chopped.off_voltage = 0.0
++                        check = self.chopped.measure_point(off_bias)
++                        if check["dark"]:
++                            self.chopped.off_voltage = off_bias
++                            cf.log_message(
++                                "No EL at %.2f V: chopping against this"
++                                " off-bias (traps stay filled)" % off_bias
++                            )
++                        else:
++                            cf.log_message(
++                                "EL detected at %.2f V (%.1f uV): off-bias"
++                                " disabled, chopping against 0 V"
++                                % (off_bias, check["pd_voltage"] * 1e6)
++                            )
 +
 +                # Take PD voltage reading from Multimeter for background.
 +                # In accurate EQE mode the background is re-measured every chop
@@ -631,7 +654,7 @@ index 296ba96..e4bc668 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +696,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +719,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -656,7 +679,7 @@ index 296ba96..e4bc668 100755
  
          header_lines = [
              line03,
-@@ -503,19 +736,35 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +759,35 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  
@@ -703,10 +726,10 @@ index 296ba96..e4bc668 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..6fec1b1
+index 0000000..333dc2a
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,915 @@
+@@ -0,0 +1,928 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -797,6 +820,7 @@ index 0000000..6fec1b1
 +        warmup_time=1.0,
 +        continuous_settle=0.1,
 +        continuous_samples=10,
++        off_voltage=0.0,
 +    ):
 +        """
 +        target_relative_sigma:
@@ -884,6 +908,18 @@ index 0000000..6fec1b1
 +        self.continuous_samples = int(continuous_samples)
 +        # 연속 구간에 이미 들어와 있는지 (첫 연속 포인트는 DC 워밍업이 필요)
 +        self._continuous_on = False
++        # off(baseline) 구간에 인가할 전압. 0 이면 완전 소등.
++        #
++        # 트랩이 강한 소자에서 chopped EL 이 DC 보다 낮게 나오는 이유는 off
++        # 구간(0 V)마다 트랩이 비워지기 때문이다. background 측정에 필요한 것은
++        # "빛이 없는 상태"이지 "전압이 0인 상태"가 아니므로, off 를 turn-on
++        # 직전 전압(EL = 0, 캐리어 주입은 유지)으로 잡으면 트랩이 거의 빠지지
++        # 않아 on 구간 EL 이 DC 에 근접한다 (펄스 EL 측정의 offset-bias 기법).
++        #
++        # 반드시 그 전압에서 EL 이 실제로 0인지 확인하고 쓸 것 - EL 이 있으면
++        # 그만큼 background 로 빠져나가 저휘도 값이 낮게 왜곡된다.
++        # (autotube 통합본은 픽셀마다 자동 검증 후 켠다)
++        self.off_voltage = off_voltage
 +
 +        # 공유 baseline 상태
 +        self._baseline_mean = None
@@ -952,7 +988,7 @@ index 0000000..6fec1b1
 +        ):
 +            return
 +
-+        self.keithley_source.set_voltage(str(0))
++        self.keithley_source.set_voltage(str(self.off_voltage))
 +        time.sleep(self.settle_time)
 +        values = self._read_pd_burst()
 +

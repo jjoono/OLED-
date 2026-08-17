@@ -88,6 +88,7 @@ class ChoppedSweep:
         warmup_time=1.0,
         continuous_settle=0.1,
         continuous_samples=10,
+        off_voltage=0.0,
     ):
         """
         target_relative_sigma:
@@ -175,6 +176,18 @@ class ChoppedSweep:
         self.continuous_samples = int(continuous_samples)
         # 연속 구간에 이미 들어와 있는지 (첫 연속 포인트는 DC 워밍업이 필요)
         self._continuous_on = False
+        # off(baseline) 구간에 인가할 전압. 0 이면 완전 소등.
+        #
+        # 트랩이 강한 소자에서 chopped EL 이 DC 보다 낮게 나오는 이유는 off
+        # 구간(0 V)마다 트랩이 비워지기 때문이다. background 측정에 필요한 것은
+        # "빛이 없는 상태"이지 "전압이 0인 상태"가 아니므로, off 를 turn-on
+        # 직전 전압(EL = 0, 캐리어 주입은 유지)으로 잡으면 트랩이 거의 빠지지
+        # 않아 on 구간 EL 이 DC 에 근접한다 (펄스 EL 측정의 offset-bias 기법).
+        #
+        # 반드시 그 전압에서 EL 이 실제로 0인지 확인하고 쓸 것 - EL 이 있으면
+        # 그만큼 background 로 빠져나가 저휘도 값이 낮게 왜곡된다.
+        # (autotube 통합본은 픽셀마다 자동 검증 후 켠다)
+        self.off_voltage = off_voltage
 
         # 공유 baseline 상태
         self._baseline_mean = None
@@ -243,7 +256,7 @@ class ChoppedSweep:
         ):
             return
 
-        self.keithley_source.set_voltage(str(0))
+        self.keithley_source.set_voltage(str(self.off_voltage))
         time.sleep(self.settle_time)
         values = self._read_pd_burst()
 

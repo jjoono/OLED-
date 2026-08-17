@@ -239,6 +239,29 @@ class AutotubeMeasurement(QtCore.QThread):
                     # New pixel: its own baseline, and back to chopped mode
                     self.chopped.reset_pixel_state()
 
+                    # Off-bias chopping: verify once per pixel that there is
+                    # truly no EL at the changeover voltage (15 s, sensitive
+                    # to ~0.1 cd/m2). If dark, chop against the changeover
+                    # bias so the traps stay filled during the off halves and
+                    # the chopped EL sits close to the DC value. If any EL is
+                    # detected, fall back to chopping against 0 V.
+                    off_bias = self.measurement_parameters["changeover_voltage"]
+                    if off_bias > 0:
+                        self.chopped.off_voltage = 0.0
+                        check = self.chopped.measure_point(off_bias)
+                        if check["dark"]:
+                            self.chopped.off_voltage = off_bias
+                            cf.log_message(
+                                "No EL at %.2f V: chopping against this"
+                                " off-bias (traps stay filled)" % off_bias
+                            )
+                        else:
+                            cf.log_message(
+                                "EL detected at %.2f V (%.1f uV): off-bias"
+                                " disabled, chopping against 0 V"
+                                % (off_bias, check["pd_voltage"] * 1e6)
+                            )
+
                 # Take PD voltage reading from Multimeter for background.
                 # In accurate EQE mode the background is re-measured every chop
                 # cycle inside measure_point, so no sweep-wide background is
