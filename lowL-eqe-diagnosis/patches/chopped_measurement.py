@@ -353,9 +353,15 @@ class ChoppedSweep:
         start = time.time()
         compliance_hit = False
         dark = False
+        # 어두운 포인트에서 전류는 nA~pA 라 SMU 가 오토레인지 헌팅을 하고,
+        # NPLC 10 + autozero 까지 겹치면 판독 1회에 1~3 s 다. quick 포인트는
+        # 1회만 읽는다 (승격되면 quick=False 가 되면서 나머지를 채운다)
+        current_target = 1 if quick else self.current_samples
 
         while True:
-            with_current = len(currents) < self.current_samples
+            if not quick:
+                current_target = self.current_samples
+            with_current = len(currents) < current_target
             delta, oled_current = self._measure_cycle(voltage, with_current)
             deltas.append(delta)
             groups.setdefault(self._baseline_id, []).append(delta)

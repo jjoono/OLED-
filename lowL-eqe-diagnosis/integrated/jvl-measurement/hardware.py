@@ -451,6 +451,11 @@ class KeithleyMultimeter:
         self.keithmulti.write("*RST")
         self.keithmulti.write("CONFigure:VOLTage:DC " + str(multimeter_range))
         self.keithmulti.write("SENSe:VOLTage:DC:NPLCycles " + str(nplc))
+        # *RST 후 2100 은 autozero ON 이라 판독마다 내부 기준 측정이 끼어서
+        # 판독당 시간이 2배 이상이다. chopped 스캔은 on-off 차분이라 DMM 의
+        # 제로 드리프트도 같이 상쇄되므로 꺼도 된다. (일반 스캔 경로는
+        # reset() 을 쓰므로 영향 없음)
+        self.keithmulti.write("SENSe:ZERO:AUTO OFF")
         self.keithmulti.write("TRIGger:SOURce IMMediate")
         self.keithmulti.write("TRIGger:DELay 0")
         self.keithmulti.write("SAMPle:COUNt " + str(int(sample_count)))

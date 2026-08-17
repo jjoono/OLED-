@@ -560,10 +560,10 @@ index 296ba96..178dffb 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..02dd29d
+index 0000000..cbf4727
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,780 @@
+@@ -0,0 +1,786 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -919,9 +919,15 @@ index 0000000..02dd29d
 +        start = time.time()
 +        compliance_hit = False
 +        dark = False
++        # 어두운 포인트에서 전류는 nA~pA 라 SMU 가 오토레인지 헌팅을 하고,
++        # NPLC 10 + autozero 까지 겹치면 판독 1회에 1~3 s 다. quick 포인트는
++        # 1회만 읽는다 (승격되면 quick=False 가 되면서 나머지를 채운다)
++        current_target = 1 if quick else self.current_samples
 +
 +        while True:
-+            with_current = len(currents) < self.current_samples
++            if not quick:
++                current_target = self.current_samples
++            with_current = len(currents) < current_target
 +            delta, oled_current = self._measure_cycle(voltage, with_current)
 +            deltas.append(delta)
 +            groups.setdefault(self._baseline_id, []).append(delta)
@@ -1345,7 +1351,7 @@ index 0000000..02dd29d
 +    else:
 +        print(__doc__)
 diff --git a/src/hardware.py b/src/hardware.py
-index 4be9008..7dff69b 100755
+index 4be9008..92c3ecf 100755
 --- a/src/hardware.py
 +++ b/src/hardware.py
 @@ -216,6 +216,32 @@ class KeithleySource:
@@ -1381,7 +1387,7 @@ index 4be9008..7dff69b 100755
      def as_current_source(self, voltage_compliance):
          """
          Initialise (or reinitialise) class as current source
-@@ -385,21 +411,63 @@ class KeithleyMultimeter:
+@@ -385,21 +411,68 @@ class KeithleyMultimeter:
          self.keithmulti.write("INITiate")
          self.mutex.unlock()
  
@@ -1440,6 +1446,11 @@ index 4be9008..7dff69b 100755
 +        self.keithmulti.write("*RST")
 +        self.keithmulti.write("CONFigure:VOLTage:DC " + str(multimeter_range))
 +        self.keithmulti.write("SENSe:VOLTage:DC:NPLCycles " + str(nplc))
++        # *RST 후 2100 은 autozero ON 이라 판독마다 내부 기준 측정이 끼어서
++        # 판독당 시간이 2배 이상이다. chopped 스캔은 on-off 차분이라 DMM 의
++        # 제로 드리프트도 같이 상쇄되므로 꺼도 된다. (일반 스캔 경로는
++        # reset() 을 쓰므로 영향 없음)
++        self.keithmulti.write("SENSe:ZERO:AUTO OFF")
 +        self.keithmulti.write("TRIGger:SOURce IMMediate")
 +        self.keithmulti.write("TRIGger:DELay 0")
 +        self.keithmulti.write("SAMPle:COUNt " + str(int(sample_count)))
