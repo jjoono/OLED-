@@ -650,10 +650,10 @@ index 296ba96..e91e334 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..b13e27e
+index 0000000..d235d68
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,785 @@
+@@ -0,0 +1,814 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -741,6 +741,7 @@ index 0000000..b13e27e
 +        current_samples=3,
 +        dark_give_up=15.0,
 +        quick_cycles=8,
++        warmup_time=1.0,
 +    ):
 +        """
 +        target_relative_sigma:
@@ -811,6 +812,13 @@ index 0000000..b13e27e
 +        # ~0.7 s 만에 끝내고 빛이 있으면 자동으로 통상 수렴 루프로 승격한다.
 +        # 8사이클 시점의 3 sigma 는 ~23 uV (52 mm 에서 ~0.4 cd/m2).
 +        self.quick_cycles = int(quick_cycles)
++        # 기록 시작 전에 같은 chop duty 로 소자를 돌리고 버리는 시간(초).
++        # OLED 의 트랩 전하는 초 단위로 쌓이므로, 포인트 시작 직후에는 EL 이
++        # 사이클마다 상승한다(chopped 준정상상태로 수렴하는 과도). 밝은
++        # 포인트는 십수 사이클 만에 끝나서 평균 전체가 이 상승 구간에 놓이고,
++        # 그것이 포인트마다 뜨던 trend 경고의 정체다. 워밍업으로 과도를
++        # 보낸 뒤 기록하면 평균이 준정상상태 값이 된다. 0 이면 끈다.
++        self.warmup_time = warmup_time
 +
 +        # 공유 baseline 상태
 +        self._baseline_mean = None
@@ -897,6 +905,16 @@ index 0000000..b13e27e
 +        on_values = self._read_pd_burst()
 +
 +        return float(np.nanmean(on_values))
++
++    def _warmup(self, voltage):
++        """기록 없이 같은 duty 로 chop 하면서 소자 과도를 보낸다."""
++        if self.warmup_time <= 0:
++            return
++        warmup_start = time.time()
++        while time.time() - warmup_start < self.warmup_time:
++            self._measure_cycle(voltage)
++            if self.stop:
++                break
 +
 +    def _measure_cycle(self, voltage):
 +        """
@@ -1011,6 +1029,10 @@ index 0000000..b13e27e
 +        start = time.time()
 +        compliance_hit = False
 +        dark = False
++        # 빛이 예상되는 포인트는 기록 전에 과도를 보낸다
++        if not quick:
++            self._warmup(voltage)
++
 +        while True:
 +            delta = self._measure_cycle(voltage)
 +            deltas.append(delta)
@@ -1025,8 +1047,15 @@ index 0000000..b13e27e
 +                if abs(delta_mean) < 3 * sigma:
 +                    dark = True
 +                    break
-+                # 예상과 달리 빛이 있다 -> 통상 수렴 루프로 승격
++                # 예상과 달리 빛이 있다 -> 통상 수렴 루프로 승격.
++                # quick 동안 잰 사이클들은 과도 상승 구간이므로 버리고,
++                # 워밍업을 거친 뒤 처음부터 다시 기록한다
 +                quick = False
++                self._warmup(voltage)
++                deltas.clear()
++                groups.clear()
++                currents.clear()
++                continue
 +
 +            if n >= self.min_cycles:
 +                delta_mean, sigma = self._combine(deltas, groups)
