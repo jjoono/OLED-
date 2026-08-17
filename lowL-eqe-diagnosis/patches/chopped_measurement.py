@@ -84,6 +84,7 @@ class ChoppedSweep:
         scan_compliance=None,
         current_samples=3,
         dark_give_up=15.0,
+        quick_cycles=8,
     ):
         """
         target_relative_sigma:
@@ -149,6 +150,11 @@ class ChoppedSweep:
         # ~0.1 cd/m2) 까지 가려낸다. 그보다 어두운 포인트는 evaluation 에서
         # 어차피 NaN 이다. None 이면 이 판정을 끈다.
         self.dark_give_up = dark_give_up
+        # measure_point(quick=True): 빛이 없을 것으로 예상되는 구간(changeover
+        # 이하)용. quick_cycles 사이클만에 3 sigma 유의성을 확인해서, 어두우면
+        # ~0.7 s 만에 끝내고 빛이 있으면 자동으로 통상 수렴 루프로 승격한다.
+        # 8사이클 시점의 3 sigma 는 ~23 uV (52 mm 에서 ~0.4 cd/m2).
+        self.quick_cycles = int(quick_cycles)
 
         # 공유 baseline 상태
         self._baseline_mean = None
@@ -330,7 +336,7 @@ class ChoppedSweep:
 
     # -- 포인트 단위 --------------------------------------------------------
 
-    def measure_point(self, voltage):
+    def measure_point(self, voltage, quick=False):
         """
         전압 포인트 하나를 chopped 방식으로 측정한다.
 
@@ -366,6 +372,15 @@ class ChoppedSweep:
 
             n = len(deltas)
             elapsed = time.time() - start
+
+            # 빛이 없을 것으로 예상되는 포인트: 몇 사이클만에 판정
+            if quick and n >= self.quick_cycles:
+                delta_mean, sigma = self._combine(deltas, groups)
+                if abs(delta_mean) < 3 * sigma:
+                    dark = True
+                    break
+                # 예상과 달리 빛이 있다 -> 통상 수렴 루프로 승격
+                quick = False
 
             if n >= self.min_cycles:
                 delta_mean, sigma = self._combine(deltas, groups)

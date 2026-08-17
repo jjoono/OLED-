@@ -62,7 +62,7 @@ index d7f5181..977662e 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..96d17cc 100755
+index 296ba96..178dffb 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -148,7 +148,7 @@ index 296ba96..96d17cc 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +183,217 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +183,229 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -212,7 +212,19 @@ index 296ba96..96d17cc 100755
 +                        # precision is reached. Returns the background-free signal
 +                        # and its measured uncertainty.
 +                        try:
-+                            point = self.chopped.measure_point(voltage)
++                            # Below the changeover voltage no light is
++                            # expected: spend only a few cycles confirming
++                            # darkness, and escalate to the full averaging
++                            # automatically if the device does emit there
++                            point = self.chopped.measure_point(
++                                voltage,
++                                quick=(
++                                    voltage
++                                    < self.measurement_parameters[
++                                        "changeover_voltage"
++                                    ]
++                                ),
++                            )
 +                        except RuntimeError as error:
 +                            # All PD readings overloaded (multimeter range too low)
 +                            cf.log_message(str(error))
@@ -489,7 +501,7 @@ index 296ba96..96d17cc 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +583,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +595,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -514,7 +526,7 @@ index 296ba96..96d17cc 100755
  
          header_lines = [
              line03,
-@@ -503,19 +623,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +635,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  
@@ -548,10 +560,10 @@ index 296ba96..96d17cc 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..ff21ef5
+index 0000000..02dd29d
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,765 @@
+@@ -0,0 +1,780 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -638,6 +650,7 @@ index 0000000..ff21ef5
 +        scan_compliance=None,
 +        current_samples=3,
 +        dark_give_up=15.0,
++        quick_cycles=8,
 +    ):
 +        """
 +        target_relative_sigma:
@@ -703,6 +716,11 @@ index 0000000..ff21ef5
 +        # ~0.1 cd/m2) 까지 가려낸다. 그보다 어두운 포인트는 evaluation 에서
 +        # 어차피 NaN 이다. None 이면 이 판정을 끈다.
 +        self.dark_give_up = dark_give_up
++        # measure_point(quick=True): 빛이 없을 것으로 예상되는 구간(changeover
++        # 이하)용. quick_cycles 사이클만에 3 sigma 유의성을 확인해서, 어두우면
++        # ~0.7 s 만에 끝내고 빛이 있으면 자동으로 통상 수렴 루프로 승격한다.
++        # 8사이클 시점의 3 sigma 는 ~23 uV (52 mm 에서 ~0.4 cd/m2).
++        self.quick_cycles = int(quick_cycles)
 +
 +        # 공유 baseline 상태
 +        self._baseline_mean = None
@@ -884,7 +902,7 @@ index 0000000..ff21ef5
 +
 +    # -- 포인트 단위 --------------------------------------------------------
 +
-+    def measure_point(self, voltage):
++    def measure_point(self, voltage, quick=False):
 +        """
 +        전압 포인트 하나를 chopped 방식으로 측정한다.
 +
@@ -920,6 +938,15 @@ index 0000000..ff21ef5
 +
 +            n = len(deltas)
 +            elapsed = time.time() - start
++
++            # 빛이 없을 것으로 예상되는 포인트: 몇 사이클만에 판정
++            if quick and n >= self.quick_cycles:
++                delta_mean, sigma = self._combine(deltas, groups)
++                if abs(delta_mean) < 3 * sigma:
++                    dark = True
++                    break
++                # 예상과 달리 빛이 있다 -> 통상 수렴 루프로 승격
++                quick = False
 +
 +            if n >= self.min_cycles:
 +                delta_mean, sigma = self._combine(deltas, groups)

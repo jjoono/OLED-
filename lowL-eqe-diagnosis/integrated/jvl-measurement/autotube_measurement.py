@@ -230,7 +230,19 @@ class AutotubeMeasurement(QtCore.QThread):
                         # precision is reached. Returns the background-free signal
                         # and its measured uncertainty.
                         try:
-                            point = self.chopped.measure_point(voltage)
+                            # Below the changeover voltage no light is
+                            # expected: spend only a few cycles confirming
+                            # darkness, and escalate to the full averaging
+                            # automatically if the device does emit there
+                            point = self.chopped.measure_point(
+                                voltage,
+                                quick=(
+                                    voltage
+                                    < self.measurement_parameters[
+                                        "changeover_voltage"
+                                    ]
+                                ),
+                            )
                         except RuntimeError as error:
                             # All PD readings overloaded (multimeter range too low)
                             cf.log_message(str(error))
