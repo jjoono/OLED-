@@ -218,5 +218,6 @@ for m, c in [("Al", "#c0392b"), ("Au", "#d4a017")]:
 ax.set_xlabel("seed thickness (nm)"); ax.set_ylabel("photopic absorption (%)")
 ax.set_title("Absorption vs seed thickness"); ax.legend(fontsize=7, ncol=2); ax.grid(alpha=.3)
 plt.tight_layout()
-plt.savefig(os.path.join(BASE, "seed_absorption.png"), dpi=140)
+os.makedirs(os.path.join(BASE, "optics"), exist_ok=True)
+plt.savefig(os.path.join(BASE, "optics", "seed_absorption.png"), dpi=140)
 print("\nsaved seed_absorption.png + runs/seed_absorption.json")

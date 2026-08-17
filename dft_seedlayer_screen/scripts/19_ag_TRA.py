@@ -77,7 +77,8 @@ for ax, lab in zip(axes, ["투과 T", "반사 R", "흡수 A"]):
 axes[0].set_ylabel("(%)"); axes[0].set_ylim(0, 100)
 axes[2].legend(fontsize=8.5, loc="upper right")
 plt.suptitle("Ag 박막 T/R/A — 연속막(TMM) vs island막(Maxwell-Garnett 유효매질)", y=1.02)
-png = os.path.join(BASE, "Ag_TRA.png")
+os.makedirs(os.path.join(BASE, "optics"), exist_ok=True)
+png = os.path.join(BASE, "optics", "Ag_TRA.png")
 plt.tight_layout(); plt.savefig(png, dpi=160, bbox_inches="tight")
 print("saved", png)
 

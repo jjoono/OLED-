@@ -52,14 +52,21 @@ def fuchs_sondheimer(d_nm, p=0.5, lam=LAMBDA):
     return RHO_BULK / max(ratio, 1e-9)
 
 
-def mayadas_shatzkes(d_nm, Rgb=0.3, D_nm=100.0, lam=LAMBDA):
+# DEFAULT REVERTED TO D = d (D_nm=None) ON MEASURED DATA.
+# D_nm=100.0 was set from SEM of thicker films after D=d appeared to overestimate
+# Rs at 20-25 nm. Measured HATCN(4nm)/Ag gives 100 / 25 / 1.5 Ohm/sq at 3 / 5 /
+# 25 nm, and against that D=100 underestimates by 4.7x / 2.6x / 1.35x -- failing
+# worst where the film is thinnest, the signature of a grain size that does not
+# actually stay constant. D=d fits all three within ~30 % unfitted. See
+# scripts/57.
+def mayadas_shatzkes(d_nm, Rgb=0.3, D_nm=None, lam=LAMBDA):
     D = d_nm if D_nm is None else D_nm
     a = (lam / D) * Rgb / (1.0 - Rgb)
     f = 3.0 * (1.0 / 3.0 - a / 2.0 + a ** 2 - a ** 3 * np.log(1.0 + 1.0 / a))
     return RHO_BULK / max(f, 1e-9)
 
 
-def combined(d_nm, p=0.5, Rgb=0.3, D_nm=100.0):
+def combined(d_nm, p=0.5, Rgb=0.3, D_nm=None):
     rho_fs = fuchs_sondheimer(d_nm, p)
     rho_ms = mayadas_shatzkes(d_nm, Rgb, D_nm)
     return RHO_BULK + (rho_fs - RHO_BULK) + (rho_ms - RHO_BULK)

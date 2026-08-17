@@ -73,7 +73,8 @@ for row, (src, nk) in enumerate(NK.items()):
 for col in range(3):
     axes[1][col].set_xlabel("Wavelength (nm)")
 plt.ylim(0, 100)
-png = os.path.join(BASE, "Ag_TRA_userNK.png")
+os.makedirs(os.path.join(BASE, "optics"), exist_ok=True)
+png = os.path.join(BASE, "optics", "Ag_TRA_userNK.png")
 plt.tight_layout(); plt.savefig(png, dpi=150)
 print("saved", png)
 

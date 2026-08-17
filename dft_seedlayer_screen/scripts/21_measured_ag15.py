@@ -77,7 +77,8 @@ for name, nk, c in cases:
 for a, t in zip(ax, ["상대투과 T/T(유리)", "반사 R", "흡수 A"]):
     a.set_title(f"Ag 15 nm — {t}"); a.set_xlabel("Wavelength (nm)"); a.grid(alpha=0.3)
 ax[0].set_ylabel("(%)"); ax[0].set_ylim(0, 100); ax[0].legend(fontsize=9)
-png = os.path.join(BASE, "Ag15_measured_TRA.png")
+os.makedirs(os.path.join(BASE, "optics"), exist_ok=True)
+png = os.path.join(BASE, "optics", "Ag15_measured_TRA.png")
 plt.tight_layout(); plt.savefig(png, dpi=150)
 print("saved", png)
 

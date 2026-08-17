@@ -9,7 +9,10 @@ dft_seedlayer_screen/slabs/**/*-RESTART*
 dft_seedlayer_screen/psi.*.clean
 timer.dat
 dft_seedlayer_screen/timer.dat
-dft_seedlayer_screen/runs/psi4_*.out
+# psi4 raw output, whatever the driver names it. The prefix-anchored rule
+# missed the diagnostic runs (diag*.out); no .out under runs/ is a result --
+# the numbers that matter land in the .json each script writes.
+dft_seedlayer_screen/runs/*.out
 dft_seedlayer_screen/runs/*_run.log
 # Console logs of the psi4/CP2K driver scripts. These are written incrementally
 # while a calculation is in flight, so committing one captures a truncated file.
@@ -17,3 +20,19 @@ dft_seedlayer_screen/runs/*_run.log
 # REPORT*.md that interprets them -- both of which are tracked.
 dft_seedlayer_screen/runs/*.log
 dft_seedlayer_screen/runs/tddft_absorption.json.tmp
+# xtb working directories. The optimised geometry (xtbopt.xyz) is kept, matching
+# runs/xtb/*/xtbopt.xyz, and is also copied into structures/. Everything else the
+# driver writes is scratch regenerated on every run.
+dft_seedlayer_screen/runs/**/xtb.log
+dft_seedlayer_screen/runs/**/xtbopt.log
+dft_seedlayer_screen/runs/**/xtbrestart
+dft_seedlayer_screen/runs/**/xtbtopo.mol
+dft_seedlayer_screen/runs/**/charges
+dft_seedlayer_screen/runs/**/wbo
+dft_seedlayer_screen/runs/**/in.xyz
+dft_seedlayer_screen/runs/**/.xtboptok
+
+# ellipsometry: data and outputs stay local
+ellipsometry/data/
+ellipsometry/out/
+ellipsometry/**/*.npz
