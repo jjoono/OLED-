@@ -414,6 +414,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.aw_accurate_eqe_precision_spinBox.setMaximum(20)
         self.aw_accurate_eqe_precision_spinBox.setSingleStep(0.5)
         self.aw_accurate_eqe_precision_spinBox.setValue(2)
+        # Fine step used between changeover and the coarse-PD threshold
+        self.aw_accurate_fine_step_spinBox.setMinimum(0.01)
+        self.aw_accurate_fine_step_spinBox.setMaximum(1)
+        self.aw_accurate_fine_step_spinBox.setSingleStep(0.01)
+        self.aw_accurate_fine_step_spinBox.setValue(0.02)
+        # PD voltage above which the sweep switches to the high voltage step.
+        # ~5 mV corresponds to ~100 cd/m2 at 52 mm / 50 dB for the red devices
+        self.aw_accurate_coarse_pd_spinBox.setMinimum(0.1)
+        self.aw_accurate_coarse_pd_spinBox.setMaximum(1000)
+        self.aw_accurate_coarse_pd_spinBox.setSingleStep(0.5)
+        self.aw_accurate_coarse_pd_spinBox.setValue(5.0)
 
         # Set standard parameters for Goniometer
         self.gw_offset_angle_spinBox.setMaximum(180)
@@ -1111,6 +1122,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             "auto_spectrum": self.aw_auto_measure_toggleSwitch.isChecked(),
             "accurate_eqe_mode": self.aw_accurate_eqe_toggleSwitch.isChecked(),
             "accurate_eqe_precision": self.aw_accurate_eqe_precision_spinBox.value(),
+            "accurate_fine_step": self.aw_accurate_fine_step_spinBox.value(),
+            # spinbox is in mV, the measurement compares in V
+            "accurate_coarse_pd": self.aw_accurate_coarse_pd_spinBox.value() * 1e-3,
             # "check_bad_contacts": self.aw_bad_contacts_toggleSwitch.isChecked(),
             # "fixed_multimeter_range": self.aw_set_fixed_multimeter_range_toggleSwitch.isChecked(),
             "photodiode_saturation": float(global_parameters["photodiode_saturation"]),

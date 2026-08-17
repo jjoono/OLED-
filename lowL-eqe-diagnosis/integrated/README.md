@@ -93,8 +93,20 @@ evaluation 쪽도 동일하게 (`evaluation/` 2개 파일 또는 `diffs/evaluati
 
 ## GUI 사용법
 
-1. 저휘도 전압 구간을 촘촘히: Min 2.4 / Changeover 3.2 / low step 0.05~0.1 권장
-   (기존 0.5 V 스텝이면 1–10 cd/m² 구간에 포인트가 거의 없다)
+Accurate 모드의 전압 스텝은 3단계 적응형이다:
+
+```
+Min ──(Low Voltage Step)──> Changeover ──(Fine Step)──> [PD > Coarse 문턱] ──(High Voltage Step)──> Max
+     어두운 구간: 0.7초 quick 판정     turn-on: 촘촘히        밝은 구간: 성기게
+```
+
+fine→coarse 전환은 전압이 아니라 **측정된 PD 신호**가 `Coarse above PD (mV)` 문턱을
+넘는 순간이므로, 소자마다 turn-on 이 달라도 자동으로 맞는다. 기본 5 mV 는 52 mm / 50 dB
+기준 대략 100 cd/m² 에 해당한다 (스펙트럼에 따라 2~3배 차이 가능 — 한 번 스캔해 보고
+evaluation 의 luminance 와 대조해서 보정하면 된다).
+
+1. 권장 설정: Min -2 (또는 1.5) / Low step 0.5 / Changeover ≈ turn-on 바로 아래 (예: 2.0~2.2)
+   / Fine Step 0.02~0.05 / High step 0.1 / Coarse above PD 5 mV
 2. `Accurate EQE Mode` ON, Target Precision 2%
 3. 픽셀 선택 후 Start. 로그에 포인트별 `dPD ± σ | N cycles` 가 찍힌다
 4. "not converged" 가 뜨는 포인트는 신호가 노이즈에 묻힌 것 — 정상이며, evaluation 에서 NaN 처리된다

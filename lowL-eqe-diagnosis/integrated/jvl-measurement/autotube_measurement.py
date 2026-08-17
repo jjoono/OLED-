@@ -113,6 +113,38 @@ class AutotubeMeasurement(QtCore.QThread):
         if getattr(self, "chopped", None) is not None:
             self.chopped.stop = value
 
+    def _accurate_voltage_generator(self):
+        """
+        Accurate 모드용 3단계 적응 스텝.
+
+          min --(low step)--> changeover --(fine step)--> [PD > 문턱] --(high step)--> max
+
+        turn-on 위치는 소자마다 달라 전압으로는 못 정하지만, 측정된 PD 신호가
+        accurate_coarse_pd 를 넘는 순간이 곧 "충분히 밝다" 이므로 그 시점에
+        fine -> high 스텝으로 전환한다. self._coarse_now 는 픽셀마다 리셋되고
+        측정 루프가 포인트 결과를 보고 세팅한다.
+        """
+        parameters = self.measurement_parameters
+        voltage = parameters["min_voltage"]
+        epsilon = 1e-9
+
+        while voltage <= parameters["max_voltage"] + epsilon:
+            yield round(voltage, 6)
+
+            if voltage < parameters["changeover_voltage"] - epsilon:
+                step = parameters["low_voltage_step"]
+                # 어두운 구간의 마지막 스텝이 changeover 를 넘어가면
+                # changeover 에 정확히 맞춰서 fine 구간을 시작한다
+                if voltage + step > parameters["changeover_voltage"] + epsilon:
+                    voltage = parameters["changeover_voltage"]
+                    continue
+            elif self._coarse_now:
+                step = parameters["high_voltage_step"]
+            else:
+                step = parameters.get("accurate_fine_step", 0.02)
+
+            voltage = voltage + step
+
     def run(self):
         """
         Function that does the actual measurement. I am not sure yet, if I
@@ -201,6 +233,9 @@ class AutotubeMeasurement(QtCore.QThread):
                 # the previous, longer pixel and they end up in its saved file.
                 self.df_data = pd.DataFrame(columns=self.df_data.columns)
 
+                # Accurate mode steps adaptively; every pixel starts fine
+                self._coarse_now = False
+
                 # Take PD voltage reading from Multimeter for background.
                 # In accurate EQE mode the background is re-measured every chop
                 # cycle inside measure_point, so no sweep-wide background is
@@ -219,7 +254,12 @@ class AutotubeMeasurement(QtCore.QThread):
 
                 # Low Voltage Readings
                 i = 0
-                for voltage in voltages_to_scan:
+                voltage_iterator = (
+                    self._accurate_voltage_generator()
+                    if self.accurate_eqe_mode
+                    else voltages_to_scan
+                )
+                for voltage in voltage_iterator:
                     # self.queue.put("\nOLED Voltage : " + str(voltage) + " V")
                     # Set voltage to source_value
                     self.keithley_source.set_voltage(str(voltage))
@@ -251,6 +291,27 @@ class AutotubeMeasurement(QtCore.QThread):
                         oled_current = point["current"] * 1e-3  # back to A
                         diode_voltage = point["pd_voltage"]
                         diode_voltage_std = point["pd_voltage_std"]
+
+                        # Bright enough: switch to the coarse voltage step for
+                        # the rest of this pixel's sweep
+                        if (
+                            not self._coarse_now
+                            and not point["dark"]
+                            and diode_voltage
+                            > self.measurement_parameters.get(
+                                "accurate_coarse_pd", 5e-3
+                            )
+                        ):
+                            self._coarse_now = True
+                            cf.log_message(
+                                "PD %.2f mV > threshold: switching to %.2f V steps"
+                                % (
+                                    diode_voltage * 1e3,
+                                    self.measurement_parameters[
+                                        "high_voltage_step"
+                                    ],
+                                )
+                            )
 
                         cf.log_message(
                             "V = %.3f V | dPD = %.1f uV +- %.1f uV | %d cycles, %.1f s%s"

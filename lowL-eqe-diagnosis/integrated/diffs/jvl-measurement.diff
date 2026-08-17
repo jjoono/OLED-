@@ -1,5 +1,5 @@
 diff --git a/src/UI_main_window.py b/src/UI_main_window.py
-index d7f5181..977662e 100755
+index d7f5181..06e03c7 100755
 --- a/src/UI_main_window.py
 +++ b/src/UI_main_window.py
 @@ -548,7 +548,7 @@ class Ui_MainWindow(object):
@@ -7,7 +7,7 @@ index d7f5181..977662e 100755
          self.aw_select_pixel_label.setStyleSheet('font: 63 bold 10pt "Segoe UI";')
          self.aw_select_pixel_label.setObjectName("aw_select_pixel_label")
 -        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 14, 0, 1, 1)
-+        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 16, 0, 1, 1)
++        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 18, 0, 1, 1)
  
          # Pixel 1
          self.aw_pixel1_pushButton = QtWidgets.QPushButton(self.aw_select_pixel_widget)
@@ -16,11 +16,11 @@ index d7f5181..977662e 100755
  
          self.gridLayout_3.addWidget(
 -            self.aw_select_pixel_widget, 15, 0, 1, 1, QtCore.Qt.AlignHCenter
-+            self.aw_select_pixel_widget, 17, 0, 1, 1, QtCore.Qt.AlignHCenter
++            self.aw_select_pixel_widget, 19, 0, 1, 1, QtCore.Qt.AlignHCenter
          )
  
          # Min voltage
-@@ -682,6 +682,31 @@ class Ui_MainWindow(object):
+@@ -682,6 +682,60 @@ class Ui_MainWindow(object):
          self.aw_auto_measure_HLayout.addWidget(self.aw_auto_measure_label)
          self.gridLayout_3.addLayout(self.aw_auto_measure_HLayout, 13, 0, 1, 1)
  
@@ -49,20 +49,49 @@ index d7f5181..977662e 100755
 +        )
 +        self.gridLayout_3.addLayout(self.aw_accurate_eqe_precision_HLayout, 15, 0, 1, 1)
 +
++        # Accurate mode: fine voltage step used in the turn-on region
++        # (between changeover and the point where the PD signal crosses the
++        # coarse threshold below)
++        self.aw_accurate_fine_step_HLayout = QtWidgets.QHBoxLayout()
++        self.aw_accurate_fine_step_spinBox = HumbleDoubleSpinBox(
++            self.aw_scrollAreaWidgetContents
++        )
++        self.aw_accurate_fine_step_spinBox.setObjectName(
++            "aw_accurate_fine_step_spinBox"
++        )
++        self.aw_accurate_fine_step_label = QtWidgets.QLabel("Fine Step (V)")
++        self.aw_accurate_fine_step_HLayout.addWidget(self.aw_accurate_fine_step_spinBox)
++        self.aw_accurate_fine_step_HLayout.addWidget(self.aw_accurate_fine_step_label)
++        self.gridLayout_3.addLayout(self.aw_accurate_fine_step_HLayout, 16, 0, 1, 1)
++
++        # Accurate mode: once the measured PD voltage exceeds this threshold
++        # the sweep switches from the fine step to the high voltage step
++        self.aw_accurate_coarse_pd_HLayout = QtWidgets.QHBoxLayout()
++        self.aw_accurate_coarse_pd_spinBox = HumbleDoubleSpinBox(
++            self.aw_scrollAreaWidgetContents
++        )
++        self.aw_accurate_coarse_pd_spinBox.setObjectName(
++            "aw_accurate_coarse_pd_spinBox"
++        )
++        self.aw_accurate_coarse_pd_label = QtWidgets.QLabel("Coarse above PD (mV)")
++        self.aw_accurate_coarse_pd_HLayout.addWidget(self.aw_accurate_coarse_pd_spinBox)
++        self.aw_accurate_coarse_pd_HLayout.addWidget(self.aw_accurate_coarse_pd_label)
++        self.gridLayout_3.addLayout(self.aw_accurate_coarse_pd_HLayout, 17, 0, 1, 1)
++
          # PD saturation checkbox
          # self.aw_pd_saturation_HLayout = QtWidgets.QHBoxLayout()
          # self.aw_pd_saturation_toggleSwitch = ToggleSwitch()
-@@ -725,7 +750,7 @@ class Ui_MainWindow(object):
+@@ -725,7 +779,7 @@ class Ui_MainWindow(object):
          self.aw_start_measurement_pushButton.setObjectName(
              "aw_start_measurement_pushButton"
          )
 -        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 16, 0, 1, 1)
-+        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 18, 0, 1, 1)
++        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 20, 0, 1, 1)
  
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..178dffb 100755
+index 296ba96..e91e334 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -113,7 +142,7 @@ index 296ba96..178dffb 100755
  
          # Connect the signals
          self.update_plot.connect(parent.plot_autotube_measurement)
-@@ -68,11 +97,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -68,11 +97,54 @@ class AutotubeMeasurement(QtCore.QThread):
              parent.aw_start_measurement_pushButton.setChecked
          )
  
@@ -134,10 +163,42 @@ index 296ba96..178dffb 100755
 +        if getattr(self, "chopped", None) is not None:
 +            self.chopped.stop = value
 +
++    def _accurate_voltage_generator(self):
++        """
++        Accurate 모드용 3단계 적응 스텝.
++
++          min --(low step)--> changeover --(fine step)--> [PD > 문턱] --(high step)--> max
++
++        turn-on 위치는 소자마다 달라 전압으로는 못 정하지만, 측정된 PD 신호가
++        accurate_coarse_pd 를 넘는 순간이 곧 "충분히 밝다" 이므로 그 시점에
++        fine -> high 스텝으로 전환한다. self._coarse_now 는 픽셀마다 리셋되고
++        측정 루프가 포인트 결과를 보고 세팅한다.
++        """
++        parameters = self.measurement_parameters
++        voltage = parameters["min_voltage"]
++        epsilon = 1e-9
++
++        while voltage <= parameters["max_voltage"] + epsilon:
++            yield round(voltage, 6)
++
++            if voltage < parameters["changeover_voltage"] - epsilon:
++                step = parameters["low_voltage_step"]
++                # 어두운 구간의 마지막 스텝이 changeover 를 넘어가면
++                # changeover 에 정확히 맞춰서 fine 구간을 시작한다
++                if voltage + step > parameters["changeover_voltage"] + epsilon:
++                    voltage = parameters["changeover_voltage"]
++                    continue
++            elif self._coarse_now:
++                step = parameters["high_voltage_step"]
++            else:
++                step = parameters.get("accurate_fine_step", 0.02)
++
++            voltage = voltage + step
++
      def run(self):
          """
          Function that does the actual measurement. I am not sure yet, if I
-@@ -83,10 +123,6 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -83,10 +155,6 @@ class AutotubeMeasurement(QtCore.QThread):
          done in this function!
          """
  
@@ -148,7 +209,7 @@ index 296ba96..178dffb 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +183,229 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +215,258 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -183,6 +244,9 @@ index 296ba96..178dffb 100755
 +                # the previous, longer pixel and they end up in its saved file.
 +                self.df_data = pd.DataFrame(columns=self.df_data.columns)
 +
++                # Accurate mode steps adaptively; every pixel starts fine
++                self._coarse_now = False
++
 +                # Take PD voltage reading from Multimeter for background.
 +                # In accurate EQE mode the background is re-measured every chop
 +                # cycle inside measure_point, so no sweep-wide background is
@@ -201,7 +265,12 @@ index 296ba96..178dffb 100755
 +
 +                # Low Voltage Readings
 +                i = 0
-+                for voltage in voltages_to_scan:
++                voltage_iterator = (
++                    self._accurate_voltage_generator()
++                    if self.accurate_eqe_mode
++                    else voltages_to_scan
++                )
++                for voltage in voltage_iterator:
 +                    # self.queue.put("\nOLED Voltage : " + str(voltage) + " V")
 +                    # Set voltage to source_value
 +                    self.keithley_source.set_voltage(str(voltage))
@@ -233,6 +302,27 @@ index 296ba96..178dffb 100755
 +                        oled_current = point["current"] * 1e-3  # back to A
 +                        diode_voltage = point["pd_voltage"]
 +                        diode_voltage_std = point["pd_voltage_std"]
++
++                        # Bright enough: switch to the coarse voltage step for
++                        # the rest of this pixel's sweep
++                        if (
++                            not self._coarse_now
++                            and not point["dark"]
++                            and diode_voltage
++                            > self.measurement_parameters.get(
++                                "accurate_coarse_pd", 5e-3
++                            )
++                        ):
++                            self._coarse_now = True
++                            cf.log_message(
++                                "PD %.2f mV > threshold: switching to %.2f V steps"
++                                % (
++                                    diode_voltage * 1e3,
++                                    self.measurement_parameters[
++                                        "high_voltage_step"
++                                    ],
++                                )
++                            )
 +
 +                        cf.log_message(
 +                            "V = %.3f V | dPD = %.1f uV +- %.1f uV | %d cycles, %.1f s%s"
@@ -501,7 +591,7 @@ index 296ba96..178dffb 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +595,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +656,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -526,7 +616,7 @@ index 296ba96..178dffb 100755
  
          header_lines = [
              line03,
-@@ -503,19 +635,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +696,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  
@@ -1472,10 +1562,10 @@ index 4be9008..92c3ecf 100755
      def measure_voltage(self, multimeter_range=0):
          """
 diff --git a/src/main.py b/src/main.py
-index 31b2707..40ff719 100755
+index 31b2707..0552f87 100755
 --- a/src/main.py
 +++ b/src/main.py
-@@ -409,6 +409,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+@@ -409,6 +409,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
          self.aw_scan_compliance_spinBox.setMinimum(0)
          self.aw_scan_compliance_spinBox.setMaximum(1050)
          self.aw_scan_compliance_spinBox.setValue(1050)
@@ -1484,15 +1574,29 @@ index 31b2707..40ff719 100755
 +        self.aw_accurate_eqe_precision_spinBox.setMaximum(20)
 +        self.aw_accurate_eqe_precision_spinBox.setSingleStep(0.5)
 +        self.aw_accurate_eqe_precision_spinBox.setValue(2)
++        # Fine step used between changeover and the coarse-PD threshold
++        self.aw_accurate_fine_step_spinBox.setMinimum(0.01)
++        self.aw_accurate_fine_step_spinBox.setMaximum(1)
++        self.aw_accurate_fine_step_spinBox.setSingleStep(0.01)
++        self.aw_accurate_fine_step_spinBox.setValue(0.02)
++        # PD voltage above which the sweep switches to the high voltage step.
++        # ~5 mV corresponds to ~100 cd/m2 at 52 mm / 50 dB for the red devices
++        self.aw_accurate_coarse_pd_spinBox.setMinimum(0.1)
++        self.aw_accurate_coarse_pd_spinBox.setMaximum(1000)
++        self.aw_accurate_coarse_pd_spinBox.setSingleStep(0.5)
++        self.aw_accurate_coarse_pd_spinBox.setValue(5.0)
  
          # Set standard parameters for Goniometer
          self.gw_offset_angle_spinBox.setMaximum(180)
-@@ -1104,6 +1109,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+@@ -1104,6 +1120,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
              "high_voltage_step": self.aw_high_voltage_step_spinBox.value(),
              "scan_compliance": self.aw_scan_compliance_spinBox.value(),
              "auto_spectrum": self.aw_auto_measure_toggleSwitch.isChecked(),
 +            "accurate_eqe_mode": self.aw_accurate_eqe_toggleSwitch.isChecked(),
 +            "accurate_eqe_precision": self.aw_accurate_eqe_precision_spinBox.value(),
++            "accurate_fine_step": self.aw_accurate_fine_step_spinBox.value(),
++            # spinbox is in mV, the measurement compares in V
++            "accurate_coarse_pd": self.aw_accurate_coarse_pd_spinBox.value() * 1e-3,
              # "check_bad_contacts": self.aw_bad_contacts_toggleSwitch.isChecked(),
              # "fixed_multimeter_range": self.aw_set_fixed_multimeter_range_toggleSwitch.isChecked(),
              "photodiode_saturation": float(global_parameters["photodiode_saturation"]),

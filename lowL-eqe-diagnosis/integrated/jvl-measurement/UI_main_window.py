@@ -548,7 +548,7 @@ class Ui_MainWindow(object):
         self.aw_select_pixel_label = QtWidgets.QLabel(self.aw_scrollAreaWidgetContents)
         self.aw_select_pixel_label.setStyleSheet('font: 63 bold 10pt "Segoe UI";')
         self.aw_select_pixel_label.setObjectName("aw_select_pixel_label")
-        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 16, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.aw_select_pixel_label, 18, 0, 1, 1)
 
         # Pixel 1
         self.aw_pixel1_pushButton = QtWidgets.QPushButton(self.aw_select_pixel_widget)
@@ -619,7 +619,7 @@ class Ui_MainWindow(object):
         self.gridLayout_4.addWidget(self.aw_pixel8_pushButton, 4, 1, 1, 1)
 
         self.gridLayout_3.addWidget(
-            self.aw_select_pixel_widget, 17, 0, 1, 1, QtCore.Qt.AlignHCenter
+            self.aw_select_pixel_widget, 19, 0, 1, 1, QtCore.Qt.AlignHCenter
         )
 
         # Min voltage
@@ -707,6 +707,35 @@ class Ui_MainWindow(object):
         )
         self.gridLayout_3.addLayout(self.aw_accurate_eqe_precision_HLayout, 15, 0, 1, 1)
 
+        # Accurate mode: fine voltage step used in the turn-on region
+        # (between changeover and the point where the PD signal crosses the
+        # coarse threshold below)
+        self.aw_accurate_fine_step_HLayout = QtWidgets.QHBoxLayout()
+        self.aw_accurate_fine_step_spinBox = HumbleDoubleSpinBox(
+            self.aw_scrollAreaWidgetContents
+        )
+        self.aw_accurate_fine_step_spinBox.setObjectName(
+            "aw_accurate_fine_step_spinBox"
+        )
+        self.aw_accurate_fine_step_label = QtWidgets.QLabel("Fine Step (V)")
+        self.aw_accurate_fine_step_HLayout.addWidget(self.aw_accurate_fine_step_spinBox)
+        self.aw_accurate_fine_step_HLayout.addWidget(self.aw_accurate_fine_step_label)
+        self.gridLayout_3.addLayout(self.aw_accurate_fine_step_HLayout, 16, 0, 1, 1)
+
+        # Accurate mode: once the measured PD voltage exceeds this threshold
+        # the sweep switches from the fine step to the high voltage step
+        self.aw_accurate_coarse_pd_HLayout = QtWidgets.QHBoxLayout()
+        self.aw_accurate_coarse_pd_spinBox = HumbleDoubleSpinBox(
+            self.aw_scrollAreaWidgetContents
+        )
+        self.aw_accurate_coarse_pd_spinBox.setObjectName(
+            "aw_accurate_coarse_pd_spinBox"
+        )
+        self.aw_accurate_coarse_pd_label = QtWidgets.QLabel("Coarse above PD (mV)")
+        self.aw_accurate_coarse_pd_HLayout.addWidget(self.aw_accurate_coarse_pd_spinBox)
+        self.aw_accurate_coarse_pd_HLayout.addWidget(self.aw_accurate_coarse_pd_label)
+        self.gridLayout_3.addLayout(self.aw_accurate_coarse_pd_HLayout, 17, 0, 1, 1)
+
         # PD saturation checkbox
         # self.aw_pd_saturation_HLayout = QtWidgets.QHBoxLayout()
         # self.aw_pd_saturation_toggleSwitch = ToggleSwitch()
@@ -750,7 +779,7 @@ class Ui_MainWindow(object):
         self.aw_start_measurement_pushButton.setObjectName(
             "aw_start_measurement_pushButton"
         )
-        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 18, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.aw_start_measurement_pushButton, 20, 0, 1, 1)
 
         self.tabWidget.addTab(self.autotube_widget, "")
 
