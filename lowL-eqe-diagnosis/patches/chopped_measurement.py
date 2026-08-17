@@ -228,20 +228,23 @@ class ChoppedSweep:
         self._baseline_time = now
         self._baseline_id += 1
 
-    def _measure_on(self, voltage, with_current=True):
-        """on 구간 하나. (PD 평균, OLED 전류 또는 None) 를 반환한다."""
+    def _measure_on(self, voltage):
+        """on 구간 하나. PD 평균을 반환한다.
+
+        전류는 여기서 읽지 않는다. 전류 판독(NPLC 10 + autozero + 오토레인지)은
+        0.6~2 s 동안 소자를 켠 채로 잡아두는데, 이것이 일부 사이클에만 끼면
+        그 사이클들의 열/전하 이력이 달라져서 사이클 순서에 따른 가짜 트렌드가
+        생긴다 (실측에서 +35% 트렌드 경고의 원인). PD 평균이 끝난 뒤
+        measure_point 가 한 번에 읽는다."""
         self.keithley_source.set_voltage(str(voltage))
         time.sleep(self.settle_time)
         on_values = self._read_pd_burst()
-        oled_current = (
-            float(self.keithley_source.read_current()) if with_current else None
-        )
 
-        return float(np.nanmean(on_values)), oled_current
+        return float(np.nanmean(on_values))
 
-    def _measure_cycle(self, voltage, with_current=True):
+    def _measure_cycle(self, voltage):
         """
-        chop 사이클 하나를 돌고 (dPD, OLED 전류) 를 반환한다.
+        chop 사이클 하나를 돌고 dPD 를 반환한다.
 
         "AB"   : off -> on
         "ABBA" : off -> on -> on -> off. off 와 on 의 시간 무게중심이 같아지므로
@@ -251,20 +254,19 @@ class ChoppedSweep:
             self._measure_baseline(force=True)
             off_first = self._baseline_mean
 
-            on_first, current_first = self._measure_on(voltage, with_current)
-            on_second, _ = self._measure_on(voltage, with_current=False)
+            on_first = self._measure_on(voltage)
+            on_second = self._measure_on(voltage)
 
             self._measure_baseline(force=True)
             off_second = self._baseline_mean
 
-            delta = (on_first + on_second) / 2.0 - (off_first + off_second) / 2.0
-            return delta, current_first
+            return (on_first + on_second) / 2.0 - (off_first + off_second) / 2.0
 
         # "AB" (기본값)
         self._measure_baseline()
-        on_mean, oled_current = self._measure_on(voltage, with_current)
+        on_mean = self._measure_on(voltage)
 
-        return on_mean - self._baseline_mean, oled_current
+        return on_mean - self._baseline_mean
 
     @staticmethod
     def _trend(deltas, sigma):
@@ -353,28 +355,10 @@ class ChoppedSweep:
         start = time.time()
         compliance_hit = False
         dark = False
-        # 어두운 포인트에서 전류는 nA~pA 라 SMU 가 오토레인지 헌팅을 하고,
-        # NPLC 10 + autozero 까지 겹치면 판독 1회에 1~3 s 다. quick 포인트는
-        # 1회만 읽는다 (승격되면 quick=False 가 되면서 나머지를 채운다)
-        current_target = 1 if quick else self.current_samples
-
         while True:
-            if not quick:
-                current_target = self.current_samples
-            with_current = len(currents) < current_target
-            delta, oled_current = self._measure_cycle(voltage, with_current)
+            delta = self._measure_cycle(voltage)
             deltas.append(delta)
             groups.setdefault(self._baseline_id, []).append(delta)
-            if oled_current is not None:
-                currents.append(oled_current)
-
-            if (
-                oled_current is not None
-                and self.scan_compliance is not None
-                and abs(oled_current) >= self.scan_compliance
-            ):
-                compliance_hit = True
-                break
 
             n = len(deltas)
             elapsed = time.time() - start
@@ -408,6 +392,21 @@ class ChoppedSweep:
                 break
             if self.stop:
                 break
+
+        # 전류는 PD 평균이 다 끝난 뒤 한 번에 읽는다 (_measure_on 주석 참고).
+        # 어두운 포인트는 1회면 충분하고(오토레인지 헌팅이 느리므로),
+        # 발광 포인트는 current_samples 회 평균한다.
+        n_current = 1 if (dark or quick) else self.current_samples
+        self.keithley_source.set_voltage(str(voltage))
+        time.sleep(self.settle_time)
+        for _ in range(n_current):
+            currents.append(float(self.keithley_source.read_current()))
+
+        if (
+            self.scan_compliance is not None
+            and abs(float(np.mean(currents))) >= self.scan_compliance
+        ):
+            compliance_hit = True
 
         n = len(deltas)
         delta_mean, sigma = self._combine(deltas, groups)
