@@ -703,10 +703,10 @@ index 296ba96..e4bc668 100755
          #     the_file.write("\n".join(header_lines))
 diff --git a/src/chopped_measurement.py b/src/chopped_measurement.py
 new file mode 100644
-index 0000000..9c713ea
+index 0000000..6fec1b1
 --- /dev/null
 +++ b/src/chopped_measurement.py
-@@ -0,0 +1,908 @@
+@@ -0,0 +1,915 @@
 +# -*- coding: utf-8 -*-
 +"""
 +저휘도(1~100 cd/m2) 전용 chopped JVL 스캔.
@@ -1155,7 +1155,14 @@ index 0000000..9c713ea
 +        # 발광 포인트는 current_samples 회 평균한다.
 +        n_current = 1 if (dark or quick) else self.current_samples
 +        self.keithley_source.set_voltage(str(voltage))
-+        time.sleep(self.settle_time)
++        if dark or quick:
++            time.sleep(self.settle_time)
++        else:
++            # 전류(EQE 의 분모)는 DC 값이어야 한다. chopping 직후에는 트랩이
++            # 덜 채워져 있어 전류도 DC 와 다르므로, 소자를 켠 채 워밍업한 뒤
++            # 읽는다. 이러면 chopped 포인트에서도 분모는 연속 구간과 같은
++            # DC 기준이 되고, 두 구간의 EQE 차이는 순수하게 광학(EL)만 남는다.
++            time.sleep(max(self.warmup_time, self.settle_time))
 +        for _ in range(n_current):
 +            currents.append(float(self.keithley_source.read_current()))
 +
