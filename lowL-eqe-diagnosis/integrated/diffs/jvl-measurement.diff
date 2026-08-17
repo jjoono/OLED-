@@ -91,7 +91,7 @@ index d7f5181..06e03c7 100755
          self.tabWidget.addTab(self.autotube_widget, "")
  
 diff --git a/src/autotube_measurement.py b/src/autotube_measurement.py
-index 296ba96..3a46ae5 100755
+index 296ba96..e4bc668 100755
 --- a/src/autotube_measurement.py
 +++ b/src/autotube_measurement.py
 @@ -7,6 +7,8 @@ import core_functions as cf
@@ -209,7 +209,7 @@ index 296ba96..3a46ae5 100755
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Photodiode Position")
              if self.setup_parameters["top_emitting"]:
-@@ -147,147 +215,274 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -147,147 +215,298 @@ class AutotubeMeasurement(QtCore.QThread):
  
          self.update_progress_bar.emit("value", 0)
  
@@ -337,6 +337,30 @@ index 296ba96..3a46ae5 100755
 +                                    self.measurement_parameters[
 +                                        "high_voltage_step"
 +                                    ],
++                                )
++                            )
++                            # The chopped value that just crossed the
++                            # threshold is itself a pulsed (under-reading)
++                            # value, which left a reproducible dip at the
++                            # switching voltage. Re-measure this point
++                            # continuously so everything recorded at or
++                            # above the threshold is DC-consistent.
++                            cf.log_message(
++                                "Re-measuring %.3f V continuously" % voltage
++                            )
++                            point = self.chopped.measure_point_continuous(
++                                voltage
++                            )
++                            oled_current = point["current"] * 1e-3
++                            diode_voltage = point["pd_voltage"]
++                            diode_voltage_std = point["pd_voltage_std"]
++                            cf.log_message(
++                                "V = %.3f V | dPD = %.1f uV +- %.1f uV"
++                                " (continuous)"
++                                % (
++                                    voltage,
++                                    diode_voltage * 1e6,
++                                    diode_voltage_std * 1e6,
 +                                )
 +                            )
 +
@@ -607,7 +631,7 @@ index 296ba96..3a46ae5 100755
  
          if self.measurement_parameters["auto_spectrum"]:
              cf.log_message("Motor is moving to Spectrometer Position")
-@@ -477,8 +672,22 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -477,8 +696,22 @@ class AutotubeMeasurement(QtCore.QThread):
              + " A"
          )
          line07 = "### Measurement data ###"
@@ -632,7 +656,7 @@ index 296ba96..3a46ae5 100755
  
          header_lines = [
              line03,
-@@ -503,19 +712,35 @@ class AutotubeMeasurement(QtCore.QThread):
+@@ -503,19 +736,35 @@ class AutotubeMeasurement(QtCore.QThread):
              + ".csv"
          )
  

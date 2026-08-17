@@ -328,6 +328,30 @@ class AutotubeMeasurement(QtCore.QThread):
                                     ],
                                 )
                             )
+                            # The chopped value that just crossed the
+                            # threshold is itself a pulsed (under-reading)
+                            # value, which left a reproducible dip at the
+                            # switching voltage. Re-measure this point
+                            # continuously so everything recorded at or
+                            # above the threshold is DC-consistent.
+                            cf.log_message(
+                                "Re-measuring %.3f V continuously" % voltage
+                            )
+                            point = self.chopped.measure_point_continuous(
+                                voltage
+                            )
+                            oled_current = point["current"] * 1e-3
+                            diode_voltage = point["pd_voltage"]
+                            diode_voltage_std = point["pd_voltage_std"]
+                            cf.log_message(
+                                "V = %.3f V | dPD = %.1f uV +- %.1f uV"
+                                " (continuous)"
+                                % (
+                                    voltage,
+                                    diode_voltage * 1e6,
+                                    diode_voltage_std * 1e6,
+                                )
+                            )
 
                         cf.log_message(
                             "V = %.3f V | dPD = %.1f uV +- %.1f uV | %d cycles, %.1f s%s"
