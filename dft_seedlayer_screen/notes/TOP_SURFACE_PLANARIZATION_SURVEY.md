@@ -68,3 +68,31 @@ flexible optoelectronic substrates - on-OLED validation would be novel.
 Coverage caveat: web-snippet search, not exhaustive Scopus/patent-family
 due diligence; run 42_lit_harvest locally with these seeds before quoting
 "first" claims in a paper.
+
+## Equipment guide for route 1 (added 2026-08-18)
+
+Source paper pinned: Ma et al., Nat. Commun. 15, 2248 (2024), Duan group -
+deposition AND thinning both by a flood ion beam (dual-ion-beam sputter
+configuration). Exact etch energy/angle: extract from PDF when available.
+
+Tool classes able to run <=200 eV Ar broad beam:
+- TEM/SEM prep ion mills (coupon-scale tests): Gatan PECS II (~100 eV-8 keV),
+  Gatan PIPS II (100 eV final polish), Fischione 1040 NanoMill (50 eV-2 keV),
+  Leica EM RES102 (200 eV-), Technoorg Gentle Mill (~100-300 eV).
+  Sample size limit ~25 mm.
+- Cleanroom broad-beam IBE (wafer scale): Oxford Ionfab / Veeco / scia -
+  confirm low-energy mode.
+- IN-SITU RETROFIT (the configuration that matters for a top electrode ON
+  an OLED): small Ar source (KRI End-Hall EH-200/400 or gridded KDC-40,
+  anode 60-150 V -> ~100 eV ions) on a spare port of the evaporator, so
+  deposit -> thin -> cap proceeds without breaking vacuum. Freshly milled
+  Ag must be capped immediately.
+
+Access near Cologne (verify inventories directly): own university TEM-prep
+labs first; FZ Juelich HNF (proposal-based external access, IBE) and
+Ernst Ruska-Centre (low-energy mills), ~45 km; RWTH Aachen cleanroom.
+
+Process notes: smoothing mode = low energy + grazing incidence (60-80 deg
+off normal) + rotation; verify via rho = Rs*d approaching the
+Fuchs-Sondheimer floor. No report found of this process applied on top of
+a finished OLED -> novelty opportunity for the in-situ configuration.
