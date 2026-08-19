@@ -146,7 +146,7 @@ def fuchs_from_rs(rs_map):
     chi2 comparison would always prefer the smallest subset.
     """
     d = np.array(sorted(rs_map), float)
-    rho = np.array([rs_map[x]*x*1e-3 for x in d])          # uOhm cm
+    rho = np.array([rs_map[x]*x*0.1 for x in d])          # uOhm cm
     lo = 0
     while len(d) - lo >= 5:
         dd, rr = d[lo+1:], rho[lo+1:]                      # fit WITHOUT the thinnest
