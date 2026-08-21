@@ -23,6 +23,17 @@ ne_bar_u_num_1=repmat(ne_bar,u_num,1);
 cos_theta_p=sqrt(1-(repmat(reshape(ne_bar(:,1)*u,wavelength_num*u_num,1),1,layer_num)./ne_bar_u_num_1).^2);
 cos_theta_s=sqrt(1-(repmat(reshape(no_bar(:,1)*u,wavelength_num*u_num,1),1,layer_num)./no_bar_u_num_1).^2);
 
+% Branch fix: the physical wave must decay in evanescent/absorbing layers,
+% i.e. imag(n*cos_theta) >= 0 (kz in the upper half plane). With complex-typed
+% arrays, 1-(x+0i).^2 can carry a -0 imaginary part and principal sqrt then
+% lands on the wrong (growing) branch, which corrupts the u>1 (SPP/evanescent)
+% region. Enforce the decaying branch explicitly.
+flip_p=imag(no_bar_u_num_1.*cos_theta_p)<0;
+cos_theta_p(flip_p)=-cos_theta_p(flip_p);
+flip_s=imag(no_bar_u_num_1.*cos_theta_s)<0;
+cos_theta_s(flip_s)=-cos_theta_s(flip_s);
+clear flip_p flip_s
+
 NL1vector=1:NL1;
 NL1vector_plus1=NL1vector+1;
 

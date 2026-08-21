@@ -21,6 +21,12 @@ no_bar_u_num_1=repmat(no_bar,u_num,1);
 
 cos_theta_s=sqrt(1-(repmat(reshape(u,wavelength_num*u_num,1),1,layer_num)./no_bar_u_num_1).^2);
 
+% Branch fix: enforce the decaying wave, imag(n*cos_theta) >= 0 (see
+% TMF_birefringence_whole.m for details).
+flip_s=imag(no_bar_u_num_1.*cos_theta_s)<0;
+cos_theta_s(flip_s)=-cos_theta_s(flip_s);
+clear flip_s
+
 NL1vector=1:NL1;
 NL1vector_plus1=NL1vector+1;
 
