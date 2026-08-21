@@ -45,7 +45,10 @@ end
 %% OLED stack (same as MLA script; last layer = substrate, n = 1.51 = n_SL)
 no_bar=[ones(401,1) material.l_Ag_McPeak material.l_B3_o_JO material.l_TCTA_o_JO material.l_TCTA_B3_o_JO material.l_TAPC_o_JO material.l_HATCN material.l_TAPC_o_JO material.l_HATCN material.l_TAPC_o_JO material.l_HATCN material.l_ITO_SNU_temp 1.51*ones(401,1)];
 ne_bar=[ones(401,1) material.l_Ag_McPeak material.l_B3_e_JO material.l_TCTA_e_JO material.l_TCTA_B3_e_JO material.l_TAPC_e_JO material.l_HATCN material.l_TAPC_e_JO material.l_HATCN material.l_TAPC_e_JO material.l_HATCN material.l_ITO_SNU_temp 1.51*ones(401,1)];
-thickness=[100 50 25 10 47 3 47 3 47 3 150];
+% Thick ETL/HTL, fixed: B3PyMPM (ETL) 80 nm, each TAPC (HTL) 80 nm.
+% Chosen away from the microcavity optimum on purpose: the point of the S-g
+% sweep is that the final EQE is insensitive to the choice of (S,g).
+thickness=[100 80 25 10 80 3 80 3 80 3 150];
 EML_position=4;
 
 z0=12.5;
