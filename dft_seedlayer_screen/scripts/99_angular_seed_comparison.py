@@ -85,33 +85,37 @@ def tmm(n, d, lam, theta0):
     return out
 
 
-def absorb(layers, d_cpl, theta):
-    n = [N_ORG] + [x[0] for x in layers] + [N_CPL, 1.0]
+def absorb(layers, d_cpl, theta, n_out=1.0):
+    n = [N_ORG] + [x[0] for x in layers] + [N_CPL, n_out]
     d = [0.0] + [x[1] for x in layers] + [d_cpl, 0.0]
     (Rs_, Ts_), (Rp, Tp) = tmm(n, d, L, np.deg2rad(theta))
     return 0.5 * ((1 - Rs_ - Ts_) + (1 - Rp - Tp))
 
 
-def best_cpl(layers):
+def best_cpl(layers, n_out=1.0):
     best = (9e9, 0.0)
     for dc in np.arange(20.0, 121.0, 1.0):   # a device-realistic capping range
-        a = absorb(layers, dc, 0.0)
+        a = absorb(layers, dc, 0.0, n_out)
         if a < best[0]:
             best = (a, dc)
     return best[1]
 
 
-def main():
+def build_stacks():
     ag_h = measured_ag("HATCN", 8, "2-2")
     ag_m = measured_ag("MoOx", 8, "2-10")
 
-    stacks = [
+    return [
         ("HATCN 5 / Ag 8",   [(nk_at("HATCN"), 5.0), (ag_h, 8.0)]),
         ("MoOx 5 / Ag 8",    [(nk_at("MoO3"), 5.0),  (ag_m, 8.0)]),
         ("ITO 70 (열처리 X)", [(nk_at("ITO"), 70.0)]),
         ("ITO 70 (열처리 O)", [(nk_at("l_ITO_SNU_temp"), 70.0)]),
         ("IZO 70",           [(nk_at("l_IZO"), 70.0)]),
     ]
+
+
+def main():
+    stacks = build_stacks()
 
     print(f"one-pass absorption at {L:.0f} nm, incident from organic n = {N_ORG}, "
           f"CPL n = {N_CPL}")
