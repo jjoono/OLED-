@@ -195,7 +195,8 @@ const AX = (extra)=>Object.assign({
     AX({x:0.92,y:2.45,w:3.4,h:1.9, barDir:"bar", chartColors:[TEAL,"C0392B"],
         showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
         dataLabelFontSize:11, dataLabelFontFace:EN, dataLabelFormatCode:'0.00" eV"',
-        valAxisMinVal:-0.3, valAxisMaxVal:1.3, catAxisLabelFontFace:KR, catAxisLabelFontSize:10}));
+        valAxisMinVal:-0.3, valAxisMaxVal:1.3, catAxisLabelFontFace:KR, catAxisLabelFontSize:10,
+        catAxisLabelPos:"low"}));
   s.addText("분자면 위에서는 오히려 척력. Ag 는 CN 질소에만 붙는다. 결합 자리의 밀도가 곧 핵생성 밀도가 된다.",
     {x:0.92,y:4.5,w:3.4,h:1.1,fontFace:KR,fontSize:11,color:MUTED,margin:0});
   s.addShape(p.ShapeType.roundRect,{x:0.92,y:5.65,w:3.4,h:0.6,rectRadius:0.06,fill:{color:"E8F7F5"}});
@@ -208,7 +209,8 @@ const AX = (extra)=>Object.assign({
     AX({x:5.2,y:2.45,w:3.25,h:2.5, barDir:"bar", chartColors:[TEAL,GOLD,"C0392B","C0392B"],
         showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
         dataLabelFontSize:10, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
-        valAxisMaxVal:0.40, catAxisLabelFontFace:EN, catAxisLabelFontSize:10}));
+        valAxisMaxVal:0.40, catAxisLabelFontFace:EN, catAxisLabelFontSize:10,
+        catAxisLabelPos:"low"}));
   s.addText("도착한 Ag 원자가 표면을 돌아다니지 못하고 그 자리에 고정된다. 섬으로 뭉칠 기회를 잃는다.",
     {x:5.2,y:5.05,w:3.25,h:1.2,fontFace:KR,fontSize:11,color:MUTED,margin:0});
 
@@ -232,19 +234,22 @@ const AX = (extra)=>Object.assign({
   card(s,0.62,1.85,7.5,4.55);
   const md=D.mode;
   s.addChart(p.ChartType.bar,[{name:"E_b (eV)",labels:md.map(r=>r[0]),values:md.map(r=>r[1])}],
-    AX({x:0.85,y:2.02,w:5.1,h:4.2, barDir:"bar",
+    AX({x:0.85,y:2.02,w:5.1,h:3.8, barDir:"bar",
         chartColors:md.map(r=>r[3]==="mono"?(r[1]>0.9?TEAL:"7FCFC8"):(r[3]==="bi"?DEEP:"C5CEDE")),
         showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
         dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
         valAxisMaxVal:1.32, catAxisLabelFontFace:KR, catAxisLabelFontSize:8, barGapWidthPct:40}));
+  /* the chart draws md[0] at the bottom of the plot, so the annotation column
+     has to run bottom-up or every binding mode lands on the wrong bar */
   md.forEach((r,i)=>{
-    s.addText(r[2],{x:6.0,y:2.13+i*0.322,w:2.05,h:0.3,fontFace:KR,fontSize:7.5,
+    const row=md.length-1-i;
+    s.addText(r[2],{x:6.0,y:2.12+row*0.291,w:2.05,h:0.28,fontFace:KR,fontSize:7.5,
       color:r[3]==="bi"?DEEP:MUTED,margin:0,valign:"middle"});
   });
-  s.addShape(p.ShapeType.ellipse,{x:0.9,y:6.0,w:0.16,h:0.16,fill:{color:TEAL}});
-  s.addText("단좌 (자리 1개)",{x:1.14,y:5.96,w:1.6,h:0.24,fontFace:KR,fontSize:9,color:MUTED,margin:0});
-  s.addShape(p.ShapeType.ellipse,{x:2.85,y:6.0,w:0.16,h:0.16,fill:{color:DEEP}});
-  s.addText("이좌 킬레이트 (자리 2개)",{x:3.09,y:5.96,w:2.4,h:0.24,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+  s.addShape(p.ShapeType.ellipse,{x:0.9,y:6.02,w:0.16,h:0.16,fill:{color:TEAL}});
+  s.addText("단좌 (자리 1개)",{x:1.14,y:5.98,w:1.6,h:0.24,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+  s.addShape(p.ShapeType.ellipse,{x:2.85,y:6.02,w:0.16,h:0.16,fill:{color:DEEP}});
+  s.addText("이좌 킬레이트 (자리 2개)",{x:3.09,y:5.98,w:2.4,h:0.24,fontFace:KR,fontSize:9,color:MUTED,margin:0});
 
   card(s,8.4,1.85,4.32,2.15,"E8F7F5");
   s.addText("핵심", {x:8.68,y:2.02,w:3.8,h:0.28,fontFace:KR,fontSize:13,bold:true,color:"0E8074",margin:0});
