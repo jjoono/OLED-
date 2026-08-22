@@ -182,7 +182,117 @@ const AX = (extra)=>Object.assign({
   s.addNotes("Al은 ε2가 Ag의 8배. wetting 이득으로 상쇄 불가. Au만 적색에서 검토 가치.");
 }
 
-/* ------------------------------------------------------ 6 measured dataset */
+
+/* ============================ HATCN section ============================ */
+
+/* ------------------------------------------- 6 why HATCN, molecular level */
+{
+  const s=lightSlide();
+  title(s,"HATCN 은 왜 압도적인가 ①  분자 수준","결합은 오직 나이트릴 질소에서 일어난다 — 그리고 HATCN 은 그 자리를 분자당 6개 갖는다");
+  card(s,0.62,1.85,4.0,4.55);
+  s.addText("결합 자리의 특이성", {x:0.92,y:2.05,w:3.4,h:0.32,fontFace:KR,fontSize:14,bold:true,color:INK,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.anchors.map(r=>r[0]),values:D.anchors.map(r=>r[1])}],
+    AX({x:0.92,y:2.45,w:3.4,h:1.9, barDir:"bar", chartColors:[TEAL,"C0392B"],
+        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
+        dataLabelFontSize:11, dataLabelFontFace:EN, dataLabelFormatCode:'0.00" eV"',
+        valAxisMinVal:-0.3, valAxisMaxVal:1.3, catAxisLabelFontFace:KR, catAxisLabelFontSize:10}));
+  s.addText("분자면 위에서는 오히려 척력. Ag 는 CN 질소에만 붙는다. 결합 자리의 밀도가 곧 핵생성 밀도가 된다.",
+    {x:0.92,y:4.5,w:3.4,h:1.1,fontFace:KR,fontSize:11,color:MUTED,margin:0});
+  s.addShape(p.ShapeType.roundRect,{x:0.92,y:5.65,w:3.4,h:0.6,rectRadius:0.06,fill:{color:"E8F7F5"}});
+  s.addText("HATCN = 6 × CN / 분자",{x:0.92,y:5.65,w:3.4,h:0.6,fontFace:KR,fontSize:13,bold:true,
+    color:"0E8074",align:"center",valign:"middle",margin:0});
+
+  card(s,4.9,1.85,3.85,4.55);
+  s.addText("표면 확산 장벽", {x:5.2,y:2.05,w:3.25,h:0.32,fontFace:KR,fontSize:14,bold:true,color:INK,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"E_d",labels:D.diff.map(r=>r[0]),values:D.diff.map(r=>r[1])}],
+    AX({x:5.2,y:2.45,w:3.25,h:2.5, barDir:"bar", chartColors:[TEAL,GOLD,"C0392B","C0392B"],
+        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
+        dataLabelFontSize:10, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
+        valAxisMaxVal:0.40, catAxisLabelFontFace:EN, catAxisLabelFontSize:10}));
+  s.addText("도착한 Ag 원자가 표면을 돌아다니지 못하고 그 자리에 고정된다. 섬으로 뭉칠 기회를 잃는다.",
+    {x:5.2,y:5.05,w:3.25,h:1.2,fontFace:KR,fontSize:11,color:MUTED,margin:0});
+
+  card(s,9.03,1.85,3.69,4.55,DEEP);
+  s.addText("두 조건을 동시에", {x:9.33,y:2.1,w:3.1,h:0.35,fontFace:KR,fontSize:14,bold:true,color:WHITE,margin:0});
+  s.addText([
+    {text:"강한 결합만으로는 부족하다 — 원자가 돌아다니면 결국 뭉친다", options:{bullet:true, breakLine:true}},
+    {text:"높은 장벽만으로도 부족하다 — 붙지 않으면 재증발한다", options:{bullet:true, breakLine:true}},
+    {text:"HATCN 은 양극쪽 재료 중 유일하게 E_b 와 E_d 를 모두 최고로 갖는다", options:{bullet:true, bold:true, color:TEAL}}],
+    {x:9.33,y:2.6,w:3.1,h:2.5, fontFace:KR, fontSize:11.5, color:SILVER, margin:0, paraSpaceAfter:9});
+  s.addShape(p.ShapeType.roundRect,{x:9.33,y:5.25,w:3.1,h:0.95,rectRadius:0.06,fill:{color:"1B2547"}});
+  s.addText("E_b 1.03 eV\nE_d 0.29 eV",{x:9.33,y:5.25,w:3.1,h:0.95,fontFace:EN,fontSize:14,bold:true,
+    color:TEAL,align:"center",valign:"middle",margin:0});
+  s.addNotes("결합 자리 특이성 + 6개 CN + 높은 확산장벽. 셋이 겹치는 재료가 HATCN뿐.");
+}
+
+/* ------------------------------------------------- 7 screening 20+ materials */
+{
+  const s=lightSlide();
+  title(s,"HATCN 은 왜 압도적인가 ②  후보 20종 스크리닝","PBE-D3(BJ) counterpoise 보정 Ag 결합에너지. 청록 = 양극쪽에서 실제로 쓸 수 있는 재료");
+  const sc=D.screen.filter(r=>r[1]>0.15);
+  const colmap={ref:MUTED, anode:TEAL, cathode:"9AA5BC", insul:"C5CEDE", other:"C5CEDE", frag:"D8DEE9"};
+  card(s,0.62,1.85,8.6,4.55);
+  s.addChart(p.ChartType.bar,[{name:"E_b (eV)",labels:sc.map(r=>r[0]),values:sc.map(r=>r[1])}],
+    AX({x:0.85,y:2.02,w:8.15,h:4.2, barDir:"bar",
+        chartColors:sc.map(r=>colmap[r[2]]),
+        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
+        dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
+        valAxisMaxVal:2.15, catAxisLabelFontFace:KR, catAxisLabelFontSize:8.5,
+        barGapWidthPct:45}));
+  card(s,9.5,1.85,3.22,4.55);
+  s.addText("읽는 법", {x:9.78,y:2.05,w:2.7,h:0.32,fontFace:KR,fontSize:13.5,bold:true,color:INK,margin:0});
+  s.addText([
+    {text:"HATCN 1.03 eV — 양극쪽 최고", options:{bullet:true, breakLine:true}},
+    {text:"MoOx 는 산소공공이 있어야 0.45, 화학량론이면 0.28", options:{bullet:true, breakLine:true}},
+    {text:"HTL 계열(TPA, PhCz, TAPC)은 0.25~0.28 로 무력", options:{bullet:true, breakLine:true}},
+    {text:"TPBi·Bphen 등 상위권은 전부 ETL — 양극에 못 쓴다", options:{bullet:true}}],
+    {x:9.78,y:2.45,w:2.7,h:2.6, fontFace:KR, fontSize:10.5, color:INK, margin:0, paraSpaceAfter:8});
+  s.addShape(p.ShapeType.roundRect,{x:9.78,y:5.15,w:2.7,h:1.05,rectRadius:0.06,fill:{color:"E8F7F5"}});
+  s.addText("양극 호환 재료 중\n2위(MoOx)의 2.3배",{x:9.78,y:5.15,w:2.7,h:1.05,fontFace:KR,fontSize:12,bold:true,
+    color:"0E8074",align:"center",valign:"middle",margin:0});
+  s.addNotes("ETL 계열이 상위에 있지만 양극쪽 상부전극에는 쓸 수 없다. 그 제약 안에서 HATCN이 압도적.");
+}
+
+/* ---------------------------------------------- 8 chain: Eb -> N -> closure */
+{
+  const s=darkSlide();
+  title(s,"HATCN 은 왜 압도적인가 ③  이론에서 실험까지","결합에너지 → 핵생성 밀도 → 닫힘 두께 — 사슬의 순서가 실험과 일치한다",true);
+  const st=[["E_b","결합에너지","1.03 vs 0.45 eV","DFT"],
+            ["N","핵생성 밀도","Venables 스케일링","이론"],
+            ["d_c","닫힘 두께","5 vs 7 nm","실측"],
+            ["A","소자 흡수","2.6 vs 7.5 %","실측"]];
+  st.forEach((c,i)=>{
+    const x=0.62+i*3.16;
+    s.addShape(p.ShapeType.roundRect,{x:x,y:1.95,w:2.86,h:1.75,rectRadius:0.08,fill:{color:DEEP}});
+    s.addText(c[0],{x:x,y:2.1,w:2.86,h:0.55,fontFace:EN,fontSize:26,bold:true,color:TEAL,align:"center",margin:0});
+    s.addText(c[1],{x:x,y:2.66,w:2.86,h:0.3,fontFace:KR,fontSize:12,bold:true,color:WHITE,align:"center",margin:0});
+    s.addText(c[2],{x:x,y:2.98,w:2.86,h:0.28,fontFace:EN,fontSize:11,color:SILVER,align:"center",margin:0});
+    s.addText(c[3],{x:x,y:3.3,w:2.86,h:0.26,fontFace:KR,fontSize:9.5,color:MUTED,align:"center",margin:0});
+    if(i<3) s.addText("→",{x:x+2.86,y:2.5,w:0.3,h:0.5,fontFace:EN,fontSize:20,color:TEAL,align:"center",margin:0});
+  });
+  s.addText("Venables 포화 핵밀도 — HATCN 기준 1.0", {x:0.62,y:3.95,w:6.0,h:0.35,
+    fontFace:KR,fontSize:13,bold:true,color:WHITE,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"N / N(HATCN)",
+      labels:D.venables.map(r=>r[0]), values:D.venables.map(r=>Math.max(r[3],0.00005))}],
+    {x:0.62,y:4.35,w:6.4,h:2.05, barDir:"bar", chartColors:[TEAL,"3FA9A0","6E8CA8",ORANGE,"C0392B","C0392B"],
+     showValue:true, dataLabelPosition:"outEnd", dataLabelColor:WHITE,
+     dataLabelFontSize:9.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.0000',
+     showLegend:false, valAxisMaxVal:1.35,
+     catAxisLabelColor:SILVER, valAxisLabelColor:MUTED,
+     catAxisLabelFontSize:10, valAxisLabelFontSize:9, catAxisLabelFontFace:EN,
+     valGridLine:{color:"2A3358",size:1}, catGridLine:{style:"none"}});
+  s.addShape(p.ShapeType.roundRect,{x:7.3,y:3.95,w:5.42,h:2.45,rectRadius:0.08,fill:{color:"1B2547"}});
+  s.addText("주의 — 사슬은 순서만 맞다", {x:7.6,y:4.15,w:4.8,h:0.3,fontFace:KR,fontSize:13,bold:true,color:GOLD,margin:0});
+  s.addText([
+    {text:"Venables 는 HATCN/MoOx 핵밀도 비를 3300배로 준다", options:{bullet:true, breakLine:true}},
+    {text:"그대로면 닫힘 두께가 수십 배 차이나야 하지만 실측은 5 vs 7 nm", options:{bullet:true, breakLine:true}},
+    {text:"즉 스케일링은 순위를 맞히고 크기는 과대평가한다", options:{bullet:true, breakLine:true}},
+    {text:"정량은 실측에, 재료 선택은 DFT 순위에 맡긴다", options:{bullet:true, bold:true, color:WHITE}}],
+    {x:7.6,y:4.5,w:4.8,h:1.8, fontFace:KR, fontSize:10.5, color:SILVER, margin:0, paraSpaceAfter:7});
+  s.addNotes("DFT 순위는 신뢰, 절대 크기는 실측으로. 정직하게 한계를 명시.");
+}
+
+/* ------------------------------------------------------ 9 measured dataset */
 {
   const s=lightSlide();
   title(s,"확보한 실측 데이터","2 seed × 7 두께 = 15 시료, 절대 T/R 분광 + 4-point probe");

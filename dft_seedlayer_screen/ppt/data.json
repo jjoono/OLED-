@@ -3564,5 +3564,183 @@
    4.861,
    4.869
   ]
- }
+ },
+ "screen": [
+  [
+   "Ag\u2013Ag (\uae30\uc900)",
+   1.858,
+   "ref"
+  ],
+  [
+   "HATCN (CN \uc790\ub9ac)",
+   1.029,
+   "anode"
+  ],
+  [
+   "F4TCNQ",
+   0.966,
+   "anode"
+  ],
+  [
+   "Al2O3",
+   0.91,
+   "insul"
+  ],
+  [
+   "TPBi",
+   0.889,
+   "cathode"
+  ],
+  [
+   "p-bPPhenB",
+   0.87,
+   "cathode"
+  ],
+  [
+   "Cu4I4 (Cu \uc790\ub9ac)",
+   0.819,
+   "other"
+  ],
+  [
+   "B3PyMPM",
+   0.626,
+   "cathode"
+  ],
+  [
+   "CuSCN (Cu \uc790\ub9ac)",
+   0.567,
+   "other"
+  ],
+  [
+   "Bphen",
+   0.49,
+   "cathode"
+  ],
+  [
+   "MoOx (\uc0b0\uc18c\uacf5\uacf5)",
+   0.445,
+   "anode"
+  ],
+  [
+   "triazine",
+   0.291,
+   "frag"
+  ],
+  [
+   "MoO3 (\ud654\ud559\ub7c9\ub860)",
+   0.284,
+   "anode"
+  ],
+  [
+   "PhCz",
+   0.279,
+   "anode"
+  ],
+  [
+   "BTD",
+   0.277,
+   "frag"
+  ],
+  [
+   "TPA",
+   0.254,
+   "anode"
+  ],
+  [
+   "Me3P=O",
+   0.253,
+   "frag"
+  ],
+  [
+   "LiF",
+   0.249,
+   "insul"
+  ],
+  [
+   "TAPC",
+   0.25,
+   "anode"
+  ],
+  [
+   "benzene",
+   0.167,
+   "frag"
+  ],
+  [
+   "thiophene",
+   0.169,
+   "frag"
+  ],
+  [
+   "HATCN (\ubd84\uc790\uba74)",
+   -0.024,
+   "anode"
+  ]
+ ],
+ "venables": [
+  [
+   "HATCN",
+   1.029,
+   0.288,
+   1.0
+  ],
+  [
+   "F4TCNQ",
+   0.966,
+   0.27,
+   0.4123
+  ],
+  [
+   "TPBi",
+   0.889,
+   0.249,
+   0.1396
+  ],
+  [
+   "MoOx",
+   0.445,
+   0.125,
+   0.0003
+  ],
+  [
+   "MoO3",
+   0.284,
+   0.08,
+   0.0
+  ],
+  [
+   "LiF",
+   0.249,
+   0.07,
+   0.0
+  ]
+ ],
+ "anchors": [
+  [
+   "HATCN CN \uc9c8\uc18c",
+   1.029
+  ],
+  [
+   "HATCN \ubd84\uc790\uba74",
+   -0.024
+  ]
+ ],
+ "diff": [
+  [
+   "HATCN",
+   0.286
+  ],
+  [
+   "AlOx",
+   0.17
+  ],
+  [
+   "TAPC",
+   -0.007
+  ],
+  [
+   "clean Al",
+   0.0
+  ]
+ ]
 }
