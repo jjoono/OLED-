@@ -4,7 +4,9 @@ Sixteen samples -- two seeds x (bare + Ag 4,5,6,7,8,10,12 nm) -- on one
 wavelength grid, 350-850 nm.  Four data sheets share an identical layout so a
 column can be read straight across: T, R as the instrument reported it, R after
 the back-surface correction, and A.  A is written as a formula, =100-T-Rcorr,
-so the sheet recalculates if a T or R cell is ever revised.
+written as computed numbers, not formulas: these are measured constants rather
+than model inputs, and a value in every cell reads back correctly from pandas,
+LibreOffice and Excel alike.
 
 Three samples are incomplete and are kept as labelled columns rather than
 dropped: HATCN5 bare was never run, MoOx5 bare has R but no T, MoOx5/Ag12 has
@@ -147,7 +149,7 @@ def main():
         ("T", "절대 투과도 (%). 장비 출력 그대로. 보정 불필요 - 수직 입사에서 기판 다중반사 성분이 동일 방향으로 나옴"),
         ("R_measured", "절대 반사도 (%). 장비 출력 그대로"),
         ("R_corrected", "후면 반사 손실 보정 후 (%). 본 파일의 권장 R 값"),
-        ("A", "흡수도 (%) = 100 - T - R_corrected.  수식으로 기록됨"),
+        ("A", "흡수도 (%) = 100 - T - R_corrected.  계산된 값으로 기록됨"),
         ("Summary", "550 nm 대표값 + 면저항 + 파생량"),
         ("", ""),
         ("후면 반사 보정", ""),
@@ -197,9 +199,8 @@ def main():
         for j, (sid, _, _) in enumerate(SAMPLES):
             if l not in T[sid] or l not in Rc[sid]:
                 continue
-            col = get_column_letter(2 + j)
             cc = wsA.cell(row=r, column=2 + j,
-                          value=f"=100-T!{col}{r}-R_corrected!{col}{r}")
+                          value=round(100 - T[sid][l] - Rc[sid][l], 4))
             cc.font, cc.number_format = Font(name=FONT, size=10), "0.000"
     for j, (sid, _, _) in enumerate(SAMPLES):
         if not (T[sid] and Rc[sid]):
