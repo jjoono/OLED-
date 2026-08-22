@@ -318,11 +318,12 @@ const AX = (extra)=>Object.assign({
     s.addText(c[3],{x:x,y:3.3,w:2.86,h:0.26,fontFace:KR,fontSize:9.5,color:MUTED,align:"center",margin:0});
     if(i<3) s.addText("→",{x:x+2.86,y:2.5,w:0.3,h:0.5,fontFace:EN,fontSize:20,color:TEAL,align:"center",margin:0});
   });
-  s.addText("Venables 포화 핵밀도 — HATCN 기준 1.0", {x:0.62,y:3.95,w:6.0,h:0.35,
+  s.addText("Venables 포화 핵밀도 — 단좌 결합끼리만 비교, HATCN 기준 1.0", {x:0.62,y:3.95,w:6.4,h:0.35,
     fontFace:KR,fontSize:13,bold:true,color:WHITE,margin:0});
   s.addChart(p.ChartType.bar,[{name:"N / N(HATCN)",
-      labels:D.venables.map(r=>r[0]), values:D.venables.map(r=>Math.max(r[3],0.00005))}],
-    {x:0.62,y:4.35,w:6.4,h:2.05, barDir:"bar", chartColors:[TEAL,"3FA9A0","6E8CA8",ORANGE,"C0392B","C0392B"],
+      labels:D.venables_mono.map(r=>r[0]+"  ("+r[2]+"자리)"),
+      values:D.venables_mono.map(r=>Math.max(r[3],0.00005))}],
+    {x:0.62,y:4.35,w:6.4,h:2.05, barDir:"bar", chartColors:[TEAL,"3FA9A0","6E8CA8","9AA5BC","C5CEDE","C5CEDE"],
      showValue:true, dataLabelPosition:"outEnd", dataLabelColor:WHITE,
      dataLabelFontSize:9.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.0000',
      showLegend:false, valAxisMaxVal:1.35,
@@ -332,8 +333,8 @@ const AX = (extra)=>Object.assign({
   s.addShape(p.ShapeType.roundRect,{x:7.3,y:3.95,w:5.42,h:2.45,rectRadius:0.08,fill:{color:"1B2547"}});
   s.addText("주의 — 사슬은 순서만 맞다", {x:7.6,y:4.15,w:4.8,h:0.3,fontFace:KR,fontSize:13,bold:true,color:GOLD,margin:0});
   s.addText([
-    {text:"Venables 는 HATCN/MoOx 핵밀도 비를 3300배로 준다", options:{bullet:true, breakLine:true}},
-    {text:"그대로면 닫힘 두께가 수십 배 차이나야 하지만 실측은 5 vs 7 nm", options:{bullet:true, breakLine:true}},
+    {text:"E_d = 0.28·E_b 상관식은 단좌 전제 — 이좌 킬레이트(TPBi, Bphen)와 무기물은 이 사슬에 넣을 수 없다", options:{bullet:true, breakLine:true}},
+    {text:"단좌끼리 비교해도 HATCN/MoOx 비가 3300배 — 그대로면 닫힘 두께가 수십 배 차이나야 하지만 실측은 5 vs 7 nm", options:{bullet:true, breakLine:true}},
     {text:"즉 스케일링은 순위를 맞히고 크기는 과대평가한다", options:{bullet:true, breakLine:true}},
     {text:"정량은 실측에, 재료 선택은 DFT 순위에 맡긴다", options:{bullet:true, bold:true, color:WHITE}}],
     {x:7.6,y:4.5,w:4.8,h:1.8, fontFace:KR, fontSize:10.5, color:SILVER, margin:0, paraSpaceAfter:7});
