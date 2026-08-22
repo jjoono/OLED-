@@ -225,42 +225,80 @@ const AX = (extra)=>Object.assign({
   s.addNotes("결합 자리 특이성 + 6개 CN + 높은 확산장벽. 셋이 겹치는 재료가 HATCN뿐.");
 }
 
-/* ------------------------------------------- 7 screening, by model quality */
+/* ------------------------------ 7 screening, by binding mode and model class */
 {
   const s=lightSlide();
-  title(s,"HATCN 은 왜 압도적인가 ②  후보 스크리닝","PBE-D3(BJ) counterpoise 보정. 모델 품질이 다른 값을 한 줄에 세우면 안 된다");
-  card(s,0.62,1.85,4.05,4.55);
-  s.addText("A · 전분자 DFT", {x:0.9,y:2.03,w:3.5,h:0.3,fontFace:KR,fontSize:13,bold:true,color:TEAL,margin:0});
-  s.addText("실제 재료, 직접 비교 가능", {x:0.9,y:2.32,w:3.5,h:0.24,fontFace:KR,fontSize:9.5,color:MUTED,margin:0});
-  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.tierA.map(r=>r[0]),values:D.tierA.map(r=>r[1])}],
-    AX({x:0.9,y:2.6,w:3.5,h:3.6, barDir:"bar",
-        chartColors:[TEAL,"3FA9A0","9AA5BC","9AA5BC","9AA5BC","9AA5BC","9AA5BC","C5CEDE","C0392B"],
+  title(s,"HATCN 은 왜 압도적인가 ②  후보 스크리닝","최적화된 구조에서 Ag 가 실제로 어디 앉았는지로 분류. 단좌·이좌를 한 줄에 세우면 안 된다");
+  card(s,0.62,1.85,7.5,4.55);
+  const md=D.mode;
+  s.addChart(p.ChartType.bar,[{name:"E_b (eV)",labels:md.map(r=>r[0]),values:md.map(r=>r[1])}],
+    AX({x:0.85,y:2.02,w:5.1,h:4.2, barDir:"bar",
+        chartColors:md.map(r=>r[3]==="mono"?(r[1]>0.9?TEAL:"7FCFC8"):(r[3]==="bi"?DEEP:"C5CEDE")),
         showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
         dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
-        valAxisMinVal:-0.2, valAxisMaxVal:1.35, catAxisLabelFontFace:KR,
-        catAxisLabelFontSize:8.5, barGapWidthPct:40}));
-
-  card(s,4.95,1.85,4.05,4.55);
-  s.addText("B · 무기물 클러스터", {x:5.23,y:2.03,w:3.5,h:0.3,fontFace:KR,fontSize:13,bold:true,color:DEEP,margin:0});
-  s.addText("모델 의존성 큼 — 조성·배위수에 민감", {x:5.23,y:2.32,w:3.5,h:0.24,fontFace:KR,fontSize:9.5,color:MUTED,margin:0});
-  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.tierB.map(r=>r[0]),values:D.tierB.map(r=>r[1])}],
-    AX({x:5.23,y:2.6,w:3.5,h:2.5, barDir:"bar", chartColors:[ORANGE,"9AA5BC","9AA5BC","C5CEDE","C5CEDE","C5CEDE"],
-        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
-        dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
-        valAxisMaxVal:0.62, catAxisLabelFontFace:KR, catAxisLabelFontSize:8, barGapWidthPct:40}));
-  s.addText("C · 작용기 모델 화합물", {x:5.23,y:5.18,w:3.5,h:0.28,fontFace:KR,fontSize:12,bold:true,color:MUTED,margin:0});
-  s.addText("재료가 아니라 대리 지표 — pyridine 0.34, triazine 0.29, PhCz(→TCTA) 0.28, TPA(→TAPC) 0.25, benzene 0.17",
-    {x:5.23,y:5.48,w:3.5,h:0.85,fontFace:KR,fontSize:9,color:MUTED,margin:0});
-
-  card(s,9.28,1.85,3.44,4.55,"FFF6F3");
-  s.addText("이번 재감사에서 철회한 값", {x:9.55,y:2.05,w:2.9,h:0.3,fontFace:KR,fontSize:12.5,bold:true,color:"C0392B",margin:0});
-  const rt=D.retract;
-  rt.forEach((r,i)=>{
-    const y=2.45+i*0.78;
-    s.addText(r[0],{x:9.55,y:y,w:2.9,h:0.24,fontFace:EN,fontSize:9.5,bold:true,color:"C0392B",margin:0});
-    s.addText(r[1],{x:9.55,y:y+0.22,w:2.9,h:0.52,fontFace:KR,fontSize:8,color:MUTED,margin:0});
+        valAxisMaxVal:1.32, catAxisLabelFontFace:KR, catAxisLabelFontSize:8, barGapWidthPct:40}));
+  md.forEach((r,i)=>{
+    s.addText(r[2],{x:6.0,y:2.13+i*0.322,w:2.05,h:0.3,fontFace:KR,fontSize:7.5,
+      color:r[3]==="bi"?DEEP:MUTED,margin:0,valign:"middle"});
   });
-  s.addNotes("Al2O3 0.910 은 Al-rich 클러스터의 과결합이었다. 화학량론 Al4O6 는 0.422 로 MoOx 수준.");
+  s.addShape(p.ShapeType.ellipse,{x:0.9,y:6.0,w:0.16,h:0.16,fill:{color:TEAL}});
+  s.addText("단좌 (자리 1개)",{x:1.14,y:5.96,w:1.6,h:0.24,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+  s.addShape(p.ShapeType.ellipse,{x:2.85,y:6.0,w:0.16,h:0.16,fill:{color:DEEP}});
+  s.addText("이좌 킬레이트 (자리 2개)",{x:3.09,y:5.96,w:2.4,h:0.24,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+
+  card(s,8.4,1.85,4.32,2.15,"E8F7F5");
+  s.addText("핵심", {x:8.68,y:2.02,w:3.8,h:0.28,fontFace:KR,fontSize:13,bold:true,color:"0E8074",margin:0});
+  s.addText([
+    {text:"HATCN 은 단좌인데도 모든 이좌 킬레이트를 이긴다", options:{bullet:true, breakLine:true}},
+    {text:"나이트릴 N 하나 > 벤즈이미다졸 N 둘", options:{bullet:true, breakLine:true}},
+    {text:"게다가 그 자리를 분자당 6개 갖는다 — 평면 분자라 전부 표면 노출", options:{bullet:true}}],
+    {x:8.68,y:2.34,w:3.8,h:1.5, fontFace:KR, fontSize:10.5, color:INK, margin:0, paraSpaceAfter:6});
+
+  card(s,8.4,4.2,4.32,2.2,"FFF6F3");
+  s.addText("앵커가 없는 값 — 자리 에너지가 아님", {x:8.68,y:4.36,w:3.8,h:0.28,
+    fontFace:KR,fontSize:11.5,bold:true,color:"C0392B",margin:0});
+  D.noanchor.forEach((r,i)=>{
+    const y=4.7+i*0.52;
+    s.addText(r[0]+"  "+r[1].toFixed(3),{x:8.68,y:y,w:3.8,h:0.2,fontFace:KR,fontSize:9,bold:true,color:"C0392B",margin:0});
+    s.addText(r[2],{x:8.68,y:y+0.18,w:3.8,h:0.32,fontFace:KR,fontSize:7.5,color:MUTED,margin:0});
+  });
+  s.addNotes("TPBi 0.889는 단일 N이 아니라 이좌 킬레이트(N 2.33/2.34). HATCN은 단좌 N 2.30 하나로 그보다 높다.");
+}
+
+/* --------------------------- 7b model class and retractions --------------- */
+{
+  const s=lightSlide();
+  title(s,"스크리닝 재감사 — 모델 품질과 철회 항목","무기물 클러스터와 작용기 대리 화합물은 전분자 계산과 같은 줄에 둘 수 없다");
+  card(s,0.62,1.85,3.9,4.55);
+  s.addText("B · 무기물 클러스터", {x:0.9,y:2.03,w:3.35,h:0.3,fontFace:KR,fontSize:13,bold:true,color:DEEP,margin:0});
+  s.addText("조성·배위수 민감 — 후보 간 차이보다 모델 오차가 큼",{x:0.9,y:2.32,w:3.35,h:0.4,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.tierB.map(r=>r[0]),values:D.tierB.map(r=>r[1])}],
+    AX({x:0.9,y:2.75,w:3.35,h:2.5, barDir:"bar", chartColors:[ORANGE,"9AA5BC","9AA5BC","C5CEDE","C5CEDE","C5CEDE"],
+        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
+        dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
+        valAxisMaxVal:0.62, catAxisLabelFontFace:KR, catAxisLabelFontSize:7.5, barGapWidthPct:40}));
+  s.addText("MoOx 는 산소 공공이 있어야 0.445. 화학량론 MoO3 는 0.284 로 반토막.",
+    {x:0.9,y:5.35,w:3.35,h:0.9,fontFace:KR,fontSize:9.5,color:MUTED,margin:0});
+
+  card(s,4.78,1.85,3.9,4.55);
+  s.addText("C · 작용기 대리 화합물", {x:5.06,y:2.03,w:3.35,h:0.3,fontFace:KR,fontSize:13,bold:true,color:MUTED,margin:0});
+  s.addText("재료가 아니라 결합 모티프의 대리 지표",{x:5.06,y:2.32,w:3.35,h:0.28,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.tierC.map(r=>r[0]),values:D.tierC.map(r=>r[1])}],
+    AX({x:5.06,y:2.68,w:3.35,h:3.0, barDir:"bar", chartColors:["9AA5BC"],
+        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
+        dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
+        valAxisMaxVal:0.46, catAxisLabelFontFace:KR, catAxisLabelFontSize:7.5, barGapWidthPct:40}));
+  s.addText("HTL 코어(TPA, PhCz)는 삼차 질소라 고립전자쌍이 없다 — 원리적으로 앵커가 못 된다.",
+    {x:5.06,y:5.78,w:3.35,h:0.5,fontFace:KR,fontSize:9.5,color:MUTED,margin:0});
+
+  card(s,8.94,1.85,3.78,4.55,"FFF6F3");
+  s.addText("재감사에서 철회한 값", {x:9.22,y:2.05,w:3.25,h:0.3,fontFace:KR,fontSize:12.5,bold:true,color:"C0392B",margin:0});
+  D.retract.forEach((r,i)=>{
+    const y=2.45+i*0.78;
+    s.addText(r[0],{x:9.22,y:y,w:3.25,h:0.24,fontFace:EN,fontSize:9.5,bold:true,color:"C0392B",margin:0});
+    s.addText(r[1],{x:9.22,y:y+0.22,w:3.25,h:0.52,fontFace:KR,fontSize:8,color:MUTED,margin:0});
+  });
+  s.addNotes("Al2O3 0.910은 Al-rich 클러스터 과결합. 화학량론 Al4O6는 0.422.");
 }
 
 /* ---------------------------------------------- 8 chain: Eb -> N -> closure */

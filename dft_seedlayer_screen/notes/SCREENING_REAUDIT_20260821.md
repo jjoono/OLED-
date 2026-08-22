@@ -49,3 +49,72 @@ should be quoted with any of these numbers: single-adatom adsorption energies
 have no experimental counterpart, so the paper should claim **ordering** with a
 −0.2 to +0.3 eV model error, never absolute values. The cluster-versus-slab gap
 for HATCN itself (1.03 vs 1.346 eV) is the scale of that error.
+
+
+---
+
+# Second pass — binding mode, 2026-08-21
+
+Prompted by a challenge to TPBi at 0.889 eV. Checking it meant opening the
+optimised geometries and asking where the silver actually sits, which turned
+out to be a different question from which site it was placed at.
+
+## TPBi is not a single-nitrogen site
+
+It was **placed** at one benzimidazole nitrogen. After the GFN2 optimisation
+that the DFT single point runs on, the silver has moved into a pocket and
+coordinates **two** nitrogens:
+
+| system | placed at | relaxed to |
+|---|---|---|
+| TPBi | N 2.30 Å | **N 2.33 / N 2.34 Å** — bidentate |
+| p-bPPhenB | N 1.39 Å (bad guess) | **N 2.28 / N 2.39 Å** — bidentate |
+| HATCN | N 2.30 Å | **N 2.30 Å, next atom C at 3.46 Å** — monodentate |
+
+That resolves the puzzle: a single pyridine nitrogen gives 0.342 eV, so 0.889
+for one nitrogen made no sense. Two coordination bonds do.
+
+## Binding mode, read off the relaxed geometries
+
+**Monodentate** — HATCN 1.029 (N 2.30) · F4TCNQ 0.966 (N 2.04) ·
+B3PyMPM 0.626 (N 2.31) · pyridine 0.342 (N 2.59) · triazine 0.291 (N 2.24) ·
+BTD 0.277 (N 2.09) · Me3P=O 0.253 (O 2.64) · thiophene 0.169 (S 2.90)
+
+**Bidentate chelate** — Cs2CO3 0.900 (O 2.44/2.53) · TPBi 0.889 (N 2.33/2.34) ·
+p-bPPhenB 0.870 (N 2.28/2.39) · Bphen 0.490 (N 2.28/2.28)
+
+**Dispersion only** — benzene 0.167 (C 3.36)
+
+## The comparison this makes possible
+
+HATCN is monodentate and still beats every bidentate chelate in the set. One
+nitrile nitrogen out-binds two benzimidazole nitrogens. And HATCN carries six
+of those sites on a planar molecule, so all of them are surface-accessible,
+against three buried pockets on TPBi's propeller.
+
+Site energy and site density both favour HATCN, and they are the two terms that
+set nucleation density. This is a stronger statement than "HATCN has the
+highest E_b" and should replace it.
+
+## Three more values that do not mean what they claim
+
+| entry | what the geometry shows |
+|---|---|
+| **PhCz → TCTA proxy, 0.279** | Silver relaxes to C 2.74 / H 2.76 — it is on the π face, not the nitrogen. Carbazole nitrogen is trisubstituted and has no available lone pair, so this is correct chemistry but the number is a dispersion floor, not a site energy. |
+| **TPA → TAPC proxy, 0.254** | Silver sits over three hydrogens at 2.89 Å. Tertiary amine, same reason. |
+| **Liq, 0.167** | Silver ends up beside the lithium at 2.46 Å, not in the intended O,N chelate. |
+
+The first two are worth keeping as a **result** rather than a ranking entry:
+hole-transport cores cannot anchor silver at all, which is why an HTL by itself
+is useless as a seed. The Liq number should not be quoted.
+
+## Checked and sound
+
+B3PyMPM's `structures/` file has silver 1.85 Å from a hydrogen, but that is the
+pre-optimisation guess; the geometry the DFT actually used has N at 2.31 Å.
+Bphen, Cs2CO3, F4TCNQ, benzene, pyridine, triazine, BTD, thiophene and Me3P=O
+all relax to chemically sensible contacts.
+
+There is no size artefact: correlation between E_b and molecule size is +0.22,
+and against the number of atoms within 5 Å it is **negative** (−0.39), so
+dispersion from bulk is not inflating the larger molecules.
