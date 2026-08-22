@@ -13,11 +13,15 @@ dropped: HATCN5 bare was never run, MoOx5 bare has R but no T, MoOx5/Ag12 has
 T but no R.  The back-surface correction needs T, so a missing T also empties
 that sample's Rcorr and A.
 """
-import csv, os
+import csv, os, sys
+import importlib
 import numpy as np
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sm = importlib.import_module("95_smooth_TRA")
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RAW  = os.path.join(BASE, "data", "TR_20260820", "raw")
@@ -151,6 +155,8 @@ def main():
         ("R_corrected", "후면 반사 손실 보정 후 (%). 본 파일의 권장 R 값"),
         ("A", "흡수도 (%) = 100 - T - R_corrected.  계산된 값으로 기록됨"),
         ("Summary", "550 nm 대표값 + 면저항 + 파생량"),
+        ("T_smooth / R_corrected_smooth / A_smooth", "평활화 버전. 원본 시트와 열 배치 동일"),
+        ("Smoothing_log", "시료·채널별 창폭, 잡음 sigma, 잔차. 평활화 강도의 근거"),
         ("", ""),
         ("후면 반사 보정", ""),
         ("이유", "6도 입사에서 기판 후면 반사빔이 약 0.14 mm 옆으로 밀려 검출 개구를 일부 벗어난다"),
@@ -256,6 +262,48 @@ def main():
              "노란 행 = 결측으로 A 계산 불가.",
              "MoOx/Ag 10 nm 는 면저항과 광학 양쪽에서 이상치 - 재증착 필요."]
     for k, t in enumerate(notes):
+        ws.cell(row=n + k, column=1, value=t).font = Font(
+            name=FONT, italic=True, size=9, color="555555")
+
+    # ---- smoothed companions ---------------------------------------------
+    Tsm, Rsm, Rcsm, Asm, rep = sm.build(lam)
+    data_sheet(wb, "T_smooth", lam, Tsm,
+               "평활화된 절대 투과도 (%). Savitzky-Golay 3차, 창폭은 잡음 수준에 맞춰 시료별로 결정.")
+    data_sheet(wb, "R_corrected_smooth", lam, Rcsm,
+               "평활화된 T, R 로부터 계산한 보정 반사도 (%).")
+    data_sheet(wb, "A_smooth", lam, Asm,
+               "A = 100 - T_smooth - R_corrected_smooth (%). T+R+A = 100 이 정확히 유지된다.")
+
+    ws = wb.create_sheet("Smoothing_log")
+    hdr = ["시료", "seed", "Ag 두께 (nm)", "채널", "점 수", "창폭 (점)", "창폭 (nm)",
+           "잡음 sigma (%p)", "잔차 rms (%p)", "rms / sigma"]
+    for c, h in enumerate(hdr, start=1):
+        cell = ws.cell(row=1, column=c, value=h)
+        cell.fill, cell.font = HEAD, Font(name=FONT, bold=True, color="FFFFFF", size=10)
+        cell.alignment = Alignment(horizontal="center", wrap_text=True)
+    ws.column_dimensions["A"].width = 9
+    for c in range(2, len(hdr) + 1):
+        ws.column_dimensions[get_column_letter(c)].width = 12
+    ws.row_dimensions[1].height = 32
+    for i, (sid, seed, d, tag, npts, w, sig, rms) in enumerate(rep):
+        for c, v in enumerate([sid, seed, d if d else None, tag, npts, w, w * 2,
+                               round(sig, 4), round(rms, 4),
+                               round(rms / sig, 2) if sig else None], start=1):
+            cell = ws.cell(row=2 + i, column=c, value=v)
+            cell.font = Font(name=FONT, size=10)
+            if c >= 8:
+                cell.number_format = "0.0000" if c < 10 else "0.00"
+            if c == 10 and sig and rms / sig > 1.0:
+                cell.fill = WARN
+    n = len(rep) + 3
+    for k, t in enumerate([
+            "Savitzky-Golay, 3차 다항식. 창폭은 시료·채널마다 따로 정했다.",
+            "잡음 sigma: 2차 차분의 MAD 로 추정. 백색잡음이면 var(y[i-1]-2y[i]+y[i+1]) = 6 sigma^2.",
+            "선택 기준: 400-850 nm 에서 잔차 rms 가 sigma 이하인 가장 넓은 창. 최대 편차가 아니라 rms 를 쓴다 - 230점 중 최댓값은 창폭과 무관하게 3 sigma 근처에 있기 때문.",
+            "창폭 상한 11점(22 nm). Fe3+ 흡수단이나 캡핑 간섭 무늬가 뭉개질 여지를 없애기 위한 안전장치.",
+            "노란 셀 = 최소 창폭(5점)에서도 rms/sigma > 1. 이미 잡음 바닥이라 사실상 거의 평활화되지 않은 스펙트럼.",
+            "A 는 평활화하지 않고 평활화된 T, R 로부터 다시 계산했다.",
+            "원본 시트(T, R_measured, R_corrected, A)는 그대로 남아 있다. 평활화 시트는 읽기 보조용이며 원본을 대체하지 않는다."]):
         ws.cell(row=n + k, column=1, value=t).font = Font(
             name=FONT, italic=True, size=9, color="555555")
 
