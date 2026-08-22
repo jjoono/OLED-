@@ -3742,5 +3742,125 @@
    "clean Al",
    0.0
   ]
+ ],
+ "tierA": [
+  [
+   "HATCN  (CN \uc790\ub9ac)",
+   1.029
+  ],
+  [
+   "F4TCNQ",
+   0.966
+  ],
+  [
+   "Cs2CO3",
+   0.9
+  ],
+  [
+   "TPBi",
+   0.889
+  ],
+  [
+   "p-bPPhenB",
+   0.87
+  ],
+  [
+   "B3PyMPM",
+   0.626
+  ],
+  [
+   "Bphen",
+   0.49
+  ],
+  [
+   "Liq",
+   0.167
+  ],
+  [
+   "HATCN  (\ubd84\uc790\uba74)",
+   -0.024
+  ]
+ ],
+ "tierB": [
+  [
+   "MoOx  Mo3O8 \uc0b0\uc18c\uacf5\uacf5",
+   0.445
+  ],
+  [
+   "Al2O3  Al4O6 \ud654\ud559\ub7c9\ub860",
+   0.422
+  ],
+  [
+   "MoO3  Mo3O9 \ud654\ud559\ub7c9\ub860",
+   0.284
+  ],
+  [
+   "LiF  LiF32",
+   0.249
+  ],
+  [
+   "CuI  Cu4I4 @I",
+   0.222
+  ],
+  [
+   "CuSCN  (CuSCN)3 @S",
+   0.136
+  ]
+ ],
+ "tierC": [
+  [
+   "pyridine  (\ud53c\ub9ac\ub518 N)",
+   0.342
+  ],
+  [
+   "triazine  (ETL \ucf54\uc5b4)",
+   0.291
+  ],
+  [
+   "PhCz  \u2192 TCTA \ub300\ub9ac",
+   0.279
+  ],
+  [
+   "BTD  (\uc218\uc6a9\uccb4 \ub2e8\uc704)",
+   0.277
+  ],
+  [
+   "TPA  \u2192 TAPC \ub300\ub9ac",
+   0.254
+  ],
+  [
+   "Me3P=O  \u2192 DPEPO \ub300\ub9ac",
+   0.253
+  ],
+  [
+   "thiophene  \u2192 PEDOT",
+   0.169
+  ],
+  [
+   "benzene  (\ud0c4\ud654\uc218\uc18c \uae30\uc900)",
+   0.167
+  ]
+ ],
+ "retract": [
+  [
+   "Al2O3  0.910",
+   "Al-rich Al10O10 \ud074\ub7ec\uc2a4\ud130 \u2014 \ud504\ub85c\uc81d\ud2b8 \uc790\uccb4\uac00 \uacfc\uacb0\ud569\uc73c\ub85c \uae30\ub85d. \ud654\ud559\ub7c9\ub860 Al4O6 \ub294 0.422"
+  ],
+  [
+   "MoO3  \u22120.718",
+   "\ubbf8\uc815\ub828(xTB \uae30\ud558 + DFT \ub2e8\uc77c\uc810). Ag \uc704\uce58\ub97c DFT \ub85c \uc644\ud654\ud558\uba74 +0.284"
+  ],
+  [
+   "CuI @Cu 0.819 / CuSCN @Cu 0.567",
+   "Ag\u2013Cu \uae08\uc18d\uac04 \uc811\ucd09. \ud45c\uba74 \ud654\ud559\uc774 \uc544\ub2c8\ub77c \ud569\uae08 \uacb0\ud569"
+  ],
+  [
+   "ZnS 1.60",
+   "\uc6b0\ub9ac \uacc4\uc0b0\uc774 \uc544\ub2d8 \u2014 \ubb38\ud5cc prior (Kim AFM 2015)"
+  ],
+  [
+   "PhCN\u00b7ZnS 1.218",
+   "ZnS \uac00 \ub098\uc774\ud2b8\ub9b4\uc5d0 \ubd99\ub294 \uc5d0\ub108\uc9c0. Ag \uacb0\ud569\uc774 \uc544\ub2d8"
+  ]
  ]
 }

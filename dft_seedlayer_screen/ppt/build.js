@@ -225,32 +225,42 @@ const AX = (extra)=>Object.assign({
   s.addNotes("결합 자리 특이성 + 6개 CN + 높은 확산장벽. 셋이 겹치는 재료가 HATCN뿐.");
 }
 
-/* ------------------------------------------------- 7 screening 20+ materials */
+/* ------------------------------------------- 7 screening, by model quality */
 {
   const s=lightSlide();
-  title(s,"HATCN 은 왜 압도적인가 ②  후보 20종 스크리닝","PBE-D3(BJ) counterpoise 보정 Ag 결합에너지. 청록 = 양극쪽에서 실제로 쓸 수 있는 재료");
-  const sc=D.screen.filter(r=>r[1]>0.15);
-  const colmap={ref:MUTED, anode:TEAL, cathode:"9AA5BC", insul:"C5CEDE", other:"C5CEDE", frag:"D8DEE9"};
-  card(s,0.62,1.85,8.6,4.55);
-  s.addChart(p.ChartType.bar,[{name:"E_b (eV)",labels:sc.map(r=>r[0]),values:sc.map(r=>r[1])}],
-    AX({x:0.85,y:2.02,w:8.15,h:4.2, barDir:"bar",
-        chartColors:sc.map(r=>colmap[r[2]]),
+  title(s,"HATCN 은 왜 압도적인가 ②  후보 스크리닝","PBE-D3(BJ) counterpoise 보정. 모델 품질이 다른 값을 한 줄에 세우면 안 된다");
+  card(s,0.62,1.85,4.05,4.55);
+  s.addText("A · 전분자 DFT", {x:0.9,y:2.03,w:3.5,h:0.3,fontFace:KR,fontSize:13,bold:true,color:TEAL,margin:0});
+  s.addText("실제 재료, 직접 비교 가능", {x:0.9,y:2.32,w:3.5,h:0.24,fontFace:KR,fontSize:9.5,color:MUTED,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.tierA.map(r=>r[0]),values:D.tierA.map(r=>r[1])}],
+    AX({x:0.9,y:2.6,w:3.5,h:3.6, barDir:"bar",
+        chartColors:[TEAL,"3FA9A0","9AA5BC","9AA5BC","9AA5BC","9AA5BC","9AA5BC","C5CEDE","C0392B"],
         showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
         dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
-        valAxisMaxVal:2.15, catAxisLabelFontFace:KR, catAxisLabelFontSize:8.5,
-        barGapWidthPct:45}));
-  card(s,9.5,1.85,3.22,4.55);
-  s.addText("읽는 법", {x:9.78,y:2.05,w:2.7,h:0.32,fontFace:KR,fontSize:13.5,bold:true,color:INK,margin:0});
-  s.addText([
-    {text:"HATCN 1.03 eV — 양극쪽 최고", options:{bullet:true, breakLine:true}},
-    {text:"MoOx 는 산소공공이 있어야 0.45, 화학량론이면 0.28", options:{bullet:true, breakLine:true}},
-    {text:"HTL 계열(TPA, PhCz, TAPC)은 0.25~0.28 로 무력", options:{bullet:true, breakLine:true}},
-    {text:"TPBi·Bphen 등 상위권은 전부 ETL — 양극에 못 쓴다", options:{bullet:true}}],
-    {x:9.78,y:2.45,w:2.7,h:2.6, fontFace:KR, fontSize:10.5, color:INK, margin:0, paraSpaceAfter:8});
-  s.addShape(p.ShapeType.roundRect,{x:9.78,y:5.15,w:2.7,h:1.05,rectRadius:0.06,fill:{color:"E8F7F5"}});
-  s.addText("양극 호환 재료 중\n2위(MoOx)의 2.3배",{x:9.78,y:5.15,w:2.7,h:1.05,fontFace:KR,fontSize:12,bold:true,
-    color:"0E8074",align:"center",valign:"middle",margin:0});
-  s.addNotes("ETL 계열이 상위에 있지만 양극쪽 상부전극에는 쓸 수 없다. 그 제약 안에서 HATCN이 압도적.");
+        valAxisMinVal:-0.2, valAxisMaxVal:1.35, catAxisLabelFontFace:KR,
+        catAxisLabelFontSize:8.5, barGapWidthPct:40}));
+
+  card(s,4.95,1.85,4.05,4.55);
+  s.addText("B · 무기물 클러스터", {x:5.23,y:2.03,w:3.5,h:0.3,fontFace:KR,fontSize:13,bold:true,color:DEEP,margin:0});
+  s.addText("모델 의존성 큼 — 조성·배위수에 민감", {x:5.23,y:2.32,w:3.5,h:0.24,fontFace:KR,fontSize:9.5,color:MUTED,margin:0});
+  s.addChart(p.ChartType.bar,[{name:"E_b",labels:D.tierB.map(r=>r[0]),values:D.tierB.map(r=>r[1])}],
+    AX({x:5.23,y:2.6,w:3.5,h:2.5, barDir:"bar", chartColors:[ORANGE,"9AA5BC","9AA5BC","C5CEDE","C5CEDE","C5CEDE"],
+        showValue:true, dataLabelPosition:"outEnd", dataLabelColor:INK,
+        dataLabelFontSize:8.5, dataLabelFontFace:EN, dataLabelFormatCode:'0.00',
+        valAxisMaxVal:0.62, catAxisLabelFontFace:KR, catAxisLabelFontSize:8, barGapWidthPct:40}));
+  s.addText("C · 작용기 모델 화합물", {x:5.23,y:5.18,w:3.5,h:0.28,fontFace:KR,fontSize:12,bold:true,color:MUTED,margin:0});
+  s.addText("재료가 아니라 대리 지표 — pyridine 0.34, triazine 0.29, PhCz(→TCTA) 0.28, TPA(→TAPC) 0.25, benzene 0.17",
+    {x:5.23,y:5.48,w:3.5,h:0.85,fontFace:KR,fontSize:9,color:MUTED,margin:0});
+
+  card(s,9.28,1.85,3.44,4.55,"FFF6F3");
+  s.addText("이번 재감사에서 철회한 값", {x:9.55,y:2.05,w:2.9,h:0.3,fontFace:KR,fontSize:12.5,bold:true,color:"C0392B",margin:0});
+  const rt=D.retract;
+  rt.forEach((r,i)=>{
+    const y=2.45+i*0.78;
+    s.addText(r[0],{x:9.55,y:y,w:2.9,h:0.24,fontFace:EN,fontSize:9.5,bold:true,color:"C0392B",margin:0});
+    s.addText(r[1],{x:9.55,y:y+0.22,w:2.9,h:0.52,fontFace:KR,fontSize:8,color:MUTED,margin:0});
+  });
+  s.addNotes("Al2O3 0.910 은 Al-rich 클러스터의 과결합이었다. 화학량론 Al4O6 는 0.422 로 MoOx 수준.");
 }
 
 /* ---------------------------------------------- 8 chain: Eb -> N -> closure */
