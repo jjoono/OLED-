@@ -8,6 +8,11 @@ read without this axis.
 PROTOCOL, identical for every candidate.
 
   start   the relaxed Ag complex, structures/<tag>.xyz
+  place   a straight line between two sites cuts THROUGH the molecule at its
+          midpoint, which drives Ag to within a bond length of the substrate and
+          returns barriers of hundreds of eV. So at every step the adatom is
+          pushed back out along the surface normal until nothing is closer than
+          D_MIN, and the height scan starts from there.
   path    Ag is dragged laterally from its bound position to a destination on
           the same molecule -- the NEAREST equivalent site, not any equivalent
           site, since diffusion proceeds by the cheapest hop available. At every
@@ -15,7 +20,17 @@ PROTOCOL, identical for every candidate.
           and the minimum kept, which is the relaxed-Ag, frozen-substrate
           approximation used in script 24. Points are placed about 1 A apart, so
           a long path gets more of them rather than a coarser description.
-  E_d     max(E along path) - E(start)
+  grid    deliberately coarse -- three to five lateral points, two heights. One
+          SCF on a 31-atom Ag complex runs about ten minutes on the four cores
+          available, so the fine grid script 24 used for a single system is out
+          of reach for twenty-six. The barrier this returns is a lower bound:
+          a coarse path can miss the true saddle but cannot invent one.
+  E_d     max(E along path) - E(start), with the START GIVEN THE SAME TREATMENT
+          as every other point. The structures are DFT minima, so a method that
+          did not produce them does not have its own minimum there; leaving the
+          start unrelaxed while every other point gets a height scan makes the
+          reference the highest point on the path and returns a barrier of
+          exactly zero.
 
 The destination depends on what the molecule offers, and the class is reported
 alongside the number because the three are not interchangeable:
@@ -70,8 +85,9 @@ LADDER = [
 ]
 
 SPACING = 1.0                   # A between lateral points
-NPATH_MIN, NPATH_MAX = 5, 7
-ZSCAN = (-0.3, 0.0, 0.3)
+NPATH_MIN, NPATH_MAX = 3, 5
+ZSCAN = (0.0, 0.4)           # measured up from the D_MIN contact height
+D_MIN = 2.2                  # A, closest approach allowed to any substrate atom
 
 # tag -> (structure file, destination rule, multiplicity)
 #   "auto"  hop to the nearest other atom of the same element as the anchor
@@ -175,6 +191,22 @@ def destination(sub_s, sub_x, ag, anchor, rule):
     return cen + h * nrm / np.linalg.norm(nrm), ("chelate" if rule == "chelate" else "toface")
 
 
+def place(sub_x, pos, nrm):
+    """Lift `pos` along `nrm` until no substrate atom is closer than D_MIN.
+
+    Interpolating the adatom's absolute position between two binding sites sends
+    it straight through the molecule. Sliding it back out along the normal keeps
+    the path on the surface, which is what a diffusing adatom actually does.
+    """
+    p = np.array(pos, float)
+    for _ in range(60):
+        dmin = float(np.min(np.linalg.norm(sub_x - p, axis=1)))
+        if dmin >= D_MIN:
+            return p
+        p = p + 0.1 * nrm
+    return p
+
+
 def barrier(tag, fn, rule, mult):
     syms, xyz = read_xyz(os.path.join(STRUCT, fn))
     sub_s, sub_x, ag, anchor, nrm = geometry(syms, xyz)
@@ -186,9 +218,9 @@ def barrier(tag, fn, rule, mult):
     npath = int(np.clip(round(span / SPACING) + 1, NPATH_MIN, NPATH_MAX))
     E, rungs = [], []
     for t in np.linspace(0.0, 1.0, npath):
-        pos = (1 - t) * ag + t * dest
+        pos = place(sub_x, (1 - t) * ag + t * dest, nrm)
         best = None
-        for dz in (ZSCAN if t > 0 else (0.0,)):     # start point is already relaxed
+        for dz in ZSCAN:
             trial = pos + dz * nrm
             e, rung = sp(sub_s + ["Ag"], np.vstack([sub_x, trial]), mult)
             if e is None:
