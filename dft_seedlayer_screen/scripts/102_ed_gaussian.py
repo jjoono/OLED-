@@ -28,6 +28,17 @@ Run it exactly like the psi4 one:
 Set GAUSS_EXE if the binary is not called g16 (g16.exe on Windows is found
 automatically if it is on PATH).
 
+A many-core workstation finishes sooner running several instances of this on
+different systems than one instance with every thread, since shared-memory
+scaling on a thirty-atom molecule flattens out well before sixty-four cores.
+Give each instance its own output file and merge afterwards:
+
+    set GAUSS_NPROC=16
+    set GAUSS_OUT=part1.json
+    python scripts\102_ed_gaussian.py HATCN F4TCNQ TPBi p-bPPhenB Cs2CO3 B3PyMPM Bphen
+
+    python scripts\103_merge_Ed.py           # combines every part*.json
+
     python scripts/102_ed_gaussian.py --selftest     # no Gaussian needed
 
 checks the input generation and the log parser against a canned log, which is
@@ -41,7 +52,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pathgeom import (CANDIDATES, H2EV, NPATH_MAX, NPATH_MIN, RUNS, SPACING,
                       STRUCT, ZSCAN, destination, geometry, place, read_xyz)
 
-OUT = os.path.join(RUNS, "diffusion_barriers_gaussian.json")
+# Per-run output, so several instances can share a machine without overwriting
+# each other. Each writes the whole dictionary it knows about, so two processes
+# pointed at one file would each erase the other's systems.
+OUT = os.environ.get("GAUSS_OUT") or os.path.join(
+    RUNS, "diffusion_barriers_gaussian.json")
+if not os.path.isabs(OUT):
+    OUT = os.path.join(RUNS, OUT)
 EXE = os.environ.get("GAUSS_EXE", "g16")
 NPROC = int(os.environ.get("GAUSS_NPROC", os.cpu_count() or 4))
 MEM_GB = int(os.environ.get("GAUSS_MEM_GB", "16"))
@@ -164,6 +181,13 @@ def main():
     if "--selftest" in args:
         raise SystemExit(selftest())
     only = args or None
+    if only:
+        known = {t for t, _, _, _ in CANDIDATES}
+        unknown = [a for a in only if a not in known]
+        if unknown:
+            print(f"not candidate names, ignored: {' '.join(unknown)}")
+            print(f"known: {' '.join(sorted(known))}\n", flush=True)
+    print(f"writing to {OUT}\n", flush=True)
     res = json.load(open(OUT)) if os.path.exists(OUT) else {}
     for tag, fn, rule, mult in CANDIDATES:
         if only and tag not in only:
