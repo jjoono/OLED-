@@ -25,6 +25,9 @@ Run it exactly like the psi4 one:
     python scripts/102_ed_gaussian.py                # everything
     python scripts/102_ed_gaussian.py pyridine       # one system
 
+Set GAUSS_KEEP=1 to leave every working directory behind for inspection; a
+failed one is kept regardless, with its log printed.
+
 Set GAUSS_EXE if the binary is not called g16 (g16.exe on Windows is found
 automatically if it is on PATH).
 
@@ -83,29 +86,89 @@ def parse(log):
     return float(hits[-1]) if hits else None
 
 
+KEEP = os.environ.get("GAUSS_KEEP", "") not in ("", "0")
+_reported = [False]
+
+
+def _explain(d, rc, stdout, stderr, logp):
+    """Print enough of the failure to act on it, once per run.
+
+    A silent FAIL is useless: Gaussian can fail because the input was rejected,
+    because a link executable was not found, or because it ran and did not
+    converge, and the fix is different for each. The log says which.
+    """
+    if _reported[0] and not KEEP:
+        return
+    _reported[0] = True
+    print("\n  ---- Gaussian failed, first occurrence reported in full ----")
+    print(f"  command      : {EXE} j.gjf")
+    print(f"  working dir  : {d}")
+    print(f"  return code  : {rc}")
+    for name, txt in (("stdout", stdout), ("stderr", stderr)):
+        txt = (txt or "").strip()
+        if txt:
+            print(f"  {name}:")
+            for line in txt.splitlines()[-15:]:
+                print("    " + line)
+    if logp and os.path.exists(logp):
+        lines = open(logp, errors="replace").read().splitlines()
+        print(f"  j.log ({len(lines)} lines), last 30:")
+        for line in lines[-30:]:
+            print("    " + line)
+    else:
+        print("  j.log was never written -- Gaussian did not get as far as")
+        print("  opening its output file. That points at the executable or its")
+        print("  environment, not at the input.")
+    print("  ------------------------------------------------------------\n",
+          flush=True)
+
+
 def energy(syms, xyz, title):
     d = tempfile.mkdtemp(prefix="g16_")
+    keep = KEEP
     try:
         inp = os.path.join(d, "j.gjf")
         with open(inp, "w") as f:
             f.write(gjf(syms, xyz, title))
+        logp = os.path.join(d, "j.log")
         try:
             r = subprocess.run([EXE, "j.gjf"], cwd=d, capture_output=True,
                                text=True, timeout=7200)
         except FileNotFoundError:
-            print(f"    {EXE!r} not found on PATH -- set GAUSS_EXE", flush=True)
+            print(f"    {EXE!r} not found -- set GAUSS_EXE to the full path",
+                  flush=True)
             raise SystemExit(2)
         except subprocess.TimeoutExpired:
+            keep = True
+            print(f"    timed out after 2 h; input left in {d}", flush=True)
             return None
-        logp = os.path.join(d, "j.log")
+
+        # Some Gaussian builds want the output file named explicitly rather than
+        # deriving it from the input. Try that before giving up.
         if not os.path.exists(logp):
-            return parse(r.stdout)
+            try:
+                r = subprocess.run([EXE, "j.gjf", "j.log"], cwd=d,
+                                   capture_output=True, text=True, timeout=7200)
+            except subprocess.TimeoutExpired:
+                keep = True
+                return None
+
+        if not os.path.exists(logp):
+            e = parse(r.stdout)                      # output may be on stdout
+            if e is None:
+                keep = True
+                _explain(d, r.returncode, r.stdout, r.stderr, None)
+            return e
+
         log = open(logp, errors="replace").read()
         if "Normal termination" not in log:
+            keep = True
+            _explain(d, r.returncode, r.stdout, r.stderr, logp)
             return None
         return parse(log)
     finally:
-        shutil.rmtree(d, ignore_errors=True)
+        if not keep:
+            shutil.rmtree(d, ignore_errors=True)
 
 
 def barrier(tag, fn, rule, mult):
