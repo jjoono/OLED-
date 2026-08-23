@@ -34,8 +34,14 @@ Comparing a site2site number against a toface number is the same error as
 putting a monodentate E_b next to a bidentate one, which is why the class
 travels with the value everywhere it is used.
 
-SCF needs the level-shifted, damped settings -- with plain DIIS these open-shell
-Ag complexes oscillate indefinitely rather than converge.
+SCF is the practical obstacle, not the arithmetic. An open-shell Ag on a strong
+acceptor has near-degenerate states, and plain DIIS oscillates indefinitely
+rather than converging. Every point therefore walks a ladder of settings and
+takes the first rung that converges -- level-shifted and damped, then harder
+damped, then second-order SCF, then SOSCF from a GWH guess. maxiter is low on
+the early rungs so a hopeless attempt fails in a minute instead of grinding
+through four hundred iterations, and the rungs actually used are recorded with
+the result so a barrier obtained only by the desperate settings can be spotted.
 """
 import json, os, sys, time
 import numpy as np
@@ -51,13 +57,21 @@ psi4.set_memory("10 GB")
 psi4.set_num_threads(len(os.sched_getaffinity(0)))
 psi4.core.set_output_file(os.path.join(RUNS, "psi4_diff_all.out"), False)
 
-ROB = {"basis": "def2-svp", "scf_type": "df", "reference": "uks", "maxiter": 400,
-       "guess": "sad", "level_shift": 1.0, "level_shift_cutoff": 1e-3,
-       "damping_percentage": 15.0}
+BASE_SCF = {"basis": "def2-svp", "scf_type": "df", "reference": "uks"}
+LADDER = [
+    dict(BASE_SCF, maxiter=150, guess="sad", level_shift=1.0,
+         level_shift_cutoff=1e-3, damping_percentage=15.0),
+    dict(BASE_SCF, maxiter=200, guess="sad", level_shift=2.0,
+         level_shift_cutoff=1e-2, damping_percentage=40.0),
+    dict(BASE_SCF, maxiter=200, guess="sad", soscf=True,
+         soscf_start_convergence=1e-2),
+    dict(BASE_SCF, maxiter=250, guess="gwh", soscf=True,
+         soscf_start_convergence=1e-2, damping_percentage=25.0),
+]
 
 SPACING = 1.0                   # A between lateral points
-NPATH_MIN, NPATH_MAX = 5, 11
-ZSCAN = (-0.4, -0.2, 0.0, 0.25, 0.5)
+NPATH_MIN, NPATH_MAX = 5, 7
+ZSCAN = (-0.3, 0.0, 0.3)
 
 # tag -> (structure file, destination rule, multiplicity)
 #   "auto"  hop to the nearest other atom of the same element as the anchor
@@ -111,10 +125,18 @@ def gstr(syms, xyz, mult):
 
 
 def sp(syms, xyz, mult):
-    psi4.set_options(ROB)
-    e = psi4.energy("pbe-d3bj", molecule=psi4.geometry(gstr(syms, xyz, mult)))
-    psi4.core.clean()
-    return e
+    """First converging rung of the SCF ladder; (None, -1) if every rung fails."""
+    g = gstr(syms, xyz, mult)
+    for rung, opts in enumerate(LADDER):
+        try:
+            psi4.set_options(opts)
+            e = psi4.energy("pbe-d3bj", molecule=psi4.geometry(g))
+            psi4.core.clean()
+            return e, rung
+        except Exception:
+            psi4.core.clean()
+            continue
+    return None, -1
 
 
 def geometry(syms, xyz):
@@ -162,18 +184,17 @@ def barrier(tag, fn, rule, mult):
 
     span = float(np.linalg.norm(dest - ag))
     npath = int(np.clip(round(span / SPACING) + 1, NPATH_MIN, NPATH_MAX))
-    E = []
+    E, rungs = [], []
     for t in np.linspace(0.0, 1.0, npath):
         pos = (1 - t) * ag + t * dest
         best = None
         for dz in (ZSCAN if t > 0 else (0.0,)):     # start point is already relaxed
             trial = pos + dz * nrm
-            try:
-                e = sp(sub_s + ["Ag"], np.vstack([sub_x, trial]), mult)
-            except Exception as exc:
-                print(f"    t={t:.2f} dz={dz:+.2f} SCF failed: {type(exc).__name__}",
-                      flush=True)
+            e, rung = sp(sub_s + ["Ag"], np.vstack([sub_x, trial]), mult)
+            if e is None:
+                print(f"    t={t:.2f} dz={dz:+.2f} SCF failed on every rung", flush=True)
                 continue
+            rungs.append(rung)
             if best is None or e < best:
                 best = e
         E.append(best)
@@ -184,8 +205,10 @@ def barrier(tag, fn, rule, mult):
         print(f"[{tag}] insufficient converged points", flush=True)
         return None
     ed = (max(e for _, e in ok) - E[0]) * H2EV
-    print(f"[{tag}] E_d = {ed:.3f} eV  ({cls})", flush=True)
+    print(f"[{tag}] E_d = {ed:.3f} eV  ({cls})  SCF rungs {sorted(set(rungs))}",
+          flush=True)
     return {"E_d_eV": round(ed, 4), "class": cls, "anchor": sub_s[anchor],
+            "scf_rungs": sorted(set(rungs)),
             "n_atoms": len(sub_s), "path_A": round(float(np.linalg.norm(dest - ag)), 3),
             "points": [None if e is None else round(e, 8) for e in E]}
 
