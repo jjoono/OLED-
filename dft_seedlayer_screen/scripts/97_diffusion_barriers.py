@@ -68,11 +68,22 @@ RUNS = os.path.join(BASE, "runs")
 OUT = os.path.join(RUNS, "diffusion_barriers_all.json")
 H2EV = 27.211386
 
-# Both read from the allocation rather than being hard-coded, so the same file
-# runs on a laptop, in a container, and under a scheduler. PSI4_MEM_GB is set by
-# scripts/run_Ed.slurm from the SLURM request.
+def n_cores():
+    """Cores actually available. sched_getaffinity respects a scheduler's or a
+    container's mask and is what SLURM sets, but it does not exist on Windows,
+    where the workstation route lands -- so fall back rather than crash on
+    import."""
+    try:
+        return len(os.sched_getaffinity(0))
+    except AttributeError:
+        return os.cpu_count() or 4
+
+
+# Both read from the machine rather than being hard-coded, so the same file runs
+# on a Windows workstation, in a container, and under a scheduler. PSI4_MEM_GB is
+# set by scripts/run_Ed.slurm from the SLURM request.
 psi4.set_memory(f"{os.environ.get('PSI4_MEM_GB', '10')} GB")
-psi4.set_num_threads(len(os.sched_getaffinity(0)))
+psi4.set_num_threads(n_cores())
 psi4.core.set_output_file(os.path.join(RUNS, "psi4_diff_all.out"), False)
 
 BASE_SCF = {"basis": "def2-svp", "scf_type": "df", "reference": "uks"}
