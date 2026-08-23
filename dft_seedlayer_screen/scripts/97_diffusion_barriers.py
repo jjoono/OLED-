@@ -68,7 +68,10 @@ RUNS = os.path.join(BASE, "runs")
 OUT = os.path.join(RUNS, "diffusion_barriers_all.json")
 H2EV = 27.211386
 
-psi4.set_memory("10 GB")
+# Both read from the allocation rather than being hard-coded, so the same file
+# runs on a laptop, in a container, and under a scheduler. PSI4_MEM_GB is set by
+# scripts/run_Ed.slurm from the SLURM request.
+psi4.set_memory(f"{os.environ.get('PSI4_MEM_GB', '10')} GB")
 psi4.set_num_threads(len(os.sched_getaffinity(0)))
 psi4.core.set_output_file(os.path.join(RUNS, "psi4_diff_all.out"), False)
 
