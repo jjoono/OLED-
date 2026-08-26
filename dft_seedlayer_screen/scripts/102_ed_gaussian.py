@@ -53,7 +53,8 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pathgeom import (CANDIDATES, H2EV, NPATH_MAX, NPATH_MIN, RUNS, SPACING,
-                      STRUCT, ZSCAN, destination, geometry, place, read_xyz)
+                      STRUCT, ZSCAN, destination, geometry, place, read_xyz,
+                      sanity)
 
 # Per-run output, so several instances can share a machine without overwriting
 # each other. Each writes the whole dictionary it knows about, so two processes
@@ -173,6 +174,12 @@ def energy(syms, xyz, title):
 
 def barrier(tag, fn, rule, mult):
     syms, xyz = read_xyz(os.path.join(STRUCT, fn))
+    why = sanity(syms, xyz, tag)
+    if why:
+        print(f"[{tag}] REFUSED: {why}", flush=True)
+        print(f"[{tag}] re-optimise the complex before asking for a barrier",
+              flush=True)
+        return None
     sub_s, sub_x, ag, anchor, nrm = geometry(syms, xyz)
     dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
     span = float(np.linalg.norm(dest - ag))

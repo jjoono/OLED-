@@ -68,7 +68,7 @@ import psi4
 # (script 102) cannot drift apart.
 from pathgeom import (CANDIDATES, D_MIN, H2EV, NPATH_MAX, NPATH_MIN, RUNS,
                       SPACING, STRUCT, ZSCAN, destination, geometry, place,
-                      read_xyz)
+                      read_xyz, sanity)
 
 OUT = os.path.join(RUNS, "diffusion_barriers_all.json")
 
@@ -129,6 +129,12 @@ def sp(syms, xyz, mult):
 
 def barrier(tag, fn, rule, mult):
     syms, xyz = read_xyz(os.path.join(STRUCT, fn))
+    why = sanity(syms, xyz, tag)
+    if why:
+        print(f"[{tag}] REFUSED: {why}", flush=True)
+        print(f"[{tag}] re-optimise the complex before asking for a barrier",
+              flush=True)
+        return None
     sub_s, sub_x, ag, anchor, nrm = geometry(syms, xyz)
     dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
     print(f"[{tag}] {len(sub_s)} substrate atoms, anchor {sub_s[anchor]}{anchor}, "

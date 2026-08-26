@@ -55,6 +55,33 @@ CANDIDATES = [
 ]
 
 
+BAD_GEOM = {"p-bPPhenB", "B3PyMPM", "Liq"}
+"""Structures whose Ag sits closer than a bond length to the substrate.
+
+These files are initial placements that were never replaced by the relaxed
+geometry -- Ag at 1.39 A from nitrogen on p-bPPhenB, 1.85 A from hydrogen on
+B3PyMPM, 0.91 A from lithium on Liq. A barrier computed from one of them is
+meaningless: the path starts inside a repulsive wall, so the "site" energy is
+enormous and every step downhill from it. Drivers refuse them rather than
+returning a number.
+"""
+
+
+def sanity(syms, xyz, tag=""):
+    """Reject a complex whose Ag is not at a plausible bonding distance."""
+    import numpy as _np
+    i = [k for k, s in enumerate(syms) if s == "Ag"]
+    if len(i) != 1:
+        return f"expected one Ag, found {len(i)}"
+    i = i[0]
+    d = _np.linalg.norm(_np.delete(xyz, i, 0) - xyz[i], axis=1)
+    if d.min() < 2.0:
+        near = [s for k, s in enumerate(syms) if k != i][int(_np.argmin(d))]
+        return (f"Ag is {d.min():.2f} A from {near} -- an unrelaxed placement, "
+                f"not a minimum")
+    return None
+
+
 def read_xyz(p):
     L = open(p).read().strip().splitlines()
     n = int(L[0])
