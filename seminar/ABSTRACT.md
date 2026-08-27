@@ -2,64 +2,60 @@
 
 **제목 / Title**
 
-- 국문: **늘어나도 왜곡되지 않는 디스플레이 — 하이브리드 오그제틱 메타물질 플랫폼과 등방 팽창 계수**
-- English: **Displays That Grow Without Distorting — Hybrid Auxetic Metamaterial Platforms and the Isotropic Expansion Factor**
+- 국문: **왜곡 없는 스트레처블 디스플레이를 위한 하이브리드 오그제틱 메타물질 플랫폼과 등방 팽창 계수**
+- English: **Hybrid Auxetic Metamaterial Platforms and the Isotropic Expansion Factor for Distortion-Free Stretchable Displays**
 
-> 저자 본인 관점('우리는')으로 작성. 제3자 리뷰 톤이 필요하면 "우리는 → 저자들은"으로 바꾸면 그대로 쓸 수 있다.
-
----
-
-## 국문 초록 — 539자 (공백 포함) / 424자 (공백 제외)
-
-평평한 디스플레이는 TV와 스마트폰에는 충분했다. 하지만 인체 부착형·인터랙티브로 가면서 폼팩터는 커브드–플렉서블–폴더블–롤러블을 거쳐, 최근 CES에서 시연된 스트레처블까지 왔다.
-
-그런데 스트레처블이어도 결국 디스플레이다. 앞의 것들과 달리 화면이 실제로 커지는 건 처음인데, 여기서 문제가 생긴다. 이미지 왜곡이다. 동영상을 두 손가락으로 확대하면 왜곡 없이 커지지 않나. 그냥 늘리기만 해서는 그렇게 되지 않는다.
-
-2022년 기계연구원의 첫 auxetic meta-display에서 힌트를 얻으면, 등방 팽창만 되면 왜곡 없이 확장할 수 있다. 다만 키리가미는 기판에 구멍이 뚫린 구조라 공정 호환성에 한계가 있었다.
-
-그래서 우리는 하이브리드 오그제틱 플랫폼을 제시했다. 키 포인트는 선택적 접합이다. 오그제틱은 외곽 기준으로 등방 팽창할 뿐 내부의 모든 점이 그렇지는 않고, 잡고 늘리면 회전축도 달라진다. 그것까지 설계에 넣었다. 또 익스팬더블로 갈수록 바깥쪽 푸아송비만으로는 왜곡을 판별하기 어려워, 통계에서 아이디어를 얻어 등방 팽창 계수를 정의했다.
-
-**키워드:** 스트레처블 디스플레이, 오그제틱 메타물질, 등방 팽창, 이미지 왜곡, 선택적 접합
+> 저자 관점('본 연구에서는')으로 작성. 논문 리뷰 형식이라면 "본 연구에서는 → 해당 연구에서는", "제안한다 → 제안하였다"로 치환하여 사용.
 
 ---
 
-## 국문 초록 — 여유 버전, 627자 (공백 포함)
+## 국문 초록 — 600자 (공백 포함) / 466자 (공백 제외)
 
-*분량 제한이 넉넉할 때. 문단이 한 박자씩 더 숨을 쉰다.*
+평판형 디스플레이는 TV와 모바일 기기에 적합하였으나, 인체 부착형 및 인터랙티브 응용으로 적용 영역이 확장되면서 폼팩터는 커브드, 플렉서블, 폴더블, 롤러블을 거쳐 스트레처블 단계에 이르렀다. 스트레처블은 화면의 물리적 면적이 실제로 증가하는 최초의 폼팩터이며, 면내 인장이 도입되는 순간 이미지 왜곡이 1차적 성능 인자로 부상한다. 대부분의 엘라스토머는 양의 푸아송비를 가지므로 단순 인장만으로는 종횡비를 보존할 수 없다.
 
-평평한 디스플레이는 TV와 스마트폰에는 충분했다. 하지만 인체 부착형이나 인터랙티브 디스플레이로 가면서 폼팩터는 플랫–커브드–플렉서블–폴더블–롤러블을 거쳐, 최근 CES에서 시연된 스트레처블까지 왔다.
+2022년 보고된 최초의 auxetic meta-display는 음의 푸아송비에 의한 등방 팽창이 해법이 될 수 있음을 시사하였으나, 키리가미 기반 구조는 다공성 시트 자체가 소자 기판이 되므로 공정 호환성에 제약이 존재하였다.
 
-그런데 생각해 보면 스트레처블이어도 결국 디스플레이다. 앞의 것들과 달리 화면 크기가 실제로 커지는 건 사실상 처음인데, 바로 여기서 문제가 생긴다. 이미지 왜곡이다. 동영상을 두 손가락으로 확대하면 왜곡 없이 커지지 않나. 그냥 늘리기만 해서는 그렇게 되지 않는다.
+본 연구에서는 선택적 접합에 기반한 하이브리드 오그제틱 메타물질 플랫폼을 제안한다. 오그제틱 구조는 외곽을 기준으로 등방 팽창할 뿐 내부의 모든 지점이 등방적으로 거동하지는 않으며, 그립을 통해 인장할 경우 회전 중심 또한 위치에 따라 달라진다. 본 연구는 이러한 국부 거동을 설계에 반영하였으며, 외곽 푸아송비만으로는 판별하기 어려운 국부 왜곡을 정량화하고자 통계적 상관 개념에 기반한 등방 팽창 계수를 정의하였다.
 
-2022년 기계연구원의 첫 auxetic meta-display에서 힌트를 얻으면, 등방 팽창만 된다면 왜곡 없이 순수하게 확장할 수 있다. 다만 키리가미는 기판에 구멍이 뚫린 구조라 공정 호환성과 안정성에 한계가 있었다.
-
-그래서 우리는 하이브리드 오그제틱 플랫폼을 제시했다. 키 포인트는 선택적 접합이다. 오그제틱은 외곽 기준으로 등방 팽창할 뿐 내부의 모든 점이 그런 것은 아니고, 잡고 늘리면 회전축도 조금씩 달라진다. 그것까지 설계에 포함시켰다. 그리고 익스팬더블 디스플레이로 갈수록 화면 크기를 실제로 조작하게 되는데, 바깥쪽 푸아송비만으로는 왜곡의 유무와 정도를 판별하기 어렵다. 그래서 통계에서 아이디어를 얻어 등방 팽창 계수를 정의했다.
+**키워드:** 스트레처블 디스플레이, 오그제틱 메타물질, 음의 푸아송비, 등방 팽창, 이미지 왜곡, 선택적 접합
 
 ---
 
-## English Abstract — 193 words
+## 국문 초록 — 확장 버전, 706자 (공백 포함)
 
-Flat panels were fine for TVs and phones. But as displays move toward skin-attachable and interactive form factors, the roadmap has run flat–curved–flexible–foldable–rollable, and now stretchable, as demonstrated at CES.
+*분량 여유가 있을 때. 문단 구분과 논거를 한 단계 더 명시한다.*
 
-Here is the thing, though: a stretchable display is still a display. Unlike everything before it, the screen area actually grows — and that is exactly where the trouble starts. Image distortion. When you pinch-zoom a video, it scales up without distorting, right? Simply pulling on a substrate does not do that.
+평판형 디스플레이는 TV와 모바일 기기에 충분히 적합하였으나, 인체 부착형 및 인터랙티브 응용으로 적용 영역이 확장되면서 폼팩터는 커브드, 플렉서블, 폴더블, 롤러블을 거쳐 최근 CES에서 시연된 스트레처블 단계에 이르렀다.
 
-Take the hint from the first auxetic meta-display, reported by KIMM in 2022: if you can make the expansion isotropic, you can grow the screen without distorting the image. The catch is that a kirigami sheet is perforated, which limits process compatibility and stability.
+주목할 점은 스트레처블이 화면의 물리적 면적이 실제로 증가하는 최초의 폼팩터라는 사실이다. 이전 단계에서는 형태만 변화하고 픽셀 간 거리가 보존되었으나, 면내 인장이 도입되는 순간 이미지 왜곡이 1차적 성능 인자로 부상한다. 대부분의 엘라스토머는 양의 푸아송비를 가지므로 단순 인장만으로는 종횡비를 보존할 수 없다.
 
-So we proposed a hybrid auxetic platform. The key point is selective bonding. An auxetic frame expands isotropically only with respect to its outer boundary — not every interior point does — and once you grip and pull it, the centre of rotation shifts as well. We folded both into the design. And since a Poisson's ratio alone cannot tell you whether or how badly a platform distorts, we borrowed from statistics to define the isotropic expansion factor.
+2022년 보고된 최초의 auxetic meta-display는 음의 푸아송비에 의한 등방 팽창이 해법이 될 수 있음을 시사하였다. 그러나 키리가미 기반 구조는 다공성 시트 자체가 소자 기판이 되므로 공정 호환성과 기계적 안정성에 제약이 존재하였다.
 
-**Keywords:** stretchable display, auxetic metamaterial, isotropic expansion, image distortion, selective bonding
+본 연구에서는 선택적 접합에 기반한 하이브리드 오그제틱 메타물질 플랫폼을 제안한다. 오그제틱 구조는 외곽을 기준으로 등방 팽창할 뿐 내부의 모든 지점이 등방적으로 거동하지는 않으며, 그립을 통해 인장할 경우 회전 중심 또한 위치에 따라 달라진다. 본 연구는 이러한 국부 거동을 설계 단계에 반영하였다. 아울러 익스팬더블 디스플레이로의 전개에 대비하여, 외곽 푸아송비만으로는 판별하기 어려운 국부 왜곡을 정량화하고자 통계적 상관 개념에 기반한 등방 팽창 계수를 정의하였다.
 
 ---
 
-## 공지·포스터용 초단축본
+## English Abstract — 202 words
 
-**국문 (약 180자)**
+Flat-panel displays have been well suited to televisions and mobile devices. As the application space extends toward skin-attachable and interactive systems, the form-factor roadmap has progressed through curved, flexible, foldable and rollable architectures to stretchable displays. Stretchable displays are the first form factor in which the physical area of the screen genuinely increases, and once in-plane tensile deformation is introduced, image distortion emerges as a first-order performance factor. Because most elastomers exhibit a positive Poisson's ratio, uniaxial stretching alone cannot preserve the aspect ratio.
 
-스트레처블은 화면 크기가 실제로 커지는 첫 폼팩터다. 그런데 그냥 늘리기만 해서는 이미지가 왜곡될 수밖에 없다. 오그제틱 구조는 외곽 기준으로만 등방 팽창하고, 잡고 늘리면 회전축도 달라진다. 우리는 선택적 접합으로 이 문제를 풀었고, 왜곡을 재기 위해 통계에서 등방 팽창 계수를 가져왔다.
+The first auxetic meta-display, reported in 2022, indicated that isotropic expansion enabled by a negative Poisson's ratio could provide a solution. Kirigami-based architectures, however, employ the perforated sheet itself as the device substrate, which constrains process compatibility.
 
-**English (~70 words)**
+Here we present a hybrid auxetic metamaterial platform based on selective bonding. An auxetic framework expands isotropically only with respect to its outer boundary; interior points do not all deform isotropically, and the centre of rotation varies with position when the structure is stretched through mechanical grips. These local behaviours are incorporated explicitly into the design, and an isotropic expansion factor, derived from a statistical correlation measure, is defined to quantify the local distortion that an outer Poisson's ratio cannot resolve.
 
-Stretchable is the first form factor in which the screen area actually grows — and simply pulling on it distorts the image. An auxetic frame expands isotropically only at its outer boundary, and gripping it shifts the centre of rotation. We solved this with selective bonding, and borrowed from statistics to define an isotropic expansion factor for measuring the distortion that a Poisson's ratio cannot see.
+**Keywords:** stretchable display, auxetic metamaterial, negative Poisson's ratio, isotropic expansion, image distortion, selective bonding
+
+---
+
+## 공지·포스터용 단축본
+
+**국문 (약 200자)**
+
+스트레처블은 화면의 물리적 면적이 실제로 증가하는 최초의 폼팩터이며, 이에 따라 이미지 왜곡이 새로운 성능 인자로 부상하였다. 오그제틱 구조는 외곽을 기준으로만 등방 팽창하고 그립 인장 시 회전 중심이 위치에 따라 변화한다. 본 연구에서는 선택적 접합을 통해 이를 해결한 하이브리드 오그제틱 플랫폼과, 국부 왜곡의 정량 지표인 등방 팽창 계수를 제시한다.
+
+**English (~80 words)**
+
+Stretchable displays are the first form factor in which the physical area of the screen genuinely increases, which brings image distortion forward as a new performance factor. An auxetic framework expands isotropically only with respect to its outer boundary, and the centre of rotation varies with position under grip-driven tension. We present a hybrid auxetic platform that resolves this through selective bonding, together with an isotropic expansion factor that quantifies the resulting local distortion.
 
 ---
 
