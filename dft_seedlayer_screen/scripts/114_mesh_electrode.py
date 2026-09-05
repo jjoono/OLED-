@@ -70,9 +70,13 @@ def main():
 
     print("\nShadow-mask lines are 20 um pitch at best. The Rs that allows that:")
     r_need = 2 * DV_MAX / (J * (10e-6)**2)
-    print(f"  Rs <= {r_need:.0f} ohm/sq, i.e. sigma >= {1/(r_need*100*50e-9):.1e} S/cm at 50 nm")
-    print("  -- roughly the conductivity of the silver film the mesh was meant to")
-    print("  replace. No organic is within six orders of magnitude of it.\n")
+    print(f"  Rs <= {r_need:.0e} ohm/sq: sigma >= {1/(r_need*100*100e-9):.0e} S/cm at 100 nm")
+    print("  Neat HATCN is six orders of magnitude short of that. A routinely")
+    print("  doped transporter (1e-4 to 1e-3 S/cm) is two to three orders short.")
+    print("  Only the very best reported p-doped layers, 1e-2 S/cm and 100 nm")
+    print("  thick, reach it -- and a 100 nm heavily doped layer carries its own")
+    print("  charge-transfer absorption and moves the cavity, which spends the")
+    print("  optical gain the mesh was meant to buy.\n")
 
     print("optics, per pass, if the electrics somehow worked:")
     print(f"{'fill f':>7} {'thin lines':>11} {'thick lines':>12}   vs continuous {A_THIN*100:.2f}%")
