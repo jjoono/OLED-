@@ -4,15 +4,15 @@
 
 ## 0. 한 줄 claim (이 문장에 필요한 것만 넣는다)
 
-> 아웃커플링 구조에 **(근)무손실 후면 반사체**를 결합하면 광자 재활용이 추출효율을 1로 몰아간다. 이를 닫힌형 법칙으로 유도하고, 그 순간 **내부 기생흡수가 지배 손실**이 됨을 보이며, 실험으로 **DBR 반사체 EQE 77%**(기록)와 **실측 추출효율 91.6%**(Ag 반사체, 모델과 0.1%p 일치)를 시연한다.
+> 아웃커플링 구조에 **저손실 후면 반사체**를 결합하면 광자 재활용이 추출효율을 1로 몰아간다. 이를 닫힌형 법칙으로 유도하고, 그 순간 **내부 기생흡수(TCO·CTL)가 지배 손실**이 되어 유전체 거울(DBR+TCO)보다 **Ag+두꺼운 투명 CTL이 유리**해짐을 보이며(반직관적 finding), 실험으로 **보조 반사체 EQE 77%**(기록, DBR)와 **실측 추출효율 91.6%**(Ag, 모델과 0.1%p 일치)를 시연한다. 반사체 재료는 법칙이 판정하는 설계변수이지 주인공이 아니다.
 
 분량 목표: 본문 1,500–2,000 단어, 그림 3개(최소 2개), Methods 1쪽, SI 5쪽 이내. 준비 2–3주.
 
 ## 1. 제목 후보 (원리 우선, 소자 숫자는 제목에 안 씀)
 
-1. *Lossless rear reflectors enable near-unity light extraction in organic light-emitting diodes*
+1. *Low-loss rear reflectors enable near-unity light extraction in organic light-emitting diodes*
 2. *A photon-recycling law for near-unity light extraction in OLEDs*
-3. *Near-unity photon extraction in OLEDs by lossless-reflector photon recycling*
+3. *Near-unity photon extraction in OLEDs by low-loss rear-reflector photon recycling*
 
 ## 2. 그림 구성 (기존 슬라이드 → 패널 매핑)
 
@@ -20,7 +20,7 @@
 - (a) 개념도: 아웃커플링 구조 + 후면 반사체에서의 다중 반사 광 경로, Al(손실) vs DBR/Ag(근무손실). [MSCA deck 개념도 재작도]
 - (b) **마스터 커브** η_ext vs R_LED(1−A′_para): "w/o outcoupling" / "w/ microcavity or horizontal emitter" / "+Al" / "+lossless reflector" 영역 표시. [슬라이드 8/10]
   - 본문 Eq.(1) 재귀합 → Eq.(2) 닫힌형 η_ext ≈ P̄·BSDF_T / (1−(1−P̄·BSDF_T)(1−A′_para)), η_out = η_ext·η_sub^(N_R=0).
-- (c) **EQE vs n_sub**, Al 전극 vs IZO+DBR: Al은 ~0.60에서 포화 후 감소, DBR은 ~0.82까지 단조 상승, "previous works" 표시. [슬라이드 11] → "왜 기존 연구가 ~60%에서 멈췄는가"를 한 패널로.
+- (c) **EQE vs n_sub**, Al vs IZO+DBR vs **실제 Ag(n_Ag 실측값; 슬라이드 42의 'ideal Ag'는 과대평가라 사용 금지 — 코드로 재계산)**: Al은 ~0.60에서 포화 후 감소, DBR·Ag는 단조 상승. [슬라이드 11 + 재계산] → "왜 기존 연구가 ~60%에서 멈췄는가" + "반사체 순위"를 한 패널로.
 - (SI로) 전극별 각도–파장 반사율 맵 [슬라이드 9], 손실 회계 스택 [슬라이드 10].
 
 ### Fig. 2 — 실험 (2세트, 각 1패널)
@@ -31,7 +31,7 @@
 ### Fig. 3 — 설계 규칙의 재정의 (시뮬, 기존 자료; 분량 부담 시 (c)만 Fig.1(d)로 흡수하고 나머지 삭제)
 - (a) EQE(d_ETL, d_HTL) 맵: w/o MLA(FP 간섭무늬) vs w/ MLA(d_ETL≳100 nm에서 평탄, 최대 87.6%) — "두께 최적화 불필요". [슬라이드 16]
 - (b) EQE vs Θ: 제안 구조 87→89.5%(평탄) vs 기준 25→49%(급경사) — "수평 배향 불필요". [슬라이드 15]
-- (c) Max EQE vs k_ITO(96→55%) / vs n_Ag(95→46%) — "아웃커플링이 붙으면 기생흡수가 지배 손실; 설계 규칙 재정의". [슬라이드 19]
+- (c) Max EQE vs k_ITO(96→55%) / vs n_Ag(95→46%) — "아웃커플링이 붙으면 기생흡수가 지배 손실; 설계 규칙 재정의". 본문에서 Ag 86.6% > DBR+IZO 82.9%를 이 패널로 설명(TCO 이중통과 흡수가 DBR 이득을 상쇄; DBR 고각 반사는 첫 저굴절층 TIR). [슬라이드 19]
 
 ## 3. 본문 구조 (문단 단위)
 
@@ -39,7 +39,7 @@
 2. **Intro ¶2**: 정체 원인 = 다중 통과 시 후면 반사체/TCO 흡수; 본 연구 thesis(무손실 반사체 + 재활용 법칙). *선택*: "최근 산업계 발표(UDC OLEDX, 2026)가 반사체 기반 재활용의 중요성을 보여주나 정량 설계이론·무손실 반사체 시연은 보고된 바 없다" 1문장 — 저자 판단(§6 참고).
 3. **Theory ¶**: Eq.(1)–(2) 유도 요지, 마스터 커브 해석(R_LED→1 근방 비선형성), η_out = η_ext·η_sub 분해.
 4. **Simulation ¶**: EQE vs n_sub(트레이드오프 해소), 기생흡수 지배 전환.
-5. **Exp ¶1 (DBR)**: 구조, 77%, Al→DBR +16%p, 누설 억제 수치.
+5. **Exp ¶1 (DBR 보조 반사체)**: 구조, 77%, 보조 반사체 추가로 +16%p, 누설 억제 수치. 'DBR이라서'가 아니라 '전류경로 밖 저손실 반사체가 배면 누설을 회수해서'로 서술.
 6. **Exp ¶2 (Ag)**: 구조, 55.8/55.9 일치, η_ext 91.6%.
 7. **Design rules ¶**: Fig. 3 요약 — 두께·HDR 둔감, 기생흡수 민감 → 설계 규칙 재정의.
 8. **Outlook ¶ (짧게)**: 모델 예측 — 전극 통합형 Ag n=1.77에서 86.6%, PLQY≈1 발광체로 >90%(텍스트만, 그림 없음); 보조 반사체의 공간 비효율 한계 1문장; 전극 통합·TEOLED는 후속.
