@@ -42,9 +42,25 @@ ROUTE = (f"#P PBEPBE/Def2SVP EmpiricalDispersion=GD3BJ SP "
          f"SCF=({SCF}) NoSymm")
 
 
-def gjf(syms, xyz, title, nproc, mem, mult=2):
-    out = [f"%NProcShared={nproc}", f"%Mem={mem}GB", ROUTE, "", title, "",
-           f"0 {mult}"]
+def gjf(syms, xyz, title, nproc, mem, mult=2, chk=None, read=False):
+    """One Gaussian input. `chk` names a checkpoint shared across the folder and
+    `read` starts from the orbitals already in it.
+
+    Chaining the orbitals along the path is not an optimisation, it is what
+    makes the barrier mean anything. These Ag complexes have more than one SCF
+    solution -- the same Bphen geometry converged to two states 0.51 eV apart
+    under two different convergence routes -- and the barrier being measured is
+    0.29 eV. Points that land on different solutions produce a number made of
+    the gap between states rather than of the path. Reading the previous point's
+    orbitals keeps every point on the same electronic state, and as a side
+    effect converges in a few cycles instead of a hundred.
+    """
+    out = []
+    if chk:
+        out.append(f"%Chk={chk}")
+    out += [f"%NProcShared={nproc}", f"%Mem={mem}GB",
+            ROUTE + (" Guess=Read" if read else ""), "", title, "",
+            f"0 {mult}"]
     for a, c in zip(syms, xyz):
         out.append(f" {a:<2s} {c[0]:14.8f} {c[1]:14.8f} {c[2]:14.8f}")
     return "\n".join(out) + "\n\n"
@@ -84,7 +100,8 @@ def main():
                     f.write(gjf(sub_s + ["Ag"],
                                 np.vstack([sub_x, pos + dz * nrm]),
                                 f"{tag} t={t:.3f} dz={dz:+.2f} class={cls}",
-                                nproc, mem, mult))
+                                nproc, mem, mult,
+                                chk=f"{safe}.chk", read=(n > 0)))
                 n += 1
         index.append((tag, safe, cls, len(sub_s) + 1, npath, len(ZSCAN), n))
         made += n
