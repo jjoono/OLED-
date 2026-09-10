@@ -36,8 +36,9 @@ dft_seedlayer_screen/runs/**/.xtboptok
 ellipsometry/data/
 ellipsometry/out/
 ellipsometry/**/*.npz
-
-# ellipsometry: never commit measurements or fitted results
+# ellipsometry: never commit measurements or fitted results under ellipsometry/
+# (the 2026-08-20 T/R campaign under dft_seedlayer_screen/data/ IS tracked --
+#  the ellipsometry scripts read it from there, see ellipsometry/DATA.md)
 ellipsometry/**/*.xlsx
 ellipsometry/**/*.csv
 ellipsometry/**/*.mod
@@ -45,3 +46,4 @@ ellipsometry/**/*.png
 ellipsometry/**/*.json
 ellipsometry/**/*.SE
 ellipsometry/**/*.se
+dft_seedlayer_screen/data/TR_20260819/
