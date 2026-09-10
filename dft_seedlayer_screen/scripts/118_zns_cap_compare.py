@@ -19,12 +19,21 @@ metal, instead of asserting one value.
 
 Cap thickness is optimised once per electrode at normal incidence and held fixed
 across the angular sweep, as a real design would.
+
+Both exit media are computed. With air outside, a critical angle sits at 33.7
+degrees and everything past it is trapped and comes back for another pass. With
+the outcoupling medium matched to the organic at n = 1.8 there is no critical
+angle, every angle propagates, and the surface-plasmon resonance that dominates
+the trapped region disappears -- the plasmon carries more in-plane momentum than
+any propagating photon has, so a flat film cannot couple to it once nothing is
+evanescent.
 """
 import csv, math, os
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 NK = os.path.join(BASE, "data", "nk")
 N_ORG = 1.80
+N_OUT = [("air, n = 1.00", 1.00), ("matched, n = 1.80", 1.80)]
 ANGLES = list(range(0, 81))
 TCO_D, TCO_N = 50.0, 2.0
 TCO_K = [0.01, 0.03, 0.05, 0.1]
@@ -94,21 +103,22 @@ def tmm(n, d, lam, th0):
 
 class Stack:
     def __init__(self, label, layers):
-        self.label, self.layers, self.dcap = label, layers, 60.0
+        self.label, self.layers = label, layers
+        self.dcap = {}                      # one optimised cap per exit medium
 
-    def A(self, lam, th_deg, dcap=None):
-        dc = self.dcap if dcap is None else dcap
+    def A(self, lam, th_deg, nout, dcap=None):
+        dc = self.dcap.get(nout, 60.0) if dcap is None else dcap
         n = [complex(N_ORG, 0)] + [L(lam) for L, _ in self.layers] + \
-            [complex(zns_n(lam), 0), complex(1.0, 0)]
+            [complex(zns_n(lam), 0), complex(nout, 0)]
         d = [0.0] + [t for _, t in self.layers] + [dc, 0.0]
         R, T = tmm(n, d, lam, math.radians(th_deg))
         return 1.0 - R - T
 
-    def optimise(self, lam=550.0):
-        best = min(((self.A(lam, 0.0, dc), dc) for dc in range(20, 141)),
+    def optimise(self, nout, lam=550.0):
+        best = min(((self.A(lam, 0.0, nout, dc), dc) for dc in range(20, 141)),
                    key=lambda p: p[0])
-        self.dcap = float(best[1])
-        return self.dcap
+        self.dcap[nout] = float(best[1])
+        return self.dcap[nout]
 
 
 def main():
@@ -125,71 +135,83 @@ def main():
         stacks.append(Stack(f"TCO 50 k={k:.2f}",
                             [(lambda w, kk=k: complex(TCO_N, kk), TCO_D)]))
     for s in stacks:
-        s.optimise()
+        for _, no in N_OUT:
+            s.optimise(no)
 
     tc = math.degrees(math.asin(1 / N_ORG))
-    print("one-pass A: organic n=1.8 -> electrode -> ZnS cap -> air")
+    print("one-pass A: organic n=1.8 -> electrode -> ZnS cap -> exit medium")
     print(f"ZnS n = {zns_n(450):.3f} / {zns_n(550):.3f} / {zns_n(650):.3f} "
-          f"at 450/550/650 nm, k = 0\n")
-    print("optimised ZnS cap")
-    for s in stacks:
-        print(f"  {s.label:<18} {s.dcap:>5.0f} nm")
+          f"at 450/550/650 nm, k = 0")
 
-    print(f"\nA(lambda), normal incidence")
-    print(f"{'nm':>5} " + " ".join(f"{s.label:>15}" for s in stacks))
-    for w in range(400, 801, 50):
-        print(f"{w:>5} " + " ".join(f"{s.A(w, 0.0)*100:>14.2f}%" for s in stacks))
-
-    print(f"\nA(theta) at 550 nm   (critical angle {tc:.1f} deg)")
-    print(f"{'deg':>5} " + " ".join(f"{s.label:>15}" for s in stacks))
-    for th in (0, 20, 30, 34, 40, 50, 60, 70, 80):
-        print(f"{th:>5} " + " ".join(f"{s.A(550.0, th)*100:>14.2f}%" for s in stacks))
-
-    print(f"\nsolid-angle weighted, flat 400-700 nm")
-    print(f"{'':<18} {'0-34 escape':>12} {'34-80 trapped':>14} {'0-80 all':>10}")
-    rows = []
-    for s in stacks:
-        out = {}
-        for name, sel in (("esc", lambda t: t <= tc), ("trap", lambda t: t > tc),
-                          ("all", lambda t: True)):
-            num = den = 0.0
-            for th in ANGLES:
-                if not sel(th):
-                    continue
-                wt = math.sin(math.radians(th)) * math.cos(math.radians(th))
-                for w in range(400, 701, 20):
-                    num += s.A(w, th) * wt
-                    den += wt
-            out[name] = num / den if den else 0.0
-        rows.append((s.label, out))
-        print(f"{s.label:<18} {out['esc']*100:>11.2f}% {out['trap']*100:>13.2f}% "
-              f"{out['all']*100:>9.2f}%")
-
-    ag = [r for r in rows if r[0].startswith("HATCN 5 / Ag 8")][0][1]["all"]
-    print(f"\nk at which a 50 nm TCO matches HATCN 5 / Ag 8 ({ag*100:.2f}% over all modes):")
-    lo, hi = 0.001, 0.5
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        s = Stack("probe", [(lambda w, kk=mid: complex(TCO_N, kk), TCO_D)])
-        s.optimise()
+    def weighted(s, no, sel):
         num = den = 0.0
         for th in ANGLES:
+            if not sel(th):
+                continue
             wt = math.sin(math.radians(th)) * math.cos(math.radians(th))
             for w in range(400, 701, 20):
-                num += s.A(w, th) * wt
+                num += s.A(float(w), float(th), no) * wt
                 den += wt
-        (lo, hi) = (mid, hi) if num / den < ag else (lo, mid)
-    print(f"  k = {(lo+hi)/2:.3f}")
+        return num / den if den else 0.0
+
+    summary = {}
+    for tag, no in N_OUT:
+        print(f"\n{'='*76}\n{tag}" +
+              (f"   critical angle {tc:.1f} deg" if no < N_ORG else
+               "   no critical angle") + f"\n{'='*76}")
+        print("optimised ZnS cap: " +
+              "  ".join(f"{s.label} {s.dcap[no]:.0f} nm" for s in stacks[:2]) +
+              f"  |  TCO {stacks[2].dcap[no]:.0f} nm")
+
+        print(f"\nA(lambda), normal incidence")
+        print(f"{'nm':>5} " + " ".join(f"{s.label:>15}" for s in stacks))
+        for w in range(400, 801, 50):
+            print(f"{w:>5} " +
+                  " ".join(f"{s.A(float(w), 0.0, no)*100:>14.2f}%" for s in stacks))
+
+        print(f"\nA(theta) at 550 nm")
+        print(f"{'deg':>5} " + " ".join(f"{s.label:>15}" for s in stacks))
+        for th in (0, 20, 30, 34, 40, 50, 60, 70, 80):
+            print(f"{th:>5} " +
+                  " ".join(f"{s.A(550.0, float(th), no)*100:>14.2f}%" for s in stacks))
+
+        print(f"\nsolid-angle weighted, flat 400-700 nm")
+        print(f"{'':<18} {'0-34':>10} {'34-80':>10} {'0-80':>10}")
+        for s in stacks:
+            e = weighted(s, no, lambda t: t <= tc)
+            t_ = weighted(s, no, lambda t: t > tc)
+            a = weighted(s, no, lambda t: True)
+            summary[(s.label, no)] = a
+            print(f"{s.label:<18} {e*100:>9.2f}% {t_*100:>9.2f}% {a*100:>9.2f}%")
+
+    print(f"\n{'='*76}\nwhat removing the trap is worth, per electrode\n{'='*76}")
+    print(f"{'':<18} {'air':>9} {'matched':>10} {'change':>9}")
+    for s in stacks:
+        a1, a2 = summary[(s.label, 1.0)], summary[(s.label, 1.8)]
+        print(f"{s.label:<18} {a1*100:>8.2f}% {a2*100:>9.2f}% {(a2-a1)*100:>+8.2f}%")
+
+    for tag, no in N_OUT:
+        ag = summary[("HATCN 5 / Ag 8", no)]
+        lo, hi = 0.001, 0.6
+        for _ in range(30):
+            mid = (lo + hi) / 2
+            probe = Stack("p", [(lambda w, kk=mid: complex(TCO_N, kk), TCO_D)])
+            probe.optimise(no)
+            (lo, hi) = (mid, hi) if weighted(probe, no, lambda t: True) < ag else (lo, mid)
+        print(f"\n{tag}: a 50 nm TCO matches HATCN 5 / Ag 8 "
+              f"({ag*100:.2f}%) at k = {(lo+hi)/2:.3f}")
+
     out = os.path.join(BASE, "data", "zns_cap_onepass.csv")
     with open(out, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["quantity", "x"] + [s.label for s in stacks])
-        for wl in range(400, 801, 5):
-            w.writerow(["A_vs_wavelength_pct_at_0deg", wl] +
-                       [f"{s.A(float(wl), 0.0)*100:.4f}" for s in stacks])
-        for th in ANGLES:
-            w.writerow(["A_vs_angle_pct_at_550nm", th] +
-                       [f"{s.A(550.0, float(th))*100:.4f}" for s in stacks])
+        w.writerow(["quantity", "exit_medium_n", "x"] + [s.label for s in stacks])
+        for tag, no in N_OUT:
+            for wl in range(400, 801, 5):
+                w.writerow(["A_vs_wavelength_pct_at_0deg", no, wl] +
+                           [f"{s.A(float(wl), 0.0, no)*100:.4f}" for s in stacks])
+            for th in ANGLES:
+                w.writerow(["A_vs_angle_pct_at_550nm", no, th] +
+                           [f"{s.A(550.0, float(th), no)*100:.4f}" for s in stacks])
     print(f"\nwrote {os.path.relpath(out, BASE)}")
     print("ZnS k is taken as zero, so these are ideal-cap numbers.")
 
