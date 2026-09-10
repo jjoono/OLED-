@@ -123,13 +123,16 @@ def figures():
         rows.sort(key=lambda x: x[1]['ag_nom'])
         cm = plt.cm.viridis(np.linspace(0, 0.9, len(rows)))
         for c, (sh, v) in zip(cm, rows):
-            N = A.agN(np.array(v['p']), WLP)
+            if JO and sh in JO:
+                N = J.agN(np.array(JO[sh]['joint']['p']), WLP)
+            else:
+                N = A.agN(np.array(v['p']), WLP)
             ax[0, col].plot(WLP, N.real, color=c, label='%d nm' % v['ag_nom'])
             ax[1, col].plot(WLP, N.imag, color=c)
         for r in (0, 1):
             ax[r, col].plot(WLP, Nb.real if r == 0 else Nb.imag, 'k--', lw=1, label='bulk Ag')
             ax[r, col].grid(alpha=.3)
-        ax[0, col].set_title('Ag on %s' % seed)
+        ax[0, col].set_title('Ag on %s  (joint SE + T/R fit)' % seed)
         ax[0, col].set_ylabel('n'); ax[1, col].set_ylabel('k')
         ax[1, col].set_xlabel('wavelength (nm)')
         ax[0, col].legend(fontsize=7, ncol=2)
