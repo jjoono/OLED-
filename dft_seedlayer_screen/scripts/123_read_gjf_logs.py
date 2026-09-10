@@ -1,5 +1,8 @@
 """Turn the Gaussian logs back into barriers.
 
+Accepts either extension: Gaussian 16W on Windows writes .out, the Linux build
+writes .log, and the same folder may contain both if it was run in two places.
+
 Runs here, not on the workstation, so nothing has to be installed there beyond
 Gaussian. Point it at the returned gaussian_jobs folder.
 
@@ -60,7 +63,12 @@ def main():
             if not mo:
                 continue
             t = int(mo.group(1))
-            e = read_log(os.path.join(d, stem + ".log"))
+            e = None
+            for ext in (".out", ".log"):      # G16W writes .out, g16 on Linux .log
+                cand = os.path.join(d, stem + ext)
+                if os.path.exists(cand):
+                    e = read_log(cand)
+                    break
             if e is None:
                 failed += 1
                 continue
