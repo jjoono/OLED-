@@ -1,13 +1,17 @@
 @echo off
-rem  지금까지 끝난 폴더 전부의 결과를 한 번에 훑습니다.
-rem  아직 안 끝난 폴더는 건너뜁니다. 언제든 돌려도 됩니다.
+rem  Summarise every folder that has finished. Safe to run at any time.
+rem  ASCII only on purpose: a .bat with non-ASCII text is read by cmd in the
+rem  console code page, not UTF-8, and comes out as mojibake.
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo ================================================================
-echo  Gaussian 결과 요약
+echo  Gaussian results so far
 echo ================================================================
 echo.
+
+set /a NDONE=0
+set /a NTODO=0
 
 for /d %%D in (*) do (
   set /a N=0
@@ -19,24 +23,29 @@ for /d %%D in (*) do (
   )
   if !N! gtr 0 (
     if !OK! equ !N! (
-      echo [완료] %%D   !OK!/!N!
+      set /a NDONE+=1
+      echo [DONE] %%D   !OK!/!N!
       for %%F in ("%%D\*.out") do (
         set "E=-"
         for /f "tokens=5" %%A in ('findstr /c:"SCF Done" "%%F" 2^>nul') do set "E=%%A"
         set "S2=-"
-        for /f "tokens=5" %%B in ('findstr /c:"S**2 before annihilation" "%%F" 2^>nul') do set "S2=%%B"
+        for /f "tokens=4" %%B in ('findstr /c:"S**2 before annihilation" "%%F" 2^>nul') do set "S2=%%B"
         set "NAME=%%~nF                        "
         echo        !NAME:~0,22! !E!   S2=!S2!
       )
       echo.
     ) else (
-      echo [진행] %%D   !OK!/!N!
+      set /a NTODO+=1
+      echo [....] %%D   !OK!/!N!
     )
   )
 )
 
 echo ================================================================
-echo  위 내용을 통째로 복사해서 보내주세요.
-echo  S2 는 0.75 근처여야 정상입니다.
+echo   !NDONE! folders complete, !NTODO! still running or waiting
+echo.
+echo   Copy everything above and send it back.
+echo   S2 should be near 0.75. Far from it means the SCF found a
+echo   spin-contaminated state and that energy is not the doublet's.
 echo ================================================================
 pause
