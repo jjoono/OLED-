@@ -29,8 +29,17 @@ from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT, ZSCAN,
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "gaussian_jobs")
-ROUTE = ("#P PBEPBE/Def2SVP EmpiricalDispersion=GD3BJ SP "
-         "SCF=(XQC,MaxCycle=128) NoSymm")
+# SCF settings are overridable because the default failed on the first large
+# candidate. Bphen ran 128 DIIS cycles without converging and only then handed
+# off to quadratic convergence, so the entire DIIS phase was wasted; every
+# larger molecule would repeat it. VShift separates the near-degenerate orbitals
+# that cause the oscillation -- it is the same remedy that made these complexes
+# converge under psi4 -- and the lower MaxCycle stops throwing cycles away
+# before falling back to QC. The level shift is withdrawn as convergence
+# approaches, so it changes the path to the solution, not the solution.
+SCF = os.environ.get("GAUSS_SCF", "XQC,MaxCycle=128")
+ROUTE = (f"#P PBEPBE/Def2SVP EmpiricalDispersion=GD3BJ SP "
+         f"SCF=({SCF}) NoSymm")
 
 
 def gjf(syms, xyz, title, nproc, mem, mult=2):
