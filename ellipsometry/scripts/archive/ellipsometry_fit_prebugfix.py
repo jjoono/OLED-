@@ -89,9 +89,7 @@ def _tmm(wl_nm, n_layers, d_list, theta0_deg):
     def Pr(qi, d):
         phi = k0 * qi * d
         M = np.zeros((N,2,2), dtype=complex)
-        M[:,0,0]=np.exp(-1j*phi); M[:,1,1]=np.exp(1j*phi)   # was swapped: the old sign
-        # amplified the backward wave inside absorbing layers, so a 200 nm Ag
-        # film gave R=1.033 instead of the bulk Fresnel value 0.9685
+        M[:,0,0]=np.exp(1j*phi); M[:,1,1]=np.exp(-1j*phi)
         return M
 
     Mp = eye_b(); Ms = eye_b()
@@ -102,9 +100,7 @@ def _tmm(wl_nm, n_layers, d_list, theta0_deg):
     ni,nj,qi,qj = n_layers[-2],n_layers[-1],q[-2],q[-1]
     Mp = mm(Mp, Ip(ni,nj,qi,qj))
     Ms = mm(Ms, Is(ni,nj,qi,qj))
-    # conjugated to keep the ellipsometer's Delta sign convention, which the
-    # propagation fix above flips; |rp|,|rs| are unaffected and now obey |r|<=1
-    return np.conj(Mp[:,1,0]/Mp[:,0,0]), np.conj(Ms[:,1,0]/Ms[:,0,0])
+    return Mp[:,1,0]/Mp[:,0,0], Ms[:,1,0]/Ms[:,0,0]
 
 def bruggeman_ema50(N_a, N_b):
     """Bruggeman EMA for 50% N_a + 50% N_b mixture.
@@ -909,9 +905,7 @@ def _tmm_uniaxial(wl_nm, n_amb, no_f, ne_f, n_sio2, n_si, d_film, d_sio2, theta0
     def Pr(qi, d):
         phi = k0*qi*d
         M = np.zeros((N,2,2),dtype=complex)
-        M[:,0,0]=np.exp(-1j*phi); M[:,1,1]=np.exp(1j*phi)   # was swapped: the old sign
-        # amplified the backward wave inside absorbing layers, so a 200 nm Ag
-        # film gave R=1.033 instead of the bulk Fresnel value 0.9685
+        M[:,0,0]=np.exp(1j*phi); M[:,1,1]=np.exp(-1j*phi)
         return M
 
     # p-pol: extraordinary wavevector qe in film; interface uses no_f as effective nj
@@ -926,9 +920,7 @@ def _tmm_uniaxial(wl_nm, n_amb, no_f, ne_f, n_sio2, n_si, d_film, d_sio2, theta0
     Ms = mm(mm(Ms, Is(no_f, n_sio2, qo, q2)), Pr(q2, d_sio2))
     Ms = mm(Ms,     Is(n_sio2, n_si, q2, q3))
 
-    # conjugated to keep the ellipsometer's Delta sign convention, which the
-    # propagation fix above flips; |rp|,|rs| are unaffected and now obey |r|<=1
-    return np.conj(Mp[:,1,0]/Mp[:,0,0]), np.conj(Ms[:,1,0]/Ms[:,0,0])
+    return Mp[:,1,0]/Mp[:,0,0], Ms[:,1,0]/Ms[:,0,0]
 
 
 def calc_psi_delta_aniso(wl, d_sio2, d_film, no_film, ne_film, angles):

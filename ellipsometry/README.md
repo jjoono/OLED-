@@ -78,3 +78,7 @@ What *is* parseable:
 Each CSV carries the residual (and, where available, an uncertainty band). Values quoted
 as `0.0000` for k mean *below the detection limit*, not literally zero — the limit is
 ~0.01 for these films, established by forcing k to fixed values and watching the residual.
+
+## Session 2026-08-20/21
+
+Transfer-matrix bug fix, CompleteEASE `.mod` generation, thin Ag on HATCN/MoOx seeds, T/R cross-check and device optics: see [README_260820_session.md](README_260820_session.md). **The library `scripts/ellipsometry_fit.py` on this branch contains the TMM fix; results computed with earlier versions need re-checking.**

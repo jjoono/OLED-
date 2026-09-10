@@ -36,3 +36,12 @@ dft_seedlayer_screen/runs/**/.xtboptok
 ellipsometry/data/
 ellipsometry/out/
 ellipsometry/**/*.npz
+
+# ellipsometry: never commit measurements or fitted results
+ellipsometry/**/*.xlsx
+ellipsometry/**/*.csv
+ellipsometry/**/*.mod
+ellipsometry/**/*.png
+ellipsometry/**/*.json
+ellipsometry/**/*.SE
+ellipsometry/**/*.se
