@@ -6,8 +6,18 @@ import os as _os
 ELLIPS_DATA = _os.environ.get('ELLIPS_DATA', '.')   # measurement exports (.xlsx), CompleteEASE .mod
 ELLIPS_OUT  = _os.environ.get('ELLIPS_OUT', '.')    # fitted results, figures, intermediates
 
+# --- data location -------------------------------------------------------
+# The 2026-08-20 T/R campaign and the n,k library are tracked in this repo under
+# dft_seedlayer_screen/data/. Override with TR20260820_DIR / NK_DIR if needed.
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_REPO_DATA = _os.path.normpath(_os.path.join(_HERE, '..', '..', '..',
+                                             'dft_seedlayer_screen', 'data'))
+NK = _os.environ.get('NK_DIR', _os.path.join(_REPO_DATA, 'nk'))
+# -------------------------------------------------------------------------
+
 import numpy as np, json, csv, ellipsometry_fit as ef, ag_final as AG, tr_check as TC
-TR=_os.path.join(ELLIPS_OUT, r'TR260820')
+TR = _os.environ.get('TR20260820_DIR',
+                    _os.path.join(_REPO_DATA, 'TR_20260820'))
 V3=json.load(open('ag_v3_result.json')); wl=np.array([550.0])
 N_ORG=1.80; N_CAP=2.10; D_CAP=65.0
 
@@ -32,10 +42,10 @@ def load_nk(f,wt=550.):
     d=np.array([[float(v) for v in x[:3]] for x in r[1:] if x[0].replace('.','').replace('-','').isdigit()])
     return complex(np.interp(wt,d[:,0],d[:,1]),np.interp(wt,d[:,0],d[:,2]))
 
-mc=np.genfromtxt(TR+r'\nk\Ag_McPeak.csv',delimiter=',',names=True); mw=mc[mc.dtype.names[0]]
+mc=np.genfromtxt(NK+r'\Ag_McPeak.csv',delimiter=',',names=True); mw=mc[mc.dtype.names[0]]
 if mw.max()<10: mw=mw*1000
 N_bulk=np.array([complex(np.interp(550,mw,mc[mc.dtype.names[1]]),np.interp(550,mw,mc[mc.dtype.names[2]]))])
-a=np.genfromtxt(TR+r'\nk\Ag8nm_on_HATCN5_measured.csv',delimiter=',',names=True)
+a=np.genfromtxt(NK+r'\Ag8nm_on_HATCN5_measured.csv',delimiter=',',names=True)
 N_tr=np.array([complex(np.interp(550,a['wavelength_nm'],a['n']),np.interp(550,a['wavelength_nm'],a['k']))])
 N_se=AG.agN(np.array(V3['2-6']['p']),wl)
 N_mg=np.array([load_nk('MgAg_nk.csv')])

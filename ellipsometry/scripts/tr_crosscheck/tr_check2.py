@@ -4,12 +4,22 @@ import os as _os
 ELLIPS_DATA = _os.environ.get('ELLIPS_DATA', '.')   # measurement exports (.xlsx), CompleteEASE .mod
 ELLIPS_OUT  = _os.environ.get('ELLIPS_OUT', '.')    # fitted results, figures, intermediates
 
+# --- data location -------------------------------------------------------
+# The 2026-08-20 T/R campaign and the n,k library are tracked in this repo under
+# dft_seedlayer_screen/data/. Override with TR20260820_DIR / NK_DIR if needed.
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_REPO_DATA = _os.path.normpath(_os.path.join(_HERE, '..', '..', '..',
+                                             'dft_seedlayer_screen', 'data'))
+NK = _os.environ.get('NK_DIR', _os.path.join(_REPO_DATA, 'nk'))
+# -------------------------------------------------------------------------
+
 import numpy as np, json
 from scipy.optimize import minimize_scalar
 import ce_osc as osc, ellipsometry_fit as ef, ag_final as AG
 import tr_check as TC
 
-TR=_os.path.join(ELLIPS_OUT, r'TR260820')
+TR = _os.environ.get('TR20260820_DIR',
+                    _os.path.join(_REPO_DATA, 'TR_20260820'))
 V3=json.load(open('ag_v3_result.json'))
 SEEDP=json.load(open('ag_seed_result.json'))
 SP={k:[r for r in SEEDP[k] if abs(r['d_ox']-2.0)<1e-9][0]['p'][1:] for k in ('HATCN','MoOx')}

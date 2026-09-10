@@ -10,6 +10,12 @@ export ELLIPS_DATA=/path/to/measurements     # xlsx exports of .SE files, Comple
 export ELLIPS_OUT=/path/to/output            # fits (.json/.npz), n,k CSV, figures, generated .mod
 ```
 
+The 2026-08-20 absolute T/R campaign and the n,k library ARE tracked, under
+`dft_seedlayer_screen/data/`; the T/R and device-optics scripts find them
+automatically. **See [DATA.md](DATA.md)** for what every script needs, how to
+rebuild `ALL_SAMPLES_TRA.csv` from the raw Cary exports, and the order to
+regenerate the fits.
+
 ---
 
 ## 1. The transfer-matrix bug (read this first)
@@ -163,7 +169,9 @@ scripts/
              archive/        earlier generator versions (superseded)
   ito_izo_v2/                sputtered ITO/IZO pipeline, section 3
   thin_ag_260819/            Ag on HATCN / MoOx, section 4
-  tr_crosscheck/             absolute T/R comparison, section 5
+  tr_crosscheck/             build_tra.py (raw Cary exports -> consolidated CSV,
+                             documents the back-surface R correction),
+                             tr_check.py / tr_check2.py - section 5
   device_optics/             angle-resolved electrode loss, section 6
   archive/                   ellipsometry_fit_prebugfix.py (do not use for new work)
 ```

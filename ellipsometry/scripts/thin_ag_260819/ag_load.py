@@ -9,9 +9,11 @@ import numpy as np, openpyxl, os
 XL = _os.path.join(ELLIPS_DATA, r'summary.xlsx')
 CACHE = _os.path.join(ELLIPS_OUT, r'ag260819.npz')
 ANG = np.array([45., 50., 55., 60., 65.])
-SPEC = {  # sheet: (seed, seed nominal nm, Ag nominal nm)
- '1-5':('HATCN',4,0), '1-6':('HATCN',4,4), '1-7':('HATCN',4,5), '1-8':('HATCN',4,6),
- '2-5':('HATCN',4,7), '2-6':('HATCN',4,8), '2-7':('HATCN',4,10),'2-8':('HATCN',4,12),
+SPEC = {  # sheet: (seed, seed nominal nm from the quartz monitor, Ag nominal nm)
+          # Both seeds were deposited to a QCM reading of 5 nm; the fits require
+          # 6.4-7.5 nm (HATCN) and 6.9-8.0 nm (MoOx). See README_260820_session.md.
+ '1-5':('HATCN',5,0), '1-6':('HATCN',5,4), '1-7':('HATCN',5,5), '1-8':('HATCN',5,6),
+ '2-5':('HATCN',5,7), '2-6':('HATCN',5,8), '2-7':('HATCN',5,10),'2-8':('HATCN',5,12),
  '1-13':('MoOx',5,0), '1-14':('MoOx',5,4), '1-15':('MoOx',5,5), '1-16':('MoOx',5,6),
  '2-13':('MoOx',5,7),'2-14':('MoOx',5,8),'2-15':('MoOx',5,10),'2-16':('MoOx',5,12)}
 ORDER = ['1-5','1-6','1-7','1-8','2-5','2-6','2-7','2-8',
