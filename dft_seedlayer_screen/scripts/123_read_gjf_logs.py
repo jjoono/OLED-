@@ -92,6 +92,12 @@ def main():
               f"psi4 gave 0.286 on the same")
         print("  path. Agreement there is what licenses the rest of the column.")
 
+    if not results:
+        # An empty results file would read later as "the campaign ran and found
+        # nothing", which is not what an unrun campaign means.
+        print("\nNo barriers to write. Run RUN_ALL.bat on the workstation first,")
+        print("then point this script at the returned folder.")
+        return
     out = os.path.join(os.path.dirname(root), "runs",
                        "diffusion_barriers_gaussian.json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
