@@ -79,17 +79,38 @@ def main():
         if 0 not in pts or len(pts) < 3:
             missing.append((tag, len(pts), total, failed))
             continue
+        order = sorted(pts)
         ed = (max(pts.values()) - pts[0]) * H2EV
+        # A path that only goes downhill has no saddle on it, and the barrier it
+        # reports is zero by construction rather than by physics. That happens
+        # when the two endpoints are not the same site -- an asymmetric cluster
+        # whose "nearest equivalent atom" is in a different environment -- or
+        # when the grid is too coarse to resolve the bump between them.
+        mono = all(pts[order[i + 1]] <= pts[order[i]] for i in range(len(order) - 1))
+        lowest = min(pts, key=pts.get)
         results[tag] = {"E_d_eV": round(ed, 4), "class": path_class,
                         "points": len(pts), "failed_jobs": failed,
-                        "program": "gaussian"}
+                        "program": "gaussian",
+                        "monotonic_downhill": mono,
+                        "lowest_point": int(lowest),
+                        "endpoint_gap_eV": round((pts[order[-1]] - pts[0]) * H2EV, 4),
+                        "usable": not mono}
 
     if results:
         print(f"{'candidate':<12} {'E_d (eV)':>9} {'class':<10} {'pts':>4} {'failed':>7}")
         print("-" * 48)
         for tag, v in sorted(results.items(), key=lambda kv: -kv[1]["E_d_eV"]):
+            flag = "" if v["usable"] else "  <- downhill, no saddle on this path"
             print(f"{tag:<12} {v['E_d_eV']:>9.3f} {v['class']:<10} "
-                  f"{v['points']:>4} {v['failed_jobs']:>7}")
+                  f"{v['points']:>4} {v['failed_jobs']:>7}{flag}")
+        bad = [t for t, v in results.items() if not v["usable"]]
+        if bad:
+            print(f"\n{len(bad)} candidate(s) have no barrier on their path and need")
+            print("a denser one, or endpoints that are genuinely the same site:")
+            for t_ in bad:
+                v = results[t_]
+                print(f"  {t_:<12} endpoint is {v['endpoint_gap_eV']:+.3f} eV from "
+                      f"the start -- the two sites are not equivalent")
     if missing:
         print("\nincomplete (no barrier reported):")
         for tag, got, total, failed in missing:

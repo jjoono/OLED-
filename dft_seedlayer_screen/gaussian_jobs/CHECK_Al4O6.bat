@@ -20,7 +20,7 @@ for %%F in (*.out) do (
   for /f "tokens=5" %%A in ('findstr /c:"SCF Done" "%%F" 2^>nul') do set "E=%%A"
 
   set "S2=-"
-  for /f "tokens=3" %%B in ('findstr /c:"S**2 before annihilation" "%%F" 2^>nul') do set "S2=%%B"
+  for /f "tokens=5" %%B in ('findstr /c:"S**2 before annihilation" "%%F" 2^>nul') do set "S2=%%B"
 
   set "NAME=%%~nF                    "
   echo  !NAME:~0,18! !NORM!      !E!        !S2!
