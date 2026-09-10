@@ -82,3 +82,13 @@ as `0.0000` for k mean *below the detection limit*, not literally zero — the l
 ## Session 2026-08-20/21
 
 Transfer-matrix bug fix, CompleteEASE `.mod` generation, thin Ag on HATCN/MoOx seeds, T/R cross-check and device optics: see [README_260820_session.md](README_260820_session.md). Data locations and how to regenerate everything: [DATA.md](DATA.md). **The library `scripts/ellipsometry_fit.py` on this branch contains the TMM fix; results computed with earlier versions need re-checking.**
+
+## Session 2026-09-10
+
+Thin-Ag n,k re-extracted from the ellipsometry and the absolute T/R together
+(`scripts/joint_nk_260910/`, see [README_260910_joint.md](README_260910_joint.md)).
+Runs without a CompleteEASE `.mod` — the substrate comes from published tabulated
+data instead — and reaches the same seed dispersion as the 260819 pass. For Ag on
+HATCN one dielectric function now describes both measurements to 0.15 %p in
+absolute T/R, which retires the SE-vs-T/R disagreement in n reported in §5 of the
+260820 notes; Ag on MoOx still needs an inhomogeneous model.

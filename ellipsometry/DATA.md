@@ -12,6 +12,7 @@ automatically, relative to their own file; no environment variable is required.
 dft_seedlayer_screen/data/
   TR_20260820/
     raw/{id}T.csv, {id}R.csv     28 untouched Cary 6000i / UMA exports
+    raw/glass.csv, raw/glassR.csv  bare-substrate reference, same campaign
     ALL_SAMPLES_TRA.csv          consolidated T, Rmeas, Rcorr, A  (see below)
     HATCN5_Ag5_TR.txt, MoOx5_Ag5_TR.txt
   nk/
@@ -46,6 +47,13 @@ matches it to **max 0.012 %p across every column** — far inside the campaign's
 handoff's 0.843 ± 0.024. `--verify` re-checks this and never touches the
 delivered file.
 
+The bare-substrate exports `raw/glass.csv` / `raw/glassR.csv` check that
+constant directly, without reference to the delivered file: a transparent slab
+must show zero absorptance, and over 450–700 nm the bare glass gives
+**+0.581 %p with the raw R and −0.007 %p with the corrected R**
+(`scripts/joint_nk_260910/jnk_glass.py` prints it). So f is right and the
+substrate is lossless over the working window.
+
 Two exports are missing at source and stay blank: **1-9 has no T**,
 **2-12 has no R**.
 
@@ -67,7 +75,7 @@ export ELLIPS_OUT=/path/to/output          # fits (.json/.npz), n,k CSV, figures
 
 | What | Used by | Notes |
 |---|---|---|
-| `summary.xlsx` (260819 ThinAg) | `thin_ag_260819/*` | 16 sheets, 5 angles, 245.8–1688.1 nm |
+| `summary.xlsx` (260819 ThinAg) | `thin_ag_260819/*`, `joint_nk_260910/*` | 16 sheets, 5 angles, 245.8–1688.1 nm |
 | `se추출.xlsx` (260813 ITO/IZO) | `ito_izo_v2/*` | 5 sheets, 3 angles, 192.4–1688.3 nm |
 | `*_GenOSC_*.mod` | `completeease_mod/*` | CompleteEASE model file used as a structural template |
 | `ag_seed_result.json`, `ag_v3_result.json`, `ce_v13_result.json` | most fit scripts | written by the pipeline; regenerate by running it |
