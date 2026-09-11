@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="440" height="520" viewBox="0 0 440 520">
+
+<defs>
+  <linearGradient id="gAnodeTop" x1="0" y1="0" x2="1" y2="0.35">
+    <stop offset="0"    stop-color="#ffffff"/>
+    <stop offset="0.45" stop-color="#eef1f4"/>
+    <stop offset="1"    stop-color="#f9fbfc"/>
+  </linearGradient>
+  <linearGradient id="gItoA" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"   stop-color="#e9edf0"/>
+    <stop offset="0.5" stop-color="#f4f6f8"/>
+    <stop offset="1"   stop-color="#e2e7eb"/>
+  </linearGradient>
+  <linearGradient id="gAg" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"    stop-color="#a8afb7"/>
+    <stop offset="0.18" stop-color="#eceef1"/>
+    <stop offset="0.42" stop-color="#8d949c"/>
+    <stop offset="0.66" stop-color="#d3d8dd"/>
+    <stop offset="0.86" stop-color="#8f959d"/>
+    <stop offset="1"    stop-color="#b6bcc3"/>
+  </linearGradient>
+  <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"   stop-color="#c9a24f"/>
+    <stop offset="0.4" stop-color="#e8cd86"/>
+    <stop offset="1"   stop-color="#c19a45"/>
+  </linearGradient>
+  <linearGradient id="gGlass" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"   stop-color="#fdfdfe"/>
+    <stop offset="0.6" stop-color="#f2f4f6"/>
+    <stop offset="1"   stop-color="#e9ecef"/>
+  </linearGradient>
+
+  <linearGradient id="gCathTop" x1="0" y1="0" x2="1" y2="0.35">
+    <stop offset="0"    stop-color="#ffffff"/>
+    <stop offset="0.5"  stop-color="#e9edf1"/>
+    <stop offset="1"    stop-color="#fafbfc"/>
+  </linearGradient>
+  <linearGradient id="gCathA" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"   stop-color="#f6f8f9"/>
+    <stop offset="0.5" stop-color="#ffffff"/>
+    <stop offset="1"   stop-color="#eef1f3"/>
+  </linearGradient>
+  <linearGradient id="gAl" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"    stop-color="#d3d8de"/>
+    <stop offset="0.22" stop-color="#eef1f4"/>
+    <stop offset="0.5"  stop-color="#bfc5cd"/>
+    <stop offset="0.78" stop-color="#e6e9ed"/>
+    <stop offset="1"    stop-color="#c6ccd3"/>
+  </linearGradient>
+  <linearGradient id="gCathC" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"   stop-color="#fbfcfd"/>
+    <stop offset="0.6" stop-color="#f0f2f5"/>
+    <stop offset="1"   stop-color="#e7eaee"/>
+  </linearGradient>
+
+  <linearGradient id="gHtlTop" x1="0" y1="0" x2="1" y2="0.35">
+    <stop offset="0"    stop-color="#8b46e6"/>
+    <stop offset="0.45" stop-color="#a865f2"/>
+    <stop offset="1"    stop-color="#7c3aed"/>
+  </linearGradient>
+  <linearGradient id="gVioEdge" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"   stop-color="#c99cff"/>
+    <stop offset="0.5" stop-color="#e0c4ff"/>
+    <stop offset="1"   stop-color="#bb8cf8"/>
+  </linearGradient>
+  <linearGradient id="gVioFront" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="#9333ea"/>
+    <stop offset="0.55" stop-color="#7526d6"/>
+    <stop offset="1"   stop-color="#5b1ab0"/>
+  </linearGradient>
+
+  <linearGradient id="gEmlTop" x1="0" y1="0" x2="1" y2="0.35">
+    <stop offset="0"    stop-color="#2f5ad8"/>
+    <stop offset="0.45" stop-color="#5386f5"/>
+    <stop offset="1"    stop-color="#3462e0"/>
+  </linearGradient>
+  <linearGradient id="gEmlFront" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="#2a4fc4"/>
+    <stop offset="1"   stop-color="#17308c"/>
+  </linearGradient>
+
+  <linearGradient id="gCglTop" x1="0" y1="0" x2="1" y2="0.35">
+    <stop offset="0"    stop-color="#aadeec"/>
+    <stop offset="0.45" stop-color="#c8ecf5"/>
+    <stop offset="1"    stop-color="#a3d9e9"/>
+  </linearGradient>
+  <linearGradient id="gCglFront" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="#7cc4d8"/>
+    <stop offset="1"   stop-color="#529fba"/>
+  </linearGradient>
+
+  <radialGradient id="gGlowSoft" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0"    stop-color="#ffffff" stop-opacity="0.95"/>
+    <stop offset="0.32" stop-color="#8fe8ff" stop-opacity="0.80"/>
+    <stop offset="0.68" stop-color="#3fb0ff" stop-opacity="0.34"/>
+    <stop offset="1"    stop-color="#2a7fe0" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="gGlowCore" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0"    stop-color="#ffffff" stop-opacity="1"/>
+    <stop offset="0.5"  stop-color="#e4faff" stop-opacity="0.92"/>
+    <stop offset="1"    stop-color="#9ceaff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="gShadow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0"   stop-color="#2b3340" stop-opacity="0.26"/>
+    <stop offset="0.6" stop-color="#2b3340" stop-opacity="0.10"/>
+    <stop offset="1"   stop-color="#2b3340" stop-opacity="0"/>
+  </radialGradient>
+
+  <filter id="blurSoft" x="-50%" y="-120%" width="200%" height="340%">
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+  <filter id="blurCore" x="-50%" y="-120%" width="200%" height="340%">
+    <feGaussianBlur stdDeviation="3"/>
+  </filter>
+  <filter id="blurShadow" x="-50%" y="-150%" width="200%" height="400%">
+    <feGaussianBlur stdDeviation="5"/>
+  </filter>
+</defs>
+
+<rect width="440" height="520" fill="#ffffff"/>
+<title>Tandem blue PEP-OLED device stack</title>
+<text x="220" y="26" text-anchor="middle" fill="#3c4149" font-size="15" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Tandem blue PEP-OLED</text>
+<g id="ground-shadow" transform="rotate(6.2 222 494)"><ellipse cx="222" cy="494" rx="176" ry="20" fill="url(#gShadow)" filter="url(#blurShadow)"/></g>
+<g id="bottom-unit">
+<g>
+<polygon points="22,406 352,442 414,370 84,334" fill="url(#gAnodeTop)"/>
+<polygon points="22,406 352,442 352,451 22,415" fill="url(#gItoA)"/>
+<polygon points="22,415 352,451 352,467 22,431" fill="url(#gAg)"/>
+<polygon points="22,431 352,467 352,470 22,434" fill="url(#gGold)"/>
+<polygon points="22,434 352,470 352,484 22,448" fill="url(#gGlass)"/>
+<polygon points="352,442 414,370 414,379 352,451" fill="url(#gItoA)"/>
+<polygon points="352,451 414,379 414,395 352,467" fill="url(#gAg)"/>
+<polygon points="352,467 414,395 414,398 352,470" fill="url(#gGold)"/>
+<polygon points="352,470 414,398 414,412 352,484" fill="url(#gGlass)"/>
+<polygon points="352,442 414,370 414,412 352,484" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,406 352,442 414,370 84,334" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,448 L 352,484 L 414,412" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+<g>
+<polygon points="22,380 352,416 414,344 84,308" fill="url(#gHtlTop)"/>
+<polygon points="22,380 352,416 352,418.5 22,382.5" fill="url(#gVioEdge)"/>
+<polygon points="22,382.5 352,418.5 352,442 22,406" fill="url(#gVioFront)"/>
+<polygon points="352,416 414,344 414,346.5 352,418.5" fill="url(#gVioEdge)"/>
+<polygon points="352,418.5 414,346.5 414,370 352,442" fill="url(#gVioFront)"/>
+<polygon points="352,416 414,344 414,370 352,442" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,380 352,416 414,344 84,308" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,406 L 352,442 L 414,370" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+</g>
+<g id="glow-lower">
+<g transform="rotate(6.2 218 360)">
+<ellipse cx="218" cy="360" rx="150" ry="40" fill="url(#gGlowSoft)" filter="url(#blurSoft)"/>
+<ellipse cx="218" cy="360" rx="96" ry="21" fill="url(#gGlowCore)" opacity="0.95" filter="url(#blurCore)"/>
+</g>
+</g>
+<g id="middle-unit">
+<g>
+<polygon points="22,294 352,330 414,258 84,222" fill="url(#gEmlTop)"/>
+<polygon points="22,294 352,330 352,360 22,324" fill="url(#gEmlFront)"/>
+<polygon points="352,330 414,258 414,288 352,360" fill="url(#gEmlFront)"/>
+<polygon points="352,330 414,258 414,288 352,360" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,294 352,330 414,258 84,222" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,324 L 352,360 L 414,288" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+<g>
+<polygon points="22,262 352,298 414,226 84,190" fill="url(#gCglTop)"/>
+<polygon points="22,262 352,298 352,330 22,294" fill="url(#gCglFront)"/>
+<polygon points="352,298 414,226 414,258 352,330" fill="url(#gCglFront)"/>
+<polygon points="352,298 414,226 414,258 352,330" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,262 352,298 414,226 84,190" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,294 L 352,330 L 414,258" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+<g>
+<polygon points="22,232 352,268 414,196 84,160" fill="url(#gEmlTop)"/>
+<polygon points="22,232 352,268 352,298 22,262" fill="url(#gEmlFront)"/>
+<polygon points="352,268 414,196 414,226 352,298" fill="url(#gEmlFront)"/>
+<polygon points="352,268 414,196 414,226 352,298" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,232 352,268 414,196 84,160" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,262 L 352,298 L 414,226" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+</g>
+<g id="glow-upper">
+<g transform="rotate(6.2 218 192)">
+<ellipse cx="218" cy="192" rx="150" ry="40" fill="url(#gGlowSoft)" filter="url(#blurSoft)"/>
+<ellipse cx="218" cy="192" rx="92" ry="20" fill="url(#gGlowCore)" opacity="0.9" filter="url(#blurCore)"/>
+</g>
+</g>
+<g id="top-unit">
+<g>
+<polygon points="22,150 352,186 414,114 84,78" fill="url(#gHtlTop)"/>
+<polygon points="22,150 352,186 352,188.5 22,152.5" fill="url(#gVioEdge)"/>
+<polygon points="22,152.5 352,188.5 352,212 22,176" fill="url(#gVioFront)"/>
+<polygon points="352,186 414,114 414,116.5 352,188.5" fill="url(#gVioEdge)"/>
+<polygon points="352,188.5 414,116.5 414,140 352,212" fill="url(#gVioFront)"/>
+<polygon points="352,186 414,114 414,140 352,212" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,150 352,186 414,114 84,78" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,176 L 352,212 L 414,140" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+<g>
+<polygon points="22,112 352,148 414,76 84,40" fill="url(#gCathTop)"/>
+<polygon points="22,112 352,148 352,160 22,124" fill="url(#gCathA)"/>
+<polygon points="22,124 352,160 352,173 22,137" fill="url(#gAl)"/>
+<polygon points="22,137 352,173 352,186 22,150" fill="url(#gCathC)"/>
+<polygon points="352,148 414,76 414,88 352,160" fill="url(#gCathA)"/>
+<polygon points="352,160 414,88 414,101 352,173" fill="url(#gAl)"/>
+<polygon points="352,173 414,101 414,114 352,186" fill="url(#gCathC)"/>
+<polygon points="352,148 414,76 414,114 352,186" fill="#0b1020" opacity="0.20"/>
+<polygon points="22,112 352,148 414,76 84,40" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="0.8"/>
+<path d="M 22,150 L 352,186 L 414,114" fill="none" stroke="#0b1020" stroke-opacity="0.16" stroke-width="0.7"/>
+</g>
+</g>
+<g id="labels">
+<text x="344" y="170.73" transform="rotate(6.2 344 170.73)" text-anchor="end" fill="#2b3038" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">Ag/Al/Liq cathode</text>
+<text x="344" y="202.73" transform="rotate(6.2 344 202.73)" text-anchor="end" fill="#ffffff" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">Polaritonic ETL</text>
+<text x="344" y="286.73" transform="rotate(6.2 344 286.73)" text-anchor="end" fill="#ffffff" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">Blue EML</text>
+<text x="344" y="317.73" transform="rotate(6.2 344 317.73)" text-anchor="end" fill="#ffffff" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">CGL</text>
+<text x="344" y="348.73" transform="rotate(6.2 344 348.73)" text-anchor="end" fill="#ffffff" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">Blue EML</text>
+<text x="344" y="432.73" transform="rotate(6.2 344 432.73)" text-anchor="end" fill="#ffffff" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">Polaritonic HTL</text>
+<text x="344" y="466.73" transform="rotate(6.2 344 466.73)" text-anchor="end" fill="#2b3038" font-size="13.5" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif" letter-spacing="0.2">ITO/Ag/ITO anode</text>
+</g>
+</svg>
