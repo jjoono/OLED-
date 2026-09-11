@@ -1,7 +1,7 @@
 %Chk=BTD.chk
-%NProcShared=16
-%Mem=32GB
-#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128,VShift=300) NoSymm Guess=Read
+%NProcShared=8
+%Mem=48GB
+#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
 BTD t=0.000 dz=+0.00 class=site2site
 
