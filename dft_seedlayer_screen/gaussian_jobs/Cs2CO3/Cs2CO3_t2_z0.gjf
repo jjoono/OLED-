@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-Cs2CO3 t=0.500 dz=+0.00 class=site2site
+Cs2CO3 t=0.500 dz=-0.20 class=site2site
 
 0 2
  C      0.08850200     0.00477800     0.17819300
@@ -12,5 +12,5 @@ Cs2CO3 t=0.500 dz=+0.00 class=site2site
  O     -0.75948400    -0.91497500    -0.00578000
  Cs     2.61844300     1.72451600     0.42118400
  Cs    -2.95164000    -0.20520000     0.44580600
- Ag    -0.20115618     0.69480965     3.08666536
+ Ag    -0.15265648     0.68106002     2.89312279
 

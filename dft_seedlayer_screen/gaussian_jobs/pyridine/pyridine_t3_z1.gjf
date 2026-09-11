@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-pyridine t=0.750 dz=+0.40 class=toface
+pyridine t=0.750 dz=+0.20 class=toface
 
 0 2
  C     -0.31023600     1.14447400     0.06085300
@@ -17,5 +17,5 @@ pyridine t=0.750 dz=+0.40 class=toface
  H      2.35778700    -0.91886200    -0.02102800
  H     -1.57244700    -1.97828800    -0.13302000
  H     -2.32746200     0.39824100    -0.00811600
- Ag     0.22624433    -1.62271780     2.54922249
+ Ag     0.22038430    -1.54480753     2.36511478
 

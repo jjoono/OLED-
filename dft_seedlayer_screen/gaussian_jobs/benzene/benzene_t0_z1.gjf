@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-benzene t=0.000 dz=+0.40 class=toface
+benzene t=0.000 dz=+0.20 class=toface
 
 0 2
  C      1.14122500    -0.78309200     0.03803300
@@ -18,5 +18,5 @@ benzene t=0.000 dz=+0.40 class=toface
  H     -2.03178600     1.39418200    -0.06771200
  H     -2.22460500    -1.06164500     0.02294500
  H     -0.19281800    -2.45582700     0.09065700
- Ag    -0.13258020    -0.00435343    -2.95606282
+ Ag    -0.05643410    -0.05090521    -2.77708041
 

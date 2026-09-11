@@ -24,7 +24,21 @@ SPACING = 1.0                   # A between lateral points
 # (0.023, 0.000, 0.135 eV) and Bphen (0.003, 0.093, 0.103 eV) were both still
 # rising at their last point.
 NPATH_MIN, NPATH_MAX = 5, 7
-ZSCAN = (0.0, 0.4)           # measured up from the D_MIN contact height
+# Three heights, straddling the contact distance in both directions.
+#
+# Two heights cannot bracket a minimum: whichever is lower is an endpoint of the
+# scan, so the height is never relaxed, only guessed between two arbitrary
+# values. In the v8 run that guess was worth up to 0.456 eV (DMABN t3) -- more
+# than any barrier in the table -- and it varied along the path, so it distorted
+# the shape of the curve rather than shifting it. Which of the two won even
+# flipped mid-path (BTD z0,z0,z1,z1,z1), which is what put spurious structure
+# into the barrier.
+#
+# The contact height won 26 of 42 points, so the minimum sits near it on both
+# sides; the scan has to reach below the contact distance as well as above it.
+# A point slightly inside the repulsive wall is what makes the parabola fit
+# possible, so the reader gets a real minimum instead of a lower of two.
+ZSCAN = (-0.2, 0.2, 0.6)     # measured from the contact height, along the normal
 D_MIN = 2.2                  # A, floor on the closest approach to any substrate atom
 
 # One contact distance for every element pair is wrong by an angstrom on the

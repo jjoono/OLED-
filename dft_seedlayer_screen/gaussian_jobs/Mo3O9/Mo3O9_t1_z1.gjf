@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-Mo3O9 t=0.250 dz=+0.40 class=site2site
+Mo3O9 t=0.250 dz=+0.20 class=site2site
 
 0 2
  Mo     2.00000000     0.00000000     0.00000000
@@ -18,5 +18,5 @@ Mo3O9 t=0.250 dz=+0.40 class=site2site
  O     -1.51000000    -2.61539700     1.36000000
  O     -1.51000000    -2.61539700    -1.36000000
  O      1.15000000    -1.99185800     0.00000000
- Ag    -2.35264330     0.75812989     2.91868130
+ Ag    -2.19762256     0.74414019     2.79309126
 

@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-Bphen t=0.750 dz=+0.40 class=toface
+Bphen t=0.750 dz=+0.20 class=toface
 
 0 2
  C     -5.07510400     2.59605700    -0.84858200
@@ -48,5 +48,5 @@ Bphen t=0.750 dz=+0.40 class=toface
  H      2.99041800    -4.16568900     1.55613100
  H     -3.67719800    -0.20533800    -2.12404600
  H     -4.97962600     1.76976200    -2.82135600
- Ag    -0.27060295    -1.34543851     3.19518937
+ Ag    -0.22993502    -1.32180799     3.00079874
 

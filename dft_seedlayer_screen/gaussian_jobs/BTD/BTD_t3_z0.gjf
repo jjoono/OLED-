@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-BTD t=0.750 dz=+0.00 class=site2site
+BTD t=0.750 dz=-0.20 class=site2site
 
 0 2
  C     -1.40002300     0.71901100     0.07961400
@@ -19,5 +19,5 @@ BTD t=0.750 dz=+0.00 class=site2site
  H     -2.32581300    -1.21032500     0.21425100
  H     -0.16429500    -2.47147600     0.09640700
  H     -0.23809700     2.52495600    -0.06830900
- Ag     3.85920596     0.78815693     2.12673893
+ Ag     3.74353800     0.78055807     1.96375678
 

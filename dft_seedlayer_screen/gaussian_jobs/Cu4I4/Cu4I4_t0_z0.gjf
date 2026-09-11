@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
 
-Cu4I4 t=0.000 dz=+0.00 class=site2site
+Cu4I4 t=0.000 dz=-0.20 class=site2site
 
 0 2
  Cu     0.23556100     0.23556100     0.23556100
@@ -14,5 +14,5 @@ Cu4I4 t=0.000 dz=+0.00 class=site2site
  I     -0.17765500     2.79765500    -0.17765500
  I     -0.17765500    -0.17765500     2.79765500
  I      2.79765500     2.79765500     2.79765500
- Ag     4.58744100     4.58744100     4.58744100
+ Ag     4.47197095     4.47197095     4.47197095
 

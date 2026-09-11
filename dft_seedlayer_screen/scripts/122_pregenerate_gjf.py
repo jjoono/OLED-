@@ -25,7 +25,8 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT,
-                      ZSCAN, destination, frames, geometry, read_xyz, sanity)
+                      ZSCAN, contact, destination, frames, geometry, read_xyz,
+                      sanity)
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "gaussian_jobs")
@@ -372,10 +373,19 @@ def main():
         n = 0
         first = None
         order = []
+        lim = np.array([contact(x) for x in sub_s])
         for i, (pos, nrm) in enumerate(pts):
             for j, dz in enumerate(ZSCAN):
+                agx = pos + dz * nrm
+                # The lowest height deliberately sits inside the contact
+                # distance -- a point on the repulsive wall is what brackets the
+                # minimum from below. Inside 85% of it the energy is no longer
+                # parabolic and the fit would be pulled by a wall, so that
+                # height is dropped for this point rather than fitted.
+                if float((np.linalg.norm(sub_x - agx, axis=1) / lim).min()) < 0.85:
+                    continue
                 name = f"{safe}_t{i}_z{j}"
-                body = (sub_s + ["Ag"], np.vstack([sub_x, pos + dz * nrm]),
+                body = (sub_s + ["Ag"], np.vstack([sub_x, agx]),
                         f"{tag} t={i/(len(pts)-1):.3f} dz={dz:+.2f} class={cls}")
                 with open(os.path.join(d, name + ".gjf"), "w") as f:
                     f.write(gjf(*body, nproc, mem, mult,

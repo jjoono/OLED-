@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-Al4O6 t=1.000 dz=+0.40 class=site2site
+Al4O6 t=1.000 dz=+0.20 class=site2site
 
 0 2
  Al     1.32933800     0.54605500     0.00000800
@@ -16,5 +16,5 @@ Al4O6 t=1.000 dz=+0.40 class=site2site
  O     -1.41589900    -0.39516300     1.41502200
  O     -1.41590000    -0.39515800    -1.41501600
  O     -0.00000000    -2.39806500    -0.00000400
- Ag     3.84563814    -1.31340954    -1.30018267
+ Ag     3.65873520    -1.24277481    -1.30901600
 

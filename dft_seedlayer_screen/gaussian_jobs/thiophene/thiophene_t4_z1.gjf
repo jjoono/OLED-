@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-thiophene t=1.000 dz=+0.40 class=toface
+thiophene t=1.000 dz=+0.20 class=toface
 
 0 2
  C      0.57544500    -0.73335500     0.28209400
@@ -15,5 +15,5 @@ thiophene t=1.000 dz=+0.40 class=toface
  H     -1.55378600    -1.28065900     0.30728900
  H     -2.07004600     1.17894300    -0.45691900
  H      2.37052000     0.51258600     0.04071600
- Ag     0.32838305    -0.94530783    -3.10600960
+ Ag     0.31176597    -0.86910736    -2.92184293
 

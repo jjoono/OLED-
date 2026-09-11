@@ -3,7 +3,7 @@
 %Mem=48GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128) NoSymm Guess=Read
 
-triazine t=1.000 dz=+0.00 class=site2site
+triazine t=1.000 dz=-0.20 class=site2site
 
 0 2
  C      1.16372500    -0.53933000     0.33692600
@@ -15,5 +15,5 @@ triazine t=1.000 dz=+0.00 class=site2site
  H      2.12252000    -0.96012600     0.62337500
  H     -2.00850200    -1.29517000     0.26435700
  H     -0.12477900     2.25053900    -0.61701500
- Ag     1.67115714     1.17467793     2.21261192
+ Ag     1.62520954     1.13469583     2.02211192
 
