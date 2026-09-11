@@ -29,16 +29,26 @@ from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT, ZSCAN,
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "gaussian_jobs")
-# SCF settings are overridable because the default failed on the first large
-# candidate. Bphen ran 128 DIIS cycles without converging and only then handed
-# off to quadratic convergence, so the entire DIIS phase was wasted; every
-# larger molecule would repeat it. VShift separates the near-degenerate orbitals
-# that cause the oscillation -- it is the same remedy that made these complexes
-# converge under psi4 -- and the lower MaxCycle stops throwing cycles away
-# before falling back to QC. The level shift is withdrawn as convergence
-# approaches, so it changes the path to the solution, not the solution.
-SCF = os.environ.get("GAUSS_SCF", "XQC,MaxCycle=128")
-ROUTE = (f"#P PBEPBE/Def2SVP EmpiricalDispersion=GD3BJ SP "
+# The functional is a lever on convergence, not only on accuracy. Under PBE the
+# Ag/HATCN complex has an alpha HOMO-LUMO gap of 0.22 eV, because GGA
+# delocalisation error smears the Ag 5s electron across the acceptor and leaves
+# the frontier space nearly degenerate. Quadratic convergence then stalls: the
+# Newton step comes out 90.0 degrees from the gradient on every iteration (33 of
+# them in the v5 HATCN run), so no step length lowers the energy and the
+# gradient sits at 5.96e-3 forever while the energy is flat to 1e-9 Hartree.
+# That is a saddle in orbital-rotation space -- an unstable wavefunction -- and
+# no convergence threshold fixes it. A hybrid opens the gap, which removes the
+# degeneracy that creates the saddle, and removes the delocalisation error that
+# put the two SCF solutions 0.08 eV apart in the first place.
+FUNC = os.environ.get("GAUSS_FUNC", "PBE1PBE")
+# VShift separates the near-degenerate orbitals during the DIIS phase; at the
+# fixed point a level shift moves virtual eigenvalues only, so the converged
+# density is a genuine SCF solution. It changes which solution is reached, not
+# what that solution is. XQC keeps quadratic convergence as a fallback rather
+# than the first resort -- a QC iteration here runs ~60 linear-equation
+# micro-iterations, so it costs far more than the hybrid's exact exchange.
+SCF = os.environ.get("GAUSS_SCF", "XQC,MaxCycle=128,VShift=300")
+ROUTE = (f"#P {FUNC}/Def2SVP EmpiricalDispersion=GD3BJ SP "
          f"SCF=({SCF}) NoSymm")
 
 
