@@ -18,9 +18,32 @@ RUNS = os.path.join(BASE, "runs")
 H2EV = 27.211386
 
 SPACING = 1.0                   # A between lateral points
-NPATH_MIN, NPATH_MAX = 3, 5
+# Three points cannot show a barrier. A path sampled at t=0, 0.5, 1 has no
+# interior point, so the reported maximum is whichever endpoint is higher and the
+# number is a lower bound, not a barrier. The v5 run made this concrete: Cs2CO3
+# (0.023, 0.000, 0.135 eV) and Bphen (0.003, 0.093, 0.103 eV) were both still
+# rising at their last point.
+NPATH_MIN, NPATH_MAX = 5, 7
 ZSCAN = (0.0, 0.4)           # measured up from the D_MIN contact height
-D_MIN = 2.2                  # A, closest approach allowed to any substrate atom
+D_MIN = 2.2                  # A, floor on the closest approach to any substrate atom
+
+# One contact distance for every element pair is wrong by an angstrom on the
+# heavy ones. In the v5 run Cu4I4 sat 3.10 A from iodine at t=0 and 2.24 A at
+# t=2, because 2.2 A is the floor for Ag-I as much as for Ag-C. The resulting
+# 1.5 eV "barrier" was Pauli repulsion from pushing Ag into the iodine core, and
+# it collapsed to 0.29 eV half an angstrom further out -- which no chemisorption
+# barrier does. The contact distance is set per pair instead, from the covalent
+# radii (Cordero 2008), so Ag-I gets 2.84 A while Ag-C keeps 2.21 A.
+R_COV = {"H": 0.31, "Li": 1.28, "C": 0.76, "N": 0.71, "O": 0.66, "F": 0.57,
+         "Al": 1.21, "P": 1.07, "S": 1.05, "Cl": 1.02, "Cu": 1.32, "Br": 1.20,
+         "Mo": 1.54, "Ag": 1.45, "I": 1.39, "Cs": 2.44, "Ba": 2.15}
+R_AG = R_COV["Ag"]
+
+
+def contact(sym):
+    """Closest approach allowed between Ag and one substrate element."""
+    return max(D_MIN, R_AG + R_COV.get(sym, 1.0))
+
 
 # tag -> (structure file, destination rule, multiplicity)
 #   "auto"  hop to the nearest other atom of the same element as the anchor
@@ -129,17 +152,23 @@ def destination(sub_s, sub_x, ag, anchor, rule):
     return cen + h * nrm / np.linalg.norm(nrm), ("chelate" if rule == "chelate" else "toface")
 
 
-def place(sub_x, pos, nrm):
-    """Lift `pos` along `nrm` until no substrate atom is closer than D_MIN.
+def place(sub_x, pos, nrm, sub_s=None):
+    """Lift `pos` along `nrm` until no substrate atom is closer to Ag than its
+    own contact distance.
 
     Interpolating the adatom's absolute position between two binding sites sends
     it straight through the molecule. Sliding it back out along the normal keeps
     the path on the surface, which is what a diffusing adatom actually does.
+
+    `sub_s` gives the substrate element symbols, so each atom gets its own
+    contact distance. Without it every atom falls back to the flat D_MIN, which
+    is the behaviour that produced Cu4I4's spurious 1.5 eV barrier.
     """
     p = np.array(pos, float)
-    for _ in range(60):
-        dmin = float(np.min(np.linalg.norm(sub_x - p, axis=1)))
-        if dmin >= D_MIN:
+    lim = (np.array([contact(x) for x in sub_s]) if sub_s is not None
+           else np.full(len(sub_x), D_MIN))
+    for _ in range(80):
+        if float((np.linalg.norm(sub_x - p, axis=1) - lim).min()) >= 0.0:
             return p
         p = p + 0.1 * nrm
     return p

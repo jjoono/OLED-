@@ -18,19 +18,32 @@ import json, os, re, sys
 
 H2EV = 27.211386
 E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
-NAME_RE = re.compile(r"_t(\d+)_z(\d+)$")
+S2_RE = re.compile(r"S\*\*2 *= *(-?\d+\.\d+)")
+NAME_RE = re.compile(r"_t(\d+)_z(\d+)(_ref)?$")
+
+# A doublet has S**2 = 0.75 exactly. UKS values drift a little above it for any
+# real open-shell complex, but in the v5 run the points that had collapsed onto
+# a wrong SCF solution were the contaminated ones every time -- benzene 0.7567
+# at +3.41 eV, DMABN 0.7534 at +2.20 eV, Bphen 0.7551 -- while every point that
+# agreed with its neighbours sat between 0.7512 and 0.7519. The separation is
+# clean enough to reject on, and rejecting is right: a point on a different
+# electronic state contributes the gap between states, not a barrier.
+S2_MAX = 0.7525
 
 
 def read_log(p):
-    """Last converged SCF energy, or None if the job did not terminate normally."""
+    """(energy, S**2) of the last converged SCF, or (None, None) if unusable."""
     try:
         txt = open(p, errors="replace").read()
     except OSError:
-        return None
+        return None, None
     if "Normal termination" not in txt:
-        return None
+        return None, None
     hits = E_RE.findall(txt)
-    return float(hits[-1]) if hits else None
+    if not hits:
+        return None, None
+    s2 = S2_RE.findall(txt)
+    return float(hits[-1]), (float(s2[-1]) if s2 else None)
 
 
 def main():
@@ -53,7 +66,7 @@ def main():
         d = os.path.join(root, folder)
         if not os.path.isdir(d):
             continue
-        pts, failed, total = {}, 0, 0
+        pts, failed, total, contaminated = {}, 0, 0, []
         for fn in sorted(os.listdir(d)):
             if not fn.endswith(".gjf"):
                 continue
@@ -63,15 +76,21 @@ def main():
             if not mo:
                 continue
             t = int(mo.group(1))
-            e = None
+            e = s2 = None
             for ext in (".out", ".log"):      # G16W writes .out, g16 on Linux .log
                 cand = os.path.join(d, stem + ext)
                 if os.path.exists(cand):
-                    e = read_log(cand)
+                    e, s2 = read_log(cand)
                     break
             if e is None:
                 failed += 1
                 continue
+            if s2 is not None and s2 > S2_MAX:
+                contaminated.append((stem, s2))
+                continue
+            # The re-run of t=0 shares its path index with the original, so the
+            # usual lowest-of-the-height-scan rule already keeps whichever of the
+            # two landed on the lower solution.
             if t not in pts or e < pts[t]:
                 pts[t] = e
 
@@ -92,6 +111,7 @@ def main():
                         "points": len(pts), "failed_jobs": failed,
                         "program": "gaussian",
                         "monotonic_downhill": mono,
+                        "rejected_spin_contaminated": [n for n, _ in contaminated],
                         "lowest_point": int(lowest),
                         "endpoint_gap_eV": round((pts[order[-1]] - pts[0]) * H2EV, 4),
                         "usable": not mono}
@@ -111,6 +131,12 @@ def main():
                 v = results[t_]
                 print(f"  {t_:<12} endpoint is {v['endpoint_gap_eV']:+.3f} eV from "
                       f"the start -- the two sites are not equivalent")
+    if any(v["rejected_spin_contaminated"] for v in results.values()):
+        print("\nrejected for spin contamination (S**2 > "
+              f"{S2_MAX}) -- wrong SCF solution:")
+        for t_, v in sorted(results.items()):
+            for n in v["rejected_spin_contaminated"]:
+                print(f"  {n}")
     if missing:
         print("\nincomplete (no barrier reported):")
         for tag, got, total, failed in missing:

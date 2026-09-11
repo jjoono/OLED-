@@ -102,17 +102,33 @@ def main():
         d = os.path.join(OUT, safe)
         os.makedirs(d, exist_ok=True)
         n = 0
+        first = None
         for i, t in enumerate(np.linspace(0.0, 1.0, npath)):
-            pos = place(sub_x, (1 - t) * ag + t * dest, nrm)
+            pos = place(sub_x, (1 - t) * ag + t * dest, nrm, sub_s)
             for j, dz in enumerate(ZSCAN):
                 name = f"{safe}_t{i}_z{j}"
+                body = (sub_s + ["Ag"], np.vstack([sub_x, pos + dz * nrm]),
+                        f"{tag} t={t:.3f} dz={dz:+.2f} class={cls}")
                 with open(os.path.join(d, name + ".gjf"), "w") as f:
-                    f.write(gjf(sub_s + ["Ag"],
-                                np.vstack([sub_x, pos + dz * nrm]),
-                                f"{tag} t={t:.3f} dz={dz:+.2f} class={cls}",
-                                nproc, mem, mult,
+                    f.write(gjf(*body, nproc, mem, mult,
                                 chk=f"{safe}.chk", read=(n > 0)))
+                if n == 0:
+                    first = body
                 n += 1
+
+        # Re-run the path's first point last, from the orbitals the chain ended
+        # on. Only the first job has no previous orbitals to read, so it is the
+        # one point converged from a Harris guess -- and in the v5 run that guess
+        # collapsed onto a far higher solution three times out of seven: benzene
+        # by 3.41 eV, DMABN by 2.20 eV, Bphen by 0.15 eV, each flagged by a spin
+        # contamination the rest of its folder did not have. That point is the
+        # barrier's zero, so a bad one poisons every energy difference in the
+        # folder. The re-run costs one cheap job and puts the reference on the
+        # same electronic state as the path it is subtracted from.
+        with open(os.path.join(d, f"{safe}_t0_z0_ref.gjf"), "w") as f:
+            f.write(gjf(*first, nproc, mem, mult,
+                        chk=f"{safe}.chk", read=True))
+        n += 1
         index.append((tag, safe, cls, len(sub_s) + 1, npath, len(ZSCAN), n))
         made += n
         print(f"  {tag:<12} {cls:<10} {len(sub_s)+1:>3} atoms  "

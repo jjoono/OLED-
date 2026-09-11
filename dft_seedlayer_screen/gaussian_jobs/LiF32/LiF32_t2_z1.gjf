@@ -3,7 +3,7 @@
 %Mem=32GB
 #P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128,VShift=300) NoSymm Guess=Read
 
-LiF32 t=0.667 dz=+0.40 class=site2site
+LiF32 t=0.500 dz=+0.40 class=site2site
 
 0 2
  Li     0.00000000     0.00000000     0.00000000
@@ -38,5 +38,5 @@ LiF32 t=0.667 dz=+0.40 class=site2site
  Li     6.03900000     4.02600000     2.01300000
  Li     6.03900000     6.03900000     0.00000000
  F      6.03900000     6.03900000     2.01300000
- Ag     0.67100000     0.67100000     4.91300000
+ Ag     1.00650000     1.00650000     4.91300000
 
