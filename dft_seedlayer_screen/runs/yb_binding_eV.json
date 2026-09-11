@@ -1,0 +1,26 @@
+{
+  "AgYb": {
+    "Eb_eV": 1.1737,
+    "complex_mult": 2,
+    "level": "PBE-D3BJ/def2-SVP(+def2-ECP for Yb), CP-corrected rigid scan",
+    "min_at_scan_edge": false,
+    "n_failed_points": 0,
+    "r_A": 2.8,
+    "scan_E_h": {
+      "2.60": -1306.5203472591106,
+      "2.80": -1306.5256335278648,
+      "3.00": -1306.5251739705518,
+      "3.20": -1306.521793071987,
+      "3.50": -1306.5147477732362,
+      "3.80": -1306.5076314124683
+    }
+  },
+  "Yb_PhCN": {
+    "Eb_eV": 0.3026,
+    "complex_mult": 1,
+    "level": "PBE-D3BJ/def2-SVP(+def2-ECP for Yb), CP-corrected rigid scan",
+    "min_at_scan_edge": true,
+    "note": "minimum at the 2.7 A scan edge - 0.303 eV is a LOWER BOUND; the 2.3-2.5 A points were dropped because the SCF stalled there",
+    "r_A": 2.7
+  }
+}
