@@ -18,17 +18,27 @@ import json, os, re, sys
 
 H2EV = 27.211386
 E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
-S2_RE = re.compile(r"S\*\*2 *= *(-?\d+\.\d+)")
+# Gaussian prints "S**2 =" only in the quadratic-convergence summary, so a
+# pattern that matches only that form reads nothing at all from the jobs that
+# converged under DIIS -- 71 of the first 92 v8 outputs. The annihilation line
+# is printed for every UKS job.
+S2_RE = re.compile(r"S\*\*2 before annihilation\s+(\d+\.\d+)")
+S2_ALT = re.compile(r"<S\*\*2>=\s*(\d+\.\d+)")
 NAME_RE = re.compile(r"_t(\d+)_z(\d+)(_ref)?$")
 
-# A doublet has S**2 = 0.75 exactly. UKS values drift a little above it for any
-# real open-shell complex, but in the v5 run the points that had collapsed onto
-# a wrong SCF solution were the contaminated ones every time -- benzene 0.7567
-# at +3.41 eV, DMABN 0.7534 at +2.20 eV, Bphen 0.7551 -- while every point that
-# agreed with its neighbours sat between 0.7512 and 0.7519. The separation is
-# clean enough to reject on, and rejecting is right: a point on a different
-# electronic state contributes the gap between states, not a barrier.
-S2_MAX = 0.7525
+# A doublet has S**2 = 0.75 exactly, and a point that has collapsed onto a
+# different electronic state shows it. But there is no one number to test
+# against: the fixed 0.7525 calibrated on PBE rejects 21 of the first 92 PBE0
+# jobs, including ones whose energies agree with their neighbours to a
+# milli-Hartree, because a hybrid carries more contamination everywhere.
+#
+# What separates a bad point from its folder is that it differs from the rest of
+# that folder, so the test is made relative. The absolute number is kept only as
+# a caveat on a whole folder: F4TCNQ runs 0.7759-0.8455 across every one of its
+# points, which is a real open-shell Ag-to-acceptor charge transfer rather than
+# one stray job, and a single-reference doublet describes it poorly.
+S2_SPREAD = 0.02      # above the folder median -> a different state
+S2_FOLDER = 0.77      # folder median above this -> flag, do not reject
 
 
 def read_log(p):
@@ -42,7 +52,7 @@ def read_log(p):
     hits = E_RE.findall(txt)
     if not hits:
         return None, None
-    s2 = S2_RE.findall(txt)
+    s2 = S2_RE.findall(txt) or S2_ALT.findall(txt)
     return float(hits[-1]), (float(s2[-1]) if s2 else None)
 
 
@@ -66,7 +76,7 @@ def main():
         d = os.path.join(root, folder)
         if not os.path.isdir(d):
             continue
-        pts, failed, total, contaminated = {}, 0, 0, []
+        pts, failed, total, contaminated, seen = {}, 0, 0, [], []
         for fn in sorted(os.listdir(d)):
             if not fn.endswith(".gjf"):
                 continue
@@ -85,7 +95,16 @@ def main():
             if e is None:
                 failed += 1
                 continue
-            if s2 is not None and s2 > S2_MAX:
+            seen.append((t, stem, e, s2))
+
+        # The spin test needs the whole folder before it can say what is normal
+        # for it, so the points are collected first and filtered here.
+        s2s = sorted(x[3] for x in seen if x[3] is not None)
+        med = s2s[len(s2s) // 2] if s2s else None
+        folder_hot = med is not None and med > S2_FOLDER
+        for t, stem, e, s2 in seen:
+            if med is not None and s2 is not None and not folder_hot \
+                    and s2 > med + S2_SPREAD:
                 contaminated.append((stem, s2))
                 continue
             # The re-run of t=0 shares its path index with the original, so the
@@ -112,6 +131,9 @@ def main():
                         "program": "gaussian",
                         "monotonic_downhill": mono,
                         "rejected_spin_contaminated": [n for n, _ in contaminated],
+                        "spin_contaminated_folder": folder_hot,
+                        "s2_median": med,
+                        "path_minimum": int(min(pts, key=pts.get)),
                         "lowest_point": int(lowest),
                         "endpoint_gap_eV": round((pts[order[-1]] - pts[0]) * H2EV, 4),
                         "usable": not mono}
@@ -131,6 +153,13 @@ def main():
             if v["class"] == "site2site" and abs(v["endpoint_gap_eV"]) > \
                     max(0.05, 0.3 * abs(v["E_d_eV"])):
                 flag += "  <- endpoints disagree; not one state"
+            if v["spin_contaminated_folder"]:
+                flag += f"  <- S**2 ~ {v['s2_median']:.3f} throughout"
+            # The path minimum landing between the endpoints means the adatom
+            # prefers somewhere the input structure did not put it, so the site
+            # the barrier was measured from is not a binding site at all.
+            if 0 < v["path_minimum"] < v["points"] - 1:
+                flag += f"  <- minimum at point {v['path_minimum']}, not an end"
             print(f"{tag:<12} {v['E_d_eV']:>9.3f} {v['endpoint_gap_eV']:>+10.3f} "
                   f"{v['class']:<10} {v['points']:>4} {v['failed_jobs']:>7}{flag}")
         bad = [t for t, v in results.items() if not v["usable"]]
@@ -142,8 +171,8 @@ def main():
                 print(f"  {t_:<12} endpoint is {v['endpoint_gap_eV']:+.3f} eV from "
                       f"the start -- the two sites are not equivalent")
     if any(v["rejected_spin_contaminated"] for v in results.values()):
-        print("\nrejected for spin contamination (S**2 > "
-              f"{S2_MAX}) -- wrong SCF solution:")
+        print("\nrejected: S**2 more than "
+              f"{S2_SPREAD} above the folder median -- a different SCF state:")
         for t_, v in sorted(results.items()):
             for n in v["rejected_spin_contaminated"]:
                 print(f"  {n}")
