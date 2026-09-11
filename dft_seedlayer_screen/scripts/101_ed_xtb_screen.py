@@ -63,7 +63,7 @@ def xtb_energy(syms, xyz, chrg=0, uhf=1):
 def barrier(tag, fn, rule):
     syms, xyz = d97.read_xyz(os.path.join(STRUCT, fn))
     sub_s, sub_x, ag, anchor, nrm = d97.geometry(syms, xyz)
-    dest, cls = d97.destination(sub_s, sub_x, ag, anchor, rule)
+    _, dest, cls = d97.destination(sub_s, sub_x, ag, anchor, rule)
     span = float(np.linalg.norm(dest - ag))
     npath = int(np.clip(round(span / d97.SPACING) + 1, d97.NPATH_MIN, d97.NPATH_MAX))
 

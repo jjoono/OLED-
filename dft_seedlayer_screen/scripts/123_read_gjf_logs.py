@@ -117,12 +117,22 @@ def main():
                         "usable": not mono}
 
     if results:
-        print(f"{'candidate':<12} {'E_d (eV)':>9} {'class':<10} {'pts':>4} {'failed':>7}")
-        print("-" * 48)
+        print(f"{'candidate':<12} {'E_d (eV)':>9} {'end-start':>10} "
+              f"{'class':<10} {'pts':>4} {'failed':>7}")
+        print("-" * 60)
         for tag, v in sorted(results.items(), key=lambda kv: -kv[1]["E_d_eV"]):
             flag = "" if v["usable"] else "  <- downhill, no saddle on this path"
-            print(f"{tag:<12} {v['E_d_eV']:>9.3f} {v['class']:<10} "
-                  f"{v['points']:>4} {v['failed_jobs']:>7}{flag}")
+            # A site2site path now runs between two equivalent atoms and ends at
+            # the same height it started, so its two endpoints are the same
+            # state by symmetry and their energy difference is a free error bar
+            # on the barrier above it. A gap that is not small next to E_d means
+            # the two ends did not converge to the same electronic state, and
+            # the barrier inherits that error whatever the path looks like.
+            if v["class"] == "site2site" and abs(v["endpoint_gap_eV"]) > \
+                    max(0.05, 0.3 * abs(v["E_d_eV"])):
+                flag += "  <- endpoints disagree; not one state"
+            print(f"{tag:<12} {v['E_d_eV']:>9.3f} {v['endpoint_gap_eV']:>+10.3f} "
+                  f"{v['class']:<10} {v['points']:>4} {v['failed_jobs']:>7}{flag}")
         bad = [t for t, v in results.items() if not v["usable"]]
         if bad:
             print(f"\n{len(bad)} candidate(s) have no barrier on their path and need")

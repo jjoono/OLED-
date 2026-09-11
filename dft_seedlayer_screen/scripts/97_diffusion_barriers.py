@@ -136,7 +136,7 @@ def barrier(tag, fn, rule, mult):
               flush=True)
         return None
     sub_s, sub_x, ag, anchor, nrm = geometry(syms, xyz)
-    dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
+    _, dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
     print(f"[{tag}] {len(sub_s)} substrate atoms, anchor {sub_s[anchor]}{anchor}, "
           f"path {cls}, span {np.linalg.norm(dest-ag):.2f} A", flush=True)
 

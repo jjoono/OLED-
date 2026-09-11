@@ -24,8 +24,8 @@ import os, sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT, ZSCAN,
-                      destination, geometry, place, read_xyz, sanity)
+from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT,
+                      ZSCAN, destination, frames, geometry, read_xyz, sanity)
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "gaussian_jobs")
@@ -94,21 +94,46 @@ def main():
             continue
 
         sub_s, sub_x, ag, anchor, nrm = geometry(syms, xyz)
-        dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
-        span = float(np.linalg.norm(dest - ag))
+        near, dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
+        # Size the path by how far the *site* moves, not by how far the adatom's
+        # start and end points are apart. On a cage those two differ by metres
+        # of arc: Al4O6 hops between oxygens 2.83 A apart, but the two adatom
+        # positions sit 5.7 A from each other because each is lifted along its
+        # own outward normal. Spacing the path by the chord would sample the hop
+        # twice as finely as it needs and double the cost of the campaign.
+        heavy = np.array([x for sym, x in zip(sub_s, sub_x) if sym != "H"])
+        end_site = sub_x[near] if near is not None else heavy.mean(axis=0)
+        span = float(np.linalg.norm(end_site - sub_x[anchor]))
         npath = int(np.clip(round(span / SPACING) + 1, NPATH_MIN, NPATH_MAX))
+        pts, cls, _ = frames(sub_s, sub_x, ag, anchor, rule, npath)
+
+        # A hop that never leaves its starting atom is not a hop. On Al4O6
+        # every v5 point stayed 2.20-2.24 A from the same oxygen while the
+        # supposed destination oxygen never came closer than 3.00 A, so the
+        # "barrier" was only the adatom sliding downhill around one site. Test
+        # the thing that actually failed -- which atom the adatom ends up over.
+        # Only site2site paths have a destination atom; a toface path is meant
+        # to end over the ring centre, a short move that this test would
+        # misread as a stalled hop.
+        if cls == "site2site" and near is not None:
+            end = pts[-1][0]
+            got = int(np.linalg.norm(sub_x - end, axis=1).argmin())
+            if got == anchor:
+                refused.append((tag, f"path ends over {sub_s[anchor]}{anchor} "
+                                     f"again -- it never reaches "
+                                     f"{sub_s[near]}{near}"))
+                continue
 
         safe = tag.replace("=", "").replace("-", "")
         d = os.path.join(OUT, safe)
         os.makedirs(d, exist_ok=True)
         n = 0
         first = None
-        for i, t in enumerate(np.linspace(0.0, 1.0, npath)):
-            pos = place(sub_x, (1 - t) * ag + t * dest, nrm, sub_s)
+        for i, (pos, nrm) in enumerate(pts):
             for j, dz in enumerate(ZSCAN):
                 name = f"{safe}_t{i}_z{j}"
                 body = (sub_s + ["Ag"], np.vstack([sub_x, pos + dz * nrm]),
-                        f"{tag} t={t:.3f} dz={dz:+.2f} class={cls}")
+                        f"{tag} t={i/(len(pts)-1):.3f} dz={dz:+.2f} class={cls}")
                 with open(os.path.join(d, name + ".gjf"), "w") as f:
                     f.write(gjf(*body, nproc, mem, mult,
                                 chk=f"{safe}.chk", read=(n > 0)))
