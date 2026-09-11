@@ -1,4 +1,4 @@
-"""Run the campaign: several folders at a time, each folder in path order.
+r"""Run the campaign: several folders at a time, each folder in path order.
 
     python run_campaign.py [--workers N] [--g16 C:\G16W]
 

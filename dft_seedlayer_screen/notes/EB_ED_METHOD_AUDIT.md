@@ -588,3 +588,26 @@ python run_campaign.py --workers 4 --g16 C:\G16W
 ```
 
 중단 후 재실행하면 끝난 작업은 건너뛴다. 246 jobs / 22 folders.
+
+### v8 실행 확인 및 런처 버그 (2026-09-11)
+
+워크스테이션 실측: **64 logical processors, 4 workers**. SMT 켜진 32코어가 맞았고,
+`%NProcShared=16`이 64개 중 25%였다는 진단이 그대로 확인됐다.
+
+**정정**: v8 노트에 "CPU 30% → 90%"라고 썼는데 **50%가 맞다.** 4 워커 × 8스레드 =
+32스레드이고 작업 관리자는 논리 64개 기준으로 센다. 물리 코어 32개를 다 쓰는
+상태이며 SMT 짝만 비어 있다. `--workers 8`로 SMT까지 채울 수는 있으나 Fock 조립은
+부동소수점 유닛을 공유하므로 이득은 10~25% 수준이다.
+
+**런처 버그**: `RUN_ALL.bat`이 `where python`을 먼저 확인했는데, Windows의
+`%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe` 스텁이 **존재하고 `where`에
+잡히며** 실행하면 "Python" 한 줄만 찍고 끝난다. 더블클릭했으면 아무 일도 일어나지
+않았을 것이다. 이 기계가 정확히 그 상태였다 (실제 인터프리터는
+`C:\Users\JHKIM\miniforge3\python.exe`).
+
+수정: 알려진 conda/miniforge 경로를 **PATH보다 먼저** 확인하고, WindowsApps 경로는
+건너뛰고, 후보마다 `-c "import sys"`를 실제로 실행해 코드를 돌릴 수 있는지 검증한다.
+존재 여부만으로는 스텁과 진짜를 구분할 수 없다.
+
+`run_campaign.py`의 docstring에 `C:\G16W`가 들어 있어 SyntaxWarning이 났다 (`\G`).
+docstring을 raw string으로 바꿨다. 실행에는 영향 없었다.
