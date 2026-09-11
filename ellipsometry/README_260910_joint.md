@@ -242,3 +242,65 @@ with this fit's dispersion ~2 % flatter toward the red.
 * If a CompleteEASE `.mod` with `SI_JAW`/`NTVE_JAW` turns up, `lib/ce_mat.py`
   decodes it and the whole pipeline can be re-run in that frame for a direct
   comparison with the 260819 numbers; §1 suggests the difference will be small.
+
+## 9. How far do these constants carry into a TMM / CPS device model?
+
+`jnk_devsens.py` propagates the remaining ambiguity into the quantities a
+device calculation asks for, at a fixed thickness so only the dispersion
+varies. Read the **SE-vs-joint** gap as the bracket: both fit the ellipsometry
+to MSE 2–3, only the joint one also reproduces the absolute T/R. (The T/R-only
+column is there to show that intensity alone does not determine n,k.)
+
+| Ag on HATCN, 550 nm | SE-only | joint | gap |
+|---|---|---|---|
+| ε₁ = n²−k² (8 nm) | −13.50 | −11.88 | 14 % |
+| ε₂ = 2nk (8 nm) | 0.639 | 1.056 | 39 % |
+| electrode A at 0° in a device stack (8 nm) | 2.19 % | 3.63 % | 40 % |
+| same at 60° internal | 2.50 % | 4.21 % | 41 % |
+| quenching FOM Im[(ε_m−ε_d)/(ε_m+ε_d)] (8 nm) | 0.039 | 0.090 | 57 % |
+| short-range SPP length L (8 nm) | 152 nm | 69 nm | 2.2× |
+
+Across the series ε₁ holds to 2–14 % but ε₂ moves 25–86 %, and the device-level
+losses move with ε₂. The asymmetry is structural: for a metal with n ≪ k,
+ε₁ ≈ −k² is carried by the well-determined half of the dispersion and
+ε₂ = 2nk is linear in n, the half that only the absolute intensity pins down.
+**Where a resonance sits is safe; how lossy it is inherits the whole n
+uncertainty.**
+
+What is genuinely validated: the joint fit reproduces T and R at normal
+incidence on glass to 0.16–0.24 %p, so A = 1−T−R over 420–780 nm is good to
+~0.3 %p absolute — a few percent relative on a film absorbing 6–15 %. Inside
+that box a TMM calculation is on solid ground.
+
+What is extrapolation, in order of how much it should worry you:
+
+1. **The evanescent region is not measured at all.** SE at 45–65° in air
+   reaches u = sin θ ≤ 0.91 and the T/R is at normal incidence; the CPS
+   integral is dominated by u > 1. Every SPP and lossy-surface-wave number
+   above comes from the oscillator model continued past its data.
+2. **The layer was fitted isotropic.** A columnar or island film is uniaxial,
+   and p-polarised large-u response depends on ε_z, which neither data set
+   constrains. `ellipsometry_fit._tmm_uniaxial` and `thin_ag_260819/ag_anis.py`
+   are the starting point if this matters.
+3. **The adjacent media differ.** These films were measured with air above and
+   Si or glass below; in a device the Ag sits between the seed and an organic
+   capping. For the near-bulk HATCN films (≥ 7 nm) that is a material constant
+   and travels; for the 4–6 nm films and for all of MoOx it is an
+   effective-medium value that does not.
+4. **Roughness is a coherent EMA layer, not scattering.** The fits put it at
+   0–1.3 nm, implausibly smooth for a 4–6 nm Ag film, so some real roughness is
+   being absorbed into n,k. A device model will book that as absorption.
+5. **MoOx should not be used as material constants at all** (§6).
+
+So: for electrode transmission, reflection and absorbed fraction in the visible
+at moderate internal angles, on HATCN, at 7 nm and above — yes, and the joint
+fit is markedly better for this than an SE-only fit, because an absolute
+intensity measurement is exactly the constraint such a calculation needs. For
+a CPS mode split, quote the SPP and quenching channels with a factor ~2, or
+measure the evanescent region first.
+
+The measurement that would close it is one that reaches u > 1 — Kretschmann /
+ATR or prism-coupled ellipsometry on the same films. Angle- and
+polarisation-resolved absolute T/R would be cheaper and would at least extend
+the absolute anchor from u = 0 to u ≈ 0.9; a haze or integrating-sphere
+measurement would separate the scattering that item 4 currently hides in k.
