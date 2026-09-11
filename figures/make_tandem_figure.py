@@ -95,7 +95,7 @@ def glow(cy_layer_oy, dy=0.0, soft=(152, 42), core=(96, 22), core_op=0.95):
     cx = OX + EX / 2.0 + DX / 2.0
     cy = cy_layer_oy + EY / 2.0 + DY / 2.0 + dy
     g = ['<g transform="rotate(%s %s %s)">' % (SLANT, f(cx), f(cy))]
-    g.append('<ellipse cx="%s" cy="%s" rx="%s" ry="%s" fill="url(#gGlowSoft)" filter="url(#blurSoft)"/>'
+    g.append('<ellipse cx="%s" cy="%s" rx="%s" ry="%s" fill="url(#gGlowSoft)"/>'
              % (f(cx), f(cy), f(soft[0]), f(soft[1])))
     g.append('<ellipse cx="%s" cy="%s" rx="%s" ry="%s" fill="url(#gGlowCore)" opacity="%s" '
              'filter="url(#blurCore)"/>'
@@ -199,12 +199,14 @@ defs = """
   <radialGradient id="gGlowSoft" cx="0.5" cy="0.5" r="0.5">
     <stop offset="0"    stop-color="#ffffff" stop-opacity="0.95"/>
     <stop offset="0.32" stop-color="#8fe8ff" stop-opacity="0.80"/>
-    <stop offset="0.68" stop-color="#3fb0ff" stop-opacity="0.34"/>
+    <stop offset="0.62" stop-color="#5cc0ff" stop-opacity="0.42"/>
+    <stop offset="0.82" stop-color="#3fb0ff" stop-opacity="0.16"/>
     <stop offset="1"    stop-color="#2a7fe0" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="gGlowCore" cx="0.5" cy="0.5" r="0.5">
     <stop offset="0"    stop-color="#ffffff" stop-opacity="1"/>
-    <stop offset="0.5"  stop-color="#e4faff" stop-opacity="0.92"/>
+    <stop offset="0.42" stop-color="#e4faff" stop-opacity="0.90"/>
+    <stop offset="0.74" stop-color="#b8f1ff" stop-opacity="0.45"/>
     <stop offset="1"    stop-color="#9ceaff" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="gShadow" cx="0.5" cy="0.5" r="0.5">
@@ -213,15 +215,6 @@ defs = """
     <stop offset="1"   stop-color="#2b3340" stop-opacity="0"/>
   </radialGradient>
 
-  <filter id="blurSoft" x="-50%" y="-120%" width="200%" height="340%">
-    <feGaussianBlur stdDeviation="6"/>
-  </filter>
-  <filter id="blurCore" x="-50%" y="-120%" width="200%" height="340%">
-    <feGaussianBlur stdDeviation="3"/>
-  </filter>
-  <filter id="blurShadow" x="-50%" y="-150%" width="200%" height="400%">
-    <feGaussianBlur stdDeviation="5"/>
-  </filter>
 </defs>
 """
 
@@ -237,7 +230,7 @@ A('<text x="220" y="26" text-anchor="middle" fill="#3c4149" font-size="15" '
 
 # ground shadow
 A('<g id="ground-shadow" transform="rotate(%s 222 494)">'
-  '<ellipse cx="222" cy="494" rx="176" ry="20" fill="url(#gShadow)" filter="url(#blurShadow)"/></g>' % SLANT)
+  '<ellipse cx="222" cy="494" rx="176" ry="20" fill="url(#gShadow)"/></g>' % SLANT)
 
 A('<g id="bottom-unit">')
 A(slab(L["anode"]))

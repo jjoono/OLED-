@@ -92,12 +92,14 @@
   <radialGradient id="gGlowSoft" cx="0.5" cy="0.5" r="0.5">
     <stop offset="0"    stop-color="#ffffff" stop-opacity="0.95"/>
     <stop offset="0.32" stop-color="#8fe8ff" stop-opacity="0.80"/>
-    <stop offset="0.68" stop-color="#3fb0ff" stop-opacity="0.34"/>
+    <stop offset="0.62" stop-color="#5cc0ff" stop-opacity="0.42"/>
+    <stop offset="0.82" stop-color="#3fb0ff" stop-opacity="0.16"/>
     <stop offset="1"    stop-color="#2a7fe0" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="gGlowCore" cx="0.5" cy="0.5" r="0.5">
     <stop offset="0"    stop-color="#ffffff" stop-opacity="1"/>
-    <stop offset="0.5"  stop-color="#e4faff" stop-opacity="0.92"/>
+    <stop offset="0.42" stop-color="#e4faff" stop-opacity="0.90"/>
+    <stop offset="0.74" stop-color="#b8f1ff" stop-opacity="0.45"/>
     <stop offset="1"    stop-color="#9ceaff" stop-opacity="0"/>
   </radialGradient>
   <radialGradient id="gShadow" cx="0.5" cy="0.5" r="0.5">
@@ -106,21 +108,12 @@
     <stop offset="1"   stop-color="#2b3340" stop-opacity="0"/>
   </radialGradient>
 
-  <filter id="blurSoft" x="-50%" y="-120%" width="200%" height="340%">
-    <feGaussianBlur stdDeviation="6"/>
-  </filter>
-  <filter id="blurCore" x="-50%" y="-120%" width="200%" height="340%">
-    <feGaussianBlur stdDeviation="3"/>
-  </filter>
-  <filter id="blurShadow" x="-50%" y="-150%" width="200%" height="400%">
-    <feGaussianBlur stdDeviation="5"/>
-  </filter>
 </defs>
 
 <rect width="440" height="520" fill="#ffffff"/>
 <title>Tandem blue PEP-OLED device stack</title>
 <text x="220" y="26" text-anchor="middle" fill="#3c4149" font-size="15" font-family="Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif">Tandem blue PEP-OLED</text>
-<g id="ground-shadow" transform="rotate(6.2 222 494)"><ellipse cx="222" cy="494" rx="176" ry="20" fill="url(#gShadow)" filter="url(#blurShadow)"/></g>
+<g id="ground-shadow" transform="rotate(6.2 222 494)"><ellipse cx="222" cy="494" rx="176" ry="20" fill="url(#gShadow)"/></g>
 <g id="bottom-unit">
 <g>
 <polygon points="22,406 352,442 414,370 84,334" fill="url(#gAnodeTop)"/>
@@ -149,7 +142,7 @@
 </g>
 <g id="glow-lower">
 <g transform="rotate(6.2 218 360)">
-<ellipse cx="218" cy="360" rx="150" ry="40" fill="url(#gGlowSoft)" filter="url(#blurSoft)"/>
+<ellipse cx="218" cy="360" rx="150" ry="40" fill="url(#gGlowSoft)"/>
 <ellipse cx="218" cy="360" rx="96" ry="21" fill="url(#gGlowCore)" opacity="0.95" filter="url(#blurCore)"/>
 </g>
 </g>
@@ -181,7 +174,7 @@
 </g>
 <g id="glow-upper">
 <g transform="rotate(6.2 218 192)">
-<ellipse cx="218" cy="192" rx="150" ry="40" fill="url(#gGlowSoft)" filter="url(#blurSoft)"/>
+<ellipse cx="218" cy="192" rx="150" ry="40" fill="url(#gGlowSoft)"/>
 <ellipse cx="218" cy="192" rx="92" ry="20" fill="url(#gGlowCore)" opacity="0.9" filter="url(#blurCore)"/>
 </g>
 </g>

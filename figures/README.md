@@ -1,5 +1,8 @@
 # Figures
 
+모두 순수 벡터 SVG이고 SVG 필터를 쓰지 않으므로, Illustrator/Inkscape에서
+래스터화 없이 그대로 편집됩니다.
+
 ## `tandem_blue_pep_oled.svg`
 
 Tandem blue PEP-OLED 소자 구조 모식도 (아이소메트릭 분해도).
@@ -34,4 +37,39 @@ SVG 안의 주요 그룹에 id를 달아두었으므로 레이어 패널에서 �
 python3 figures/make_tandem_figure.py
 ```
 
-의존성 없이 표준 라이브러리만 사용합니다.
+---
+
+## `trans_scale_simulation.svg`
+
+Trans-scale 광학 시뮬레이션 개념도 — 컷어웨이(cut-away) 아이소메트릭.
+소자 앞모서리를 사각으로 잘라내어 단면을 드러내고, 그 단면 위에 물리를 그렸습니다.
+
+- 캔버스: 1020 x 565
+- 층 구성 (위 → 아래): Metal cathode · OLED · (ITO anode) · Glass ·
+  Outcoupling structure (아랫면에 마이크로렌즈 어레이)
+- 단면 위 물리 표현
+  - **파동광학 영역**: 쌍극자 방사 로브 2개 + 쌍극자 모멘트 화살표 + 퍼져나가는 파면
+  - **기하광학 영역**: 유리를 가로지르는 광선, 원거리장 세기 분포(반구 극좌표 + 적색 로브),
+    산란 입자와 산란 경로, 마이크로렌즈를 통한 적색 추출광
+- 오른쪽: 두 영역을 묶는 브레이스와 노란 점선 패널
+
+레이어 패널에서 찾을 수 있는 id: `layer-Cath`, `layer-Oled`, `layer-Ito`,
+`layer-Glass`, `layer-Out`.
+
+### 구조 바꾸기
+
+`make_transscale_figure.py` 상단에서 조절합니다.
+
+| 변수 | 의미 |
+|---|---|
+| `EX, EY` / `DX, DY` | 아이소메트릭 투영 벡터 (보는 각도) |
+| `U0, V0` | 잘라낸 모서리의 위치 (0~1). 값을 키우면 단면이 좁아집니다 |
+| `LAYERS` | `(이름, 윗면 높이, 두께, 평면 크기 배율)` — 층 추가·삭제·두께 조절 |
+
+```bash
+python3 figures/make_transscale_figure.py
+```
+
+---
+
+두 스크립트 모두 의존성 없이 파이썬 표준 라이브러리만 사용합니다.
