@@ -59,6 +59,42 @@ def contact(sym):
     return max(D_MIN, R_AG + R_COV.get(sym, 1.0))
 
 
+# Bondi van der Waals radii, for how close a neighbouring molecule may sit.
+R_VDW = {"H": 1.20, "Li": 1.82, "C": 1.70, "N": 1.55, "O": 1.52, "F": 1.47,
+         "Al": 1.84, "P": 1.80, "S": 1.80, "Cl": 1.75, "Cu": 1.40, "Br": 1.85,
+         "Mo": 2.10, "Ag": 1.72, "I": 1.98, "Cs": 3.43, "Ba": 2.68}
+
+
+def _bonded(syms, X):
+    r = np.array([R_COV.get(s, 1.0) for s in syms])
+    d = np.linalg.norm(X[:, None] - X[None, :], axis=2)
+    return (d < (r[:, None] + r[None, :]) * 1.25) & ~np.eye(len(syms), dtype=bool)
+
+
+def fingerprint(syms, X, depth=3):
+    """A label per atom that is equal exactly for equivalent atoms.
+
+    Element equality is not equivalence. "The nearest other atom of the same
+    element" paired the two ends of the Al4O6 and Cu4I4 paths across different
+    chemical environments, and the barrier then measured the difference between
+    two inequivalent sites rather than a hop. Iterating each atom's label over
+    its bonded neighbours (Morgan relabelling) separates environments that share
+    an element, and three rounds is enough for molecules this size.
+    """
+    B = _bonded(syms, X)
+    lab = list(syms)
+    for _ in range(depth):
+        lab = [f"{lab[i]}({','.join(sorted(lab[j] for j in np.flatnonzero(B[i])))})"
+               for i in range(len(syms))]
+    return lab
+
+
+def equivalents(syms, X, i):
+    """Indices of the atoms equivalent to atom i, excluding i."""
+    fp = fingerprint(syms, X)
+    return [j for j in range(len(syms)) if j != i and fp[j] == fp[i]]
+
+
 # tag -> (structure file, destination rule, multiplicity)
 #   "auto"  hop to the nearest other atom of the same element as the anchor
 #   "face"  ring/molecular centroid of the heavy atoms
@@ -112,10 +148,17 @@ def sanity(syms, xyz, tag=""):
         return f"expected one Ag, found {len(i)}"
     i = i[0]
     d = _np.linalg.norm(_np.delete(xyz, i, 0) - xyz[i], axis=1)
+    others = [s for k, s in enumerate(syms) if k != i]
     if d.min() < 2.0:
-        near = [s for k, s in enumerate(syms) if k != i][int(_np.argmin(d))]
-        return (f"Ag is {d.min():.2f} A from {near} -- an unrelaxed placement, "
-                f"not a minimum")
+        return (f"Ag is {d.min():.2f} A from {others[int(_np.argmin(d))]} -- an "
+                f"unrelaxed placement, not a minimum")
+    # Ag resting on a hydrogen is not a binding site. PhCz's complex has Ag
+    # 2.51 A from H30 with no heavy atom nearer, so the "hop" it defines runs
+    # between two C-H hydrogens and measures nothing about the molecule's
+    # affinity for silver.
+    if others[int(_np.argmin(d))] == "H":
+        return (f"Ag's nearest atom is a hydrogen at {d.min():.2f} A -- the "
+                f"complex was never relaxed onto a binding site")
     return None
 
 
@@ -175,7 +218,14 @@ def outward(sub_s, sub_x, site, h, hint=None):
         h_ = np.asarray(hint, float)
         nh = np.linalg.norm(h_)
         if nh > 1e-9:
-            u = u[u @ (h_ / nh) > 0.0]
+            # A cone, not a hemisphere. "Furthest from every atom" on a small
+            # flat molecule is off the edge past a C-H, not above the ring --
+            # benzene's path left the ring and crossed over a hydrogen. The
+            # adatom has to stay on the face it started on, so directions more
+            # than 60 degrees off the surface normal are not offered.
+            keep = u @ (h_ / nh) > 0.5
+            if keep.any():
+                u = u[keep]
     lim = np.array([contact(x) for x in sub_s])
     d = np.linalg.norm((site + h * u[:, None, :]) - sub_x[None, :, :], axis=2)
     return u[int((d - lim).min(axis=1).argmax())]
@@ -190,19 +240,24 @@ def destination(sub_s, sub_x, ag, anchor, rule):
     heavy = np.array([x for s, x in zip(sub_s, sub_x) if s != "H"])
     cen = heavy.mean(axis=0)
     h = float(np.linalg.norm(ag - sub_x[anchor]))
+    # The molecule's own surface normal, turned to the side the adatom is on.
+    # Every site on one molecule shares it, so using it as the hint keeps the
+    # whole path on one face instead of letting each site pick its own way out.
+    face = np.linalg.svd(heavy - cen, full_matrices=False)[2][-1]
+    if face @ (ag - cen) < 0:
+        face = -face
 
-    if rule == "auto":
-        el = sub_s[anchor]
-        same = [j for j, s in enumerate(sub_s) if s == el and j != anchor]
+    if rule != "face":
+        same = equivalents(sub_s, sub_x, anchor)
         if same:
             # nearest equivalent site: diffusion takes the cheapest hop, and a
             # drag across the whole molecule is a different process entirely
             near = min(same,
                        key=lambda j: np.linalg.norm(sub_x[j] - sub_x[anchor]))
-            u = outward(sub_s, sub_x, sub_x[near], h, hint=sub_x[near] - cen)
+            u = outward(sub_s, sub_x, sub_x[near], h, hint=face)
             return near, sub_x[near] + h * u, "site2site"
 
-    u = outward(sub_s, sub_x, cen, h, hint=ag - cen)
+    u = outward(sub_s, sub_x, cen, h, hint=face)
     return None, cen + h * u, ("chelate" if rule == "chelate" else "toface")
 
 
@@ -257,3 +312,72 @@ def place(sub_x, pos, nrm, sub_s=None):
             return p
         p = p + 0.1 * nrm
     return p
+
+
+def neighbour(sub_s, sub_x, anchor, nrm, clearance=1.0):
+    """A second copy of the molecule, placed as a diffusing adatom would meet it.
+
+    A molecule with only one kind of binding site has nowhere to hop to on its
+    own, so its barrier cannot be defined on a monomer at all -- the v8 run
+    measured the climb onto the ring centre instead, which is the binding
+    difference between two INEQUIVALENT sites and put Bphen above HATCN. The
+    hop that actually happens in a film is from a site on one molecule to the
+    same site on its neighbour.
+
+    The neighbour is the copy produced by turning the molecule 180 degrees about
+    an axis along the site normal, through the midpoint of the two sites. That
+    choice is not cosmetic. It maps site to site exactly, and it maps the whole
+    complex at t=0 onto the whole complex at t=1, so the two ends of the path
+    are the same state by construction and their energy difference is a purely
+    numerical error bar rather than an approximate one. It is also ordinary
+    packing: a two-fold related neighbour is among the commonest motifs in
+    molecular crystals.
+
+    The separation is the smallest that keeps every cross-molecule atom pair at
+    van der Waals contact, so the gap the adatom crosses is a real one.
+
+    Returns (symbols, coordinates, site_A, site_B, separation).
+    """
+    heavy = np.array([x for s, x in zip(sub_s, sub_x) if s != "H"])
+    site = np.array(sub_x[anchor], float)
+    n = np.asarray(nrm, float)
+    n = n / np.linalg.norm(n)
+
+    # In-plane direction to set the neighbour along: outward from the molecule
+    # through its binding site, which is the way an adatom leaves it.
+    u = site - heavy.mean(axis=0)
+    u = u - (u @ n) * n
+    if np.linalg.norm(u) < 1e-3:
+        # site sits over the middle: use the molecule's long axis instead
+        p = heavy - heavy.mean(axis=0)
+        p = p - np.outer(p @ n, n)
+        u = np.linalg.svd(p, full_matrices=False)[2][0]
+    u = u / np.linalg.norm(u)
+
+    rv = np.array([R_VDW.get(s, 1.7) for s in sub_s])
+    R = 2.0 * np.outer(n, n) - np.eye(3)          # 180 deg about n
+
+    d = 2.0
+    for _ in range(400):
+        mid = site + 0.5 * d * u
+        img = mid + (sub_x - mid) @ R.T
+        gap = (np.linalg.norm(sub_x[:, None] - img[None, :], axis=2)
+               - clearance * (rv[:, None] + rv[None, :]))
+        if float(gap.min()) >= 0.0:
+            break
+        d += 0.1
+    return (list(sub_s) + list(sub_s), np.vstack([sub_x, img]),
+            site, site + d * u, float(d))
+
+
+def dimer_frames(sub_s, sub_x, ag, anchor, nrm, npath):
+    """Adatom positions and normals for a hop onto the neighbouring molecule."""
+    syms, xyz, a_site, b_site, span = neighbour(sub_s, sub_x, anchor, nrm)
+    h = float(np.linalg.norm(ag - sub_x[anchor]))
+    n = np.asarray(nrm, float)
+    n = n / np.linalg.norm(n)
+    out = []
+    for t in np.linspace(0.0, 1.0, npath):
+        site = (1 - t) * a_site + t * b_site
+        out.append((place(xyz, site + h * n, n, syms), n))
+    return syms, xyz, out, span

@@ -200,7 +200,8 @@ def main():
         # barrier's own error bar, measured on the same footing as the barrier.
         n = len(order)
         asym = max(abs(pts[order[i]] - pts[order[n - 1 - i]])
-                   for i in range(n)) * H2EV / 2 if path_class == "site2site" else 0.0
+                   for i in range(n)) * H2EV / 2 \
+            if path_class in ("site2site", "dimer") else 0.0
         # A path that only goes downhill has no saddle on it, and the barrier it
         # reports is zero by construction rather than by physics. That happens
         # when the two endpoints are not the same site -- an asymmetric cluster
@@ -233,13 +234,25 @@ def main():
         ref_tag = next((t for t in ("benzene", "pyridine", "HATCN")
                         if t in results), None)
         ref_ed = results[ref_tag]["E_d_eV"] if ref_tag else None
-        hop = {t: v for t, v in results.items() if v["class"] == "site2site"}
-        face = {t: v for t, v in results.items() if v["class"] != "site2site"}
-        print("A diffusion barrier is the climb between two equivalent sites. "
-              "Only a\nsite2site path measures that, so the two classes are "
-              "listed apart and must\nnot be ranked against each other.\n")
-        print("site2site -- a hop between equivalent sites")
-        _table(hop, ref_tag, ref_ed)
+        mono = {t: v for t, v in results.items() if v["class"] == "site2site"}
+        dim = {t: v for t, v in results.items() if v["class"] == "dimer"}
+        face = {t: v for t, v in results.items()
+                if v["class"] not in ("site2site", "dimer")}
+        print("Both classes below measure the same thing -- the climb between "
+              "two equivalent\nbinding sites -- so they rank together. They "
+              "differ only in where the second\nsite is.\n")
+        if mono:
+            print("site2site -- the second site is on the same molecule")
+            _table(mono, ref_tag, ref_ed)
+        if dim:
+            print("\ndimer -- the binding site is unique, so the hop goes to the "
+                  "same site on a\nneighbouring molecule, placed by a two-fold "
+                  "rotation about the surface normal\nat van der Waals contact. "
+                  "That rotation maps the whole complex at t=0 onto the\ncomplex "
+                  "at t=1 exactly (to 1e-15 A), so for these the two endpoints "
+                  "are the same\nstate by construction and any difference "
+                  "between them is purely numerical.")
+            _table(dim, ref_tag, ref_ed)
         if face:
             print("\ntoface -- Ag dragged from its site onto the ring centre.")
             print("This is the binding-energy difference between two "
