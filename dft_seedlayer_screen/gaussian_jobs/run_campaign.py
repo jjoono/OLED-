@@ -38,14 +38,20 @@ def say(msg):
 
 def jobs_of(folder):
     """Job stems in the order they must run."""
+    stems = sorted(f[:-4] for f in os.listdir(folder) if f.endswith(".gjf"))
     order = os.path.join(folder, "ORDER.txt")
     if os.path.exists(order):
         names = [l.strip() for l in open(order) if l.strip()]
-        return [n for n in names
-                if os.path.exists(os.path.join(folder, n + ".gjf"))]
+        listed = [n for n in names if n + ".gjf" in os.listdir(folder)]
+        # Anything present but not listed is a job added after the folder was
+        # written -- a top-up height, say. Run it after what the file names
+        # rather than ignoring it, which is what filtering to the list alone
+        # would do.
+        extra = [n for n in stems if n not in set(listed)]
+        return listed + [n for n in extra if not n.endswith("_ref")] \
+            + [n for n in extra if n.endswith("_ref")]
     # No ORDER.txt: fall back to alphabetical but push the reference re-runs to
     # the end, which is the one thing alphabetical order gets wrong.
-    stems = sorted(f[:-4] for f in os.listdir(folder) if f.endswith(".gjf"))
     return ([s for s in stems if not s.endswith("_ref")]
             + [s for s in stems if s.endswith("_ref")])
 
