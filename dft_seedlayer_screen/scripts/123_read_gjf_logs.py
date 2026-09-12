@@ -95,6 +95,30 @@ def read_log(p):
             (float(dz[0]) if dz else None))
 
 
+def _table(group, ref_tag, ref_ed):
+    """One ranked block. E_d is the largest climb anywhere on the path."""
+    if not group:
+        return
+    print(f"  {'candidate':<11}{'E_d (eV)':>9}{'+/-':>7}{'from t0':>9}"
+          f"{'vs ' + (ref_tag or '-'):>12}  notes")
+    for tag, v in sorted(group.items(), key=lambda kv: -kv[1]["E_d_eV"]):
+        n = []
+        if not v["usable"]:
+            n.append("downhill, no saddle")
+        if v["resolved"] is False:
+            n.append("BELOW ITS OWN ERROR")
+        if v["spin_contaminated_folder"]:
+            n.append(f"S**2 ~ {v['s2_median']:.3f} throughout")
+        if 0 < v["path_minimum"] < v["points"] - 1:
+            n.append(f"site is point {v['path_minimum']}, not an end")
+        if v["height_unbracketed_points"]:
+            n.append("height never bracketed")
+        rel = (f"{v['E_d_eV'] - ref_ed:>+12.3f}" if ref_ed is not None
+               else f"{'-':>12}")
+        print(f"  {tag:<11}{v['E_d_eV']:>9.3f}{v['asymmetry_eV']:>7.3f}"
+              f"{v['E_d_from_start_eV']:>9.3f}{rel}  {'; '.join(n)}")
+
+
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "..", "gaussian_jobs")
@@ -164,6 +188,13 @@ def main():
             continue
         order = sorted(pts)
         ed = (max(pts.values()) - pts[0]) * H2EV
+        # Measuring the climb from t=0 assumes the path starts at the binding
+        # site, and on more than half the v8 candidates it does not -- HATCN's
+        # minimum is at point 1, Cu4I4's and Al4O6's at point 3. The largest
+        # uphill run anywhere on the path does not depend on that registration,
+        # so it is the number to quote; the climb from t=0 is kept beside it to
+        # show how far the input structure was from the site it claimed.
+        ed_min = (max(pts.values()) - min(pts.values())) * H2EV
         # A hop between equivalent sites is symmetric about its midpoint, so
         # E(t) and E(1-t) must agree. Half of the largest disagreement is the
         # barrier's own error bar, measured on the same footing as the barrier.
@@ -177,7 +208,8 @@ def main():
         # when the grid is too coarse to resolve the bump between them.
         mono = all(pts[order[i + 1]] <= pts[order[i]] for i in range(len(order) - 1))
         lowest = min(pts, key=pts.get)
-        results[tag] = {"E_d_eV": round(ed, 4), "class": path_class,
+        results[tag] = {"E_d_eV": round(ed_min, 4),
+                        "E_d_from_start_eV": round(ed, 4), "class": path_class,
                         "points": len(pts), "failed_jobs": failed,
                         "program": "gaussian",
                         "monotonic_downhill": mono,
@@ -201,37 +233,22 @@ def main():
         ref_tag = next((t for t in ("benzene", "pyridine", "HATCN")
                         if t in results), None)
         ref_ed = results[ref_tag]["E_d_eV"] if ref_tag else None
-        print(f"{'candidate':<12} {'E_d (eV)':>9} {'+/-':>7} "
-              f"{'vs ' + (ref_tag or '-'):>11} {'class':<10} {'pts':>4} {'fail':>5}")
-        print("-" * 72)
-        for tag, v in sorted(results.items(), key=lambda kv: -kv[1]["E_d_eV"]):
-            flag = "" if v["usable"] else "  <- downhill, no saddle on this path"
-            # A site2site path now runs between two equivalent atoms and ends at
-            # the same height it started, so its two endpoints are the same
-            # state by symmetry and their energy difference is a free error bar
-            # on the barrier above it. A gap that is not small next to E_d means
-            # the two ends did not converge to the same electronic state, and
-            # the barrier inherits that error whatever the path looks like.
-            if v["class"] == "site2site" and abs(v["endpoint_gap_eV"]) > \
-                    max(0.05, 0.3 * abs(v["E_d_eV"])):
-                flag += "  <- endpoints disagree; not one state"
-            if v["spin_contaminated_folder"]:
-                flag += f"  <- S**2 ~ {v['s2_median']:.3f} throughout"
-            # The path minimum landing between the endpoints means the adatom
-            # prefers somewhere the input structure did not put it, so the site
-            # the barrier was measured from is not a binding site at all.
-            if 0 < v["path_minimum"] < v["points"] - 1:
-                flag += f"  <- minimum at point {v['path_minimum']}, not an end"
-            if v["height_unbracketed_points"]:
-                flag += (f"  <- height not bracketed at "
-                         f"{v['height_unbracketed_points']}")
-            if v["resolved"] is False:
-                flag += "  <- barrier below its own error"
-            rel = (f"{v['E_d_eV'] - ref_ed:>+11.3f}" if ref_ed is not None
-                   else f"{'-':>11}")
-            print(f"{tag:<12} {v['E_d_eV']:>9.3f} {v['asymmetry_eV']:>7.3f} "
-                  f"{rel} {v['class']:<10} {v['points']:>4} "
-                  f"{v['failed_jobs']:>5}{flag}")
+        hop = {t: v for t, v in results.items() if v["class"] == "site2site"}
+        face = {t: v for t, v in results.items() if v["class"] != "site2site"}
+        print("A diffusion barrier is the climb between two equivalent sites. "
+              "Only a\nsite2site path measures that, so the two classes are "
+              "listed apart and must\nnot be ranked against each other.\n")
+        print("site2site -- a hop between equivalent sites")
+        _table(hop, ref_tag, ref_ed)
+        if face:
+            print("\ntoface -- Ag dragged from its site onto the ring centre.")
+            print("This is the binding-energy difference between two "
+                  "INEQUIVALENT sites, not a\nbarrier: Bphen (0.101 -> 0.971 eV) "
+                  "and pyridine (0.010 -> 0.750 eV) simply climb\nall the way to "
+                  "the end. A molecule with only one kind of binding site has no\n"
+                  "second site to hop to, so on a single molecule its E_d is "
+                  "undefined -- it needs\na dimer or a slab, not a better path.")
+            _table(face, ref_tag, ref_ed)
         bad = [t for t, v in results.items() if not v["usable"]]
         if bad:
             print(f"\n{len(bad)} candidate(s) have no barrier on their path and need")
@@ -250,11 +267,6 @@ def main():
         print("\nincomplete (no barrier reported):")
         for tag, got, total, failed in missing:
             print(f"  {tag:<12} {got} usable path points, {failed}/{total} jobs failed")
-
-    if "HATCN" in results:
-        print(f"\nCHECK: HATCN came out at {results['HATCN']['E_d_eV']:.3f} eV. "
-              f"psi4 gave 0.286 on the same")
-        print("  path. Agreement there is what licenses the rest of the column.")
 
     if not results:
         # An empty results file would read later as "the campaign ran and found
