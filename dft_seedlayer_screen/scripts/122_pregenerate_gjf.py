@@ -31,7 +31,7 @@ from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT,
 # A dimer doubles the atoms, and the cost of a hybrid single point runs far
 # faster than that. Above this size the neighbour-molecule hop is deferred
 # rather than generated, so one candidate cannot swallow the campaign.
-DIMER_MAX_ATOMS = int(os.environ.get("GAUSS_DIMER_MAX", "50"))
+DIMER_MAX_ATOMS = int(os.environ.get("GAUSS_DIMER_MAX", "90"))
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "gaussian_jobs")
@@ -121,6 +121,30 @@ def jobs_of(folder):
             + [s for s in stems if s.endswith("_ref")])
 
 
+def _threads_of(folder):
+    """%NProcShared this folder's jobs ask for."""
+    for fn in sorted(os.listdir(folder)):
+        if fn.endswith(".gjf"):
+            for line in open(os.path.join(folder, fn)):
+                if line.lower().startswith("%nprocshared="):
+                    try:
+                        return int(line.split("=")[1])
+                    except ValueError:
+                        break
+            break
+    return 8
+
+
+def _cost(folder):
+    """Rough work in a folder: atoms cubed times the number of jobs."""
+    gjfs = [f for f in os.listdir(folder) if f.endswith(".gjf")]
+    if not gjfs:
+        return 0.0
+    atoms = sum(1 for line in open(os.path.join(folder, gjfs[0]))
+                if len(line.split()) == 4 and line.split()[0].isalpha())
+    return (atoms ** 3) * len(gjfs)
+
+
 def run_folder(folder, g16, scr):
     os.makedirs(scr, exist_ok=True)
     env = dict(os.environ)
@@ -172,6 +196,8 @@ def main():
     ap.add_argument("--workers", type=int, default=0,
                     help="folders to run at once (default: cores // 8)")
     ap.add_argument("--g16", default=r"C:\G16W")
+    ap.add_argument("--threads", type=int, default=0,
+                    help="physical cores to keep busy (default: cores // 2)")
     ap.add_argument("--scratch", default="")
     a = ap.parse_args()
 
@@ -186,36 +212,62 @@ def main():
     # physical cores, assuming SMT is on, and give each job the 8 threads its
     # %NProcShared asks for.
     workers = a.workers or max(1, (cores // 2) // 8)
+    budget = a.threads or max(8, cores // 2)
     scratch = a.scratch or os.path.join(
         os.environ.get("TEMP", HERE), "gauscr")
 
-    folders = sorted(
-        os.path.join(HERE, d) for d in os.listdir(HERE)
-        if os.path.isdir(os.path.join(HERE, d))
-        and any(f.endswith(".gjf") for f in os.listdir(os.path.join(HERE, d))))
+    folders = [os.path.join(HERE, d) for d in os.listdir(HERE)
+               if os.path.isdir(os.path.join(HERE, d))
+               and any(f.endswith(".gjf") for f in os.listdir(os.path.join(HERE, d)))]
+    # Longest first. Folders taken alphabetically leave the 85-atom Bphen dimer
+    # grinding on one worker for a day after everything else has finished;
+    # starting the long poles immediately overlaps them with the short ones,
+    # which is the whole of the difference in when the campaign ends.
+    folders.sort(key=lambda f: -_cost(f))
     if not folders:
         print("no candidate folders next to this script")
         return 1
 
-    print(f"{len(folders)} folders, {workers} at a time, "
+    print(f"{len(folders)} folders, {budget} physical cores to fill, "
           f"{cores} logical processors visible")
+    print("  order: " + ", ".join(os.path.basename(f) for f in folders[:5])
+          + ", ...")
     print(f"scratch under {scratch}\n")
 
+    # Folders are claimed against a thread budget, not a worker count, because
+    # they no longer all ask for the same number of threads: an 85-atom dimer
+    # gets 16 where a 20-atom complex gets 8. Counting folders would either
+    # oversubscribe the machine or leave half of it idle.
     queue = list(folders)
-    qlock = threading.Lock()
+    qlock = threading.Condition()
+    free = [budget]
 
     def worker(k):
         scr = os.path.join(scratch, f"w{k}")
         while True:
             with qlock:
-                if not queue:
-                    return
-                folder = queue.pop(0)
-            run_folder(folder, a.g16, scr)
+                while True:
+                    if not queue:
+                        return
+                    i = next((j for j, f in enumerate(queue)
+                              if _threads_of(f) <= free[0]), None)
+                    if i is not None:
+                        break
+                    qlock.wait(30)
+                folder = queue.pop(i)
+                want = _threads_of(folder)
+                free[0] -= want
+            try:
+                run_folder(folder, a.g16, scr)
+            finally:
+                with qlock:
+                    free[0] += want
+                    qlock.notify_all()
 
     t0 = time.time()
+    nthread = max(workers, budget // 8)
     threads = [threading.Thread(target=worker, args=(k,), daemon=True)
-               for k in range(workers)]
+               for k in range(nthread)]
     for t in threads:
         t.start()
     try:
@@ -327,6 +379,10 @@ def main():
     # natural unit of parallelism and nothing has to be split.
     nproc = int(os.environ.get("GAUSS_NPROC", "8"))
     mem = int(os.environ.get("GAUSS_MEM_GB", "48"))
+    # Eight threads is right for a 20-atom complex and wasteful for an 85-atom
+    # one: a bigger Fock build has more work per thread, so it keeps more of
+    # them busy. The three dimers that dominate the campaign get double.
+    big_n = int(os.environ.get("GAUSS_BIG_ATOMS", "60"))
     os.makedirs(OUT, exist_ok=True)
     made, refused, index = 0, [], []
 
@@ -408,6 +464,8 @@ def main():
         n = 0
         first = None
         order = []
+        np_ = nproc * 2 if len(sub_s) + 1 >= big_n else nproc
+        mem_ = mem * 2 if len(sub_s) + 1 >= big_n else mem
         lim = np.array([contact(x) for x in sub_s])
         for i, (pos, nrm) in enumerate(pts):
             for j, dz in enumerate(ZSCAN):
@@ -423,7 +481,7 @@ def main():
                 body = (sub_s + ["Ag"], np.vstack([sub_x, agx]),
                         f"{tag} t={i/(len(pts)-1):.3f} dz={dz:+.2f} class={cls}")
                 with open(os.path.join(d, name + ".gjf"), "w") as f:
-                    f.write(gjf(*body, nproc, mem, mult,
+                    f.write(gjf(*body, np_, mem_, mult,
                                 chk=f"{safe}.chk", read=(n > 0)))
                 order.append(name)
                 if n == 0:
@@ -440,7 +498,7 @@ def main():
         # folder. The re-run costs one cheap job and puts the reference on the
         # same electronic state as the path it is subtracted from.
         with open(os.path.join(d, f"{safe}_t0_z0_ref.gjf"), "w") as f:
-            f.write(gjf(*first, nproc, mem, mult,
+            f.write(gjf(*first, np_, mem_, mult,
                         chk=f"{safe}.chk", read=True))
         order.append(f"{safe}_t0_z0_ref")
         n += 1
