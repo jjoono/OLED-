@@ -24,7 +24,12 @@ E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
 # is printed for every UKS job.
 S2_RE = re.compile(r"S\*\*2 before annihilation\s+(\d+\.\d+)")
 S2_ALT = re.compile(r"<S\*\*2>=\s*(\d+\.\d+)")
-NAME_RE = re.compile(r"_t(\d+)_z(\d+)(_ref)?$")
+# The height index is not always a plain number: a top-up height is named for
+# its offset, _t3_zm06 or _t0_zp10. A pattern that only accepts digits skipped
+# all 62 of them without a word, and the barriers came back byte-identical to
+# the run before the top-up -- the same silent-skip that the .log/.out mismatch
+# caused earlier. The dz itself is read from the title, not from the name.
+NAME_RE = re.compile(r"_t(\d+)_z(?:\d+|[mp]\d+)(_ref)?$")
 DZ_RE = re.compile(r"dz=([+-]?\d+\.\d+)")
 
 
