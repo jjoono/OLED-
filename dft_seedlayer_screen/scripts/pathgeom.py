@@ -234,15 +234,21 @@ def outward(sub_s, sub_x, site, h, hint=None):
 def destination(sub_s, sub_x, ag, anchor, rule):
     """Where the adatom is dragged to, and the class of that path.
 
-    Returns the destination *site atom* index (None for a face target), the
-    adatom position above it, and the path class.
+    When a symmetry operation of the molecule carries the starting site onto the
+    destination site, the adatom's end position is that operation applied to its
+    start position -- not an independently constructed site at the same height.
+    The two ends are then exact images, so their energies must agree, and the
+    gap between them measures the calculation rather than the construction. The
+    dimer paths already had this and agree to 0.4 meV; the monomer paths did not
+    and disagreed by 50-200 meV.
+
+    Returns the destination site atom index (None for a face target), the adatom
+    position above it, the path class, and the operation (R, centre) when one
+    was found.
     """
     heavy = np.array([x for s, x in zip(sub_s, sub_x) if s != "H"])
     cen = heavy.mean(axis=0)
     h = float(np.linalg.norm(ag - sub_x[anchor]))
-    # The molecule's own surface normal, turned to the side the adatom is on.
-    # Every site on one molecule shares it, so using it as the hint keeps the
-    # whole path on one face instead of letting each site pick its own way out.
     face = np.linalg.svd(heavy - cen, full_matrices=False)[2][-1]
     if face @ (ag - cen) < 0:
         face = -face
@@ -250,15 +256,17 @@ def destination(sub_s, sub_x, ag, anchor, rule):
     if rule != "face":
         same = equivalents(sub_s, sub_x, anchor)
         if same:
-            # nearest equivalent site: diffusion takes the cheapest hop, and a
-            # drag across the whole molecule is a different process entirely
             near = min(same,
                        key=lambda j: np.linalg.norm(sub_x[j] - sub_x[anchor]))
+            op = symmetry_op(sub_s, sub_x, anchor, near)
+            if op is not None:
+                R, c = op
+                return near, (np.asarray(ag) - c) @ R.T + c, "site2site", op
             u = outward(sub_s, sub_x, sub_x[near], h, hint=face)
-            return near, sub_x[near] + h * u, "site2site"
+            return near, sub_x[near] + h * u, "site2site", None
 
     u = outward(sub_s, sub_x, cen, h, hint=face)
-    return None, cen + h * u, ("chelate" if rule == "chelate" else "toface")
+    return None, cen + h * u, ("chelate" if rule == "chelate" else "toface"), None
 
 
 def frames(sub_s, sub_x, ag, anchor, rule, npath):
@@ -272,15 +280,22 @@ def frames(sub_s, sub_x, ag, anchor, rule, npath):
     surface while the normal rotates with it keeps the adatom above the surface
     the whole way, which is the path a diffusing atom actually takes.
     """
-    near, dest, cls = destination(sub_s, sub_x, ag, anchor, rule)
+    near, dest, cls, op = destination(sub_s, sub_x, ag, anchor, rule)
     h = float(np.linalg.norm(ag - sub_x[anchor]))
     a_site = sub_x[anchor]
-    d_site = sub_x[near] if near is not None else dest - (dest - a_site) * 0.0
     if near is None:
         heavy = np.array([x for s, x in zip(sub_s, sub_x) if s != "H"])
         d_site = heavy.mean(axis=0)
+    else:
+        d_site = sub_x[near]
     n_a = (ag - a_site) / np.linalg.norm(ag - a_site)
-    n_d = (dest - d_site) / np.linalg.norm(dest - d_site)
+    if op is not None:
+        # The far normal is the near one carried over by the same operation, so
+        # the whole construction is equivariant: for a two-fold operation every
+        # point at 1-t is the image of the point at t, not only the endpoints.
+        n_d = n_a @ op[0].T
+    else:
+        n_d = (dest - d_site) / np.linalg.norm(dest - d_site)
 
     out = []
     for t in np.linspace(0.0, 1.0, npath):
@@ -381,3 +396,96 @@ def dimer_frames(sub_s, sub_x, ag, anchor, nrm, npath):
         site = (1 - t) * a_site + t * b_site
         out.append((place(xyz, site + h * n, n, syms), n))
     return syms, xyz, out, span
+
+
+def symmetry_op(syms, X, i, j, tol=0.15):
+    """An isometry of the molecule that carries atom i onto atom j, or None.
+
+    Two atoms can share a Morgan fingerprint without any rigid motion relating
+    them, and when none does, the two ends of a monomer path are built by two
+    independent outward() calls and are not exact images. That is what the v11
+    run isolated: the dimer paths, whose ends are related by an exact two-fold
+    rotation, agree to 0.4 meV, while the monomer paths disagree by 50-200 meV
+    even after their heights were relaxed. The difference is the construction,
+    not the chemistry.
+
+    A symmetry operation fixes the centroid, so it is a pure rotation or
+    rotoreflection about it. One is built from two correspondences -- i->j and
+    a trial k->l -- and kept if it maps every atom onto an atom of its own
+    element. That is O(N^2) trials of an O(N) test, which is nothing at these
+    sizes.
+    """
+    X = np.asarray(X, float)
+    c = X.mean(axis=0)
+    Y = X - c
+    a, b = Y[i], Y[j]
+    if abs(np.linalg.norm(a) - np.linalg.norm(b)) > tol:
+        return None
+    n = len(syms)
+    order = sorted(range(n), key=lambda k: -np.linalg.norm(Y[k]))
+
+    def check(R):
+        Z = Y @ R.T
+        for k in range(n):
+            d = np.linalg.norm(Y - Z[k], axis=1)
+            d[[m for m in range(n) if syms[m] != syms[k]]] = 1e9
+            if d.min() > tol:
+                return False
+        return True
+
+    for k in order:
+        if k in (i, j) or np.linalg.norm(Y[k]) < 0.3:
+            continue
+        for l in range(n):
+            if syms[l] != syms[k] or l == k and k == i:
+                continue
+            if abs(np.linalg.norm(Y[k]) - np.linalg.norm(Y[l])) > tol:
+                continue
+            P = np.column_stack([a, Y[k], np.cross(a, Y[k])])
+            Q = np.column_stack([b, Y[l], np.cross(b, Y[l])])
+            if abs(np.linalg.det(P)) < 1e-6:
+                continue
+            R = Q @ np.linalg.inv(P)
+            u, _, vt = np.linalg.svd(R)          # nearest orthogonal matrix
+            R = u @ vt
+            if np.linalg.norm(R @ a - b) > tol:
+                continue
+            if check(R):
+                return R, c
+    return None
+
+
+def recentre(sub_s, sub_x, pos, nrm, tightness):
+    """Slide the adatom along `nrm` until it is as close to the substrate as it
+    was at its own binding site.
+
+    place() lifts until every atom clears its contact distance, so one bulky
+    atom sets the height for the whole complex: on Cs2CO3 the caesium, whose
+    contact distance is 3.89 A, held Ag a long way off the carbonate oxygen it
+    is actually bound to. The height scan is then offset from the binding
+    distance by more than its own width, and no number of extra heights helps --
+    Cs2CO3, Mo3O8 and F4TCNQ had not one bracketed point out of nineteen after
+    the v11 top-up.
+
+    `tightness` is the ratio of Ag's distance to its contact distance at the
+    binding site of the input complex. Reproducing it at every path point puts
+    the scan window on the binding distance rather than on the clearance.
+    """
+    lim = np.array([contact(x) for x in sub_s])
+    n = np.asarray(nrm, float)
+    n = n / np.linalg.norm(n)
+    p = np.asarray(pos, float)
+
+    def ratio(d):
+        return float((np.linalg.norm(sub_x - (p + d * n), axis=1) / lim).min())
+
+    lo, hi = -2.0, 4.0
+    if ratio(lo) > tightness:          # already tighter than asked even at the
+        return p + lo * n              # bottom of the range: take the bottom
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if ratio(mid) < tightness:
+            lo = mid
+        else:
+            hi = mid
+    return p + 0.5 * (lo + hi) * n

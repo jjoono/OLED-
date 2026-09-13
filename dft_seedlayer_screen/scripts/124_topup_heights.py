@@ -61,7 +61,7 @@ def rebuild(tag, fn, rule, mult):
     near_ok = [j for j in equivalents(sub_s, sub_x, anchor)
                if np.linalg.norm(ag - sub_x[j]) > 1.5 * contact(sub_s[j])]
     if near_ok:
-        near, _, _ = destination(sub_s, sub_x, ag, anchor, "auto")
+        near, _, _, _ = destination(sub_s, sub_x, ag, anchor, "auto")
         span = float(np.linalg.norm(sub_x[near] - sub_x[anchor]))
         npath = int(np.clip(round(span / gen.SPACING) + 1,
                             gen.NPATH_MIN, gen.NPATH_MAX))

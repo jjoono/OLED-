@@ -26,7 +26,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT,
                       ZSCAN, contact, destination, dimer_frames, equivalents,
-                      frames, geometry, read_xyz, sanity)
+                      frames, geometry, read_xyz, recentre, sanity)
 
 # A dimer doubles the atoms, and the cost of a hybrid single point runs far
 # faster than that. Above this size the neighbour-molecule hop is deferred
@@ -426,7 +426,7 @@ def main():
             # allowed to veto a real hop: "face" on Bphen, benzene and PhCz sent
             # three molecules that do have equivalent sites down the ring-centre
             # path, which does not measure a barrier.
-            near, dest, cls = destination(sub_s, sub_x, ag, anchor, "auto")
+            near, dest, cls, _op = destination(sub_s, sub_x, ag, anchor, "auto")
             # Size the path by how far the *site* moves, not by how far the
             # adatom's start and end points are apart. On a cage those differ by
             # arc: Al4O6 hops between oxygens 2.83 A apart, but the two adatom
@@ -470,19 +470,36 @@ def main():
         n = 0
         first = None
         order = []
+        # How tight the adatom sits at its own binding site, in units of its
+        # contact distance. Every path point is put at the same tightness, so
+        # the height scan is centred on the binding distance instead of on
+        # whatever clearance the bulkiest atom happened to force.
+        tight = float(np.linalg.norm(ag - sub_x[anchor])
+                      / contact(sub_s[anchor]))
+        pts = [(recentre(sub_s, sub_x, p_, n_, tight), n_) for p_, n_ in pts]
+
         np_ = nproc * 2 if len(sub_s) + 1 >= big_n else nproc
         mem_ = mem * 2 if len(sub_s) + 1 >= big_n else mem
         lim = np.array([contact(x) for x in sub_s])
         for i, (pos, nrm) in enumerate(pts):
+            # The lowest height deliberately sits inside the contact distance --
+            # a point on the repulsive wall is what brackets the minimum from
+            # below -- but inside 85% of it the curve is a wall rather than a
+            # parabola and the fit would be pulled by it. Rather than drop that
+            # height and leave the point with two, which cannot bracket
+            # anything, the whole scan is lifted by the least that clears the
+            # limit. Mo3O8's input already has Ag tighter than its contact
+            # distance, so without this it would get two heights at every point.
+            shift = 0.0
+            while shift < 1.2:
+                agx = pos + (min(ZSCAN) + shift) * nrm
+                if float((np.linalg.norm(sub_x - agx, axis=1)
+                          / lim).min()) >= 0.85:
+                    break
+                shift += 0.05
             for j, dz in enumerate(ZSCAN):
+                dz = round(dz + shift, 2)
                 agx = pos + dz * nrm
-                # The lowest height deliberately sits inside the contact
-                # distance -- a point on the repulsive wall is what brackets the
-                # minimum from below. Inside 85% of it the energy is no longer
-                # parabolic and the fit would be pulled by a wall, so that
-                # height is dropped for this point rather than fitted.
-                if float((np.linalg.norm(sub_x - agx, axis=1) / lim).min()) < 0.85:
-                    continue
                 name = f"{safe}_t{i}_z{j}"
                 body = (sub_s + ["Ag"], np.vstack([sub_x, agx]),
                         f"{tag} t={i/(len(pts)-1):.3f} dz={dz:+.2f} class={cls}")
