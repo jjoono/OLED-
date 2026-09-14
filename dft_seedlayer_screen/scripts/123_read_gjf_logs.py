@@ -225,7 +225,12 @@ def main():
                         "path_minimum": int(min(pts, key=pts.get)),
                         "height_unbracketed_points": sorted(unbracketed),
                         "asymmetry_eV": round(asym, 4),
-                        "resolved": bool(ed > 3 * asym) if asym > 0 else None,
+                        # Against the barrier that is reported, which is the
+                        # largest climb on the path -- not the climb from t=0,
+                        # which is zero whenever the path's minimum is interior
+                        # and made Al4O6 and benzene read as unresolved when
+                        # their error bars are in fact below a milli-eV.
+                        "resolved": bool(ed_min > 3 * asym) if asym > 0 else None,
                         "lowest_point": int(lowest),
                         "endpoint_gap_eV": round((pts[order[-1]] - pts[0]) * H2EV, 4),
                         "usable": not mono}

@@ -27,7 +27,7 @@ import importlib
 gen = importlib.import_module("122_pregenerate_gjf")
 from pathgeom import (CANDIDATES, STRUCT, ZSCAN, contact, destination,
                       dimer_frames, equivalents, frames, geometry, read_xyz,
-                      sanity)
+                      recentre, sanity)
 
 STEP = 0.4                      # same spacing as the existing scan
 E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
@@ -75,6 +75,11 @@ def rebuild(tag, fn, rule, mult):
                             gen.NPATH_MIN, gen.NPATH_MAX))
         sub_s, sub_x, pts, span = dimer_frames(sub_s, sub_x, ag, anchor,
                                                nrm, npath)
+    # The campaign re-centres every point on the binding distance after
+    # building the path, so a rebuild that skips that step lands somewhere else
+    # and the added heights would not belong to the same scan.
+    tight = float(np.linalg.norm(ag - sub_x[anchor]) / contact(sub_s[anchor]))
+    pts = [(recentre(sub_s, sub_x, p_, n_, tight), n_) for p_, n_ in pts]
     return sub_s, sub_x, pts, mult
 
 
