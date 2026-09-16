@@ -29,7 +29,15 @@ from pathgeom import (CANDIDATES, STRUCT, ZSCAN, contact, destination,
                       dimer_frames, equivalents, frames, geometry, read_xyz,
                       recentre, sanity)
 
-STEP = 0.4                      # same spacing as the existing scan
+STEP = float(os.environ.get("TOPUP_STEP", "0.4"))    # spacing of the added height
+# The contact guard. 0.85 was chosen so the parabola fit is never pulled by a
+# repulsive wall, and for a physisorbed adatom that is right. It is wrong for
+# the two molecules this project is about: on HATCN and F4TCNQ the energy at
+# the nitrile nitrogen is still falling steeply at the lowest scanned height --
+# 0.12 and 0.39 eV per 0.4 A -- because a real Ag-N bond is forming at about
+# 2.1 A, and 0.85 x 2.2 A sits above that. A chemisorbed minimum is not a
+# repulsive wall, and the guard has to let the scan reach it.
+GUARD = float(os.environ.get("TOPUP_GUARD", "0.85"))
 E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
 DZ_RE = re.compile(r"dz=([+-]?\d+\.\d+)")
 
@@ -118,7 +126,7 @@ def main():
                 continue                      # already bracketed
             dz = round(lo - STEP if lo == min(b) else lo + STEP, 2)
             agx = pos + dz * nrm
-            if float((np.linalg.norm(sub_x - agx, axis=1) / lim).min()) < 0.85:
+            if float((np.linalg.norm(sub_x - agx, axis=1) / lim).min()) < GUARD:
                 # Going lower would press Ag into the repulsive wall, where the
                 # curve is not a parabola. Nothing a fourth height can do.
                 wall.append(i)
