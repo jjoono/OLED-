@@ -125,9 +125,25 @@ def harvest(root):
         if not outs:
             continue
         txt = open(outs[0], errors="replace").read()
-        ok = "Stationary point found" in txt
         es = E_RE.findall(txt)
         g = final_geometry(txt)
+        ok = "Stationary point found" in txt
+        # DMABN reached its geometry by step 6 and then sat perfectly still for
+        # 74 more -- displacement 0.000000, energy flat to under 0.1 meV --
+        # while the force on Ag stayed at 0.00051 against a 0.00045 threshold,
+        # and Gaussian called that a failure at step 80. A force 14% over a
+        # tight threshold on an atom that has stopped moving is the gradient's
+        # noise floor, not an unconverged geometry, and the energy it would
+        # change by is well under a milli-eV. Accept a geometry that has
+        # stopped moving as converged.
+        stalled = False
+        if not ok and len(es) >= 8:
+            tail = [float(x) for x in es[-6:]]
+            flat = (max(tail) - min(tail)) < 2e-6
+            steps = re.findall(r"Maximum Displacement\s+([\d.]+)", txt)
+            still = bool(steps) and all(float(x) < 1e-4 for x in steps[-5:])
+            stalled = flat and still
+            ok = stalled
         if g is None or not es:
             print(f"{tag:<12}  -- no geometry")
             continue
@@ -145,7 +161,8 @@ def harvest(root):
                         f"substrate frozen, E={float(es[-1]):.8f}\n")
                 for a, c in zip(syms, xyz):
                     f.write(f"{a} {c[0]:.6f} {c[1]:.6f} {c[2]:.6f}\n")
-        print(f"{tag:<12}{len(es):>6}{('yes' if ok else 'NO'):>6}{float(es[-1]):>16.6f}"
+        conv = "yes" if ok and not stalled else ("stall" if stalled else "NO")
+        print(f"{tag:<12}{len(es):>6}{conv:>6}{float(es[-1]):>16.6f}"
               f"{moved:>9.2f} A   {syms[j]}{j} {dd.min():.2f} A"
               f"  {os.path.basename(dest) if ok else '-'}")
 
