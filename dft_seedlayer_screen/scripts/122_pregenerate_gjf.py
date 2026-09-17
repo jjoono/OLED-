@@ -146,8 +146,14 @@ def _cost(folder):
     gjfs = [f for f in os.listdir(folder) if f.endswith(".gjf")]
     if not gjfs:
         return 0.0
+    # An optimisation input carries a freeze code between the symbol and the
+    # coordinates, so its atom lines have five fields, not four. Counting only
+    # four-field lines scored every relaxation folder as zero atoms, and the
+    # sort fell back to alphabetical -- which put the 73-atom p-bPPhenB last,
+    # trailing the whole stage by five hours on its own.
     atoms = sum(1 for line in open(os.path.join(folder, gjfs[0]))
-                if len(line.split()) == 4 and line.split()[0].isalpha())
+                if len(line.split()) in (4, 5) and line.split()[0].isalpha()
+                and len(line.split()[0]) <= 2)
     return (atoms ** 3) * len(gjfs)
 
 
