@@ -87,7 +87,7 @@ def rebuild(tag, fn, rule, mult):
     # building the path, so a rebuild that skips that step lands somewhere else
     # and the added heights would not belong to the same scan.
     tight = float(np.linalg.norm(ag - sub_x[anchor]) / contact(sub_s[anchor]))
-    pts = [(recentre(sub_s, sub_x, p_, n_, tight), n_) for p_, n_ in pts]
+    pts = [(recentre(sub_s, sub_x, p_, n_, tight), n_) for p_, n_, _raw in pts]
     return sub_s, sub_x, pts, mult
 
 

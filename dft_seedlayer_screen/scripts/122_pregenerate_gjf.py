@@ -26,7 +26,8 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT,
                       ZSCAN, contact, destination, dimer_frames, equivalents,
-                      frames, geometry, read_xyz, recentre, sanity)
+                      frames, geometry, read_xyz, recentre, relaxed_file,
+                      sanity)
 
 # A dimer doubles the atoms, and the cost of a hybrid single point runs far
 # faster than that. Above this size the neighbour-molecule hop is deferred
@@ -399,12 +400,13 @@ def main():
     made, refused, index = 0, [], []
 
     for tag, fn, rule, mult in CANDIDATES:
+        fn = relaxed_file(fn)
         p = os.path.join(STRUCT, fn)
         if not os.path.exists(p):
             refused.append((tag, f"missing {fn}"))
             continue
         syms, xyz = read_xyz(p)
-        why = sanity(syms, xyz, tag)
+        why = sanity(syms, xyz, tag, relaxed=fn.endswith("_pbe0.xyz"))
         if why:
             refused.append((tag, why))
             continue
@@ -482,7 +484,28 @@ def main():
         # whatever clearance the bulkiest atom happened to force.
         tight = float(np.linalg.norm(ag - sub_x[anchor])
                       / contact(sub_s[anchor]))
-        pts = [(recentre(sub_s, sub_x, p_, n_, tight), n_) for p_, n_ in pts]
+        # Re-centring undoes the over-lift a bulky atom forces on place() --
+        # caesium held Ag 0.4 A off the carbonate -- but in v12 it also pressed
+        # mid-path points DOWN into the gap between molecules, because over a
+        # gap the nearest atom is legitimately far and matching the binding
+        # tightness there means diving. Both ends are now relaxed minima, so
+        # the straight line between them is a floor the adatom has no reason
+        # to go under: re-centre, but never below that line.
+        # The floor runs between the RAW endpoints -- the relaxed Ag position
+        # and its symmetry image, before place() touches them. place() lifts
+        # anything inside a contact distance, and a relaxed Ag-N bond at 2.17 A
+        # is inside the 2.2 A contact for nitrogen; a floor drawn between the
+        # lifted points would then hold the ends 0.1 A above the minimum that
+        # stage 1 just found, which is the one thing this stage must not do.
+        fixed = []
+        for k, (p_, n_, raw_) in enumerate(pts):
+            t = k / max(1, len(pts) - 1)
+            floor = (1 - t) * pts[0][2] + t * pts[-1][2]
+            q = recentre(sub_s, sub_x, p_, n_, tight)
+            if (q - floor) @ n_ < 0.0:
+                q = q + ((floor - q) @ n_) * n_
+            fixed.append((q, n_))
+        pts = fixed
 
         np_ = nproc * 2 if len(sub_s) + 1 >= big_n else nproc
         mem_ = mem * 2 if len(sub_s) + 1 >= big_n else mem

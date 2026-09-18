@@ -140,8 +140,15 @@ returning a number.
 """
 
 
-def sanity(syms, xyz, tag=""):
-    """Reject a complex whose Ag is not at a plausible bonding distance."""
+def sanity(syms, xyz, tag="", relaxed=False):
+    """Reject a complex whose Ag is not at a plausible bonding distance.
+
+    `relaxed` says the structure came out of a stage-1 optimisation. The
+    nearest-atom-is-hydrogen test exists to catch an adatom that was never
+    placed on a site; after a relaxation, a nearest hydrogen is where the adatom
+    chose to sit -- TPA has no better site than the periphery of a phenyl, and
+    that is a result, not a placement error.
+    """
     import numpy as _np
     i = [k for k, s in enumerate(syms) if s == "Ag"]
     if len(i) != 1:
@@ -156,10 +163,22 @@ def sanity(syms, xyz, tag=""):
     # 2.51 A from H30 with no heavy atom nearer, so the "hop" it defines runs
     # between two C-H hydrogens and measures nothing about the molecule's
     # affinity for silver.
-    if others[int(_np.argmin(d))] == "H":
+    if others[int(_np.argmin(d))] == "H" and not relaxed:
         return (f"Ag's nearest atom is a hydrogen at {d.min():.2f} A -- the "
                 f"complex was never relaxed onto a binding site")
     return None
+
+
+def relaxed_file(fn):
+    """The stage-1 relaxed structure if it exists, else the original.
+
+    Every input complex was relaxed Ag-only at PBE0-D3/def2-SVP, the level the
+    barriers are computed at. On the physisorbed sites the adatom moved by a
+    tenth of an angstrom; on the nitrogen and oxygen donors it moved by 1.4 to
+    2.4 A, and HATCN's path had been starting 1.59 A from its own minimum.
+    """
+    alt = fn.replace(".xyz", "_pbe0.xyz")
+    return alt if os.path.exists(os.path.join(STRUCT, alt)) else fn
 
 
 def read_xyz(p):
@@ -303,7 +322,8 @@ def frames(sub_s, sub_x, ag, anchor, rule, npath):
         u = (1 - t) * n_a + t * n_d
         nu = np.linalg.norm(u)
         u = n_a if nu < 1e-6 else u / nu
-        out.append((place(sub_x, site + h * u, u, sub_s), u))
+        raw = site + h * u
+        out.append((place(sub_x, raw, u, sub_s), u, raw))
     return out, cls, float(np.linalg.norm(dest - ag))
 
 
@@ -394,7 +414,8 @@ def dimer_frames(sub_s, sub_x, ag, anchor, nrm, npath):
     out = []
     for t in np.linspace(0.0, 1.0, npath):
         site = (1 - t) * a_site + t * b_site
-        out.append((place(xyz, site + h * n, n, syms), n))
+        raw = site + h * n
+        out.append((place(xyz, raw, n, syms), n, raw))
     return syms, xyz, out, span
 
 

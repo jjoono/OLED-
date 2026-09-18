@@ -69,7 +69,7 @@ def main():
         np_ = nproc * 2 if len(sub_s) + 1 >= big else nproc
         mem_ = mem * 2 if len(sub_s) + 1 >= big else mem
         for i in pts_wanted:
-            pos, nrm = pts[i]
+            pos, nrm = pts[i][0], pts[i][1]
             start = lowest_height(d, i)
             dz0 = start[0] if start else 0.0
             agx = pos + dz0 * nrm
