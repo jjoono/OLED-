@@ -78,3 +78,48 @@ Figure: `dr4c_mock.png`, from `plot_dr4c.py`.
 The two devices do not share an ideal ceiling: the thin Ag electrode adds a second
 metal interface, so its SPP channel is 5-6 % against 2.7-3.4 % for the TCO device, and
 eta_sub tops out at 0.934 rather than 0.966 even with a lossless metal.
+
+## Birefringent ETL and the TCO real index (`dr4d.m`)
+
+`dr4d.m` adds a uniaxial ETL (`NE_ETL`, n_o stays `NORG`), a settable u-grid size (`UNUM`)
+and a `netl` sweep mode; the CSVs gain the WG, u>1 and absorption columns
+(param, eta_sub, A', wg, spp, abs, eta_ext x2, EQE x2). Figures: `dr4e_mock.png`
+(design rule, from `plot_dr4e.py`) and `dr4f_mock.png` (modelling checks, `plot_dr4f.py`).
+
+### The u grid had to be refined
+
+At the original 997 points the substrate-delivered power scattered by up to 3 %p from
+point to point whenever a sharp plasmon pole fell between grid points; device B was the
+worst case. At 2500-6000 points the scatter drops below 0.4 %p. All runs here use 3000.
+A' is computed on its own angular grid and was never affected. One caveat: at exactly
+k_TCO = 0 a TCO with n = 2.0 supports a lossless guided pole that no finite u grid
+resolves, so those curves start at k_TCO = 0.0025.
+
+### The TCO real index: use 1.9
+
+ITO at 550 nm is n = 1.85-1.95 and IZO 1.9-2.0, so the slide's 1.8 sits at the bottom of
+the range and happens to index-match the organics. Going 1.8 -> 2.0 costs 3.5 %p of
+eta_sub at k_TCO = 0.02 (0.904 -> 0.870), because above n_TCO = n_sub the TCO becomes its
+own waveguide: the u > 1 bin grows from 0.036 to 0.078 and the extra content is
+TCO-guided light, not surface plasmon. eta_ext moves the *other* way (0.814 -> 0.829),
+since light trapped in the TCO never reaches the substrate and so never tests the mirror.
+This is a concrete case where eta_ext alone flatters the worse device.
+
+Design-rule consequence: n_TCO <= n_sub belongs in the index ladder next to
+n_e(ETL) < n_EML <= n_sub.
+
+### n_e,ETL = 1.6 is the worst value at n_sub = 1.8
+
+For a uniaxial ETL on Ag the plasmon index follows
+k_SPP^2 = k0^2 eps_m eps_e (eps_m - eps_o)/(eps_m^2 - eps_o eps_e). With n_o = 1.8 this
+gives n_SPP = 1.571 / 1.687 / 1.804 / 1.922 / 2.041 at n_e = 1.40 / 1.50 / 1.60 / 1.70 / 1.80.
+n_e = 1.60 puts n_SPP = 1.804, just 0.004 ABOVE n_sub = 1.8: the plasmon is loosely bound,
+so it reaches far into the organics and couples strongly, yet cannot leak into the
+substrate. The u > 1 bin jumps from 0.013 at n_e = 1.56 to 0.047 at 1.60 and eta_sub drops
+1.7 %p.
+
+Raising the substrate to n_sub = 1.9 moves the threshold to n_e = 1.68, exactly where
+n_SPP crosses n_sub, which confirms the mechanism.
+
+At 200 nm transport layers, therefore, n_e = 1.6 is worse than an isotropic ETL
+(eta_sub 0.894 against 0.906 at k_TCO = 0.02). Use n_e <= 1.55, or raise n_sub above 1.81.
