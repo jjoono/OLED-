@@ -123,3 +123,15 @@ n_SPP crosses n_sub, which confirms the mechanism.
 
 At 200 nm transport layers, therefore, n_e = 1.6 is worse than an isotropic ETL
 (eta_sub 0.894 against 0.906 at k_TCO = 0.02). Use n_e <= 1.55, or raise n_sub above 1.81.
+
+## Workbook
+
+`design_rule_parasitic_absorption.xlsx` holds the raw data behind `dr4e_mock.png`,
+built by `make_xlsx.py` from `p_ito_n19.csv` and `p_ag.csv`. Four sheets: README,
+`a_TCO_electrode`, `b_thin_Ag_electrode`, `c_p_sensitivity`.
+
+The simulated quantities (eta_sub, A', and the loss channels) are values; eta_ext and
+EQE are live formulas driven by the single p cell on the README sheet, so changing p
+updates every number. A closure column re-adds the channels and should read 1.000000
+on every row. All 301 formulas were recalculated and checked against the simulation
+output to 5e-6.
