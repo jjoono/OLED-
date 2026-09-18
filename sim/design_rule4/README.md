@@ -37,13 +37,17 @@ channel vanishes identically at n_sub = 1.8.
 
 eta_sub saturates well before 500 nm: 0.921 at d_CTL = 200 nm against 0.9225 at 500 nm.
 
-## Confirmed run (`dr4b.m`, eight-layer stack)
+## Confirmed run (`dr4c.m`)
+
+The bottom electrode is EITHER a 50 nm TCO OR a 10 nm thin Ag, never both: the slide's
+"ITO (50 nm) / Ag (10 nm)" row lists two alternative devices. `dr4c.m` takes `BOT='ito'`
+or `BOT='ag'` and builds the corresponding seven-layer stack.
 
 Settings agreed before the run: substrate index matched to the organics (n_sub = 1.8),
-transport layers fixed at 200 nm each, the 100 nm Ag reflector held at the measured McPeak
-constants, and the swept `n_Ag` applied only to the 10 nm Ag of the bottom electrode.
+transport layers fixed at 200 nm each, the 100 nm Ag reflector always held at the measured
+McPeak constants, and the swept `n_Ag` applied only to the thin Ag electrode.
 
-`Ag 100 nm (McPeak) / ETL 200 nm / EML 20 nm / HTL 200 nm / TCO 50 nm / Ag 10 nm / substrate 1.8`,
+`Ag 100 nm (McPeak) / ETL 200 nm / EML 20 nm / HTL 200 nm / [TCO 50 nm | Ag 10 nm] / substrate 1.8`,
 550 nm, isotropic dipole, PLQY = 1, organics k = 0, TCO real part 1.8.
 
 p = 0.30, read off the blue single-pass-escape-probability curve of Fig. 1c at n_sub = 1.8.
@@ -52,18 +56,25 @@ A' is stored in column 3 of every CSV.
 
 | sweep | file |
 |---|---|
-| k_TCO = 0 … 0.08, bottom Ag at McPeak | `dr4b_kito.csv` |
-| n_Ag (10 nm bottom Ag) = 0 … 0.5, k_TCO = 0 | `dr4b_nagb.csv` |
-| same with k_TCO = 0.02 | `dr4b_nagb_k02.csv` |
-| layer order organics/Ag/TCO/substrate, 3 points | `dr4b_nagb_agito.csv` |
-| control without the 10 nm Ag, 200/200 and 500/500 | `dr4_ctrl_kito.csv`, `dr4_ctrl_kito500.csv` |
+| device A, TCO electrode, k_TCO = 0 … 0.08 | `dr4c_ito.csv` |
+| device B, 10 nm Ag electrode, n_Ag = 0 … 0.5 | `dr4c_ag.csv` |
+| earlier controls without a bottom electrode sweep | `dr4_ctrl_kito.csv`, `dr4_ctrl_kito500.csv` |
 
 CSV columns: swept parameter, eta_sub, A', eta_ext(p=0.30), eta_ext(p=0.40), EQE(0.30), EQE(0.40).
+Figure: `dr4c_mock.png`, from `plot_dr4c.py`.
 
-### Ceiling imposed by the thin bottom Ag
+### Results
 
-Even at its ideal limit (n_Ag = 0, k = 3.5) the 10 nm Ag holds eta_sub to 0.931 and EQE to
-0.896; with McPeak constants eta_sub is 0.919. The original slide's 96 % maximum is therefore
-not reachable with an ITO/Ag bilayer — the control without the thin Ag reaches eta_sub = 0.992
-and EQE = 0.949 at k_TCO = 0 (500/500 nm), so that slide number corresponds to an
-ITO-only bottom electrode. Worth settling before the figure is finalised.
+| device | condition | eta_sub | A' | eta_ext |
+|---|---|---|---|---|
+| A (TCO) | k_TCO = 0 | 0.966 | 0.017 | 0.962 |
+| A (TCO) | k_TCO = 0.02 | 0.915 | 0.097 | 0.815 |
+| A (TCO) | k_TCO = 0.08 | 0.797 | 0.271 | 0.612 |
+| B (Ag) | n_Ag = 0 (ideal metal) | 0.934 | 0.018 | 0.960 |
+| B (Ag) | n_Ag = 0.044 (bulk Ag) | 0.893 | 0.052 | 0.892 |
+| B (Ag) | n_Ag = 0.25 | 0.800 | 0.188 | 0.696 |
+| B (Ag) | n_Ag = 0.50 | 0.706 | 0.313 | 0.578 |
+
+The two devices do not share an ideal ceiling: the thin Ag electrode adds a second
+metal interface, so its SPP channel is 5-6 % against 2.7-3.4 % for the TCO device, and
+eta_sub tops out at 0.934 rather than 0.966 even with a lossless metal.

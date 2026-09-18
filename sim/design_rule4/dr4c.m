@@ -49,9 +49,9 @@ if ~exist('KORG','var'),  KORG=0;    end    % extinction of the transport layers
 if ~exist('NSUB','var'),  NSUB=1.8;  end
 if ~exist('DETL','var'),  DETL=200;  end
 if ~exist('DHTL','var'),  DHTL=200;  end
-if ~exist('DAGB','var'),  DAGB=10;   end    % thin Ag of the bottom electrode
-if ~exist('NAGB','var'),  NAGB=0;    end    % Re(n) of the bottom Ag; 0 -> use McPeak
-if ~exist('ORDER','var'), ORDER='ito_ag'; end  % 'ito_ag' = organics/ITO/Ag/sub, 'ag_ito' = organics/Ag/ITO/sub
+if ~exist('BOT','var'),   BOT='ito'; end    % bottom electrode: 'ito' (50 nm TCO) OR 'ag' (10 nm thin Ag)
+if ~exist('NAGB','var'),  NAGB=0.044; end   % Re(n) of the thin bottom Ag
+if ~exist('DAGB','var'),  DAGB=10;   end
 if ~exist('DEML','var'),  DEML=20;   end
 if ~exist('DTCO','var'),  DTCO=50;   end
 if ~exist('DAG','var'),   DAG=100;   end
@@ -68,15 +68,10 @@ bottom_air_refractive_index=ones(wavelength_num,1);
 
 
 %% JO structure %%
-nAgTop=material.l_Ag_McPeak(151);                       % thick Ag reflector, measured n,k
-if NAGB==0, nAgBot=material.l_Ag_McPeak(151); else, nAgBot=NAGB+KAG*1i; end
-if strcmp(ORDER,'ito_ag')
-  no_bar=[1 nAgTop NORG+KORG*1i NORG NORG+KORG*1i NTCO+KITO*1i nAgBot NSUB];
-  d_elec=[DTCO DAGB];   i_tco=6; i_agb=7;
-else
-  no_bar=[1 nAgTop NORG+KORG*1i NORG NORG+KORG*1i nAgBot NTCO+KITO*1i NSUB];
-  d_elec=[DAGB DTCO];   i_tco=7; i_agb=6;
-end
+% The bottom electrode is EITHER a 50-nm TCO OR a 10-nm thin Ag, never both.
+nAgTop=material.l_Ag_McPeak(151);          % thick Ag reflector, measured n,k, always fixed
+if strcmp(BOT,'ag'), nBot=NAGB+KAG*1i; dBot=DAGB; else, nBot=NTCO+KITO*1i; dBot=DTCO; end
+no_bar=[1 nAgTop NORG+KORG*1i NORG NORG+KORG*1i nBot NSUB];
 ne_bar=no_bar;   % isotropic organics
 
 d1= SWEEP(:)'; Nd1=length(d1);
@@ -86,13 +81,13 @@ disp_matrix = zeros(Nd1*Nd2,6);
 diag_matrix = zeros(Nd1*Nd2,9); ne_rows=zeros(Nd1*Nd2,1); extra_matrix=zeros(Nd1*Nd2,3+2*length(PESC));   % v2: [d1, abs_top, abs_bottom, sub_TIR, sub_recycle_abs, sum5, nonrad, residual, Purcell]
 for k1=1:length(d1)
     for k2=1:length(d2)
-        thickness=[DAG DETL DEML DHTL d_elec];   % Ag(top), ETL, EML, HTL, then the two electrode layers
+        thickness=[DAG DETL DEML DHTL dBot];   % Ag(top), ETL, EML, HTL, bottom electrode
         switch MODE
-          case 'kito', no_bar(i_tco)=NTCO+d1(k1)*1i;                 % extinction of the TCO
-          case 'nagb', no_bar(i_agb)=d1(k1)+KAG*1i;                  % Re(n) of the THIN bottom Ag
-          case 'nagt', no_bar(2)=d1(k1)+KAG*1i;                      % Re(n) of the thick Ag reflector
-          case 'dagb', thickness(i_agb-1)=d1(k1);                    % thickness of the thin bottom Ag
-          case 'dtco', thickness(i_tco-1)=d1(k1);                    % thickness of the TCO
+          case 'kito', no_bar(6)=NTCO+d1(k1)*1i;      % extinction of the TCO electrode
+          case 'nagb', no_bar(6)=d1(k1)+KAG*1i;       % Re(n) of the thin Ag electrode
+          case 'dbot', thickness(5)=d1(k1);           % thickness of the bottom electrode
+          case 'nag',  no_bar(2)=d1(k1)+KAG*1i;
+          case 'detl', thickness(2)=d1(k1);
           case 'dctl', thickness(2)=d1(k1); thickness(4)=d1(k1);
           case 'korg', no_bar(3)=NORG+d1(k1)*1i; no_bar(5)=NORG+d1(k1)*1i;
           otherwise,   error('unknown MODE %s', MODE);
