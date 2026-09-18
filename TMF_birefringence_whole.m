@@ -21,7 +21,9 @@ no_bar_u_num_1=repmat(no_bar,u_num,1);
 ne_bar_u_num_1=repmat(ne_bar,u_num,1);
 
 cos_theta_p=sqrt(1-(repmat(reshape(ne_bar(:,1)*u,wavelength_num*u_num,1),1,layer_num)./ne_bar_u_num_1).^2);
+flip=imag(ne_bar_u_num_1.*cos_theta_p)<0; cos_theta_p(flip)=-cos_theta_p(flip); clear flip   % v2 (2026-09-18): enforce the decaying branch Im(n*cos)>=0 for evanescent waves; the principal sqrt depends on the sign of a zero imaginary part and can flip to the growing branch (observed in Octave), which makes the SPP/evanescent dissipation negative
 cos_theta_s=sqrt(1-(repmat(reshape(no_bar(:,1)*u,wavelength_num*u_num,1),1,layer_num)./no_bar_u_num_1).^2);
+flip=imag(no_bar_u_num_1.*cos_theta_s)<0; cos_theta_s(flip)=-cos_theta_s(flip); clear flip   % v2 (2026-09-18): decaying branch, see above
 
 NL1vector=1:NL1;
 NL1vector_plus1=NL1vector+1;

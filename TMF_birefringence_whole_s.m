@@ -20,6 +20,7 @@ NL1=layer_num-1;
 no_bar_u_num_1=repmat(no_bar,u_num,1);
 
 cos_theta_s=sqrt(1-(repmat(reshape(u,wavelength_num*u_num,1),1,layer_num)./no_bar_u_num_1).^2);
+flip=imag(no_bar_u_num_1.*cos_theta_s)<0; cos_theta_s(flip)=-cos_theta_s(flip); clear flip   % v2 (2026-09-18): decaying branch, see above
 
 NL1vector=1:NL1;
 NL1vector_plus1=NL1vector+1;
