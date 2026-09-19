@@ -190,7 +190,37 @@ python3 figures/make_emitting_area_figure.py
 팔레트는 `make_roundtrip_figure.py` 에서 import 하므로 Fig.1(a)와 색이 어긋나지
 않습니다.
 
+### Blender 버전 — `emitting_area_render.blend`
+
+같은 비교를 실제 3D 렌더로 만든 Blender 4.0 파일입니다. 회색 스튜디오 바닥 위에
+소자 스택 두 개, 각 상면에 발광 영역과 그 위로 퍼지는 빛 안개(볼륨) 콘.
+
+- **발광 영역의 반지름 = 확산 길이 비(2.32×)**, **발광·안개 세기 = 총 추출광 비(1.84×)**
+  — 2D 그림과 같은 손실 모델에서 나온 값을 그대로 씁니다.
+- 발광은 `Emitting area (...)` 평면의 재질 노드에서 `exp(-r/Λ)` 로 감쇠합니다.
+  Λ 값(`Divide` 노드)과 세기(`Multiply` 노드)만 고치면 됩니다.
+- 빛 안개는 `Light haze (...)` 콘의 Principled Volume. 높이에 따라 옅어지고
+  콘 벽 쪽으로 부드럽게 사라집니다. 밀도·발광은 재질의 마지막 두 `Multiply` 노드.
+- 유리 층은 그림자 광선을 통과시키는 Light Path 트릭이 걸려 있어, Cycles에서
+  굴절 유리 아래가 검게 나오는 문제가 없습니다.
+- 컬렉션: `Device conventional`, `Device design rule`, `Studio`, `Cameras`
+  (카메라 3개: `Cam both`, `Cam conventional`, `Cam design rule`).
+
+렌더는 Cycles(CPU). 빌드에 OpenImageDenoise가 있으면 켜지고, 없으면
+`denoise_renders.py` 로 외부 디노이즈합니다(PyPI `oidn`, `OpenEXR` 패키지;
+빌더가 알베도·노멀 패스를 EXR로 같이 저장해 둡니다).
+
+```bash
+blender -b -P figures/build_emitting_area_blend.py -- --out figures            # 씬 빌드 + 렌더 3장
+blender -b -P figures/build_emitting_area_blend.py -- --out figures --no-render
+python3 figures/denoise_renders.py figures/emitting_area_render*.png
+```
+
+렌더 결과: `emitting_area_render.png` (두 소자), `..._conventional.png`,
+`..._designrule.png`. 라벨·인셋 도식은 렌더에 넣지 않았으니 Illustrator/PowerPoint에서
+얹으시면 됩니다.
+
 ---
 
-다섯 스크립트 모두 의존성 없이 파이썬 표준 라이브러리만 사용합니다
-(PPTX 빌더만 `python-pptx` 필요).
+2D 스크립트들은 파이썬 표준 라이브러리만 사용합니다
+(PPTX 빌더는 `python-pptx`, Blender 빌더는 Blender 4.0 내장 파이썬, 디노이저는 `oidn`+`OpenEXR`).
