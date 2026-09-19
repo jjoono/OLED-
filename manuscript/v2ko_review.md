@@ -162,3 +162,18 @@ bands are removed because they are whole-device outcoupling values on an η_ext 
 Also recorded in `figure_plan.md`: the blue curve of the Fig. 2(b) draft is the single-pass
 escape probability p, confirmed by the author, which is the value the η_ext calculations in
 `sim/design_rule4/` rest on.
+
+## v7 — Fig. 1 back to three panels (`manuscript/unityEQE_v7_ko.docx`)
+
+The decay curve returns as 1(b) and the master curve moves to 1(c). Dropping it in v6 was a
+misjudgement: the two panels do not say the same thing. The decay curve shows the recycling
+process, which is the paper's physical premise and is hidden inside the shape of the master
+curve; and at this point in the paper the comparison should still be qualitative, since no
+Al/Ag numbers have been introduced. The master curve, with a quantitative R_LED axis, is the
+conclusion that follows. Section 1 now runs schematic → process → law.
+
+The author's section-1 revisions are carried in: the round-trip paragraph no longer quotes the
+20 % figure or cites Supplementary Fig. 2, since that is Fig. 2(c)'s result — it now says only
+that the transport layers are transparent, so the loss is set by the mirror's ohmic absorption
+and the transparent electrode; the reflective-electrode assumption T_LED = 0 is stated; and
+the index-matching and "power remaining" sentences take the author's wording.
