@@ -121,3 +121,27 @@ Suggested Fig. 2(a) legend: "ITO 두께에 따른 왕복 손실 A'와 기판→�
 (나머지)이다. Al 반사판(왼쪽)에서는 TCO 흡수가 거울 손실과 맞먹는 수준까지 커지고, Ag 반사판
 (가운데)에서는 사실상 유일한 손실이 된다. 오른쪽: 그에 따른 η_ext. 유리 기판(n = 1.5) + microlens
 film, p = 0.38, 550 nm."
+
+## v5 — figure order and section swap (`manuscript/unityEQE_v5_ko.docx`)
+
+Four changes, all at the author's direction; `manuscript/figure_plan.md` holds the resulting
+per-panel specification.
+
+1. Fig. 1 has three panels. The former 1(d) becomes 1(c) and now carries only the decay curve
+   against round-trip number; the sentence no longer also promises an extraction-versus-
+   reflectance plot. The citation of the non-existent 1(c) in the parasitic-absorption
+   paragraph now points at 2(b), which already carries that content.
+2. Sections 3 and 4 are swapped: the transparent-electrode rule now follows the
+   parasitic-absorption diagnosis directly, and the substrate-delivered-power section follows.
+   Fig. 3 panels renumbered old c → a, a → b, b → c. Two bridge sentences were added so the
+   sections still hand off cleanly, and the design-freedom retrospective points at 3(a).
+3. Fig. 3(b) is introduced once as covering both organic thickness and substrate index, so the
+   second citation is no longer a surprise.
+4. The Fig. 1(a) paragraph now has a sentence for the proposed half of the schematic.
+
+Also: the thesis sentence about the trade-off disappearing moved to the end of the
+parasitic-absorption section, so that section closes on the paper's own claim.
+
+Citation order is now monotonic: 1(a) 1(b) 1(c) 2(a) 2(b) 2(c) 2(d) 3(a) 3(b) 3(c) 4(a) 4(b)
+4(c) 5(a) 5(b) 5(c), with one deliberate backward reference to 3(a) in the design-freedom
+section.
