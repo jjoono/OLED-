@@ -34,6 +34,17 @@ from pathgeom import (CANDIDATES, NPATH_MAX, NPATH_MIN, SPACING, STRUCT,
 # rather than generated, so one candidate cannot swallow the campaign.
 DIMER_MAX_ATOMS = int(os.environ.get("GAUSS_DIMER_MAX", "90"))
 
+# A molecule with several equivalent sites gets a hop between two of its own,
+# and that is a DIFFERENT quantity from the hop onto a neighbour. benzene's is
+# 1.38 A -- one C-C bond -- HATCN's runs between nitriles of the same molecule.
+# An adatom can shuttle among those cheaply and still be stuck on the molecule.
+# Long-range diffusion across a film has to cross from one molecule to the next,
+# so the barrier that governs nucleation density is the intermolecular one, and
+# it is the larger of the two. Setting this forces the neighbour-molecule path
+# for every candidate that can afford one, so the whole column measures the
+# same process.
+FORCE_DIMER = os.environ.get("GAUSS_FORCE_DIMER", "") not in ("", "0")
+
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "gaussian_jobs")
 # The functional is a lever on convergence, not only on accuracy. Under PBE the
@@ -429,7 +440,7 @@ def main():
         for j in equivalents(sub_s, sub_x, anchor):
             if np.linalg.norm(ag - sub_x[j]) > 1.5 * contact(sub_s[j]):
                 near_ok.append(j)
-        if near_ok:
+        if near_ok and not (FORCE_DIMER and 2 * len(sub_s) + 1 <= DIMER_MAX_ATOMS):
             # The rule column in CANDIDATES was set by hand and it is not
             # allowed to veto a real hop: "face" on Bphen, benzene and PhCz sent
             # three molecules that do have equivalent sites down the ring-centre
