@@ -66,3 +66,37 @@ kept; only the statements below were changed.
   (about 420 nm total), so it was left as is.
 - The stray note at the end of the file about the Yablonovitch escape limit is still a to-do.
 - Equation (1) is referenced but never written out.
+
+## v3 — full rewrite for flow (`manuscript/unityEQE_v3_ko.docx`)
+
+Requested after the v2 edit still read as repetitive. Built by `rewrite_v3.py` on the
+original document's skeleton (same styles, namespaces and section properties; body runs
+carry only the east-Asian font hint, as in the original). 38 paragraphs against 50, and
+11.2 k characters against 13.8 k in the edited v2, with no claim, figure reference,
+supplementary pointer or author placeholder dropped.
+
+Duplications removed:
+
+- "organics are transparent, so parasitic absorption is TCO + metal" was stated three
+  times (round-trip, loss-accounting and electrode paragraphs); now once, in the
+  loss-accounting paragraph.
+- the lambda/4, lambda/2 ITO-thickness rationale appeared twice; now once, in the
+  parasitic-absorption paragraph, with a back-reference from the electrode paragraph.
+- the TCO absorption-versus-conductivity trade-off appeared twice with a "to be discussed
+  later" forward reference; now once, where the 50 nm ITO / 10 nm Ag choice is made.
+- "light bounces many times, so a small loss per round trip matters" was in both the
+  Fig. 1(a) and the round-trip paragraphs; now once.
+- the 20 % Al round-trip loss was quoted twice; the Fig. 1(d) sentence now refers back.
+- the two Fig. 5 paragraphs both opened with the "light had to be crammed into the escape
+  cone" framing; merged into one opening.
+- the Discussion no longer re-lists the results numbers except the two headline ones.
+
+Structure: the Results section is split into six short sub-headed blocks (recycling law,
+parasitic absorption, substrate-delivered power, electrode rule, experiment, design
+freedom). The sub-headings are plain paragraphs and can be deleted without side effects.
+The Fig. 2(a) sentence now carries the two-step wording (comparable to the mirror loss
+with Al; the only remaining loss with a low-loss reflector) supported by
+`sim/design_rule4/tco2_*.csv`. The stray Yablonovitch note at the end was dropped.
+
+All v2 corrections are carried over. Still flagged, unchanged: the "ETL above 100 nm is
+enough" figure in the design-freedom paragraph.
