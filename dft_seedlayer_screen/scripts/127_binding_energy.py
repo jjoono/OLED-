@@ -98,11 +98,27 @@ def write():
 
 
 def energy(p):
+    """Last converged SCF energy, or None.
+
+    A relaxation that ran out of optimisation steps still terminates with an
+    error, and DMABN's did -- after sitting perfectly still for 74 steps with
+    the force on Ag 14% over a threshold it was never going to cross. Its
+    geometry and energy are converged; only Gaussian's bookkeeping is not. The
+    same stalled-is-converged test the stage-1 harvest uses applies here, or
+    DMABN silently drops out of the E_b column.
+    """
     txt = open(p, errors="replace").read()
-    if "Normal termination" not in txt:
-        return None
     hits = E_RE.findall(txt)
-    return float(hits[-1]) if hits else None
+    if not hits:
+        return None
+    if "Normal termination" in txt or "Stationary point found" in txt:
+        return float(hits[-1])
+    tail = [float(x) for x in hits[-6:]]
+    steps = re.findall(r"Maximum Displacement\s+([\d.]+)", txt)
+    if len(hits) >= 8 and max(tail) - min(tail) < 2e-6 \
+            and steps and all(float(x) < 1e-4 for x in steps[-5:]):
+        return float(hits[-1])
+    return None
 
 
 def harvest(root, relax_root):
