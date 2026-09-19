@@ -1,0 +1,9 @@
+%NProcShared=8
+%Mem=48GB
+#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
+
+Ag atom, doublet
+
+0 2
+ Ag     0.00000000     0.00000000     0.00000000
+
