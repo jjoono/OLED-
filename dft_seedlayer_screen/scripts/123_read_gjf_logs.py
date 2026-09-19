@@ -48,38 +48,44 @@ S2_SPREAD = 0.02      # above the folder median -> a different state
 S2_FOLDER = 0.77      # folder median above this -> flag, do not reject
 
 
+WALL_EV = 1.0 / 27.211386      # Hartree; above the minimum, no longer harmonic
+
+
 def relaxed(hs):
     """Energy at the relaxed adatom height, from a scan of (dz, E) pairs.
 
-    Taking the lower of two heights does not relax anything: whichever wins is
-    an endpoint of the scan, so the minimum is never bracketed. In the v8 run
-    that mattered by up to 0.456 eV -- more than any barrier measured -- and
-    which height won flipped along a single path, so it put structure into the
-    curve that was not in the physics.
+    Returns (energy, bracketed). Bracketed means the lowest sampled height has
+    a higher one on each side, so the minimum is inside the scan.
 
-    With three or more heights the minimum can be bracketed and fitted. A
-    parabola through the lowest point and its two neighbours gives the relaxed
-    energy; if the lowest point is still an end of the scan the minimum lies
-    outside it, and the raw value is returned with a flag so the caller can say
-    so rather than quoting a fit that extrapolated.
+    The parabola is fitted only when the two neighbours are within a volt of
+    the minimum. Past that they are on the repulsive wall, not in the harmonic
+    well, and a parabola through a wall point extrapolates nonsense: HATCN's
+    midpoint had dz=-0.6 at 4.45 eV beside dz=-0.2 at 0.035, and the fit put the
+    minimum 0.44 eV BELOW every energy sampled, which turned a 0.06 eV barrier
+    into 0.50. When the fit is unsafe the lowest sampled point is used instead.
+    It is high by whatever the curvature hides over half a step, which is
+    hundredths of an eV, not tenths.
     """
     hs = sorted(hs)
     i = min(range(len(hs)), key=lambda k: hs[k][1])
-    if len(hs) < 3 or i == 0 or i == len(hs) - 1:
+    bracketed = 0 < i < len(hs) - 1
+    if not bracketed:
         return hs[i][1], False
     (x0, y0), (x1, y1), (x2, y2) = hs[i - 1], hs[i], hs[i + 1]
+    if max(y0, y2) - y1 > WALL_EV:
+        return y1, True
     d = (x0 - x1) * (x0 - x2) * (x1 - x2)
     if abs(d) < 1e-12:
-        return y1, False
+        return y1, True
     a = (x2 * (y1 - y0) + x1 * (y0 - y2) + x0 * (y2 - y1)) / d
     b = (x2 * x2 * (y0 - y1) + x1 * x1 * (y2 - y0) + x0 * x0 * (y1 - y2)) / d
     c = (x1 * x2 * (x1 - x2) * y0 + x2 * x0 * (x2 - x0) * y1
          + x0 * x1 * (x0 - x1) * y2) / d
-    if a <= 0:                       # not a minimum -- do not extrapolate off it
-        return y1, False
+    if a <= 0:
+        return y1, True
     xv = -b / (2 * a)
     if not (x0 <= xv <= x2):
-        return y1, False
+        return y1, True
     return c - b * b / (4 * a), True
 
 
