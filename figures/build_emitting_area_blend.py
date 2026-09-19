@@ -37,8 +37,9 @@ SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 2.0, 1.5              # device footprint, Blender units
 LAM_REF = 0.60                           # design-rule spreading length (0.30 panel widths)
-EMIT_STRENGTH = 10.0                     # design-rule peak emission
-WARM = (1.0, 0.92, 0.76)                 # emitted light, like the reference render
+EMIT_STRENGTH = 5.5                     # design-rule peak emission
+GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
+HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
 SEP = 1.75                               # half distance between the two devices
 
 LAYERS = [  # name, thickness, material spec
@@ -177,7 +178,7 @@ def emitter_material(tag, lam, amp):
     ex = nt.nodes.new("ShaderNodeMath"); ex.operation = "EXPONENT"
     mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; mul.inputs[1].default_value = amp
     em = nt.nodes.new("ShaderNodeEmission")
-    em.inputs["Color"].default_value = (*WARM, 1.0)
+    em.inputs["Color"].default_value = (*GLOW, 1.0)
     tr = nt.nodes.new("ShaderNodeBsdfTransparent")
     mix = nt.nodes.new("ShaderNodeMixShader")
     nt.links.new(tex.outputs["Object"], ln.inputs[0])
@@ -215,11 +216,11 @@ def haze_material(tag, height, r_base, slope, brightness):
     t3 = N("ShaderNodeMath", operation="POWER", v1=3.0)
     rfade = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
     fade = N("ShaderNodeMath", operation="MULTIPLY")
-    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.30 * brightness)
-    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=1.15 * brightness)
+    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.26 * brightness)
+    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=0.85 * brightness)
     vol = N("ShaderNodeVolumePrincipled")
-    vol.inputs["Color"].default_value = (*WARM, 1.0)
-    vol.inputs["Emission Color"].default_value = (*WARM, 1.0)
+    vol.inputs["Color"].default_value = (*HAZE_SCATTER, 1.0)
+    vol.inputs["Emission Color"].default_value = (*GLOW, 1.0)
     vol.inputs["Anisotropy"].default_value = 0.3
     L = nt.links.new
     L(tex.outputs["Object"], sep.inputs[0])
@@ -295,9 +296,9 @@ def studio():
     w.use_nodes = True
     bg = w.node_tree.nodes["Background"]
     bg.inputs["Color"].default_value = (0.36, 0.37, 0.39, 1.0)
-    bg.inputs["Strength"].default_value = 1.0
-    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 1400.0, 2.6),
-                                    ("Fill light", (6.0, -3.0, 5.0), 500.0, 6.0)):
+    bg.inputs["Strength"].default_value = 0.55
+    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 950.0, 2.6),
+                                    ("Fill light", (6.0, -3.0, 5.0), 320.0, 6.0)):
         bpy.ops.object.light_add(type="AREA", location=loc)
         L = bpy.context.active_object
         L.name = name
@@ -326,15 +327,29 @@ def compositor():
 
     Cycles gives a thin emissive volume almost no alpha, so with film_transparent the
     cone is there in RGB but vanishes once composited.  Alpha is rebuilt from the
-    luminance; the colour is un-premultiplied only where the render had no alpha of
-    its own, so the glow stays white over a white page and warm over a dark one.
+    per-pixel channel maximum -- not the luminance, which for a saturated colour would
+    push the strong channel past 1 on un-premultiply and clip the hue back to white.
+    The colour is un-premultiplied only where the render had no alpha of its own, so
+    the glow composites cleanly over a light page and over a dark one alike.
     """
     s = bpy.context.scene
     s.use_nodes = True
     nt = s.node_tree
     nt.nodes.clear()
     rl = nt.nodes.new("CompositorNodeRLayers")
-    lum = nt.nodes.new("CompositorNodeRGBToBW")
+    sat = nt.nodes.new("CompositorNodeHueSat")       # OCIO "looks" are unavailable in
+    for key, val in (("Saturation", 1.30), ("Fac", 1.0)):   # this build, so do it here
+        if key in sat.inputs:
+            sat.inputs[key].default_value = val
+    try:
+        sep = nt.nodes.new("CompositorNodeSeparateColor")
+        sep.mode = "RGB"
+        chans = ("Red", "Green", "Blue")
+    except RuntimeError:
+        sep = nt.nodes.new("CompositorNodeSepRGBA")
+        chans = ("R", "G", "B")
+    m1 = nt.nodes.new("CompositorNodeMath"); m1.operation = "MAXIMUM"
+    lum = nt.nodes.new("CompositorNodeMath"); lum.operation = "MAXIMUM"
     safe = nt.nodes.new("CompositorNodeMath"); safe.operation = "MAXIMUM"
     safe.inputs[1].default_value = 0.004
     unp = nt.nodes.new("CompositorNodeMixRGB"); unp.blend_type = "DIVIDE"
@@ -344,13 +359,18 @@ def compositor():
     sa = nt.nodes.new("CompositorNodeSetAlpha"); sa.mode = "REPLACE_ALPHA"
     out = nt.nodes.new("CompositorNodeComposite")
     L = nt.links.new
-    L(rl.outputs["Image"], lum.inputs[0])
+    L(rl.outputs["Image"], sat.inputs["Image"])
+    L(sat.outputs[0], sep.inputs[0])
+    L(sep.outputs[chans[0]], m1.inputs[0])
+    L(sep.outputs[chans[1]], m1.inputs[1])
+    L(m1.outputs[0], lum.inputs[0])
+    L(sep.outputs[chans[2]], lum.inputs[1])
     L(lum.outputs[0], safe.inputs[0])
-    L(rl.outputs["Image"], unp.inputs[1])
+    L(sat.outputs[0], unp.inputs[1])
     L(safe.outputs[0], unp.inputs[2])
     L(rl.outputs["Alpha"], keep.inputs[0])
     L(unp.outputs[0], keep.inputs[1])
-    L(rl.outputs["Image"], keep.inputs[2])
+    L(sat.outputs[0], keep.inputs[2])
     L(lum.outputs[0], amax.inputs[0])
     L(rl.outputs["Alpha"], amax.inputs[1])
     L(keep.outputs[0], sa.inputs["Image"])
