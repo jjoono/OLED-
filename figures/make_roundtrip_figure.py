@@ -22,8 +22,21 @@ HIT_TOP   = [150.0, 390.0, 630.0, 870.0]      # all of them lens centres
 HIT_METAL = [270.0, 510.0, 750.0]
 X_EMIT    = HIT_TOP[0] - (Y_EMIT - Y_TOP) * TAN
 
-GREEN, BLUE, AMBER = "#4d8b31", "#1e6fc4", "#f5b91b"
-INK, MUTED = "#1b2026", "#5b646e"
+# ---- palette: Nature Publishing Group accents (ggsci "npg") over desaturated
+# ---- structural tints.  Two saturated hues only: light vs. loss.
+RAY       = "#00a087"   # NPG teal-green  - optical power
+LOSS      = "#e64b35"   # NPG coral red   - absorption
+BURST     = "#fbdcd6"   # pale tint of LOSS, fill of the absorption star
+EMIT      = "#e8901f"   # gold            - exciton emission
+EMIT_EDGE = "#6f4308"
+GLASS_F, GLASS_L = "#eaf1f6", "#6e93ae"
+TCO_F,   TCO_L   = "#cbe1ee", "#6e93ae"
+ORG_F,   ORG_L   = "#fdf2e2", "#c99a55"
+MET_F,   MET_L   = "#c3c7cb", "#868c92"
+INK, MUTED, LEADER = "#1a1a1a", "#55585c", "#9aa0a6"
+LW_SLAB, LW_LAYER, LW_STAR = 1.3, 1.05, 1.0
+W_RAY = 9.5             # line width of the full-power ray
+GREEN, BLUE, AMBER = RAY, LOSS, EMIT          # kept for backward compatibility
 
 def f(v):
     s = "%.2f" % v
@@ -89,20 +102,23 @@ def txt(x, y, s, size=15, fill=INK, anchor="start", weight="400"):
 # ---------------------------------------------------------------- one panel
 def panel(x0, eta, r_met, t_tco, title, sub):
     g = ['<g id="panel">']
-    # --- substrate body + micro-lens array as one outline
-    d = "M %s,%s L %s,%s" % (f(x0), f(Y_TCO), f(x0), f(Y_TOP))
+    # --- glass slab, then one closed semicircle per micro-lens
+    g.append('<rect x="%s" y="%s" width="%s" height="%s" fill="%s" stroke="%s" '
+             'stroke-width="%s"/>' % (f(x0), f(Y_TOP), f(PW), f(Y_TCO - Y_TOP),
+                                      GLASS_F, GLASS_L, f(LW_SLAB)))
     for k in range(int(PW / PITCH)):
-        d += " A %s,%s 0 0 1 %s,%s" % (f(LENS_R), f(LENS_R),
-                                       f(x0 + PITCH * (k + 1)), f(Y_TOP))
-    d += " L %s,%s Z" % (f(x0 + PW), f(Y_TCO))
-    g.append('<path d="%s" fill="#eaf3fc" stroke="%s" stroke-width="2.2" '
-             'stroke-linejoin="round"/>' % (d, "#1878c4"))
+        cx = x0 + PITCH * k + LENS_R
+        g.append('<path d="M %s,%s A %s,%s 0 0 1 %s,%s Z" fill="%s" stroke="%s" '
+                 'stroke-width="%s" stroke-linejoin="round"/>'
+                 % (f(cx - LENS_R), f(Y_TOP), f(LENS_R), f(LENS_R), f(cx + LENS_R),
+                    f(Y_TOP), GLASS_F, GLASS_L, f(LW_SLAB)))
     # --- device layers
-    for y1, y2, fill, stroke in ((Y_TCO, Y_ORG, "#bfe0f5", "#1878c4"),
-                                 (Y_ORG, Y_MET, "#ffe0ae", "#d9932a"),
-                                 (Y_MET, Y_BOT, "#c9cdd1", "#7d848b")):
+    for y1, y2, fill, stroke in ((Y_TCO, Y_ORG, TCO_F, TCO_L),
+                                 (Y_ORG, Y_MET, ORG_F, ORG_L),
+                                 (Y_MET, Y_BOT, MET_F, MET_L)):
         g.append('<rect x="%s" y="%s" width="%s" height="%s" fill="%s" stroke="%s" '
-                 'stroke-width="1.6"/>' % (f(x0), f(y1), f(PW), f(y2 - y1), fill, stroke))
+                 'stroke-width="%s"/>' % (f(x0), f(y1), f(PW), f(y2 - y1), fill, stroke,
+                                          f(LW_LAYER)))
 
     # --- radiometry along the zig-zag
     I, seg, esc, loss = 1.0, [], [], []
@@ -110,7 +126,7 @@ def panel(x0, eta, r_met, t_tco, title, sub):
         seg.append(I); esc.append(I * eta); I *= (1 - eta)
         if k < 3:
             I *= t_tco; loss.append(I * (1 - r_met)); I *= r_met; I *= t_tco
-    wid = [11.0 * v ** 0.75 for v in seg]
+    wid = [W_RAY * v ** 0.75 for v in seg]
 
     # --- TCO absorption ticks, flanking every metal bounce
     tl = 1.0 - t_tco
@@ -152,16 +168,16 @@ def panel(x0, eta, r_met, t_tco, title, sub):
         for sgn in (-1, 1):
             g.append(wave(x0 + xm + sgn * (r - 1), Y_MET - 6, sgn * ln,
                           2.0 + 14 * v, 2.5, BLUE, sw, op))
-        g.append(star(x0 + xm, Y_MET, r, "#dceaf8", BLUE, op=op, sw=1.4))
+        g.append(star(x0 + xm, Y_MET, r, BURST, LOSS, op=op, sw=LW_STAR))
 
     # --- emitter
-    g.append(star(x0 + X_EMIT, Y_EMIT, 9.0, AMBER, "#c8910c", n=9, inner=0.42, sw=1.2))
-    g.append('<circle cx="%s" cy="%s" r="2.6" fill="#fff6d8"/>'
+    g.append(star(x0 + X_EMIT, Y_EMIT, 8.5, EMIT, EMIT_EDGE, n=9, inner=0.42, sw=LW_STAR))
+    g.append('<circle cx="%s" cy="%s" r="2.4" fill="#fff8e6"/>'
              % (f(x0 + X_EMIT), f(Y_EMIT)))
 
     # --- titles
-    g.append(txt(x0 + PW / 2, 28, title, 23, INK, "middle", "700"))
-    g.append(txt(x0 + PW / 2, 53, sub, 17, MUTED, "middle"))
+    g.append(txt(x0 + PW / 2, 28, title, 21, INK, "middle", "700"))
+    g.append(txt(x0 + PW / 2, 52, sub, 16, MUTED, "middle"))
     g.append('</g>')
     return "\n".join(g), sum(esc)
 
@@ -187,18 +203,18 @@ for y_lab, y_tip, s in ((150, 152, "Outcoupling structure"),
                         (263, 269, "TCO anode"),
                         (292, 286, "Organic layers"),
                         (318, 315, "Metal cathode")):
-    A(txt(181, y_lab + 5, s, 15, MUTED, "end"))
-    A('<path d="M 187,%s L 195,%s" stroke="#9aa3ac" stroke-width="1.1" fill="none"/>'
-      % (f(y_lab), f(y_tip)))
+    A(txt(181, y_lab + 5, s, 14, MUTED, "end"))
+    A('<path d="M 187,%s L 195,%s" stroke="%s" stroke-width="0.9" fill="none"/>'
+      % (LEADER, f(y_lab), f(y_tip)))
 
 # ---------------------------------------------------------------- legend
 LG = 412.0
-A(ray((642, LG), (706, LG), 7.0))
+A(ray((642, LG), (706, LG), 6.2))
 A(txt(720, LG + 5, "Light ray  (line width ∝ optical power)", 16, MUTED))
-A(star(1070, LG - 2, 9.0, AMBER, "#c8910c", n=9, inner=0.42, sw=1.2))
-A(txt(1088, LG + 5, "Exciton emission", 16, MUTED))
-A(wave(1300, LG - 2, 56, 3.4, 2.5, BLUE, 2.4, 0.95))
-A(txt(1376, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 16, MUTED))
+A(star(1070, LG - 2, 8.5, EMIT, EMIT_EDGE, n=9, inner=0.42, sw=LW_STAR))
+A(txt(1088, LG + 5, "Exciton emission", 15, MUTED))
+A(wave(1300, LG - 2, 56, 3.4, 2.5, LOSS, 2.2, 0.95))
+A(txt(1376, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED))
 A('</svg>')
 
 dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcoupling_roundtrip.svg")
