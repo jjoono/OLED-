@@ -37,18 +37,22 @@ SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 2.0, 1.5              # device footprint, Blender units
 LAM_REF = 0.60                           # design-rule spreading length (0.30 panel widths)
-EMIT_STRENGTH = 5.5                     # design-rule peak emission
+EMIT_STRENGTH = 9.0                     # design-rule peak emission
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
 HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
 SEP = 1.75                               # half distance between the two devices
+LENS_PITCH = 0.125                       # micro-lens centre-to-centre, hexagonal packing
+LENS_FILL = 0.97                         # lens radius as a fraction of half the pitch
+LENS_SINK = 0.16                         # how far each cap sits in the film, x radius
+LENS_SEGS, LENS_RINGS = 16, 6
 
 LAYERS = [  # name, thickness, material spec
     ("Metal cathode",        0.10, dict(base=(0.60, 0.62, 0.65), metallic=1.0, rough=0.32)),
     ("Organic layers",       0.05, dict(base=(0.98, 0.84, 0.60), rough=0.55)),
     ("TCO anode",            0.04, dict(base=(0.74, 0.88, 0.96), rough=0.12, transmission=0.6, ior=1.6)),
-    ("Glass substrate",      0.18, dict(base=(0.80, 0.90, 0.98), rough=0.05, transmission=0.9, ior=1.5)),
-    ("Outcoupling structure",0.10, dict(base=(0.93, 0.96, 1.00), rough=0.10, transmission=0.18,
-                                        ior=1.5, lens=dict(scale=5.0, depth=1.0))),
+    ("Glass substrate",      0.18, dict(base=(0.80, 0.90, 0.98), rough=0.05, transmission=0.6, ior=1.5)),
+    ("Outcoupling film",     0.07, dict(base=(0.94, 0.97, 1.00), rough=0.12, transmission=0.10,
+                                        ior=1.5)),
 ]
 
 # ------------------------------------------------------------------ helpers
@@ -77,55 +81,65 @@ def set_in(node, name, value):
             return
     raise KeyError(name)
 
-def lens_bump(nt, p, base, scale, depth):
-    """Micro-lens array as a bump only: rounded Voronoi cells, top face alone.
+def dome(r, segs, rings):
+    """Vertices and faces of one spherical cap, pole up, closed underneath."""
+    verts = [(0.0, 0.0, r)]
+    for i in range(1, rings + 1):
+        th = (math.pi / 2.0) * i / rings
+        st, ct = math.sin(th), math.cos(th)
+        for j in range(segs):
+            ph = 2.0 * math.pi * j / segs
+            verts.append((r * st * math.cos(ph), r * st * math.sin(ph), r * ct))
+    faces = [(0, 1 + j, 1 + (j + 1) % segs) for j in range(segs)]
+    for i in range(1, rings):
+        a0, b0 = 1 + (i - 1) * segs, 1 + i * segs
+        faces += [(a0 + j, b0 + j, b0 + (j + 1) % segs, a0 + (j + 1) % segs) for j in range(segs)]
+    rim = [1 + (rings - 1) * segs + j for j in range(segs)]
+    faces.append(tuple(reversed(rim)))
+    return verts, faces
 
-    No real lens geometry -- just enough relief to separate this layer from the
-    plain substrate underneath.
+
+def lens_array(cx, z_top, tag, c, mat):
+    """Micro-lens array: spherical caps on a hexagonal lattice, one joined mesh.
+
+    Rows are offset by half a pitch and spaced by pitch*sqrt(3)/2, which is the
+    hexagonal (triangular) packing an MLA actually uses.  Each cap is sunk a little
+    into the film so the rim is hidden and the lens reads as a cap, not a ball.
     """
-    tex = nt.nodes.new("ShaderNodeTexCoord")
-    vor = nt.nodes.new("ShaderNodeTexVoronoi")
-    vor.voronoi_dimensions = "2D"
-    vor.feature = "F1"
-    vor.inputs["Scale"].default_value = scale
-    vor.inputs["Randomness"].default_value = 0.0          # regular array, not organic cells
-    dome = nt.nodes.new("ShaderNodeMath")                 # 1 - distance  -> dome per cell
-    dome.operation = "SUBTRACT"
-    dome.inputs[0].default_value = 1.0
-    roundoff = nt.nodes.new("ShaderNodeMath")             # flatten the tip a little
-    roundoff.operation = "POWER"
-    roundoff.inputs[1].default_value = 0.55
-    geo = nt.nodes.new("ShaderNodeNewGeometry")           # mask: top face only
-    nrm = nt.nodes.new("ShaderNodeSeparateXYZ")
-    mask = nt.nodes.new("ShaderNodeMath")
-    mask.operation = "POWER"
-    mask.inputs[1].default_value = 3.0
-    mask.use_clamp = True
-    height = nt.nodes.new("ShaderNodeMath")
-    height.operation = "MULTIPLY"
-    bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = depth
-    bump.inputs["Distance"].default_value = 0.30
-    # a touch of albedo on the same field, so the array still reads where no
-    # highlight happens to land
-    tint = nt.nodes.new("ShaderNodeMixRGB")
-    tint.blend_type = "MIX"
-    tint.inputs[1].default_value = (*[c * 0.88 for c in base], 1.0)
-    tint.inputs[2].default_value = (*base, 1.0)
-    L = nt.links.new
-    L(tex.outputs["Object"], vor.inputs["Vector"])
-    L(vor.outputs["Distance"], dome.inputs[1])
-    L(dome.outputs[0], roundoff.inputs[0])
-    L(geo.outputs["Normal"], nrm.inputs[0])
-    L(nrm.outputs["Z"], mask.inputs[0])
-    L(roundoff.outputs[0], height.inputs[0])
-    L(mask.outputs[0], height.inputs[1])
-    L(height.outputs[0], bump.inputs["Height"])
-    L(bump.outputs["Normal"], p.inputs["Normal"])
-    L(height.outputs[0], tint.inputs[0])
-    L(tint.outputs[0], p.inputs["Base Color"])
+    r = LENS_PITCH * 0.5 * LENS_FILL
+    row_h = LENS_PITCH * math.sqrt(3.0) / 2.0
+    dv, df = dome(r, LENS_SEGS, LENS_RINGS)
+    z0 = z_top - LENS_SINK * r
+    verts, faces, n = [], [], 0
+    jmax = int(((PANEL_D / 2.0) - r) / row_h) + 1
+    imax = int(((PANEL_W / 2.0) - r) / LENS_PITCH) + 1
+    for j in range(-jmax, jmax + 1):
+        y = j * row_h
+        if abs(y) > PANEL_D / 2.0 - r:
+            continue
+        xoff = (LENS_PITCH / 2.0) if j % 2 else 0.0
+        for i in range(-imax, imax + 1):
+            x = i * LENS_PITCH + xoff
+            if abs(x) > PANEL_W / 2.0 - r:
+                continue
+            verts += [(vx + x, vy + y, vz + z0) for vx, vy, vz in dv]
+            faces += [tuple(k + n for k in f) for f in df]
+            n += len(dv)
+    me = bpy.data.meshes.new("Micro-lens array (%s)" % tag)
+    me.from_pydata(verts, [], faces)
+    me.update()
+    for poly in me.polygons:
+        poly.use_smooth = True
+    me.materials.append(mat)
+    o = bpy.data.objects.new("Micro-lens array (%s)" % tag, me)
+    bpy.context.scene.collection.objects.link(o)
+    o.location.x = cx
+    link(o, c)
+    return o, z_top + r * (1.0 - LENS_SINK), n // len(dv)
 
-def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45, lens=None):
+
+def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45,
+               shadow_through=True):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     nt = m.node_tree
@@ -135,9 +149,7 @@ def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45, 
     p.inputs["Roughness"].default_value = rough
     p.inputs["IOR"].default_value = ior
     set_in(p, "transmission", transmission)
-    if lens:
-        lens_bump(nt, p, base, **lens)
-    if transmission > 0.0:
+    if transmission > 0.0 and shadow_through:
         # shadow rays go straight through, so light reaches the layers underneath
         out = nt.nodes["Material Output"]
         lp = nt.nodes.new("ShaderNodeLightPath")
@@ -255,9 +267,12 @@ def device(cx, tag, lam, amp, cone_r, cone_h, brightness):
         box("%s (%s)" % (name, tag), PANEL_W, PANEL_D, t, cx, 0.0, z,
             principled("%s %s" % (name, tag), **spec), c)
         z += t
-    top = z
-    # emitting area: a plane the size of the top face with the exp(-r/lam) falloff
-    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(cx, 0.0, top + 0.002))
+    film = z                                   # top of the outcoupling film
+    lens_mat = principled("Micro-lens %s" % tag, base=(0.96, 0.98, 1.00), rough=0.07,
+                          transmission=0.42, ior=1.5, shadow_through=False)
+    _, top, n_lens = lens_array(cx, film, tag, c, lens_mat)
+    # emitting area: sits under the lens array, so the light leaves through the lenses
+    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(cx, 0.0, film + 0.0015))
     e = bpy.context.active_object
     e.name = "Emitting area (%s)" % tag
     e.scale = (PANEL_W, PANEL_D, 1.0)
@@ -265,7 +280,7 @@ def device(cx, tag, lam, amp, cone_r, cone_h, brightness):
     e.data.materials.append(emitter_material(tag, lam, amp))
     e.visible_shadow = False
     link(e, c)
-    # light haze above the panel
+    # light haze above the lenses
     slope = 0.55
     bpy.ops.mesh.primitive_cone_add(vertices=72, radius1=cone_r, radius2=cone_r + cone_h * slope,
                                     depth=cone_h, end_fill_type="NGON",
@@ -280,7 +295,9 @@ def device(cx, tag, lam, amp, cone_r, cone_h, brightness):
     k.visible_diffuse = False
     k.visible_glossy = False
     link(k, c)
+    print("   %-12s  %d micro-lenses, pitch %.3f" % (tag, n_lens, LENS_PITCH))
     return top
+
 
 def studio():
     c = coll("Studio")
@@ -297,7 +314,7 @@ def studio():
     bg = w.node_tree.nodes["Background"]
     bg.inputs["Color"].default_value = (0.36, 0.37, 0.39, 1.0)
     bg.inputs["Strength"].default_value = 0.55
-    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 950.0, 2.6),
+    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 950.0, 4.2),
                                     ("Fill light", (6.0, -3.0, 5.0), 320.0, 6.0)):
         bpy.ops.object.light_add(type="AREA", location=loc)
         L = bpy.context.active_object
