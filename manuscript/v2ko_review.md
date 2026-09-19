@@ -177,3 +177,18 @@ The author's section-1 revisions are carried in: the round-trip paragraph no lon
 that the transport layers are transparent, so the loss is set by the mirror's ohmic absorption
 and the transparent electrode; the reflective-electrode assumption T_LED = 0 is stated; and
 the index-matching and "power remaining" sentences take the author's wording.
+
+## v8 — the escape probability is given a basis (`manuscript/unityEQE_v8_ko.docx`)
+
+The Fig. 1(b) paragraph now defines p as the escape probability per encounter with the
+extraction structure and gives its geometric-optics estimate T̄/n_sub², citing Yablonovitch
+(1982), with the values 0.40 at n_sub = 1.5 and 0.27 at 1.8 and a note that a curved structure
+can exceed the estimate. It also states the ergodicity condition that eq. (2) rests on: the
+surface slope must exceed ½ arcsin(1/n_sub), which a hemispherical microlens satisfies.
+
+Two points of care. The factor of two: Yablonovitch's 1/(2n²) counts a two-sided internal
+intensity, which suits a slab with a rear mirror; each round trip here involves a single
+encounter with the extraction structure, so the one-sided T̄/n_sub² is the right form and
+n_sub = 1.5 gives 0.40, not 0.22. And no figure is cited at this point, so the order is not
+disturbed; the ray-traced p is picked up later, where Fig. 2(b) is first cited, as a
+confirmation of the estimate.

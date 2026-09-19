@@ -1,6 +1,6 @@
-# Figure plan — unityEQE v7
+# Figure plan — unityEQE v8
 
-Citation order in v7, strictly monotonic apart from one deliberate retrospective:
+Citation order in v8, strictly monotonic apart from one deliberate retrospective:
 
 1(a) → 1(b) → 1(c) → 2(a) → 2(b) → 2(c) → 2(d) → 3(a) → 3(b) → 3(c) → 4(a) → 4(b) → 4(c) →
 [3(a) retrospective] → 5(a) → 5(b) → 5(c)
@@ -33,6 +33,36 @@ eventually escapes. Label P₀, P_sub, B_T, B_R, R_LED and A′ = 1 − R_LED.
 round trips, for a stack with a large round-trip loss and one with a small loss. Qualitative at
 this point: no Al/Ag labels and no numbers, since the quantitative comparison is Fig. 2's job.
 This is the panel that makes the recycling process visible; the master curve alone hides it.
+
+Axes and settings. The vertical axis is the **cumulative fraction of substrate-delivered light
+that has escaped** after n round trips, so η_sub drops out of the calculation and only p and A′
+remain; the value it saturates at is η_ext, which is the vertical axis of (c). The curve is
+p[1 − (1−p)ⁿR_LEDⁿ]/[1 − (1−p)R_LED]. Draw three curves labelled by **A′ = 0.02, 0.10, 0.25**
+with no material names — Al and Ag are introduced in Fig. 2 — and state **p** on the panel.
+Six round trips on the horizontal axis is enough for all three to flatten at p = 0.4.
+
+The escape probability is not a free parameter. For angularly randomised light inside the
+substrate the geometric-optics estimate is T̄/n_sub², where T̄ is the transmittance averaged
+over the escape cone (Yablonovitch, *J. Opt. Soc. Am.* **72**, 899 (1982), Sec. 4). Note the
+factor of two: Yablonovitch quotes 1/(2n²) because his internal intensity is two-sided, which
+suits a slab with a rear mirror; here each round trip involves one encounter with the
+extraction structure, so the one-sided T̄/n_sub² applies.
+
+| n_sub | 1/n_sub² | T̄/n_sub² | ray trace (Fig. 2(b)) |
+|---|---|---|---|
+| 1.3 | 0.592 | 0.556 | 0.665 |
+| 1.5 | 0.444 | **0.404** | 0.380 |
+| 1.8 | 0.309 | **0.267** | 0.305 |
+| 2.0 | 0.250 | 0.210 | 0.248 |
+
+The ray trace sits on the estimate at n_sub = 1.8 and 2.0 and exceeds it at 1.3, where the
+curved microlens surface beats the flat escape cone — which is why the text calls T̄/n_sub² an
+estimate rather than the value. p = 0.4 for the curve family of (c) is the n_sub = 1.5 entry.
+
+Eq. (2) also assumes angular randomisation at every round trip, which is Yablonovitch's
+ergodicity condition: the surface slope must exceed ½ arcsin(1/n_sub), i.e. 20.9° at n_sub =
+1.5 and 16.9° at 1.8. A hemispherical microlens spans 0–90° and satisfies it comfortably,
+whereas a plane-parallel slab is his explicit counter-example and gets no enhancement.
 
 **(c) Master curve.** η_ext against the round-trip reflectance, with the wide view and a
 zoom on the high-reflectance end (the author's existing draft). Settled conventions:
