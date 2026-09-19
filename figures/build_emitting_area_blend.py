@@ -24,6 +24,8 @@ QUALITY = argv[argv.index("--quality") + 1] if "--quality" in argv else "final"
 DO_RENDER = "--no-render" not in argv
 BG = argv[argv.index("--bg") + 1] if "--bg" in argv else "transparent"
 ONLY_CAM = argv[argv.index("--cam") + 1] if "--cam" in argv else None
+RES_PCT = int(argv[argv.index("--res") + 1]) if "--res" in argv else None
+SAMPLES = int(argv[argv.index("--samples") + 1]) if "--samples" in argv else None
 os.makedirs(OUT, exist_ok=True)
 
 # ------------------------------------------------------------------ loss model
@@ -37,14 +39,15 @@ SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 2.0, 1.5              # device footprint, Blender units
 LAM_REF = 0.60                           # design-rule spreading length (0.30 panel widths)
-EMIT_STRENGTH = 9.0                     # design-rule peak emission
+EMIT_STRENGTH = 9.0
+LENS_EMIT_FRAC = 0.85     # how much of the glow the caps themselves carry                     # design-rule peak emission
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
 HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
 SEP = 1.75                               # half distance between the two devices
 LENS_PITCH = 0.125                       # micro-lens centre-to-centre, hexagonal packing
 LENS_FILL = 0.97                         # lens radius as a fraction of half the pitch
 LENS_SINK = 0.16                         # how far each cap sits in the film, x radius
-LENS_SEGS, LENS_RINGS = 16, 6
+LENS_SEGS, LENS_RINGS = 28, 9
 
 LAYERS = [  # name, thickness, material spec
     ("Metal cathode",        0.10, dict(base=(0.60, 0.62, 0.65), metallic=1.0, rough=0.32)),
@@ -161,13 +164,20 @@ def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45,
         nt.links.new(mix.outputs[0], out.inputs["Surface"])
     return m
 
-def box(name, sx, sy, sz, cx, cy, z0, mat, c):
+def box(name, sx, sy, sz, cx, cy, z0, mat, c, bevel=0.0035):
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=(cx, cy, z0 + sz / 2.0))
     o = bpy.context.active_object
     o.name = name
     o.scale = (sx, sy, sz)
     bpy.ops.object.transform_apply(scale=True)
     o.data.materials.append(mat)
+    if bevel:
+        m = o.modifiers.new("Bevel", "BEVEL")
+        m.width = min(bevel, sz * 0.22)      # thin layers get a proportionally smaller one
+        m.segments = 4
+        m.limit_method = "ANGLE"
+        m.angle_limit = math.radians(30.0)
+        m.use_clamp_overlap = True
     link(o, c)
     return o
 
@@ -176,6 +186,38 @@ def look_at(cam, target):
     cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 # ------------------------------------------------------------------ materials
+def radial_falloff(nt, lam, amp):
+    """exp(-r/lam) * amp from the panel centre, in the object's own XY plane."""
+    tex = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    flat = nt.nodes.new("ShaderNodeCombineXYZ")
+    ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
+    div = nt.nodes.new("ShaderNodeMath"); div.operation = "DIVIDE"; div.inputs[1].default_value = lam
+    neg = nt.nodes.new("ShaderNodeMath"); neg.operation = "MULTIPLY"; neg.inputs[1].default_value = -1.0
+    ex = nt.nodes.new("ShaderNodeMath"); ex.operation = "EXPONENT"
+    mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; mul.inputs[1].default_value = amp
+    L = nt.links.new
+    L(tex.outputs["Object"], sep.inputs[0])
+    L(sep.outputs["X"], flat.inputs["X"]); L(sep.outputs["Y"], flat.inputs["Y"])
+    L(flat.outputs[0], ln.inputs[0])
+    L(ln.outputs["Value"], div.inputs[0])
+    L(div.outputs[0], neg.inputs[0]); L(neg.outputs[0], ex.inputs[0]); L(ex.outputs[0], mul.inputs[0])
+    return ex.outputs[0], mul.outputs[0]        # (0..1 shape, shape * amp)
+
+
+def lens_material(tag, lam, amp, strength):
+    """White cap that also emits: light really does leave through the lenses, so
+    they can stay opaque enough to shade properly and still carry the glow."""
+    m = principled("Micro-lens %s" % tag, base=(0.95, 0.97, 1.00), rough=0.12,
+                   transmission=0.08, ior=1.50, shadow_through=False)
+    nt = m.node_tree
+    p = nt.nodes["Principled BSDF"]
+    shape, scaled = radial_falloff(nt, lam, amp * strength)
+    set_in(p, "emission_color", (*GLOW, 1.0))
+    nt.links.new(scaled, p.inputs["Emission Strength"])
+    return m
+
+
 def emitter_material(tag, lam, amp):
     """Emission that falls off as exp(-r / lam) from the panel centre."""
     m = bpy.data.materials.new("Emitting area " + tag)
@@ -183,23 +225,13 @@ def emitter_material(tag, lam, amp):
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    tex = nt.nodes.new("ShaderNodeTexCoord")
-    ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
-    div = nt.nodes.new("ShaderNodeMath"); div.operation = "DIVIDE"; div.inputs[1].default_value = lam
-    neg = nt.nodes.new("ShaderNodeMath"); neg.operation = "MULTIPLY"; neg.inputs[1].default_value = -1.0
-    ex = nt.nodes.new("ShaderNodeMath"); ex.operation = "EXPONENT"
-    mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"; mul.inputs[1].default_value = amp
+    shape, scaled = radial_falloff(nt, lam, amp)
     em = nt.nodes.new("ShaderNodeEmission")
     em.inputs["Color"].default_value = (*GLOW, 1.0)
     tr = nt.nodes.new("ShaderNodeBsdfTransparent")
     mix = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(tex.outputs["Object"], ln.inputs[0])
-    nt.links.new(ln.outputs["Value"], div.inputs[0])
-    nt.links.new(div.outputs[0], neg.inputs[0])
-    nt.links.new(neg.outputs[0], ex.inputs[0])
-    nt.links.new(ex.outputs[0], mul.inputs[0])
-    nt.links.new(mul.outputs[0], em.inputs["Strength"])
-    nt.links.new(ex.outputs[0], mix.inputs["Fac"])      # transparent where nothing is emitted
+    nt.links.new(scaled, em.inputs["Strength"])
+    nt.links.new(shape, mix.inputs["Fac"])             # transparent where nothing is emitted
     nt.links.new(tr.outputs[0], mix.inputs[1])
     nt.links.new(em.outputs[0], mix.inputs[2])
     nt.links.new(mix.outputs[0], out.inputs["Surface"])
@@ -268,8 +300,7 @@ def device(cx, tag, lam, amp, cone_r, cone_h, brightness):
             principled("%s %s" % (name, tag), **spec), c)
         z += t
     film = z                                   # top of the outcoupling film
-    lens_mat = principled("Micro-lens %s" % tag, base=(0.96, 0.98, 1.00), rough=0.07,
-                          transmission=0.42, ior=1.5, shadow_through=False)
+    lens_mat = lens_material(tag, lam, amp, LENS_EMIT_FRAC)
     _, top, n_lens = lens_array(cx, film, tag, c, lens_mat)
     # emitting area: sits under the lens array, so the light leaves through the lenses
     bpy.ops.mesh.primitive_plane_add(size=1.0, location=(cx, 0.0, film + 0.0015))
@@ -308,28 +339,56 @@ def studio():
     if BG == "transparent":
         fl.is_shadow_catcher = True      # keeps the contact shadow, drops the grey plane
     link(fl, c)
+
+    # a graded environment rather than a flat grey: the lens caps and the glass
+    # pick up a rolloff instead of one constant value, which is most of the
+    # difference between a render that looks shot and one that looks computed
     w = bpy.context.scene.world or bpy.data.worlds.new("World")
     bpy.context.scene.world = w
     w.use_nodes = True
-    bg = w.node_tree.nodes["Background"]
-    bg.inputs["Color"].default_value = (0.36, 0.37, 0.39, 1.0)
-    bg.inputs["Strength"].default_value = 0.55
-    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 950.0, 4.2),
-                                    ("Fill light", (6.0, -3.0, 5.0), 320.0, 6.0)):
+    nt = w.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputWorld")
+    bg = nt.nodes.new("ShaderNodeBackground")
+    bg.inputs["Strength"].default_value = 0.11
+    tex = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.inputs["From Min"].default_value = -0.9
+    mr.inputs["From Max"].default_value = 0.9
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.interpolation = "B_SPLINE"
+    for pos, col in ((0.0, (0.16, 0.17, 0.19)), (0.45, (0.42, 0.44, 0.48)),
+                     (1.0, (0.92, 0.94, 0.97))):
+        e = ramp.color_ramp.elements.new(pos) if pos not in (0.0,) else ramp.color_ramp.elements[0]
+        e.position, e.color = pos, (*col, 1.0)
+    nt.links.new(tex.outputs["Generated"], sep.inputs[0])
+    nt.links.new(sep.outputs["X"], mr.inputs["Value"])   # sideways, not overhead
+    nt.links.new(mr.outputs[0], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
+    nt.links.new(bg.outputs[0], out.inputs["Surface"])
+
+    # big soft key, wide low fill, and a rim behind to separate the slab edges
+    for name, loc, energy, size, target in (
+            ("Key light",  (-4.6, -6.2, 7.2), 1500.0, 7.5, (0.0, 0.0, 0.45)),
+            ("Fill light", ( 7.5, -4.0, 4.2),  200.0, 10.0, (0.0, 0.0, 0.40)),
+            ("Rim light",  ( 1.5,  7.5, 3.0),  260.0, 6.0, (0.0, 0.0, 0.40))):
         bpy.ops.object.light_add(type="AREA", location=loc)
         L = bpy.context.active_object
         L.name = name
         L.data.energy = energy
         L.data.size = size
-        look_at(L, (0.0, 0.0, 0.3))
+        L.data.spread = math.radians(120.0)
+        look_at(L, target)
         link(L, c)
+
 
 def cameras():
     c = coll("Cameras")
     cams = {}
-    for name, loc, target, lens in (("Cam both",  (0.0, -8.4, 5.3),  (0.0, 0.0, 0.70), 45.0),
-                                    ("Cam conventional", (-SEP - 0.2, -4.6, 3.5), (-SEP, 0.0, 0.42), 50.0),
-                                    ("Cam design rule",  ( SEP - 0.2, -4.6, 3.5), ( SEP, 0.0, 0.42), 50.0)):
+    for name, loc, target, lens in (("Cam both",  (0.0, -13.95, 8.34), (0.0, 0.0, 0.70), 85.0),
+                                    ("Cam conventional", (-SEP - 0.34, -7.83, 5.66), (-SEP, 0.0, 0.42), 85.0),
+                                    ("Cam design rule",  ( SEP - 0.34, -7.83, 5.66), ( SEP, 0.0, 0.42), 85.0)):
         bpy.ops.object.camera_add(location=loc)
         cam = bpy.context.active_object
         cam.name = name
@@ -400,11 +459,27 @@ def render_settings(quality):
     s = bpy.context.scene
     s.render.engine = "CYCLES"
     s.cycles.device = "CPU"
-    s.cycles.samples = 48 if quality == "test" else 256
+    s.cycles.samples = SAMPLES or (64 if quality == "test" else 320)
     s.cycles.use_adaptive_sampling = True
-    s.cycles.adaptive_threshold = 0.02 if quality == "test" else 0.01
-    s.cycles.volume_step_rate = 1.0
-    s.cycles.volume_max_steps = 256
+    s.cycles.adaptive_threshold = 0.02 if quality == "test" else 0.006
+    s.cycles.volume_step_rate = 1.0 if quality == "test" else 0.5
+    s.cycles.volume_max_steps = 256 if quality == "test" else 1024
+    # the lens caps sit on glass on glass: give transmission room, but keep
+    # caustics off and clamp indirect so the image stays free of fireflies
+    s.cycles.max_bounces = 16
+    s.cycles.transmission_bounces = 16
+    s.cycles.glossy_bounces = 8
+    s.cycles.diffuse_bounces = 4
+    s.cycles.transparent_max_bounces = 24
+    s.cycles.caustics_reflective = False
+    s.cycles.caustics_refractive = False
+    s.cycles.blur_glossy = 0.0
+    s.cycles.sample_clamp_indirect = 24.0
+    for owner in (s.cycles, s.render):    # the pixel filter moved between versions
+        if hasattr(owner, "filter_width"):
+            owner.filter_width = 1.20     # a touch crisper than the 1.5 default
+            break
+    s.render.use_persistent_data = True
     have = [i.identifier for i in s.cycles.bl_rna.properties["denoiser"].enum_items]
     if "OPENIMAGEDENOISE" in have:
         s.cycles.use_denoising = True
@@ -415,15 +490,17 @@ def render_settings(quality):
     bpy.context.view_layer.cycles.denoising_store_passes = True   # albedo + normal for OIDN
     print("   denoiser: %s   samples: %d" % ("OIDN" if s.cycles.use_denoising else "none",
                                                s.cycles.samples))
-    s.render.resolution_percentage = 50 if quality == "test" else 100
+    s.render.resolution_percentage = RES_PCT or (40 if quality == "test" else 100)
     s.render.image_settings.file_format = "PNG"
     s.render.image_settings.color_mode = "RGBA" if BG == "transparent" else "RGB"
+    s.render.image_settings.compression = 20
     s.view_settings.view_transform = "AgX"
     try:
         s.view_settings.look = "AgX - Medium High Contrast"
     except Exception:
         pass
     s.render.film_transparent = (BG == "transparent")
+
 
 def render(cam, w, h, path):
     s = bpy.context.scene
@@ -459,9 +536,10 @@ print("saved %s" % blend)
 print("spreading %.2fx  ->  lam %.3f vs %.3f   |   light %.2fx  ->  strength %.1f vs %.1f"
       % (SPREAD, LAM_REF / SPREAD, LAM_REF, BRIGHT, EMIT_STRENGTH / BRIGHT, EMIT_STRENGTH))
 
-JOBS = [("Cam both", 1800, 900, "emitting_area_render.png"),
-        ("Cam conventional", 1000, 1000, "emitting_area_render_conventional.png"),
-        ("Cam design rule", 1000, 1000, "emitting_area_render_designrule.png")]
+# 2400 px wide is a Nature double-column figure (180 mm) at 300 dpi
+JOBS = [("Cam both", 2400, 1200, "emitting_area_render.png"),
+        ("Cam conventional", 1200, 1200, "emitting_area_render_conventional.png"),
+        ("Cam design rule", 1200, 1200, "emitting_area_render_designrule.png")]
 if DO_RENDER:
     for cam_name, w, h, fn in JOBS:
         if ONLY_CAM and ONLY_CAM.lower() not in cam_name.lower():
