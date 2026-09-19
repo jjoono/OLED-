@@ -1,18 +1,23 @@
 # Figure plan — unityEQE v5
 
-Citation order in v5, strictly monotonic apart from one deliberate retrospective:
+Citation order in v6, strictly monotonic apart from one deliberate retrospective:
 
-1(a) → 1(b) → 1(c) → 2(a) → 2(b) → 2(c) → 2(d) → 3(a) → 3(b) → 3(c) → 4(a) → 4(b) → 4(c) →
+1(a) → 1(b) → 2(a) → 2(b) → 2(c) → 2(d) → 3(a) → 3(b) → 3(c) → 4(a) → 4(b) → 4(c) →
 [3(a) retrospective] → 5(a) → 5(b) → 5(c)
 
-Changes from v4: Fig. 1 has three panels, not four — the old 1(d) becomes 1(c) and the
-non-existent 1(c) citation now points at 2(b). Sections 3 and 4 are swapped, so the
-transparent-electrode rule follows the parasitic-absorption diagnosis directly; Fig. 3
-panels are renumbered accordingly (old c → a, a → b, b → c).
+Changes from v5: Fig. 1 has two panels. The escape-cone panel is dropped — the ray-optics
+limit is textbook material and is now stated in one sentence with no figure — and the master
+curve takes the (b) slot in its place, which is what the round-trip paragraph actually argues.
+
+Changes from v4: the non-existent Fig. 1(c) citation now points at 2(b). Sections 3 and 4 are
+swapped, so the transparent-electrode rule follows the parasitic-absorption diagnosis
+directly; Fig. 3 panels are renumbered accordingly (old c → a, a → b, b → c).
 
 ---
 
 ## Fig. 1 — The photon-recycling law
+
+Two panels.
 
 **(a) Schematic, two halves.** Left: a conventional OLED with an external outcoupling
 structure. Light delivered to the substrate is partly transmitted at the structure/air
@@ -21,14 +26,22 @@ loses A′ to mirror ohmic absorption and TCO absorption. Right: the same pictur
 round-trip loss suppressed by the design rule of this work, so almost all substrate light
 eventually escapes. Label P₀, P_sub, B_T, B_R, R_LED and A′ = 1 − R_LED.
 
-**(b) Escape cone without an outcoupling structure.** Ray-optics limit: the escape cone in
-the substrate and the resulting extraction, scaling as 1/n_sub². Supports the definition of
-η_ext and the contrast with the recycling case.
+**(b) Master curve.** η_ext against the round-trip reflectance, with the wide view and a
+zoom on the high-reflectance end (the author's existing draft). Settled conventions:
 
-**(c) Decay with round-trip number.** Light remaining in the substrate against the number of
-round trips, for a lossy stack (Al, A′ > 0.2) and a low-loss stack. The Al curve decays fast;
-the low-loss curve stays high until the light has escaped. Only the decay curve — the master
-curve η_ext vs R_LED and the EQE-vs-n_sub curve are not in Fig. 1.
+* x axis is **R_LED = 1 − A′** in both the main panel and the zoom, matching the definition
+  in the text. Do not use R_LED(1 − A′_para) in one panel and R_LED in the other.
+* the value of **p is stated**, and a small family of curves (e.g. p = 0.3, 0.4, 0.6) is drawn
+  so the reader sees this is a one-parameter family; the p = 0.3 and 0.4 members tie directly
+  to the blue curve of Fig. 2(b).
+* the horizontal "w/o outcoupling" and "w/ microcavity or horizontal emitter" bands are
+  **removed**. Those are whole-device outcoupling values, not substrate-to-air extraction, so
+  they do not belong on an η_ext axis; Fig. 2(b) already makes that comparison on an EQE axis.
+  The two boxes that stay are the ones in the zoom: outcoupling with an Al electrode, and the
+  proposed low-loss structure.
+
+The decay-versus-round-trip-number curve is dropped; the master curve says the same thing
+without the intermediate variable.
 
 ## Fig. 2 — Parasitic absorption is the binding loss
 

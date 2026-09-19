@@ -145,3 +145,20 @@ parasitic-absorption section, so that section closes on the paper's own claim.
 Citation order is now monotonic: 1(a) 1(b) 1(c) 2(a) 2(b) 2(c) 2(d) 3(a) 3(b) 3(c) 4(a) 4(b)
 4(c) 5(a) 5(b) 5(c), with one deliberate backward reference to 3(a) in the design-freedom
 section.
+
+## v6 — Fig. 1 reduced to two panels (`manuscript/unityEQE_v6_ko.docx`)
+
+The escape-cone panel is dropped: the ray-optics limit is textbook material, so the sentence
+stays and the figure citation goes. The master curve (η_ext against R_LED = 1 − A′) takes the
+(b) slot, which is what the round-trip paragraph argues in the first place, and the
+decay-versus-round-trip-number curve is dropped as redundant with it. The round-trip paragraph
+now reads off the master curve: an Al device with A′ > 0.2 sits on the flat part, suppressing
+A′ to a few per cent moves it onto the steep part, and a smaller p shifts the whole curve down.
+
+Figure conventions settled with the author: x axis is R_LED = 1 − A′ in both the wide view and
+the zoom; p is stated on the panel; the horizontal "w/o outcoupling" and "w/ microcavity"
+bands are removed because they are whole-device outcoupling values on an η_ext axis.
+
+Also recorded in `figure_plan.md`: the blue curve of the Fig. 2(b) draft is the single-pass
+escape probability p, confirmed by the author, which is the value the η_ext calculations in
+`sim/design_rule4/` rest on.
