@@ -22,6 +22,8 @@ argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = os.path.abspath(argv[argv.index("--out") + 1]) if "--out" in argv else os.getcwd()
 QUALITY = argv[argv.index("--quality") + 1] if "--quality" in argv else "final"
 DO_RENDER = "--no-render" not in argv
+BG = argv[argv.index("--bg") + 1] if "--bg" in argv else "transparent"
+ONLY_CAM = argv[argv.index("--cam") + 1] if "--cam" in argv else None
 os.makedirs(OUT, exist_ok=True)
 
 # ------------------------------------------------------------------ loss model
@@ -35,7 +37,7 @@ SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 2.0, 1.5              # device footprint, Blender units
 LAM_REF = 0.60                           # design-rule spreading length (0.30 panel widths)
-EMIT_STRENGTH = 26.0                     # design-rule peak emission
+EMIT_STRENGTH = 10.0                     # design-rule peak emission
 WARM = (1.0, 0.92, 0.76)                 # emitted light, like the reference render
 SEP = 1.75                               # half distance between the two devices
 
@@ -44,7 +46,8 @@ LAYERS = [  # name, thickness, material spec
     ("Organic layers",       0.05, dict(base=(0.98, 0.84, 0.60), rough=0.55)),
     ("TCO anode",            0.04, dict(base=(0.74, 0.88, 0.96), rough=0.12, transmission=0.6, ior=1.6)),
     ("Glass substrate",      0.18, dict(base=(0.80, 0.90, 0.98), rough=0.05, transmission=0.9, ior=1.5)),
-    ("Outcoupling structure",0.06, dict(base=(0.82, 0.91, 0.98), rough=0.22, transmission=0.9, ior=1.5)),
+    ("Outcoupling structure",0.10, dict(base=(0.93, 0.96, 1.00), rough=0.10, transmission=0.18,
+                                        ior=1.5, lens=dict(scale=5.0, depth=1.0))),
 ]
 
 # ------------------------------------------------------------------ helpers
@@ -73,7 +76,55 @@ def set_in(node, name, value):
             return
     raise KeyError(name)
 
-def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45):
+def lens_bump(nt, p, base, scale, depth):
+    """Micro-lens array as a bump only: rounded Voronoi cells, top face alone.
+
+    No real lens geometry -- just enough relief to separate this layer from the
+    plain substrate underneath.
+    """
+    tex = nt.nodes.new("ShaderNodeTexCoord")
+    vor = nt.nodes.new("ShaderNodeTexVoronoi")
+    vor.voronoi_dimensions = "2D"
+    vor.feature = "F1"
+    vor.inputs["Scale"].default_value = scale
+    vor.inputs["Randomness"].default_value = 0.0          # regular array, not organic cells
+    dome = nt.nodes.new("ShaderNodeMath")                 # 1 - distance  -> dome per cell
+    dome.operation = "SUBTRACT"
+    dome.inputs[0].default_value = 1.0
+    roundoff = nt.nodes.new("ShaderNodeMath")             # flatten the tip a little
+    roundoff.operation = "POWER"
+    roundoff.inputs[1].default_value = 0.55
+    geo = nt.nodes.new("ShaderNodeNewGeometry")           # mask: top face only
+    nrm = nt.nodes.new("ShaderNodeSeparateXYZ")
+    mask = nt.nodes.new("ShaderNodeMath")
+    mask.operation = "POWER"
+    mask.inputs[1].default_value = 3.0
+    mask.use_clamp = True
+    height = nt.nodes.new("ShaderNodeMath")
+    height.operation = "MULTIPLY"
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = depth
+    bump.inputs["Distance"].default_value = 0.30
+    # a touch of albedo on the same field, so the array still reads where no
+    # highlight happens to land
+    tint = nt.nodes.new("ShaderNodeMixRGB")
+    tint.blend_type = "MIX"
+    tint.inputs[1].default_value = (*[c * 0.88 for c in base], 1.0)
+    tint.inputs[2].default_value = (*base, 1.0)
+    L = nt.links.new
+    L(tex.outputs["Object"], vor.inputs["Vector"])
+    L(vor.outputs["Distance"], dome.inputs[1])
+    L(dome.outputs[0], roundoff.inputs[0])
+    L(geo.outputs["Normal"], nrm.inputs[0])
+    L(nrm.outputs["Z"], mask.inputs[0])
+    L(roundoff.outputs[0], height.inputs[0])
+    L(mask.outputs[0], height.inputs[1])
+    L(height.outputs[0], bump.inputs["Height"])
+    L(bump.outputs["Normal"], p.inputs["Normal"])
+    L(height.outputs[0], tint.inputs[0])
+    L(tint.outputs[0], p.inputs["Base Color"])
+
+def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45, lens=None):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     nt = m.node_tree
@@ -83,6 +134,8 @@ def principled(name, base, metallic=0.0, rough=0.5, transmission=0.0, ior=1.45):
     p.inputs["Roughness"].default_value = rough
     p.inputs["IOR"].default_value = ior
     set_in(p, "transmission", transmission)
+    if lens:
+        lens_bump(nt, p, base, **lens)
     if transmission > 0.0:
         # shadow rays go straight through, so light reaches the layers underneath
         out = nt.nodes["Material Output"]
@@ -162,8 +215,8 @@ def haze_material(tag, height, r_base, slope, brightness):
     t3 = N("ShaderNodeMath", operation="POWER", v1=3.0)
     rfade = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
     fade = N("ShaderNodeMath", operation="MULTIPLY")
-    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.22 * brightness)
-    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=2.6 * brightness)
+    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.30 * brightness)
+    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=1.15 * brightness)
     vol = N("ShaderNodeVolumePrincipled")
     vol.inputs["Color"].default_value = (*WARM, 1.0)
     vol.inputs["Emission Color"].default_value = (*WARM, 1.0)
@@ -234,6 +287,8 @@ def studio():
     fl = bpy.context.active_object
     fl.name = "Floor"
     fl.data.materials.append(principled("Floor", (0.52, 0.53, 0.55), rough=0.72))
+    if BG == "transparent":
+        fl.is_shadow_catcher = True      # keeps the contact shadow, drops the grey plane
     link(fl, c)
     w = bpy.context.scene.world or bpy.data.worlds.new("World")
     bpy.context.scene.world = w
@@ -241,7 +296,7 @@ def studio():
     bg = w.node_tree.nodes["Background"]
     bg.inputs["Color"].default_value = (0.36, 0.37, 0.39, 1.0)
     bg.inputs["Strength"].default_value = 1.0
-    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 1400.0, 5.0),
+    for name, loc, energy, size in (("Key light", (-4.0, -6.0, 7.5), 1400.0, 2.6),
                                     ("Fill light", (6.0, -3.0, 5.0), 500.0, 6.0)):
         bpy.ops.object.light_add(type="AREA", location=loc)
         L = bpy.context.active_object
@@ -254,9 +309,9 @@ def studio():
 def cameras():
     c = coll("Cameras")
     cams = {}
-    for name, loc, target, lens in (("Cam both",  (0.0, -8.8, 4.4),  (0.0, 0.0, 0.75), 45.0),
-                                    ("Cam conventional", (-SEP - 0.2, -5.2, 2.9), (-SEP, 0.0, 0.5), 50.0),
-                                    ("Cam design rule",  ( SEP - 0.2, -5.2, 2.9), ( SEP, 0.0, 0.5), 50.0)):
+    for name, loc, target, lens in (("Cam both",  (0.0, -8.4, 5.3),  (0.0, 0.0, 0.70), 45.0),
+                                    ("Cam conventional", (-SEP - 0.2, -4.6, 3.5), (-SEP, 0.0, 0.42), 50.0),
+                                    ("Cam design rule",  ( SEP - 0.2, -4.6, 3.5), ( SEP, 0.0, 0.42), 50.0)):
         bpy.ops.object.camera_add(location=loc)
         cam = bpy.context.active_object
         cam.name = name
@@ -265,6 +320,44 @@ def cameras():
         link(cam, c)
         cams[name] = cam
     return cams
+
+def compositor():
+    """Give the emissive haze an alpha so the glow survives a transparent background.
+
+    Cycles gives a thin emissive volume almost no alpha, so with film_transparent the
+    cone is there in RGB but vanishes once composited.  Alpha is rebuilt from the
+    luminance; the colour is un-premultiplied only where the render had no alpha of
+    its own, so the glow stays white over a white page and warm over a dark one.
+    """
+    s = bpy.context.scene
+    s.use_nodes = True
+    nt = s.node_tree
+    nt.nodes.clear()
+    rl = nt.nodes.new("CompositorNodeRLayers")
+    lum = nt.nodes.new("CompositorNodeRGBToBW")
+    safe = nt.nodes.new("CompositorNodeMath"); safe.operation = "MAXIMUM"
+    safe.inputs[1].default_value = 0.004
+    unp = nt.nodes.new("CompositorNodeMixRGB"); unp.blend_type = "DIVIDE"
+    unp.inputs[0].default_value = 1.0
+    keep = nt.nodes.new("CompositorNodeMixRGB"); keep.blend_type = "MIX"
+    amax = nt.nodes.new("CompositorNodeMath"); amax.operation = "MAXIMUM"
+    sa = nt.nodes.new("CompositorNodeSetAlpha"); sa.mode = "REPLACE_ALPHA"
+    out = nt.nodes.new("CompositorNodeComposite")
+    L = nt.links.new
+    L(rl.outputs["Image"], lum.inputs[0])
+    L(lum.outputs[0], safe.inputs[0])
+    L(rl.outputs["Image"], unp.inputs[1])
+    L(safe.outputs[0], unp.inputs[2])
+    L(rl.outputs["Alpha"], keep.inputs[0])
+    L(unp.outputs[0], keep.inputs[1])
+    L(rl.outputs["Image"], keep.inputs[2])
+    L(lum.outputs[0], amax.inputs[0])
+    L(rl.outputs["Alpha"], amax.inputs[1])
+    L(keep.outputs[0], sa.inputs["Image"])
+    L(amax.outputs[0], sa.inputs["Alpha"])
+    L(sa.outputs["Image"], out.inputs["Image"])
+    for i, n in enumerate(nt.nodes):
+        n.location = (260 * i, 0)
 
 def render_settings(quality):
     s = bpy.context.scene
@@ -287,13 +380,13 @@ def render_settings(quality):
                                                s.cycles.samples))
     s.render.resolution_percentage = 50 if quality == "test" else 100
     s.render.image_settings.file_format = "PNG"
-    s.render.image_settings.color_mode = "RGB"
+    s.render.image_settings.color_mode = "RGBA" if BG == "transparent" else "RGB"
     s.view_settings.view_transform = "AgX"
     try:
         s.view_settings.look = "AgX - Medium High Contrast"
     except Exception:
         pass
-    s.render.film_transparent = False
+    s.render.film_transparent = (BG == "transparent")
 
 def render(cam, w, h, path):
     s = bpy.context.scene
@@ -319,6 +412,8 @@ device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
        cone_r=0.92, cone_h=2.05, brightness=1.0)
 cams = cameras()
 render_settings(QUALITY)
+if BG == "transparent":
+    compositor()
 bpy.context.scene.camera = cams["Cam both"]
 
 blend = os.path.join(OUT, "emitting_area_render.blend")
@@ -327,10 +422,13 @@ print("saved %s" % blend)
 print("spreading %.2fx  ->  lam %.3f vs %.3f   |   light %.2fx  ->  strength %.1f vs %.1f"
       % (SPREAD, LAM_REF / SPREAD, LAM_REF, BRIGHT, EMIT_STRENGTH / BRIGHT, EMIT_STRENGTH))
 
+JOBS = [("Cam both", 1800, 900, "emitting_area_render.png"),
+        ("Cam conventional", 1000, 1000, "emitting_area_render_conventional.png"),
+        ("Cam design rule", 1000, 1000, "emitting_area_render_designrule.png")]
 if DO_RENDER:
-    render(cams["Cam both"], 1800, 900, os.path.join(OUT, "emitting_area_render.png"))
-    if QUALITY != "test":
-        render(cams["Cam conventional"], 1000, 1000,
-               os.path.join(OUT, "emitting_area_render_conventional.png"))
-        render(cams["Cam design rule"], 1000, 1000,
-               os.path.join(OUT, "emitting_area_render_designrule.png"))
+    for cam_name, w, h, fn in JOBS:
+        if ONLY_CAM and ONLY_CAM.lower() not in cam_name.lower():
+            continue
+        if not ONLY_CAM and QUALITY == "test" and cam_name != "Cam both":
+            continue
+        render(cams[cam_name], w, h, os.path.join(OUT, fn))

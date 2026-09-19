@@ -43,8 +43,25 @@ def _set_flags(flt, **flags):
     except Exception as e:                      # flags are an optimisation, not a requirement
         print("   (OIDN flags not set: %s)" % e)
 
+def _run(dev, color, w, h, albedo=None, normal=None):
+    out = np.zeros_like(color)
+    flt = oidn.NewFilter(dev, "RT")
+    oidn.SetSharedFilterImage(flt, "color", np.ascontiguousarray(color), oidn.FORMAT_FLOAT3, w, h)
+    if albedo is not None:
+        oidn.SetSharedFilterImage(flt, "albedo", np.ascontiguousarray(albedo), oidn.FORMAT_FLOAT3, w, h)
+    if normal is not None:
+        oidn.SetSharedFilterImage(flt, "normal", np.ascontiguousarray(normal), oidn.FORMAT_FLOAT3, w, h)
+    oidn.SetSharedFilterImage(flt, "output", out, oidn.FORMAT_FLOAT3, w, h)
+    _set_flags(flt, hdr=False, srgb=True)
+    oidn.CommitFilter(flt)
+    oidn.ExecuteFilter(flt)
+    oidn.ReleaseFilter(flt)
+    return out
+
 def denoise(png):
-    img = np.asarray(Image.open(png).convert("RGB"), dtype=np.float32) / 255.0
+    src = Image.open(png)
+    alpha = np.asarray(src.split()[-1], dtype=np.float32) / 255.0 if src.mode in ("RGBA", "LA") else None
+    img = np.asarray(src.convert("RGB"), dtype=np.float32) / 255.0
     h, w, _ = img.shape
     exr = os.path.splitext(png)[0] + ".exr"
     albedo = normal = None
@@ -53,29 +70,26 @@ def denoise(png):
         normal = exr_pass(exr, "Denoising Normal")
         if normal is not None:
             normal = np.clip(normal, -1.0, 1.0)
-    out = np.zeros_like(img)
     dev = oidn.NewDevice()
     oidn.CommitDevice(dev)
-    flt = oidn.NewFilter(dev, "RT")
-    oidn.SetSharedFilterImage(flt, "color", np.ascontiguousarray(img), oidn.FORMAT_FLOAT3, w, h)
-    if albedo is not None:
-        oidn.SetSharedFilterImage(flt, "albedo", np.ascontiguousarray(albedo), oidn.FORMAT_FLOAT3, w, h)
-    if normal is not None:
-        oidn.SetSharedFilterImage(flt, "normal", np.ascontiguousarray(normal), oidn.FORMAT_FLOAT3, w, h)
-    oidn.SetSharedFilterImage(flt, "output", out, oidn.FORMAT_FLOAT3, w, h)
-    _set_flags(flt, hdr=False, srgb=True)     # the PNG is display-referred sRGB
-    oidn.CommitFilter(flt)
-    oidn.ExecuteFilter(flt)
+    out = _run(dev, img, w, h, albedo, normal)
+    if alpha is not None:
+        # the glow's noise lives in alpha once the compositor rebuilds it there,
+        # so that channel needs denoising too (as a grey triplet, no guides)
+        a3 = _run(dev, np.repeat(alpha[:, :, None], 3, axis=2), w, h)
+        alpha = np.clip(a3[:, :, 0], 0.0, 1.0)
     err = oidn.GetDeviceError(dev)
-    oidn.ReleaseFilter(flt)
     oidn.ReleaseDevice(dev)
     if err and err[0] != oidn.ERROR_NONE:
         raise RuntimeError("OIDN: %s" % (err,))
     noisy = os.path.splitext(png)[0] + "_noisy.png"
     os.replace(png, noisy)
-    Image.fromarray((np.clip(out, 0, 1) * 255 + 0.5).astype(np.uint8)).save(png)
-    print("denoised %s   guides: albedo=%s normal=%s" % (
-        os.path.basename(png), albedo is not None, normal is not None))
+    res = Image.fromarray((np.clip(out, 0, 1) * 255 + 0.5).astype(np.uint8))
+    if alpha is not None:
+        res.putalpha(Image.fromarray((alpha * 255 + 0.5).astype(np.uint8)))
+    res.save(png)
+    print("denoised %s   guides: albedo=%s normal=%s   alpha=%s" % (
+        os.path.basename(png), albedo is not None, normal is not None, alpha is not None))
 
 if __name__ == "__main__":
     for p in sys.argv[1:]:

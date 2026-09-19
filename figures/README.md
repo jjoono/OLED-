@@ -201,20 +201,48 @@ python3 figures/make_emitting_area_figure.py
   Λ 값(`Divide` 노드)과 세기(`Multiply` 노드)만 고치면 됩니다.
 - 빛 안개는 `Light haze (...)` 콘의 Principled Volume. 높이에 따라 옅어지고
   콘 벽 쪽으로 부드럽게 사라집니다. 밀도·발광은 재질의 마지막 두 `Multiply` 노드.
+- **광추출층 질감** — 상면에 마이크로렌즈 어레이 느낌의 요철이 들어갑니다.
+  실제 렌즈 형상(지오메트리)이 아니라 Voronoi(randomness 0 → 정방 배열) 기반
+  **범프 + 미세한 알베도 변조**라, 가볍고 아래 기판과 확실히 구분됩니다.
+  `lens=dict(scale=..., depth=...)` 로 렌즈 개수와 깊이를 조절합니다
+  (`scale` 5.0 ≈ 가로 10개). `NewGeometry → Normal.Z` 마스크가 걸려 있어
+  옆면에는 질감이 타지 않습니다.
 - 유리 층은 그림자 광선을 통과시키는 Light Path 트릭이 걸려 있어, Cycles에서
   굴절 유리 아래가 검게 나오는 문제가 없습니다.
 - 컬렉션: `Device conventional`, `Device design rule`, `Studio`, `Cameras`
   (카메라 3개: `Cam both`, `Cam conventional`, `Cam design rule`).
+
+### 투명 배경 (기본값)
+
+`--bg transparent` 가 기본이라 렌더는 **알파 채널이 있는 PNG**로 나옵니다.
+바닥은 지워지지 않고 shadow catcher 로 바뀌므로, 배경은 비면서 접지 그림자는
+남습니다. 회색 스튜디오 배경이 필요하면 `--bg studio`.
+
+한 가지 주의할 점이 있어 컴포지터가 자동으로 붙습니다. Cycles 에서 옅은 발광
+볼륨은 알파가 거의 0 이라, 투명 배경으로 렌더하면 **빛 안개가 RGB 에는 있는데
+합성하면 사라집니다.** 그래서 컴포지터에서
+
+- 알파 = `max(원래 알파, 휘도)` 로 다시 만들고,
+- 원래 알파가 0 이던 곳(= 안개)만 색을 un-premultiply 합니다.
+
+덕분에 흰 배경에 얹으면 흰 글로우, 어두운 배경에 얹으면 따뜻한 글로우로
+자연스럽게 합성됩니다. 이 처리가 싫으면 `Compositing` 노드 트리를 끄면 됩니다.
 
 렌더는 Cycles(CPU). 빌드에 OpenImageDenoise가 있으면 켜지고, 없으면
 `denoise_renders.py` 로 외부 디노이즈합니다(PyPI `oidn`, `OpenEXR` 패키지;
 빌더가 알베도·노멀 패스를 EXR로 같이 저장해 둡니다).
 
 ```bash
-blender -b -P figures/build_emitting_area_blend.py -- --out figures            # 씬 빌드 + 렌더 3장
-blender -b -P figures/build_emitting_area_blend.py -- --out figures --no-render
+blender -b -P figures/build_emitting_area_blend.py -- --out figures                  # 씬 + 렌더 3장
+blender -b -P figures/build_emitting_area_blend.py -- --out figures --no-render      # 씬만
+blender -b -P figures/build_emitting_area_blend.py -- --out figures --bg studio      # 회색 배경
+blender -b -P figures/build_emitting_area_blend.py -- --out . --quality test --cam conventional
 python3 figures/denoise_renders.py figures/emitting_area_render*.png
 ```
+
+`--cam` 은 이름 일부만 줘도 됩니다(`both`, `conventional`, `design`).
+디노이저는 알파 채널도 같이 정리합니다 — 컴포지터가 글로우의 노이즈를
+알파 쪽으로 옮겨 놓기 때문입니다.
 
 렌더 결과: `emitting_area_render.png` (두 소자), `..._conventional.png`,
 `..._designrule.png`. 라벨·인셋 도식은 렌더에 넣지 않았으니 Illustrator/PowerPoint에서
