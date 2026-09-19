@@ -100,3 +100,24 @@ with Al; the only remaining loss with a low-loss reflector) supported by
 
 All v2 corrections are carried over. Still flagged, unchanged: the "ETL above 100 nm is
 enough" figure in the design-freedom paragraph.
+
+## v4 — Methods and back matter added (`manuscript/unityEQE_v4_ko.docx`)
+
+Adds the author's Methods (optical simulation; OLED fabrication and characterisation) in the
+same register, with `[[ ]]` placeholders where a Nature-family referee will ask: film PLQY and
+orientation factor per emitter and the source of the optical constants; thickness and
+deposition of the top Ag reflector of the green device; whether the DBR covers the area
+around the Al cathode; angular range and EQE integration method, device count and spread.
+Back-matter headings (Acknowledgement, Conflicts of Interest, Supporting Information, Data
+Availability Statement, Author contributions) with placeholders.
+
+Body tweaks: the two experiments are now named green (glass + MLA film + Ag) and orange
+(high-index MLA substrate + Al + auxiliary DBR) to tie the Results to the Methods; the
+Fig. 2(a) sentence now describes the figure as built in `figures/fig2a_mock/` (round-trip
+loss split into mirror ohmic and TCO parts, Al versus Ag, with eta_ext).
+
+Suggested Fig. 2(a) legend: "ITO 두께에 따른 왕복 손실 A'와 기판→공기 추출 효율. A'는 기판에서
+본 OLED 스택의 반사율 결손으로, 회색은 거울의 ohmic 손실(k_TCO = 0으로 재계산), 주황은 TCO 흡수
+(나머지)이다. Al 반사판(왼쪽)에서는 TCO 흡수가 거울 손실과 맞먹는 수준까지 커지고, Ag 반사판
+(가운데)에서는 사실상 유일한 손실이 된다. 오른쪽: 그에 따른 η_ext. 유리 기판(n = 1.5) + microlens
+film, p = 0.38, 550 nm."
