@@ -1,4 +1,4 @@
-# Figure plan — unityEQE v5
+# Figure plan — unityEQE v6
 
 Citation order in v6, strictly monotonic apart from one deliberate retrospective:
 
@@ -57,6 +57,16 @@ substrate/MLA index, for a lossy and a low-loss reflector. η_sub rises monotoni
 η_ext falls, so a device with large parasitic absorption saturates around 60 % near n ≈ 1.65,
 whereas suppressing the absorption removes the trade-off and EQE rises monotonically. This is
 the panel the parasitic-absorption paragraph cites; it replaces the former Fig. 1(c).
+The author's draft of this panel also carries the single-pass escape probability p as a fourth
+curve, drawn as the substrate angular distribution weighted by the outcoupling structure's
+BSDF transmittance and confirmed by the author as p. Label it **p** in the legend so the
+symbol matches eq. (2), and leave the construction to the caption and Methods; p = 0.30 at
+n_sub = 1.8 is the value every extraction-efficiency calculation in `sim/design_rule4/` rests
+on, and p = 0.30 and 0.40 are two members of the curve family in Fig. 1(b). Adding
+η_ext = EQE / η_sub^(0) as dotted curves for both electrodes would let this one panel close
+eq. (2): p falls with substrate index, yet the low-loss device keeps rising while the Al
+device turns over. The vertical axis should then read as an efficiency or power fraction
+rather than "relative mode", and the "target value" marker be identified as simulated.
 
 **(c) Angle- and wavelength-resolved round-trip absorption.** Maps of the absorption for light
 incident from the substrate onto the stack, for the candidate bottom-electrode structures.
