@@ -27,7 +27,7 @@ import importlib
 gen = importlib.import_module("122_pregenerate_gjf")
 from pathgeom import (CANDIDATES, STRUCT, ZSCAN, contact, destination,
                       dimer_frames, equivalents, frames, geometry, read_xyz,
-                      recentre, sanity)
+                      recentre, relaxed_file, sanity)
 
 STEP = float(os.environ.get("TOPUP_STEP", "0.4"))    # spacing of the added height
 # The contact guard. 0.85 was chosen so the parabola fit is never pulled by a
@@ -40,6 +40,28 @@ STEP = float(os.environ.get("TOPUP_STEP", "0.4"))    # spacing of the added heig
 GUARD = float(os.environ.get("TOPUP_GUARD", "0.85"))
 E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
 DZ_RE = re.compile(r"dz=([+-]?\d+\.\d+)")
+
+
+def substrate_of(folder):
+    """Substrate coordinates as one finished job in this folder actually had
+    them, so a rebuild can be checked against the run it is extending."""
+    for f in sorted(glob.glob(os.path.join(folder, "*.out"))):
+        txt = open(f, errors="replace").read()
+        if "Normal termination" not in txt:
+            continue
+        lines = txt.splitlines()
+        for k, l in enumerate(lines):
+            if "orientation:" in l:
+                j, z, x = k + 5, [], []
+                while j < len(lines) and not lines[j].startswith(" ----"):
+                    q = lines[j].split()
+                    z.append(int(q[1]))
+                    x.append([float(v) for v in q[3:6]])
+                    j += 1
+                a = [i for i, v in enumerate(z) if v == 47]
+                if a:
+                    return np.delete(np.array(x), a[0], axis=0)
+    return None
 
 
 def done_heights(folder):
@@ -61,14 +83,25 @@ def done_heights(folder):
 
 
 def rebuild(tag, fn, rule, mult):
-    """The same geometry the campaign used. The generator is deterministic."""
+    """The same geometry the campaign used. The generator is deterministic.
+
+    "The same" has to include which structure file it read. This rebuilt from
+    the original .xyz while the campaign had moved to the stage-1 relaxed one,
+    so 29 of 45 top-up jobs came back on a different molecule entirely --
+    benzene as a 25-atom dimer against the campaign's 13-atom monomer, Bphen's
+    substrate 15 A away. The energies looked plausible and one of them was
+    6307 eV out. Hence the check in main(): a top-up whose substrate does not
+    match the job it is topping up is not written.
+    """
+    fn = relaxed_file(fn)
     syms, xyz = read_xyz(os.path.join(STRUCT, fn))
-    if sanity(syms, xyz, tag):
+    if sanity(syms, xyz, tag, relaxed=fn.endswith("_pbe0.xyz")):
         return None
     sub_s, sub_x, ag, anchor, nrm = geometry(syms, xyz)
     near_ok = [j for j in equivalents(sub_s, sub_x, anchor)
                if np.linalg.norm(ag - sub_x[j]) > 1.5 * contact(sub_s[j])]
-    if near_ok:
+    if near_ok and not (gen.FORCE_DIMER
+                        and 2 * len(sub_s) + 1 <= gen.DIMER_MAX_ATOMS):
         near, _, _, _ = destination(sub_s, sub_x, ag, anchor, "auto")
         span = float(np.linalg.norm(sub_x[near] - sub_x[anchor]))
         npath = int(np.clip(round(span / gen.SPACING) + 1,
@@ -108,6 +141,16 @@ def main():
         if built is None:
             continue
         sub_s, sub_x, pts, mult = built
+        ref = substrate_of(d)
+        if ref is not None:
+            mine = np.array([c for sym, c in zip(sub_s, sub_x)])
+            if len(ref) != len(mine) or \
+                    float(np.sqrt(((np.sort(ref, axis=0)
+                                    - np.sort(mine, axis=0)) ** 2)
+                                  .sum(1).mean())) > 0.01:
+                print(f"  {tag}: rebuilt substrate does not match the outputs "
+                      f"({len(mine)} atoms vs {len(ref)}) -- skipped")
+                continue
         have = done_heights(d)
         if len(have) != len(pts):
             print(f"  {tag}: {len(have)} points measured but {len(pts)} in the "
