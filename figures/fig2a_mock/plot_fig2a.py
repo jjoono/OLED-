@@ -36,10 +36,8 @@ ax = axs[2]
 for (d, Am, At, ext), name, c in ((al, 'Al', C_AL), (ag, 'Ag', C_AG)):
     ax.plot(d, ext, color=c, lw=2.8, solid_capstyle='round')
     j = np.argmin(abs(d - 50)); k = np.argmin(abs(d - 150))
-    m = np.argmin(abs(d - 110))
-    ax.annotate(f'{name}:  {ext[j]:.2f} → {ext[k]:.2f}  ({100*(ext[k]-ext[j]):+.1f} pp)', xy=(d[m], ext[m]),
-                xytext=(14, 18 if name == 'Ag' else -20), textcoords='offset points', ha='left',
-                va='bottom' if name == 'Ag' else 'top', fontsize=9.5, color=c, fontweight='bold')
+    ax.text(0.97, 0.94 if name == 'Ag' else 0.06, f'{name}:  {ext[j]:.2f} → {ext[k]:.2f}  ({100*(ext[k]-ext[j]):+.1f} pp)',
+            transform=ax.transAxes, ha='right', va='top' if name == 'Ag' else 'bottom', fontsize=9.5, color=c, fontweight='bold')
 for x in (50, 150): ax.axvline(x, color='0.85', lw=1, ls=':')
 ax.set_title('Substrate-to-air extraction efficiency', fontsize=10.5, loc='left')
 ax.set_xlabel('ITO thickness (nm)'); ax.set_ylabel('$\\eta_{ext}$')
