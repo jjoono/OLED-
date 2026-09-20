@@ -370,8 +370,8 @@ def studio():
 
     # big soft key, wide low fill, and a rim behind to separate the slab edges
     for name, loc, energy, size, target in (
-            ("Key light",  (-4.6, -6.2, 7.2), 1500.0, 7.5, (0.0, 0.0, 0.45)),
-            ("Fill light", ( 7.5, -4.0, 4.2),  200.0, 10.0, (0.0, 0.0, 0.40)),
+            ("Key light",  (-2.6, -3.6, 12.0), 1500.0, 9.0, (0.0, 0.0, 0.45)),
+            ("Fill light", ( 6.5, -5.5, 3.4),  420.0, 10.0, (0.0, 0.0, 0.32)),
             ("Rim light",  ( 1.5,  7.5, 3.0),  260.0, 6.0, (0.0, 0.0, 0.40))):
         bpy.ops.object.light_add(type="AREA", location=loc)
         L = bpy.context.active_object
@@ -379,6 +379,11 @@ def studio():
         L.data.energy = energy
         L.data.size = size
         L.data.spread = math.radians(120.0)
+        if name != "Key light":               # a single shadow keeps the floor clean
+            for owner, attr in ((L.data, "use_shadow"), (getattr(L.data, "cycles", None), "cast_shadow")):
+                if owner is not None and hasattr(owner, attr):
+                    setattr(owner, attr, False)
+                    break
         look_at(L, target)
         link(L, c)
 
@@ -386,7 +391,7 @@ def studio():
 def cameras():
     c = coll("Cameras")
     cams = {}
-    for name, loc, target, lens in (("Cam both",  (0.0, -13.95, 8.34), (0.0, 0.0, 0.70), 85.0),
+    for name, loc, target, lens in (("Cam both",  (0.0, -15.40, 9.20), (0.0, 0.0, 0.70), 85.0),
                                     ("Cam conventional", (-SEP - 0.34, -7.83, 5.66), (-SEP, 0.0, 0.42), 85.0),
                                     ("Cam design rule",  ( SEP - 0.34, -7.83, 5.66), ( SEP, 0.0, 0.42), 85.0)):
         bpy.ops.object.camera_add(location=loc)
@@ -430,6 +435,8 @@ def compositor():
     safe.inputs[1].default_value = 0.004
     unp = nt.nodes.new("CompositorNodeMixRGB"); unp.blend_type = "DIVIDE"
     unp.inputs[0].default_value = 1.0
+    hard = nt.nodes.new("CompositorNodeMath")        # partial alpha (shadow) -> 1
+    hard.operation = "MULTIPLY"; hard.inputs[1].default_value = 12.0; hard.use_clamp = True
     keep = nt.nodes.new("CompositorNodeMixRGB"); keep.blend_type = "MIX"
     amax = nt.nodes.new("CompositorNodeMath"); amax.operation = "MAXIMUM"
     sa = nt.nodes.new("CompositorNodeSetAlpha"); sa.mode = "REPLACE_ALPHA"
@@ -444,7 +451,8 @@ def compositor():
     L(lum.outputs[0], safe.inputs[0])
     L(sat.outputs[0], unp.inputs[1])
     L(safe.outputs[0], unp.inputs[2])
-    L(rl.outputs["Alpha"], keep.inputs[0])
+    L(rl.outputs["Alpha"], hard.inputs[0])
+    L(hard.outputs[0], keep.inputs[0])
     L(unp.outputs[0], keep.inputs[1])
     L(sat.outputs[0], keep.inputs[2])
     L(lum.outputs[0], amax.inputs[0])
