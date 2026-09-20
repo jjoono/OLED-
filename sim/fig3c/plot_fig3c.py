@@ -36,7 +36,7 @@ for lab, key, ne, c, ls in SER:
     a.semilogy(m['n_eff'], m['TM'], color=c, lw=1.3, linestyle=ls, zorder=4)
 a.set_xlim(1.5, 2.35)
 a.set_ylim(1e-2, 60)
-a.set_xlabel(r'in-plane effective index   $k_x/k_0$')
+a.set_xlabel(r'in-plane wavevector   $k_x/k_0$')
 a.set_ylabel('TM power dissipation density')
 a.text(N_SUB - 0.015, 40, r'$n_{\rm sub}$', fontsize=FS_NOTE, color='0.45',
        ha='right', va='top')

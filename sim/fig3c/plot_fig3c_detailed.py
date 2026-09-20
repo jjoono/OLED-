@@ -45,7 +45,7 @@ for key, c in (('B3PyMPM', C_B3), ('B4PyMPM', C_B4)):
     a.semilogy(m['n_eff'], m['TM'], color=c, lw=1.2, dashes=(3.0, 1.5), zorder=5)
 a.set_xlim(1.45, 2.35)
 a.set_ylim(3e-3, 22)
-a.set_xlabel(r'in-plane effective index   $k_x/k_0$')
+a.set_xlabel(r'in-plane wavevector   $k_x/k_0$')
 a.set_ylabel('TM power dissipation density')
 a.text(N_SUB - 0.04, 13, 'reaches the\nsubstrate', fontsize=FS_NOTE,
        color='0.4', ha='right', va='top', linespacing=1.15)

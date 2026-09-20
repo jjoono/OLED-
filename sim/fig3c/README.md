@@ -6,7 +6,11 @@ rather than on named materials.
 
 * **ci** — at d_ETL = 60 nm the TM plasmon peak sits at k_x/k0 = 2.05 / 1.96 /
   1.88 / 1.81: a lower out-of-plane index moves it towards the substrate light
-  line and weakens it.
+  line and weakens it.  The axis is the in-plane wavevector in units of k0, so
+  a peak's position on it *is* that mode's effective index and can be compared
+  with n_sub directly.  Note this is **not** the u = k_x/(k0 n_org) of the
+  source script, which puts the organic light line at 1; here the light line is
+  at 1.80.
 * **cii** — so 20 % SPP loss is reached at 110 / 104 / 90 / 59 nm, i.e. the same
   suppression with a thinner transport layer, which is also what the drive
   voltage wants.

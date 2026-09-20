@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Power-dissipation spectrum resolved in the in-plane effective index
+"""Power-dissipation spectrum resolved in the in-plane wavevector
 n_eff = k_x/k0, for the Fig 3(c) stack.  TM and TE are separated because the
 surface plasmon lives entirely in TM."""
 import numpy as np, csv, sys
@@ -40,7 +40,7 @@ with open('fig3c_spectrum.csv', 'w', newline='') as f:
 
 a = np.array([[r[3], r[4], r[5]] for r in rows], dtype=float)
 lab = np.array([r[0] for r in rows])
-print('TM peak position (in-plane effective index)')
+print('TM peak position (k_x/k0)')
 print('  series      n_SPP(inf)   d=60     d=100    d=150')
 for no, ne, L in FAM + REAL:
     line = []

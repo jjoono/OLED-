@@ -242,7 +242,7 @@ def critical_indices(S):
 
 
 def spectrum(S, n_eff, u_max=3.0, tol=2e-3):
-    """Dissipated power density per unit in-plane effective index k_x/k0,
+    """Dissipated power density per unit in-plane wavevector k_x/k0,
     resolved into TM and TE.  Returns (dP/dn_eff)_TM, (dP/dn_eff)_TE, both
     normalised so that the total dissipated power integrates to 1."""
     no, ne = S.no_e, S.ne_e
