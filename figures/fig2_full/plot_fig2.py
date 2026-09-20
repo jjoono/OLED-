@@ -143,8 +143,8 @@ clean(f_); letter('f')
 # ================= row 3: the three reflectors at 150 nm ITO ==============
 VIS = np.arange(430.0, 701.0); NSUB = 1.5
 THC = np.degrees(np.arcsin(1/NSUB))
-NAMES = [('Al', C_AL), ('Ag', C_AG), ('DBR, chirped', C_DBR)]
-TITLE = {'DBR, chirped': 'DBR, 10 pairs\n(chirped, optimised)'}
+NAMES = [('Al', C_AL), ('Ag', C_AG), ('TCO + DBR', C_DBR)]
+TITLE = {'TCO + DBR': 'IZO 50 nm + DBR\n(10 chirped pairs)'}
 WMAP = {n: F.weighted(n, n_sub=NSUB, spectrum=F.GREEN, lam=VIS) for n, _ in NAMES}
 for k, (name, c) in zip('ghi', NAMES):
     th, lam, R, T = F.maps(name, n_sub=NSUB, lam=VIS)
@@ -177,11 +177,11 @@ w = np.cos(th)*np.sin(th); w /= w.max()
 j_.fill_between(np.degrees(th), 0, 6*w, color='0.91', lw=0, zorder=0)
 j_.text(46, 0.3, '$\\cos\\theta\\sin\\theta$ weight', fontsize=FS_NOTE, color='0.5', ha='center')
 W = {}
-CURVES = NAMES + [('DBR (10 pairs)', C_DBR)]
+CURVES = NAMES + [('TCO + DBR, plain', C_DBR)]
 for name, c in CURVES:
     t2, lam, R, T = F.maps(name, n_sub=NSUB, lam=VIS)
     sw = np.clip(np.interp(lam, F.LAM, F.GREEN), 0, None); sw /= sw.sum()
-    ls = DASH if name == 'DBR (10 pairs)' else '-'
+    ls = DASH if name == 'TCO + DBR, plain' else '-'
     j_.plot(np.degrees(t2), 100*(1 - (R*sw[:, None]).sum(0)), color=c, lw=1.5, ls=ls)
     W[name] = F.weighted(name, n_sub=NSUB, spectrum=F.GREEN, lam=VIS)
 j_.axvline(np.degrees(np.arcsin(1/NSUB)), color=C_DBR, lw=0.7, ls=':', zorder=1)
@@ -192,8 +192,8 @@ j_.set_xlabel('$\\theta$ in substrate (°)'); j_.set_ylabel('round-trip loss 1 �
 clean(j_); letter('j', dx=-0.20)
 lab = [('Al', f"Al   {100*W['Al']['loss']:.1f} %", C_AL, '-'),
        ('Ag', f"Ag   {100*W['Ag']['loss']:.1f} %", C_AG, '-'),
-       ('DBR, chirped', f"DBR, chirped   {100*W['DBR, chirped']['loss']:.1f} %", C_DBR, '-'),
-       ('DBR (10 pairs)', f"DBR, plain λ/4 at 550 nm   {100*W['DBR (10 pairs)']['loss']:.1f} %", C_DBR, DASH)]
+       ('TCO + DBR', f"IZO + DBR, chirped   {100*W['TCO + DBR']['loss']:.1f} %", C_DBR, '-'),
+       ('TCO + DBR, plain', f"IZO + DBR, plain λ/4   {100*W['TCO + DBR, plain']['loss']:.1f} %", C_DBR, DASH)]
 j_.legend(handles=[Line2D([], [], color=c, lw=1.5, ls=s, label=t) for _, t, c, s in lab],
           loc='upper left', bbox_to_anchor=(0.01, 0.99), fontsize=FS_NOTE, frameon=False,
           handlelength=1.6, labelspacing=0.3)

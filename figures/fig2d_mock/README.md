@@ -151,3 +151,50 @@ kept as the dashed comparison.
 The wider chirp search (range extended to ×2.3) returns the same designs: 10 pairs
 ZnS 58 / LiF 84 at ×1.40 (4.46 % against the 4.45 % of ZnS 56 / LiF 88 at ×1.42), 15 pairs
 4.01 %, 20 pairs 3.98 %. The optimum is real, not an artefact of where the grid stopped.
+
+
+## The dielectric mirror needs its own transparent cathode
+
+Caught by the author: the DBR structure as first computed had no electrode between the
+organics and the stack. A dielectric mirror does not conduct, so a metal-free device needs a
+transparent cathode there, and the comparison with Ag is only fair once it is included —
+the silver film is mirror and cathode in one.
+
+With an IZO 50 nm cathode (`'TCO + DBR'` in `fig2d.py`), re-optimised with the cathode in
+place, on glass with the green emitter:
+
+| structure | absorbed | leaked | 1 − R |
+|---|---|---|---|
+| Ag 100 nm (mirror and cathode in one) | 4.49 % | 0.01 % | **4.50 %** |
+| IZO 50 nm + 10 chirped pairs (ZnS 55→77 / LiF 91→127) | 4.41 % | 1.08 % | **5.49 %** |
+| IZO 50 nm + 15 chirped pairs | 4.63 % | 0.40 % | **5.03 %** |
+| IZO 50 nm + 20 chirped pairs | 4.80 % | 0.24 % | 5.03 % |
+| IZO 50 nm + 10 uniform λ/4 pairs at 550 nm | 4.42 % | 5.29 % | 9.71 % |
+| the stack alone, no cathode (what was drawn before) | 3.43 % | 1.02 % | 4.45 % |
+
+So the earlier claim that the dielectric route beats silver was an artefact of the missing
+electrode, and it is corrected in the manuscript. Attributing the 4.41 % of absorption by
+layer: **ITO anode 2.73 %, IZO cathode 0.92 %, the dielectric stack itself 0.73 %**, against
+the 1.77 % that the silver film absorbs on its own. The mirror really is nearly lossless; what
+it saves is handed back to the extra electrode and to the residual leak. Beyond 15 pairs the
+leak is gone and the floor is set by the two TCO layers, so no amount of mirror design gets
+below about 5 %.
+
+## Why there is a comb beyond the escape cone
+
+Also asked: past the cutoff everything should be totally internally reflected, so why is the
+loss not zero? `dbr_fringes.png` (`plot_fringes.py`) answers it by switching the absorption off
+layer by layer.
+
+Beyond 41.8° the wave is evanescent **in air**, so nothing escapes — but it is still
+propagating in the ITO (n = 1.86), the organics (1.8), ZnS (2.36) and LiF (1.41, until
+70.1°). The total reflection happens at the *last* interface, not at the entrance, so the
+light crosses every absorbing layer on the way there and back. Where the stack is resonant in
+(θ, λ) the field builds up inside it and the absorption is enhanced: that is the comb, and the
+same fringes appear in the Ag map for the same reason.
+
+Making every layer lossless gives **identically zero** loss beyond the cone, exactly as pure
+total internal reflection requires. Splitting what remains, for the stack without a cathode:
+2.87 %p from the 150 nm ITO and 1.24 %p from the ten LiF layers — LiF's k is only about
+2 × 10⁻⁴ in the library, but ten layers of roughly 100 nm add up to a micrometre of material.
+If the evaporated LiF is cleaner than the library film, that part shrinks.

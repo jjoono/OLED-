@@ -17,7 +17,7 @@ def rt(name):
     layers = [(m[sel], d) for m, d in S['layers']]
     return F.RT(layers, np.full(LAM.shape, NSUB, dtype=complex), S['exit'][sel], TH, LAM)
 
-Rd, Td = rt('DBR, chirped')
+Rd, Td = rt('TCO + DBR')
 Rg, Tg = rt('Ag')
 
 wb = openpyxl.Workbook(); ws = wb.active; ws.title = 'README'
@@ -27,7 +27,7 @@ rows = [
  ('Angle every 0.25° from 0 to 89.75°, wavelength every 1 nm.  The coarse version in fig2ghij_rawdata.xlsx is 1° and 5 nm.  Exact grazing is left out: it carries zero flux weight and the transfer matrix is singular there.', None),
  (None, None), ('Stack', None),
  ('Structure', 'substrate (n = 1.50) / ITO 150 nm / 420 nm of non-absorbing organics (n = 1.8) / reflector, light arriving from the substrate'),
- ('DBR', 'ZnS and LiF, 10 pairs, ZnS facing the organics.  Both thicknesses grow linearly through the stack by a factor 1.42: ZnS 56 → 80 nm, LiF 88 → 125 nm.'),
+ ('reflector', 'an IZO 50 nm cathode on the organics — the transparent electrode a metal-free device needs — then 10 ZnS/LiF pairs whose thicknesses grow through the stack by 1.40: ZnS 55 → 77 nm, LiF 91 → 127 nm.'),
  ('Ag', 'McPeak measured n,k, 100 nm — on the same grid for comparison'),
  ('ITO', 'Koenig et al. 2014, full dispersion (1.8636 + 0.0032285i at 550 nm)'),
  (None, None), ('Is the grid fine enough?', None),
@@ -40,8 +40,8 @@ rows = [
  ('DBR_absorbed', '100 × (1 − R − T), absorption alone.  This is the quantity to compare with Ag.'),
  ('Ag_absorbed', '100 × (1 − R − T) for the 100 nm Ag mirror on the same grid (its T is below 0.02 % everywhere)'),
  (None, None), ('For reference', None),
- ('weighted totals', 'flux- and spectrum-weighted over the green emission: DBR 3.43 % absorbed + 1.02 % leaked = 4.45 %; Ag 4.49 % + 0.01 % = 4.50 %'),
- ('beyond the cone', 'over 45–90° and 470–560 nm the DBR absorbs a median 4.58 % against Ag\'s 5.47 %'),
+ ('weighted totals', 'flux- and spectrum-weighted over the green emission: IZO + DBR 4.41 % absorbed + 1.08 % leaked = 5.49 %; Ag 4.49 % + 0.01 % = 4.50 %.  Without the cathode the stack alone gives 3.43 + 1.02 = 4.45 %'),
+ ('beyond the cone', 'nothing is transmitted there, so only absorption remains; with every layer made lossless it is identically zero, which is what pure total internal reflection requires'),
  (None, None), ('Provenance', None),
  ('Script', 'figures/fig2_full/export_i_fine.py, on sim/design_rule4/fig2d.py'),
  ('Repository', 'jjoono/OLED-, branch claude/oled-efficiency-paper-ag-955zsk'),
