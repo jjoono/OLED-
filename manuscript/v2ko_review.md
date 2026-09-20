@@ -253,3 +253,21 @@ from the earlier slide, not from data in this repository. With the Koenig ITO th
 stack gives 14–16 % for Al and 2.4–5.3 % for Ag at n_sub = 1.5, so the Ag range in the text
 is probably too high and should be recomputed on whatever electrode structures that panel
 ends up showing.
+
+## v11 — Fig. 2(d) recomputed (`manuscript/unityEQE_v11_ko.docx`)
+
+The quoted ranges (Al 15–25 %, Ag 5–15 %) came from an old slide and had no data behind them
+in this repository. Five electrode structures are now settled and computed with a dispersive
+TMM on the generic Fig. 2 stack: Al / ITO 150 nm, Ag / ITO 150 nm, Ag / IZO 50 nm,
+Ag / Ag 10 nm and a metal-free ZnS/LiF DBR with an IZO cathode. Flux- and spectrum-weighted
+1 − R at n_sub = 1.5: 15.6, 4.5, 3.2, 5.6 and 11.5 %. Al was about right; the Ag range was
+roughly twice too high and the text now gives a number per structure.
+
+The DBR sentence gains the new result: its absorption, 3.0 %, matches the best metal, but
+outside the stopband it transmits, and that leak occurs only for angles inside the escape cone
+to air, so the same stack loses 8.5 % on glass and 3.3 % at n_sub = 1.8.
+
+Not changed, and needing the author: the orange device's rear DBR cannot affect the round trip
+through the stack, since 100 nm of Al transmits 1e-7 at 550 nm. The 60 % → 77 % it produced
+is light that bypasses the electrode, which is what the back-leakage measurement says; the
+text attributes it to joule dissipation at the Al.

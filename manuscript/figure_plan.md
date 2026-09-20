@@ -126,10 +126,15 @@ Open: whether to mark reported record devices on the EQE curve, as the earlier d
 a shaded "previous works" circle. Individual literature points with reference numbers would be
 stronger than a shaded region.
 
-**(d) Angle- and wavelength-resolved round-trip absorption.** Maps of the absorption for light
-incident from the substrate onto the stack, for the candidate bottom-electrode structures.
-Al averages 15–25 %, Ag 5–15 %. Include the angular distribution of substrate-delivered power
-alongside, since the weighting matters as much as the reflectance.
+**(d) Angle- and wavelength-resolved round-trip loss.** Five electrode structures on the
+generic stack, mocked up in `figures/fig2d_mock/`: Al / ITO 150 nm (conventional),
+Ag / ITO 150 nm (the green device), Ag / IZO 50 nm (the design rule), Ag / Ag 10 nm (the
+thin-metal electrode) and DBR / IZO 50 nm (metal-free reflector). Flux- and spectrum-weighted
+1 − R at n_sub = 1.5: 15.6 / 4.5 / 3.2 / 5.6 / 11.5 %, the last being 3.0 % absorbed plus
+8.5 % leaked through the stopband. Three of the five are mapped in θ–λ; all five appear in an
+angle plot with the cos·sin weight shaded behind, which is how the panel carries "the angular
+distribution matters as much as the reflectance". The dielectric mirror's leak stops at
+arcsin(1/n_sub), so a high-index substrate cuts it to 3.3 % — worth marking on the panel.
 
 **Supplementary (was 2(d)): Poynting-vector loss accounting.** Layer-resolved dissipation
 through one round trip: flat through the transparent organics, linear in thickness through the
