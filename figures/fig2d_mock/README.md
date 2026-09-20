@@ -198,3 +198,28 @@ total internal reflection requires. Splitting what remains, for the stack withou
 2.87 %p from the 150 nm ITO and 1.24 %p from the ten LiF layers — LiF's k is only about
 2 × 10⁻⁴ in the library, but ten layers of roughly 100 nm add up to a micrometre of material.
 If the evaporated LiF is cleaner than the library film, that part shrinks.
+
+### Settled: an ITO 50 nm cathode, and the quarter-wave stack goes to the SI
+
+The cathode is ITO rather than IZO — the library's ITO is the cleaner film (k = 0.0032 against
+0.0053 at 550 nm), and it keeps the whole device on one TCO. Re-optimised with it in place,
+on glass with the green emitter:
+
+| structure | absorbed | leaked | 1 − R |
+|---|---|---|---|
+| Ag 100 nm (mirror and cathode in one) | 4.49 % | 0.01 % | **4.50 %** |
+| ITO 50 nm + 10 chirped pairs (ZnS 55→77 / LiF 91→127) | 4.08 % | 1.03 % | **5.11 %** |
+| ITO 50 nm + 15 chirped pairs (ZnS 61→88 / LiF 77→112) | 4.26 % | 0.41 % | **4.67 %** |
+| ITO 50 nm + 10 uniform λ/4 pairs at 550 nm | 4.07 % | 5.40 % | 9.47 % |
+| uniform stacks, 10 / 15 / 20 pairs | | | 6.17 / 6.42 / 6.71 % |
+
+Absorption by layer for the ten-pair design: **ITO anode 2.74 %, ITO cathode 0.59 %, the
+dielectric stack itself 0.72 %**, against the 1.77 % the silver film absorbs alone. Fifteen
+pairs bring the total to 4.67 %, within 0.2 pp of Ag; beyond that the two TCO layers set the
+floor. On the high-index substrate with the orange emitter the ten-pair design gives 6.78 %
+against Ag's 5.25 %, so that case would need its own optimisation.
+
+Panel (i) shows this stack and (j) now carries three solid curves — Al, Ag and the dielectric
+route — with the plain quarter-wave design moved to the supplementary, where the design
+argument belongs. The angle plot is what carries the weighted numbers and the cos·sin
+weighting, which a second map could not replace.

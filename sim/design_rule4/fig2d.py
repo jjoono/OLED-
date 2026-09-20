@@ -75,12 +75,12 @@ def stacks(d_ito=150.0):
                                 note='low-loss Ag cathode'),
       'DBR (10 pairs)':    dict(layers=common + QW, exit=AIR,
                                 note=f'ZnS {D_ZNS:.0f} nm / LiF {D_LIF:.0f} nm, quarter-wave at 550 nm'),
-      'TCO + DBR':         dict(layers=common + [(IZO, 50.0)] + dbr_chirp(10, 55.0, 91.0, 1.40), exit=AIR,
-                                note='the metal-free reflector as a device needs it: an IZO 50 nm cathode '
+      'TCO + DBR':         dict(layers=common + [(ITO, 50.0)] + dbr_chirp(10, 55.0, 91.0, 1.40), exit=AIR,
+                                note='the metal-free reflector as a device needs it: an ITO 50 nm cathode '
                                      'followed by 10 chirped ZnS/LiF pairs (ZnS 55->77 nm, LiF 91->127 nm)'),
-      'TCO + DBR, 15 pairs': dict(layers=common + [(IZO, 50.0)] + dbr_chirp(15, 60.0, 80.0, 1.45), exit=AIR,
+      'TCO + DBR, 15 pairs': dict(layers=common + [(ITO, 50.0)] + dbr_chirp(15, 61.0, 77.0, 1.45), exit=AIR,
                                 note='the same with 15 pairs'),
-      'TCO + DBR, plain':  dict(layers=common + [(IZO, 50.0)] + QW, exit=AIR,
+      'TCO + DBR, plain':  dict(layers=common + [(ITO, 50.0)] + QW, exit=AIR,
                                 note='the same cathode with a uniform quarter-wave stack at 550 nm, for comparison'),
       'DBR, chirped':      dict(layers=common + dbr_chirp(), exit=AIR,
                                 note='the dielectric stack alone, without the cathode a device needs — '
