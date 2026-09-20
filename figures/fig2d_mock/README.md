@@ -55,3 +55,31 @@ attributes the gain to joule dissipation at the Al; that wording needs the autho
 `plot_fig2d.py` draws the panel. `NSUB=1.8 python3 plot_fig2d.py` gives the orange-device
 companion. Three of the five structures are mapped in θ–λ (the conventional baseline, the
 design rule, the metal-free option); all five are in the angle plot.
+
+## Revised structure set (v12)
+
+At the author's request the panel now fixes the transparent electrode at **150 nm of ITO** and
+varies only the reflector, so the comparison is Al vs Ag vs DBR with everything else identical.
+The DBR is **10 pairs** of ZnS/LiF as a quarter-wave stack at 550 nm (ZnS 58.2 nm, LiF 97.6 nm
+from the measured indices). Flux- and spectrum-weighted 1 − R:
+
+| reflector | n_sub 1.5, green | n_sub 1.8, orange |
+|---|---|---|
+| Al | 15.6 % | 17.7 % |
+| Ag | 4.5 % | 5.3 % |
+| DBR, λ/4 at 550 nm | 8.8 % (3.4 absorbed + 5.4 leaked) | 12.7 % (4.2 + 8.5) |
+| DBR, re-optimised | **5.5 %** (ZnS 69 / LiF 97) | **6.0 %** (ZnS 73 / LiF 110) |
+
+A quarter-wave stack at the emission wavelength is the wrong design for angularly randomised
+light: at oblique incidence the stopband moves to shorter wavelengths, and the two materials
+stop sharing a common quarter-wave condition, so the stack turns transparent well before
+grazing. A grid search over the two thicknesses (10 pairs, minimising the flux- and
+spectrum-weighted loss) gains 3.3 percentage points on glass and 6.7 at n_sub = 1.8.
+
+Worth telling the author: **the orange device's own ZnS 70 nm / LiF 115 nm is essentially that
+optimum** — 6.05 % against the 6.04 % of the best grid point at n_sub = 1.8, which is what the
+genetic-algorithm design in Methods was for. The plain λ/4-at-550 design would have given
+12.8 %.
+
+The earlier five-structure set (which also varied the transparent electrode) is still
+available as `stacks_v1()` in `sim/design_rule4/fig2d.py`; `plot_fig2d.py` draws it.

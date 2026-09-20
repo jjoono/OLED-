@@ -1,61 +1,60 @@
-# Figure 2, composed
+# Figure 2, composed — three rows, ten panels
 
-`plot_fig2.py` draws the whole of Fig. 2 as one figure at full journal width (180 mm,
-`fig2_full.png` at 320 dpi and `fig2_full.pdf` as vector). It reads the data already in the
-repository — `figures/fig2a_mock/kn*.csv`, `figures/fig2b_mock/fig2b_curves_konig.csv` and
-`sim/design_rule4/fig2d.py` — so nothing is recomputed by hand.
+`plot_fig2.py` draws the whole of Fig. 2 at full journal width (180 mm), `fig2_full.png` at
+320 dpi and `fig2_full.pdf` as vector. It reads what is already in the repository —
+`figures/fig2a_mock/kn*.csv`, `figures/fig2b_mock/fig2b_curves_konig.csv` and
+`sim/design_rule4/fig2d.py` — so nothing is recomputed by hand. `plot_fig2_v1.py` is the
+earlier two-row version, kept for comparison.
 
-## Why this layout
+## Layout
 
-The natural panel counts (3 + 1 + 1 + 4) do not tile. Two changes make them:
+| row | panels | subject |
+|---|---|---|
+| 1 | a, b, c | ITO thickness: the loss split for Al, for Ag, and the extraction efficiency |
+| 2 | d, e, f | substrate index: the two inputs of eq. (2), η_ext, then η_sub^(0) and EQE |
+| 3 | g, h, i, j | the three reflectors at a fixed 150 nm ITO, in angle and wavelength |
 
-* **(a) goes from three panels to two.** The two stacked-area plots were one per reflector
-  because the Al and Ag stacks both start at zero and would overlap. Drawn as grouped stacked
-  bars at five thicknesses, both fit in one panel, and "the mirror part is flat, the TCO part
-  grows" reads better from bars than from an area whose lower edge never moves.
-* **(d) goes from four panels to three.** The DBR map is dropped; the structure is still in
-  the angle plot, and its stopband behaviour is an SI topic. The two maps that stay are the
-  conventional stack and the design rule, which is the comparison the text makes.
+Row 2 was one panel in the earlier draft and is now three, which is what makes the rows
+balance. The split follows eq. (2) rather than the drawing: **d** shows the two quantities
+that go in — p falls by 2.7× over the range while A′ barely moves, so the whole decline of
+η_ext comes from the escape probability, not from the mirror getting worse — **e** shows what
+comes out, and **f** the product with the substrate-delivered power.
 
-That gives two rows of equal height: a | a | b | c on top, and the two maps, the angle plot
-and a weighted-average key below. Row 1 is four equal cells; row 2 spends the same width on
-two narrow maps, a wide line plot and a text key.
-
-**Colour is the reflector everywhere**: vermillion = Al, blue = Ag, and grey is reserved for
-the TCO part of the loss in (a). The earlier mock-ups used orange for the TCO part in (a) and
-orange for Al in (b)–(c), which collided as soon as the panels were put side by side.
+Colour is the reflector throughout: vermillion Al, blue Ag, purple DBR, with grey reserved for
+the TCO part of the loss.
 
 ## Draft caption
 
 **Fig. 2 | Parasitic absorption is the binding loss.**
-**a**, Round-trip loss A′ = 1 − ⟨R_LED⟩ of the generic stack against ITO thickness, split into
-the mirror's ohmic part (colour; A′ recomputed at k_TCO = 0) and the TCO part (grey; the
-remainder), and the resulting extraction efficiency η_ext = p/[p + (1 − p)A′]. With Al the
-mirror alone costs 13.4 % per round trip and the TCO is 6 % of A′ at 50 nm; with Ag the mirror
-costs 1.8 % and the same film becomes the main loss path, 34 % at 50 nm and 60 % at 150 nm.
-Star: the 0.916 measured on the green device.
-**b**, η_ext against the index of the substrate and the index-matched outcoupling structure,
-with the single-pass escape probability p (dashed). A higher index lowers p, so each photon
-makes more round trips and the penalty for a lossy mirror grows from 5 to 21 percentage
-points.
-**c**, Substrate-delivered power η_sub^(0) (thin) and the product EQE = η_sub^(0) η_ext
-(bold); the shaded gap is light that reaches the substrate and never escapes. With Al the gain
-in η_sub^(0) is spent on the loss in η_ext and EQE turns over at 0.63 near n_sub = 1.8; with Ag
-it keeps rising to 0.89. The step at n_sub = n_EML is the waveguide cutoff.
-**d**, Round-trip loss 1 − R resolved in angle and wavelength for the conventional stack and
-for the design rule, and averaged over the green emission spectrum for all five candidate
-electrode structures. Shading: the cos θ sin θ weight an angularly randomising outcoupling
-structure enforces. The dielectric mirror absorbs as little as the best metal but transmits
-outside its stopband, and only for angles inside the escape cone to air, so it loses 11.5 % on
-glass and 6.4 % at n_sub = 1.8.
+**a–c**, ITO thickness. Round-trip loss A′ = 1 − ⟨R_LED⟩ split into the mirror's ohmic part
+(colour; A′ recomputed at k_TCO = 0) and the TCO part (grey), for an Al (**a**) and an Ag
+(**b**) reflector — note the three times finer axis in **b** — and the resulting extraction
+efficiency (**c**). The mirror part is flat in thickness while the TCO part grows, so the TCO
+carries 6 % of A′ at 50 nm with Al and 60 % at 150 nm with Ag. Star: the 0.916 measured on the
+green device.
+**d–f**, The index of the substrate and of the index-matched outcoupling structure. **d**, the
+two quantities eq. (2) takes: the single-pass escape probability p falls by 2.7× across the
+range while A′ barely moves. **e**, the extraction efficiency that follows — the same
+round-trip loss costs more when p is small, so the two reflectors peel apart by 21 percentage
+points. **f**, substrate-delivered power η_sub^(0) (thin) and the product EQE (bold); the
+shaded gap is light that reaches the substrate and never escapes. With Al the gain in
+η_sub^(0) is spent on the loss in η_ext and EQE turns over at 0.63; with Ag it keeps rising to
+0.89. The step at n_sub = n_EML is the waveguide cutoff.
+**g–j**, The three reflectors at a fixed 150 nm ITO, resolved in angle and wavelength: Al
+(**g**), Ag (**h**), and ten pairs of ZnS/LiF designed as a quarter-wave at 550 nm (**i**).
+**j**, the same averaged over the green emission spectrum, with the cos θ sin θ weight shaded;
+the flux- and spectrum-weighted losses are 15.6, 4.5 and 8.8 %. The dielectric mirror absorbs
+less than Ag (3.4 %) but transmits outside its stopband, and only for angles inside the escape
+cone to air; re-optimising the two thicknesses for angularly randomised light brings it to
+5.5 % (dashed).
 
 All panels: 550 nm family, isotropic dipole, PLQY = 1, generic stack of substrate /
 transparent electrode / 420 nm non-absorbing organics (n = 1.8) / 100 nm reflector; McPeak Ag,
-Johnson–Christy-type Al, Koenig ITO, measured IZO, ZnS and LiF. (a) and (d) on glass
-(n_sub = 1.5, p = 0.38); (b) and (c) sweep the substrate index.
+Johnson–Christy-type Al, Koenig ITO, measured IZO, ZnS and LiF. **a–c** and **g–j** on glass
+(n_sub = 1.5, p = 0.38); **d–f** sweep the substrate index.
 
-## If a panel has to go
+## If it has to be smaller
 
-(d)'s two maps are the first thing to cut — the angle plot carries the numbers and the
-angular story on its own, and the maps could move to the SI. That would leave a 4 + 2 layout
-and free roughly a third of the figure height.
+Drop **g** and **h**: panel **j** carries the numbers and the angular story on its own, and the
+two metal maps are the least surprising part of the figure. That leaves 3 + 3 + 2 and frees
+roughly a fifth of the height.

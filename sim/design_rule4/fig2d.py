@@ -30,7 +30,8 @@ AIR = np.ones_like(LAM, dtype=complex)
 ORG_D = 420.0            # HTL 200 + EML 20 + ETL 200, as in Fig. 2(a)-(c)
 
 def dbr(pairs=4.5, d_zns=70.0, d_lif=115.0):
-    """ZnS/LiF stack as deposited on the orange device, starting from the ZnS side."""
+    """ZnS/LiF stack, ZnS first (the high-index layer faces the organics).
+    Defaults are the thicknesses deposited on the orange device."""
     out = []
     n_full = int(pairs)
     for _ in range(n_full):
@@ -39,19 +40,47 @@ def dbr(pairs=4.5, d_zns=70.0, d_lif=115.0):
         out += [(ZNS, d_zns)]
     return out
 
+def dbr_qw(pairs=10, lam0=550.0):
+    """Quarter-wave stack at lam0, using the measured indices there."""
+    i = int(np.argmin(abs(LAM - lam0)))
+    return dbr(pairs, lam0/(4*ZNS[i].real), lam0/(4*LIF[i].real))
+
+QW = dbr_qw()
+D_ZNS, D_LIF = QW[0][1], QW[1][1]
+# thicknesses that minimise the flux- and spectrum-weighted loss for randomised light
+# (grid search, 10 pairs): glass + green emitter, and n_sub = 1.8 + orange emitter
+OPT15 = dbr(10, 69.0, 97.0)
+OPT18 = dbr(10, 73.0, 110.0)
+
 # ---- the structures, listed from the substrate inwards -----------------------
-def stacks(d_ito_green=150.0):
+def stacks(d_ito=150.0):
+    """Everything fixed except the reflector: the transparent electrode is 150 nm of ITO
+    in all three.  The DBR replaces the metal as a purely optical mirror; the transparent
+    cathode it would need in a real device is the variant below."""
+    common = [(ITO, d_ito), (ORG, ORG_D)]
     return {
-      'Al / ITO 150 nm':   dict(layers=[(ITO, d_ito_green), (ORG, ORG_D), (AL, 100.0)], exit=AIR,
-                                note='conventional: Al cathode, display-grade ITO'),
-      'Ag / ITO 150 nm':   dict(layers=[(ITO, d_ito_green), (ORG, ORG_D), (AG, 100.0)], exit=AIR,
-                                note='the green device as made'),
-      'Ag / IZO 50 nm':    dict(layers=[(IZO, 50.0), (ORG, ORG_D), (AG, 100.0)], exit=AIR,
-                                note='the design rule: low-loss mirror, thinnest usable TCO'),
-      'Ag / Ag 10 nm':     dict(layers=[(AG, 10.0), (ORG, ORG_D), (AG, 100.0)], exit=AIR,
-                                note='the thin-metal alternative for the transparent electrode'),
-      'DBR / IZO 50 nm':   dict(layers=[(IZO, 50.0), (ORG, ORG_D), (IZO, 50.0)] + dbr(), exit=AIR,
-                                note='metal-free reflector: IZO cathode + ZnS/LiF 4.5 pairs'),
+      'Al':                dict(layers=common + [(AL, 100.0)], exit=AIR,
+                                note='conventional Al cathode'),
+      'Ag':                dict(layers=common + [(AG, 100.0)], exit=AIR,
+                                note='low-loss Ag cathode'),
+      'DBR (10 pairs)':    dict(layers=common + QW, exit=AIR,
+                                note=f'ZnS {D_ZNS:.0f} nm / LiF {D_LIF:.0f} nm, quarter-wave at 550 nm'),
+      'DBR, re-optimised': dict(layers=common + OPT15, exit=AIR,
+                                note='ZnS 69 nm / LiF 97 nm, minimising the loss for randomised light on glass'),
+      'DBR, re-opt. 1.8':  dict(layers=common + OPT18, exit=AIR,
+                                note='ZnS 73 nm / LiF 110 nm, the same for a high-index substrate'),
+      'DBR + IZO cathode': dict(layers=common + [(IZO, 50.0)] + QW, exit=AIR,
+                                note='the quarter-wave stack with the transparent cathode a real device needs'),
+    }
+
+def stacks_v1():
+    """The earlier set, kept for reference: the transparent electrode varied too."""
+    return {
+      'Al / ITO 150 nm':   dict(layers=[(ITO, 150.0), (ORG, ORG_D), (AL, 100.0)], exit=AIR, note=''),
+      'Ag / ITO 150 nm':   dict(layers=[(ITO, 150.0), (ORG, ORG_D), (AG, 100.0)], exit=AIR, note=''),
+      'Ag / IZO 50 nm':    dict(layers=[(IZO, 50.0), (ORG, ORG_D), (AG, 100.0)], exit=AIR, note=''),
+      'Ag / Ag 10 nm':     dict(layers=[(AG, 10.0), (ORG, ORG_D), (AG, 100.0)], exit=AIR, note=''),
+      'DBR / IZO 50 nm':   dict(layers=[(IZO, 50.0), (ORG, ORG_D), (IZO, 50.0)] + dbr(), exit=AIR, note=''),
     }
 
 # ---- TMM --------------------------------------------------------------------
@@ -86,20 +115,20 @@ def RT(layers, n_inc, n_exit, th, lam):
     R = 0.5*(out['s'][0] + out['p'][0]); T = 0.5*(out['s'][1] + out['p'][1])
     return R, T
 
-def maps(name, n_sub=1.5, nth=451, lam=None):
+def maps(name, n_sub=1.5, nth=451, lam=None, table=None):
     lam = LAM if lam is None else lam
     sel = np.isin(LAM, lam)
-    S = stacks()[name]
+    S = (table or stacks())[name]
     layers = [(m[sel], d) for m, d in S['layers']]
     th = np.linspace(0, np.pi/2, nth + 1); th = 0.5*(th[1:] + th[:-1])
     nsub = np.full(lam.shape, n_sub, dtype=complex)
     R, T = RT(layers, nsub, S['exit'][sel], th, lam)
     return th, lam, R, T
 
-def weighted(name, n_sub=1.5, spectrum=None, lam=None):
+def weighted(name, n_sub=1.5, spectrum=None, lam=None, table=None):
     """Flux-weighted (cos.sin, the ergodic weight an MLA enforces) and spectrum-weighted
     round-trip loss: absorbed, transmitted, and their sum = A' = 1 - <R>."""
-    th, lam_, R, T = maps(name, n_sub=n_sub, lam=lam)
+    th, lam_, R, T = maps(name, n_sub=n_sub, lam=lam, table=table)
     w = np.cos(th)*np.sin(th); w /= w.sum()
     Ra, Ta = (R*w).sum(1), (T*w).sum(1)
     if spectrum is None:

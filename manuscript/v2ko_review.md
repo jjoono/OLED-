@@ -271,3 +271,26 @@ Not changed, and needing the author: the orange device's rear DBR cannot affect 
 through the stack, since 100 nm of Al transmits 1e-7 at 550 nm. The 60 % → 77 % it produced
 is light that bypasses the electrode, which is what the back-leakage measurement says; the
 text attributes it to joule dissipation at the Al.
+
+## v12 — Fig. 2 at a fixed 150 nm ITO, and relettered a–j (`manuscript/unityEQE_v12_ko.docx`)
+
+Two changes, both the author's.
+
+The electrode panel now fixes the transparent electrode at 150 nm of ITO and varies only the
+reflector, so it compares Al, Ag and a ten-pair ZnS/LiF quarter-wave stack at 550 nm: 15.6,
+4.5 and 8.8 % of flux- and spectrum-weighted round-trip loss on glass. The thin-Ag and IZO
+variants leave the main text. The DBR sentence gains the result that came out of the
+recalculation: a quarter-wave stack designed at the emission wavelength is not the right
+design for randomised light, because at oblique incidence the stopband moves to shorter
+wavelengths and the two materials stop sharing a quarter-wave condition. Re-optimising the two
+thicknesses for the angular and spectral average brings the same ten pairs to 5.5 % on glass,
+and the orange device's own ZnS 70 / LiF 115 nm turns out to be that optimum to 0.01 %p at
+n_sub = 1.8 — which is what the genetic-algorithm design in Methods was for, and is worth
+saying, since the λ/4-at-550 design would have lost 12.8 % there.
+
+Fig. 2 is now composed as one full-width figure of ten panels in three rows, so the citations
+become ranges: 2(a)–(c) for the ITO thickness, 2(d),(e) for the index sweep, 2(f) for the
+product, 2(g)–(j) for the reflectors. The order stays strictly monotonic. The middle row was
+one panel and is now three; the extra one shows that the escape probability falls by 2.7×
+across the index range while A′ barely moves, which is the cleanest statement of why η_ext
+declines with substrate index — it is the escape probability, not a worsening mirror.

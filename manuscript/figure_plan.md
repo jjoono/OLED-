@@ -1,9 +1,9 @@
-# Figure plan — unityEQE v10
+# Figure plan — unityEQE v12
 
-Citation order in v10, strictly monotonic apart from one deliberate retrospective:
+Citation order in v12, strictly monotonic apart from one deliberate retrospective:
 
-1(a) → 1(b) → 1(c) → 2(a) → 2(b) → 2(c) → 2(d) → 3(a) → 3(b) → 3(c) → 4(a) → 4(b) → 4(c) →
-[3(a) retrospective] → 5(a) → 5(b) → 5(c)
+1(a) → 1(b) → 1(c) → 2(a)–(c) → 2(d),(e) → 2(f) → 2(g)–(j) → 3(a) → 3(b) → 3(c) → 4(a) →
+4(b) → 4(c) → [3(a) retrospective] → 5(a) → 5(b) → 5(c)
 
 Changes from v9: every Fig. 2 panel is recomputed with the Koenig et al. (2014) ITO
 constants (n = 1.864 + 0.0032i at 550 nm) in place of the flat n = 1.9 + 0.02i, at the
@@ -91,11 +91,14 @@ zoom on the high-reflectance end (the author's existing draft). Settled conventi
 ## Fig. 2 — Parasitic absorption is the binding loss
 
 Composed as one full-width figure in `figures/fig2_full/` (`plot_fig2.py`, with a draft
-caption in that folder's README). Two rows: a | a | b | c on top, then (d)'s two maps, its
-angle plot and a key. (a) is two panels rather than three — the loss split is drawn as grouped
-stacked bars so both reflectors fit one panel — and (d) is three rather than four, with the
-DBR map left to the SI. Colour is the reflector throughout (vermillion Al, blue Ag) and grey
-is reserved for the TCO part of the loss.
+caption in that folder's README). Three rows of panels lettered a–j: **a,b,c** the ITO
+thickness (loss split for Al, for Ag, then η_ext); **d,e,f** the substrate index (the two
+inputs of eq. (2), then η_ext, then η_sub^(0) and EQE); **g,h,i,j** the three reflectors at a
+fixed 150 nm ITO. The middle row was one panel and is now three, which is what makes the rows
+balance; the split follows eq. (2), with (d) showing that p falls by 2.7× while A′ barely
+moves, so the decline of η_ext is the escape probability's doing and not the mirror's.
+Colour is the reflector throughout (vermillion Al, blue Ag, purple DBR) with grey reserved for
+the TCO part of the loss.
 
 **(a) ITO thickness, Al vs Ag.** Three panels, mocked up in `figures/fig2a_mock/`.
 Left and centre: round-trip loss A' against ITO thickness, split into the mirror ohmic part
@@ -133,15 +136,14 @@ Open: whether to mark reported record devices on the EQE curve, as the earlier d
 a shaded "previous works" circle. Individual literature points with reference numbers would be
 stronger than a shaded region.
 
-**(d) Angle- and wavelength-resolved round-trip loss.** Five electrode structures on the
-generic stack, mocked up in `figures/fig2d_mock/`: Al / ITO 150 nm (conventional),
-Ag / ITO 150 nm (the green device), Ag / IZO 50 nm (the design rule), Ag / Ag 10 nm (the
-thin-metal electrode) and DBR / IZO 50 nm (metal-free reflector). Flux- and spectrum-weighted
-1 − R at n_sub = 1.5: 15.6 / 4.5 / 3.2 / 5.6 / 11.5 %, the last being 3.0 % absorbed plus
-8.5 % leaked through the stopband. Three of the five are mapped in θ–λ; all five appear in an
-angle plot with the cos·sin weight shaded behind, which is how the panel carries "the angular
-distribution matters as much as the reflectance". The dielectric mirror's leak stops at
-arcsin(1/n_sub), so a high-index substrate cuts it to 3.3 % — worth marking on the panel.
+**(g)–(j) Angle- and wavelength-resolved round-trip loss.** The transparent electrode is
+fixed at 150 nm of ITO and only the reflector changes, so the panel compares Al, Ag and a
+ten-pair ZnS/LiF quarter-wave stack at 550 nm. Flux- and spectrum-weighted 1 − R at
+n_sub = 1.5: 15.6, 4.5 and 8.8 %, the last being 3.4 % absorbed plus 5.4 % leaked. (j) adds
+the cos·sin weight as shading, which is how the panel carries "the angular distribution
+matters as much as the reflectance", and a dashed curve for the DBR re-optimised for
+randomised light (5.5 %). The leak stops at arcsin(1/n_sub) — marked — because beyond the
+escape cone the light is trapped by total internal reflection at the back surface.
 
 **Supplementary (was 2(d)): Poynting-vector loss accounting.** Layer-resolved dissipation
 through one round trip: flat through the transparent organics, linear in thickness through the
