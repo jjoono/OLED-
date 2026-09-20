@@ -77,6 +77,15 @@ transmitted part of the DBR map on its own, the four spectrum-averaged angle cur
 with the cos·sin weight, and a summary sheet with the weighted numbers at both substrate
 indices. `ghij_csv/` holds the same arrays as plain CSV.
 
+`fig2i_DBR_fine.xlsx` (`export_i_fine.py`) is panel (i) on a four times finer grid — every
+0.25° from 0 to 89.75° and every 1 nm — with three sheets for the dielectric stack (the
+round-trip loss, the transmitted part alone, and absorption alone) and a fourth with Ag's
+absorption on the same grid for a direct comparison. That resolution is comfortably
+converged: the stack's three angular features are 1.3°, 2.4° and 2.7° wide at half maximum, so
+0.25° puts five to ten points across each, and in the wavelength direction the value moves by
+at most 0.40 %p per nm. Exact grazing is left out — it carries zero flux weight and the
+transfer matrix is singular there.
+
 Spot-checked against the plotted curves: at normal incidence 14.41 / 3.75 / 10.48 / 2.64 %
 for Al, Ag, the optimised DBR and the plain quarter-wave stack, matching the figure.
 

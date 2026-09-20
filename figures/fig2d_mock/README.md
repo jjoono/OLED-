@@ -147,3 +147,7 @@ ZnS 58 / LiF 84 at ×1.40, the same design to within the grid.
 
 Figure 2(i) and (j) now show the chirped 10-pair stack, with the plain quarter-wave design
 kept as the dashed comparison.
+
+The wider chirp search (range extended to ×2.3) returns the same designs: 10 pairs
+ZnS 58 / LiF 84 at ×1.40 (4.46 % against the 4.45 % of ZnS 56 / LiF 88 at ×1.42), 15 pairs
+4.01 %, 20 pairs 3.98 %. The optimum is real, not an artefact of where the grid stopped.
