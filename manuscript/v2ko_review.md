@@ -318,3 +318,16 @@ One wording check for the author: the text credits a genetic algorithm, as Metho
 the orange device. The optimum in the figure was found by an exhaustive two-parameter grid
 search, which is global for two variables and lands on the device's design (ZnS 73 / LiF
 110 nm against 70 / 115 nm, 6.04 % against 6.05 % at n_sub = 1.8).
+
+## v14 — what the dielectric mirror loses beyond the escape cone (`manuscript/unityEQE_v14_ko.docx`)
+
+One sentence, prompted by the author's reading of the map: beyond the escape cone the
+transmitted fraction is identically zero, so only absorption is left, and there the DBR's
+round-trip loss is *lower* than Ag's — median 4.7 % against 5.5 % over 45°–90°, and lower at
+every angle up to about 80°. Weighted over the hemisphere the DBR absorbs 3.38 % against Ag's
+4.49 %, the 1.1 pp difference being the metal's ohmic loss. The DBR's total exceeds Ag's only
+because of the 2.09 % it transmits inside the escape cone.
+
+The map had given the opposite impression because Ag's is smooth while the DBR's carries sharp
+guided-mode resonances, and the eye reads the fringes. The panels now carry their weighted
+numbers and mark the escape cone, and the figure is unchanged otherwise.

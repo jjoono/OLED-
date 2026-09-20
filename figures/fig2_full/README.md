@@ -82,3 +82,27 @@ for Al, Ag, the optimised DBR and the plain quarter-wave stack, matching the fig
 
 The raw data for (a)-(c) is in `figures/fig2a_mock/fig2a_rawdata.xlsx` and for (d)-(f) in
 `figures/fig2b_mock/fig2bc_rawdata.xlsx`.
+
+## Why the DBR map looks worse than it is
+
+Asked whether the dielectric mirror's absorption beyond the escape cone is really as high as
+panel (i) suggests. It is not, and the numbers say so.
+
+Beyond arcsin(1/n_sub) = 41.8° the transmitted fraction is identically zero — checked, the
+maximum T in the region 45–90°, 470–560 nm is 0.0 % — so there the map already shows
+absorption alone. In that region the DBR's median loss is **4.74 %** against Ag's **5.47 %**,
+and it exceeds Ag in only 29 % of the region, on the narrow resonance fringes. Angle by angle,
+spectrum-averaged: 3.78 vs 4.59 % at 45°, 4.23 vs 4.99 % at 60°, 4.50 vs 5.41 % at 70°. The
+DBR is the better mirror everywhere except within a few degrees of grazing.
+
+Weighted over the whole hemisphere: absorption 3.38 % for the DBR against 4.49 % for Ag. The
+difference between the two is entirely the metal's ohmic loss (at normal incidence 2.46 % vs
+3.75 %, and the 1.3 pp gap is the Ag mirror). The DBR's total only exceeds Ag's because of the
+2.09 % it transmits **inside** the escape cone.
+
+The impression comes from the display: Ag's map is smooth while the DBR's carries sharp
+guided-mode resonances of the ITO/organic slab, and the eye reads the fringes rather than the
+median. The numbers are converged — the hemisphere average moves by 0.005 pp between 451 and
+3601 angles — so the fringes are physical, not sampling. Each map now carries its own
+flux- and spectrum-weighted number underneath, and panel (i) marks the escape cone with the
+two regimes labelled, so the comparison cannot be read off the fringes.

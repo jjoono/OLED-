@@ -41,7 +41,7 @@ aAl, aAg = D['Aprime_Al'], D['Aprime_Ag']
 
 fig = plt.figure(figsize=(7.2, 6.7))
 H = 0.225
-Y = [0.735, 0.425, 0.090]
+Y = [0.740, 0.435, 0.120]
 x3 = [0.078, 0.398, 0.718]; w3 = 0.252
 ax = {}
 for k, i in zip('abc', range(3)): ax[k] = fig.add_axes([x3[i], Y[0], w3, H])
@@ -142,8 +142,10 @@ clean(f_); letter('f')
 
 # ================= row 3: the three reflectors at 150 nm ITO ==============
 VIS = np.arange(430.0, 701.0); NSUB = 1.5
+THC = np.degrees(np.arcsin(1/NSUB))
 NAMES = [('Al', C_AL), ('Ag', C_AG), ('DBR, re-optimised', C_DBR)]
 TITLE = {'DBR, re-optimised': 'DBR, 10 pairs\n(thicknesses optimised)'}
+WMAP = {n: F.weighted(n, n_sub=NSUB, spectrum=F.GREEN, lam=VIS) for n, _ in NAMES}
 for k, (name, c) in zip('ghi', NAMES):
     th, lam, R, T = F.maps(name, n_sub=NSUB, lam=VIS)
     im = ax[k].pcolormesh(np.degrees(th), lam, 100*(1 - R), cmap='inferno_r', vmin=0, vmax=30,
@@ -154,6 +156,16 @@ for k, (name, c) in zip('ghi', NAMES):
     ax[k].set_xticklabels(['0', '30', '60', ''] if k != 'i' else ['0', '30', '60', '90'])
     ax[k].tick_params(labelsize=FS_TICK, pad=1.5)
     if k != 'g': ax[k].set_yticklabels([])
+    W = WMAP[name]
+    txt = (f"absorbed {100*W['absorbed']:.1f} %" if W['transmitted'] < 0.002 else
+           f"absorbed {100*W['absorbed']:.1f} %\nleaked {100*W['transmitted']:.1f} %")
+    ax[k].text(0.5, -0.30, txt, transform=ax[k].transAxes, ha='center', va='top',
+               fontsize=FS_NOTE, color=c)
+ax['i'].axvline(THC, color='w', lw=0.8, ls=(0, (2.5, 1.5)))
+ax['i'].annotate('leaks to air', (THC/2, 690), fontsize=FS_NOTE - 0.3, color='w',
+                 ha='center', va='top')
+ax['i'].annotate('absorption only', (THC + (90 - THC)/2, 690), fontsize=FS_NOTE - 0.3,
+                 color='0.15', ha='center', va='top')
 ax['g'].set_ylabel('wavelength (nm)')
 for k in 'ghi': letter(k, dx=-0.36 if k == 'g' else -0.12)
 cb = fig.colorbar(im, cax=ax_cb); cb.set_label('1 − R  (%)', fontsize=FS_LAB, labelpad=2)
