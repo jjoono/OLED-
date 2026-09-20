@@ -187,3 +187,41 @@ Fig. 2 device on the Fig. 3(a) curve.
 Workbook: `fig3a_rawdata.xlsx` (`make_fig3a_xlsx.py`), two data sheets plus a README sheet,
 with eta_ext and EQE as live formulas off one p cell and a closure column that reads 1.000000
 on every row. Verified by recalculation in LibreOffice.
+
+## Panel (c) replaced: measured electrodes instead of a p sensitivity check
+
+The old third panel showed how much η_ext moves when p is changed, with curves labelled at
+k_TCO = 0.02 — a value with no provenance, left over from the script defaults and since
+superseded by the Koenig 0.0032. That is a methods check, not a design rule, and it belongs in
+the SI if anywhere.
+
+It is replaced by every transparent electrode in `nk_JH_total.mat`, each run on the same stack
+with its own measured n and k at 550 nm (`films.json`, workbook `fig3a_films_rawdata.xlsx`,
+standalone figure `plot_fig3a_c.py`). Seventeen films: nine oxides at 50 nm and eight thin
+silvers at 10 nm.
+
+| film | n | k | eta_sub | absorbed in electrode | EQE |
+|---|---|---|---|---|---|
+| IZO | 2.062 | 0.0012 | 0.911 | 0.0024 | 0.871 |
+| ITO_SNU | 1.998 | 0.0013 | 0.895 | 0.0028 | 0.853 |
+| l_ITO (Koenig, used in Fig. 2) | 1.864 | 0.0032 | 0.957 | 0.0089 | **0.892** |
+| l_IZO | 2.044 | 0.0053 | 0.895 | 0.0107 | 0.831 |
+| IZO_NIR | 1.921 | 0.0128 | 0.916 | 0.0313 | 0.792 |
+| etri_ITO | 1.922 | 0.0481 | 0.843 | 0.1013 | 0.595 |
+| Ag 10 nm, bulk n | 0.044 | 3.819 | 0.899 | 0.0310 | 0.801 |
+| Ag 10 nm, poor seed | 0.532 | 3.483 | 0.696 | 0.2429 | 0.395 |
+
+Two things the panel shows that the sweeps cannot.
+
+**The families collapse.** Plotted against the power the electrode itself absorbs, the oxides
+and the thin silvers fall on one trend. What costs EQE is how much the electrode absorbs, not
+what it is made of — a 10 nm silver with a bulk-like index (0.031 absorbed, EQE 0.801) is
+worth about the same as an IZO at 0.031 (0.792).
+
+**Every real oxide sits above the substrate index.** ITO runs 1.81–2.00 and IZO 1.92–2.06, so
+with n_sub = 1.8 there is no measured TCO that satisfies n_TCO ≤ n_sub. The cost shows up as
+the two cleanest films, IZO and ITO_SNU, landing *below* the Koenig ITO despite absorbing
+three times less: their index turns the electrode into its own waveguide. A separate 9 × 11
+sweep over (n_TCO, k_TCO) shows this only matters while the film is clean — at k = 0.02 the
+EQE varies by 1.5 %p between n = 1.70 and 2.10, against 4 %p at k = 0.005 — so the index
+ladder is a rule for good electrodes, and for poor ones the absorption swamps it.

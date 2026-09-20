@@ -4,6 +4,7 @@ CSV columns: param, eta_sub, A', wg, spp, abs, abs_top, abs_bottom, eta_ext(0.30
 import numpy as np, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import textwrap
 
 C_EXT, C_SUB, C_EQE = '#0072B2', '#E69F00', '#9467BD'
@@ -46,24 +47,39 @@ axes[1].set_title('(b)  device B — thin-Ag electrode, 10 nm:  $\\bar n=n_{Ag}+
 axes[1].axvline(0.044, color='#B00', lw=1.2, ls='-')
 axes[1].text(0.052, 0.965, 'bulk Ag\n(McPeak, 0.044)', color='#B00', fontsize=8.5, va='top')
 
-# --- (c) sensitivity to p ---
+# --- (c) every measured electrode on the same stack ---
+import json as _json
+FILMS = _json.load(open('/tmp/films.json')) if __import__('os').path.exists('/tmp/films.json') \
+        else _json.load(open('films.json'))
+C_T, C_A = '#0072B2', '#009E73'
 ax = axes[2]
-pp = np.linspace(0.15, 0.9, 240)
-for A, lab, sty in ((ito[0, 2],  f'ideal electrode        (A′ = {ito[0,2]:.3f})', '-'),
-                    (ito[5, 2],  f'TCO, $k_{{TCO}}=0.02$      (A′ = {ito[5,2]:.3f})', '--'),
-                    (ag[10, 2],  f'Ag, $n_{{Ag}}=0.25$        (A′ = {ag[10,2]:.3f})', '-.'),
-                    (ito[-1, 2], f'TCO, $k_{{TCO}}=0.08$      (A′ = {ito[-1,2]:.3f})', ':')):
-    ax.plot(pp, pp/(pp+(1-pp)*A), color=C_EXT, ls=sty, lw=2.1, label=lab)
-ax.legend(loc='lower right', fontsize=8.4, framealpha=0.92, edgecolor='0.85', borderpad=0.55, handlelength=2.8)
-ax.axvline(P_USE, color='#B00', lw=1.4)
-ax.text(P_USE-0.012, 0.243, f'p = {P_USE:.2f}', color='#B00', fontsize=9.2, fontweight='bold', va='bottom', ha='right')
-ax.axvline(P_ALT, color='0.45', lw=1.0, ls=':')
-ax.text(P_ALT-0.013, 0.243, f'{P_ALT:.2f}', color='0.25', fontsize=9.0, fontweight='bold', va='bottom', ha='right')
-ax.set_xlim(0.15, 0.9); ax.set_ylim(0.22, 1.0); ax.set_yticks(np.arange(0.3, 1.01, 0.1))
-ax.grid(axis='y', color='0.9', lw=0.8)
-for s in ('top', 'right'): ax.spines[s].set_visible(False)
-ax.set_xlabel('MLA single-pass escape probability,  p'); ax.set_ylabel('$\\eta_{ext}$')
-ax.set_title('(c)  how much p matters:  $\\eta_{ext}=p/[p+(1-p)A′]$', fontsize=11, loc='left')
+ax.plot(ito[1:, 7], ito[1:, 10], color=C_T, lw=1.3, alpha=0.4, zorder=1)
+ax.plot(ag[1:, 7], ag[1:, 10], color=C_A, lw=1.3, alpha=0.4, zorder=1)
+SHOW = {'l_ITO': ('ITO used here\n(n 1.86, k 0.0032)', (10, 7), 'left'),
+        'etri_ITO': ('ITO, as-deposited\n(k 0.048)', (-9, 3), 'right'),
+        'Ag_bulk': ('Ag 10 nm, bulk n', (10, 4), 'left'),
+        'Ag_SNU': ('Ag 10 nm, poor seed', (-9, 3), 'right')}
+for f in FILMS:
+    c = C_T if f['family'] == 'TCO' else C_A
+    ax.plot(f['abs_electrode'], f['EQE'], 'o', ms=6.5, mfc=c, mec='w', mew=1.0, zorder=4)
+    if f['film'] in SHOW:
+        lab, (dx, dy), ha = SHOW[f['film']]
+        ax.annotate(lab, (f['abs_electrode'], f['EQE']), xytext=(dx, dy), textcoords='offset points',
+                    fontsize=8.0, color=c, ha=ha, va='center')
+iz = [f for f in FILMS if f['film'] == 'IZO'][0]
+ax.annotate('IZO,  n 2.06, k 0.0012\nthe cleanest film, and still below\nthe ITO: its index exceeds the substrate',
+            (iz['abs_electrode'], iz['EQE']), xytext=(0.0032, 0.575), textcoords='data',
+            fontsize=8.0, color=C_T, ha='left', va='center',
+            arrowprops=dict(arrowstyle='->', color=C_T, lw=0.8, alpha=0.8))
+ax.set_xscale('log'); ax.set_xlim(1.5e-3, 0.4); ax.set_ylim(0.35, 0.95)
+ax.set_xlabel('Power absorbed in the transparent electrode')
+ax.set_ylabel('EQE $=\\eta_{sub}^{(0)}\\eta_{ext}$')
+ax.grid(color='0.9', lw=0.8, which='both')
+for sp in ('top', 'right'): ax.spines[sp].set_visible(False)
+ax.legend(handles=[Line2D([], [], marker='o', ls='', mfc=C_T, mec='w', ms=6.5, label='TCO, 50 nm'),
+                   Line2D([], [], marker='o', ls='', mfc=C_A, mec='w', ms=6.5, label='thin Ag, 10 nm')],
+          loc='lower left', fontsize=8.8, frameon=False, handletextpad=0.4)
+ax.set_title('(c)  measured electrodes, same stack', fontsize=11, loc='left')
 
 fig.suptitle('Design rule: parasitic absorption sets the substrate-to-air extraction efficiency',
              x=0.055, ha='left', fontsize=13, y=0.96)
@@ -73,8 +89,10 @@ foot = ('Two ALTERNATIVE devices, not one stack. Common part, 550 nm, isotropic 
         'EML and HTL isotropic at n = 1.8 with k = 0; the ETL is isotropic at n = 1.8, as in Fig. 2; substrate n = 1.8; u grid 3000 points; five-channel closure 1e-15.  '
         'A′ = 1 − ⟨R_LED⟩, the reflectance of the OLED stack seen from the substrate, flux-weighted (cosθ sinθ) over substrate angles and averaged over p and s.  '
         'η_ext = p/[p + (1−p)A′]; η_sub^(0) = air + substrate-confined.  Shaded bands reproduce the material ranges of the original slide.  '
-        'p = 0.30 is read off the blue single-pass-escape-probability curve of Fig. 1c at n_sub = 1.8 (±0.01 from the digitisation); the grey line in (c) marks p = 0.40, the value that reproduces the original slide. '
-        'Because η_ext depends on p only through the formula above, a different p needs no re-run — only a re-plot from the stored A′.')
+        'p = 0.30 throughout, read off the single-pass escape probability at n_sub = 1.8; because η_ext depends on p only through the formula above, a different p needs no re-run.  '
+        'Panel (c) puts every transparent electrode in the project library on this same stack — each point is a measured film at 550 nm, the faint lines are the sweeps of (a) and (b) on that axis.  '
+        'The two families fall on one trend: what costs EQE is how much of the light the electrode absorbs, whatever it is made of.  The oxides span a factor of thirty in absorption, from a research-grade '
+        'film to an as-deposited one, so the electrode is a process variable rather than a material constant.')
 fig.text(0.055, 0.012, '\n'.join(textwrap.wrap(foot, 205)), fontsize=8.2, va='bottom', ha='left', color='0.28')
 fig.savefig('dr4e_mock.png', dpi=150)
 print('saved')
