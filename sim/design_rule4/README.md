@@ -146,3 +146,44 @@ were first set up with. It coincides with the `l_ITO` entry of `nk_JH_total.mat`
 `aprime.py` computes the round-trip loss A' alone with a plain TMM — no dipole model — and
 reproduces the Octave output to 1e-4, which makes a sweep over k_TCO or n_TCO a second's work
 instead of a full run.
+
+## Fig. 3(a) re-run on the Fig. 2 stack
+
+The earlier `p_ito_n19.csv` / `p_ag.csv` pair was computed before the optical constants were
+settled, with a TCO real index of 1.9, a uniaxial ETL at n_e = 1.6 and a thin-Ag k of 3.5.
+Two of those are now inconsistent with Fig. 2, and the third is a pathological choice — our
+own analysis found n_e = 1.6 to be the *worst* extraordinary index at n_sub = 1.8, because it
+puts n_SPP 0.004 above the substrate index.
+
+`f3a_ito_konig.csv` and `f3a_ag_konig.csv` are the same two sweeps on the Fig. 2 stack:
+
+```
+Ag 100 nm (McPeak, fixed) / ETL 200 nm / EML 20 nm / HTL 200 nm / [bottom electrode] / substrate 1.80
+device A: bottom = 50 nm TCO, n = 1.8636 + k i, k swept 0 … 0.08
+device B: bottom = 10 nm Ag,  n = n_Ag + 3.819i, n_Ag swept 0 … 0.5
+organics isotropic n = 1.8, k = 0; 550 nm; isotropic dipole; PLQY = 1; u grid 3000
+```
+
+Run with `dr4e.m` (`MODE=kito` and `MODE=nagb`), so the CSVs now also carry the absorption
+split into the reflector and the bottom electrode: param, eta_sub, A', wg, u>1, abs, abs_top,
+abs_bottom, eta_ext x2, EQE x2.
+
+**The cross-check that matters**: at k_TCO = 0.0032, the Koenig value used throughout Fig. 2,
+device A gives eta_sub = 0.9564 and A' = 0.0310 — identical to the Ag / ITO 50 nm point of
+Fig. 2 at n_sub = 1.8. The two figures now sit on the same stack, so the reader can find the
+Fig. 2 device on the Fig. 3(a) curve.
+
+| device | condition | eta_sub | A' | eta_ext (p = 0.30) |
+|---|---|---|---|---|
+| A (TCO) | k = 0 | 0.966 | 0.017 | 0.963 |
+| A (TCO) | k = 0.0032 (Koenig ITO) | 0.956 | 0.031 | 0.935 |
+| A (TCO) | k = 0.02 | 0.912 | 0.097 | 0.816 |
+| A (TCO) | k = 0.08 | 0.794 | 0.267 | 0.616 |
+| B (Ag) | n_Ag = 0 (ideal metal) | 0.904 | 0.018 | 0.960 |
+| B (Ag) | n_Ag = 0.044 (bulk Ag) | 0.899 | 0.052 | 0.892 |
+| B (Ag) | n_Ag = 0.25 | 0.791 | 0.188 | 0.695 |
+| B (Ag) | n_Ag = 0.50 | 0.692 | 0.312 | 0.578 |
+
+Workbook: `fig3a_rawdata.xlsx` (`make_fig3a_xlsx.py`), two data sheets plus a README sheet,
+with eta_ext and EQE as live formulas off one p cell and a closure column that reads 1.000000
+on every row. Verified by recalculation in LibreOffice.

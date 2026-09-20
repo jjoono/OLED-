@@ -156,8 +156,11 @@ now describes it in one sentence and cites the SI.
 
 **(a) Electrode quality.** η_sub^(0), η_ext and EQE against the TCO extinction coefficient
 (left) and against the real index of a 10 nm Ag electrode (right), with the material bands of
-the two electrode families. Mocked up in `figures/design_rule4/`. η_sub falls linearly, η_ext
-hyperbolically. This is the panel the design-freedom section refers back to.
+the two electrode families. Mocked up in `sim/design_rule4/dr4e_mock.png`; raw data in
+`sim/design_rule4/fig3a_rawdata.xlsx`. η_sub falls linearly, η_ext hyperbolically. This is the
+panel the design-freedom section refers back to. Both sweeps are computed on the Fig. 2 stack
+(TCO real index 1.8636, isotropic ETL, thin-Ag k = 3.819, n_sub = 1.8), so at k_TCO = 0.0032
+device A reproduces the Fig. 2 operating point exactly — η_sub = 0.9564, A′ = 0.0310.
 
 **(b) Waveguide and SPP against organic thickness and substrate index.** Mode-resolved power
 fractions. Two axes are wanted: raising n_sub to n_EML moves the waveguided power into the
