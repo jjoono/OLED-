@@ -33,13 +33,14 @@ def model(eta, r_met, t_tco):
     rho = (1 - eta) * r_met * t_tco ** 2
     return 1.0 / math.log(1.0 / rho), eta / (1.0 - rho)
 
-LAM_C, TOT_C = model(.30, .72, .90)      # conventional
+LAM_C, TOT_C = model(.30, .82, .94)      # conventional (moderately lossy)
 LAM_D, TOT_D = model(.30, .98, .995)     # design rule
 SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 2.0, 1.5              # device footprint, Blender units
-LAM_REF = 0.60                           # design-rule spreading length (0.30 panel widths)
-EMIT_STRENGTH = 9.0
+PIX_R = 0.24                             # driven pixel radius, world units (12% of the panel)
+LAM_REF = 0.26                           # design-rule spreading length beyond the pixel edge
+EMIT_STRENGTH = 7.5
 LENS_EMIT_FRAC = 0.85     # how much of the glow the caps themselves carry                     # design-rule peak emission
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
 HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
@@ -186,12 +187,23 @@ def look_at(cam, target):
     cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 # ------------------------------------------------------------------ materials
-def radial_falloff(nt, lam, amp):
-    """exp(-r/lam) * amp from the panel centre, in the object's own XY plane."""
+def radial_falloff(nt, lam, amp, pix=0.0):
+    """One driven round pixel, then the light that spread out of it.
+
+        r <= pix :  1                        the pixel itself
+        r >  pix :  exp(-(r - pix) / lam)    what leaked sideways and escaped later
+
+    A plateau rather than a peak is what makes it read as a pixel that lit up,
+    instead of a blob that happens to be brightest in the middle.
+    """
     tex = nt.nodes.new("ShaderNodeTexCoord")
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     flat = nt.nodes.new("ShaderNodeCombineXYZ")
     ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
+    edge = nt.nodes.new("ShaderNodeMath"); edge.operation = "SUBTRACT"
+    edge.inputs[1].default_value = pix
+    out0 = nt.nodes.new("ShaderNodeMath"); out0.operation = "MAXIMUM"
+    out0.inputs[1].default_value = 0.0
     div = nt.nodes.new("ShaderNodeMath"); div.operation = "DIVIDE"; div.inputs[1].default_value = lam
     neg = nt.nodes.new("ShaderNodeMath"); neg.operation = "MULTIPLY"; neg.inputs[1].default_value = -1.0
     ex = nt.nodes.new("ShaderNodeMath"); ex.operation = "EXPONENT"
@@ -200,7 +212,9 @@ def radial_falloff(nt, lam, amp):
     L(tex.outputs["Object"], sep.inputs[0])
     L(sep.outputs["X"], flat.inputs["X"]); L(sep.outputs["Y"], flat.inputs["Y"])
     L(flat.outputs[0], ln.inputs[0])
-    L(ln.outputs["Value"], div.inputs[0])
+    L(ln.outputs["Value"], edge.inputs[0])
+    L(edge.outputs[0], out0.inputs[0])
+    L(out0.outputs[0], div.inputs[0])
     L(div.outputs[0], neg.inputs[0]); L(neg.outputs[0], ex.inputs[0]); L(ex.outputs[0], mul.inputs[0])
     return ex.outputs[0], mul.outputs[0]        # (0..1 shape, shape * amp)
 
@@ -212,7 +226,7 @@ def lens_material(tag, lam, amp, strength):
                    transmission=0.08, ior=1.50, shadow_through=False)
     nt = m.node_tree
     p = nt.nodes["Principled BSDF"]
-    shape, scaled = radial_falloff(nt, lam, amp * strength)
+    shape, scaled = radial_falloff(nt, lam, amp * strength, PIX_R)
     set_in(p, "emission_color", (*GLOW, 1.0))
     nt.links.new(scaled, p.inputs["Emission Strength"])
     return m
@@ -225,7 +239,7 @@ def emitter_material(tag, lam, amp):
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    shape, scaled = radial_falloff(nt, lam, amp)
+    shape, scaled = radial_falloff(nt, lam, amp, PIX_R)
     em = nt.nodes.new("ShaderNodeEmission")
     em.inputs["Color"].default_value = (*GLOW, 1.0)
     tr = nt.nodes.new("ShaderNodeBsdfTransparent")
@@ -312,7 +326,7 @@ def device(cx, tag, lam, amp, cone_r, cone_h, brightness):
     e.visible_shadow = False
     link(e, c)
     # light haze above the lenses
-    slope = 0.55
+    slope = 0.30
     bpy.ops.mesh.primitive_cone_add(vertices=72, radius1=cone_r, radius2=cone_r + cone_h * slope,
                                     depth=cone_h, end_fill_type="NGON",
                                     location=(cx, 0.0, top + cone_h / 2.0))
@@ -529,9 +543,9 @@ def render(cam, w, h, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       cone_r=0.48, cone_h=1.25, brightness=1.0 / BRIGHT)
+       cone_r=0.33, cone_h=1.05, brightness=1.0 / BRIGHT)
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       cone_r=0.92, cone_h=2.05, brightness=1.0)
+       cone_r=0.33, cone_h=1.55, brightness=1.0)
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
