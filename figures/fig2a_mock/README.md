@@ -23,3 +23,16 @@ TCO reaches parity with the mirror, with Ag it is essentially the only loss. The
 both, which is the point of the section. In EQE the high-index substrate roughly doubles the
 penalty (Al -5.3 -> -10.2 pp, Ag -9.9 -> -17.0 pp), which supports the following sentence in
 the manuscript.
+
+## Workbook
+
+`fig2a_rawdata.xlsx` holds the data for the three panels, built from the four CSVs here.
+Three sheets: README, `nsub_1.5` (the panel as drawn) and `nsub_1.8` (the companion sweep).
+
+Columns per reflector: A′ mirror, A′ TCO, A′ total, eta_ext, eta_sub. The mirror part is A′
+recomputed at k_ITO = 0 and the TCO part is the remainder, so the two stack to the total and
+can be plotted directly as a stacked area. eta_ext is a live formula driven by the escape
+probability on the README sheet (0.38 at n_sub = 1.5, 0.30 at 1.8), so a revised p updates the
+column without re-running anything. All 72 formulas were recalculated and every value checked
+against the simulation output to 5e-6, with the mirror-plus-TCO split verified to close on the
+total.
