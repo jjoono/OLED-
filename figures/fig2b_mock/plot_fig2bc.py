@@ -6,9 +6,9 @@ import numpy as np, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-import textwrap
+import textwrap, os
 
-D = np.genfromtxt('fig2b_curves.csv', delimiter=',', names=True)
+D = np.genfromtxt(os.environ.get('DATA', 'fig2b_curves_konig.csv'), delimiter=',', names=True)
 n, p = D['n_sub'], D['p']
 eAl, eAg = D['eta_ext_Al'], D['eta_ext_Ag']
 sAl, sAg = D['eta_sub_Al'], D['eta_sub_Ag']
@@ -72,8 +72,8 @@ fig.legend(handles=[Line2D([], [], color=C_AG, lw=2.4, label='Ag reflector  (low
                     Line2D([], [], color=C_AL, lw=2.4, label='Al reflector  (conventional)')],
            loc='lower center', bbox_to_anchor=(0.535, 0.125), ncol=2, fontsize=9, frameon=False,
            handlelength=2.4, columnspacing=2.6)
-foot = ('550 nm, isotropic dipole, PLQY = 1; reflector 100 nm / ETL 200 nm / EML 20 nm / HTL 200 nm / ITO 50 nm (n = 1.9 + 0.02i) / substrate, '
+foot = ('550 nm, isotropic dipole, PLQY = 1; reflector 100 nm / ETL 200 nm / EML 20 nm / HTL 200 nm / ITO 50 nm (n = 1.864 + 0.0032i at 550 nm, Koenig 2014) / substrate, '
         'n_sub index-matched to the outcoupling structure.  η_ext = p/[p + (1−p)A′], EQE = η_sub^(0) η_ext.')
-fig.text(0.085, 0.02, '\n'.join(textwrap.wrap(foot, 132)), fontsize=7.8, va='bottom', ha='left', color='0.3')
-fig.savefig('fig2bc_squares.png', dpi=170)
+fig.text(0.085, 0.02, '\n'.join(textwrap.wrap(foot, 118)), fontsize=7.8, va='bottom', ha='left', color='0.3')
+fig.savefig(os.environ.get('OUT', 'fig2bc_squares.png'), dpi=170)
 print('saved')

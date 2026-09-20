@@ -219,3 +219,37 @@ Poynting-vector panel leaves the main text for the SI — it is the evidence beh
 mirror/TCO split that 2(a) already draws, so as a fourth main-text panel it repeated (a); the
 text keeps it as one sentence with an SI citation and notes that it agrees with 2(a).
 The citation order stays strictly monotonic.
+
+## v10 — Koenig ITO constants, and what they do to Fig. 2 (`manuscript/unityEQE_v10_ko.docx`)
+
+The author supplied the Koenig et al. (2014) ITO tabulation, so the TCO is now
+n = 1.8636 + 0.0032285i at 550 nm instead of the flat n = 1.9 + 0.02i the design-rule scripts
+had been set up with. It matches the `l_ITO` entry of the project library to four decimals,
+so the library already held this dataset. Every Fig. 2 panel was recomputed.
+
+The consequence is not cosmetic. A transparent ITO absorbs six times less per pass, so the
+Al stack now loses essentially everything at the mirror: 13.4 % per round trip against a TCO
+contribution of 6 % of A' at 50 nm and 15 % at 150 nm. The sentence "통상적인 Al 반사판에서는
+TCO 흡수가 거울 손실과 맞먹는 수준까지 커지고" is no longer true — parity would need
+k >= 0.015 — and has been replaced by the two-step reading the new numbers give: with Al the
+mirror is the whole loss and ITO thickness hardly matters (η_ext −1.1 pp over 50 → 150 nm),
+while dropping the mirror loss to 1.8 % with Ag makes the same film the main loss path
+(34 % → 60 % of A') and doubles the thickness penalty (−2.2 pp). The Ag half of the claim was
+never at risk: the TCO dominates the round trip for every k anyone would deposit, from the
+library's cleanest film to the ETRI one.
+
+Two things improve. The model now agrees with the measurement: 150 nm ITO on glass with an Ag
+reflector gives η_ext = 0.934 against the 0.916 measured on the green device, where the
+k = 0.02 assumption gave 0.788. And the Al ceiling in Fig. 2(c) moves from 0.54 to 0.63,
+landing just above the 60 % where the field actually stalled — which is the comparison that
+section is making.
+
+Methods now names the optical constants the design-rule calculations rest on (McPeak Ag,
+Johnson–Christy-type Al, Koenig ITO, non-absorbing n = 1.8 organics); the remaining bracket
+there is only the per-emitter PLQY and orientation factor.
+
+Still to check: Fig. 2(d)'s quoted round-trip absorption ranges (Al 15–25 %, Ag 5–15 %) come
+from the earlier slide, not from data in this repository. With the Koenig ITO the generic
+stack gives 14–16 % for Al and 2.4–5.3 % for Ag at n_sub = 1.5, so the Ag range in the text
+is probably too high and should be recomputed on whatever electrode structures that panel
+ends up showing.

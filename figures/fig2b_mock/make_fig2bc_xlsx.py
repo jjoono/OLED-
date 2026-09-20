@@ -19,9 +19,9 @@ def pflat(n):
     T = 1 - 0.5*(rs**2 + rp**2)
     return 2*np.trapezoid(T*np.sin(th)*np.cos(th), th)
 
-C = np.genfromtxt('fig2b_curves.csv', delimiter=',', names=True)
-AL = np.genfromtxt('nsub_al.csv', delimiter=',')
-AG = np.genfromtxt('nsub_ag.csv', delimiter=',')
+C = np.genfromtxt('fig2b_curves_konig.csv', delimiter=',', names=True)
+AL = np.genfromtxt('nsub_al_konig.csv', delimiter=',')
+AG = np.genfromtxt('nsub_ag_konig.csv', delimiter=',')
 n = C['n_sub']; N = len(n)
 
 wb = openpyxl.Workbook()
@@ -40,7 +40,7 @@ rows = [
  ('Stack', None),
  ('Common part', 'reflector 100 nm / ETL 200 nm / EML 20 nm (isotropic dipole at the centre) / HTL 200 nm / ITO 50 nm / substrate'),
  ('Reflector', 'Al: Johnson-Christy-type n,k from the project library (0.958 + 6.687i at 550 nm).  Ag: McPeak measured n,k (0.044 + 3.819i)'),
- ('ITO', 'n = 1.9 + 0.02i, fixed at 50 nm'),
+ ('ITO', 'n = 1.8636 + 0.0032285i at 550 nm — Koenig et al., ACS Nano 8, 6182 (2014); identical to the l_ITO entry of the project library.  Fixed at 50 nm'),
  ('Organics', 'EML, HTL and ETL isotropic n = 1.8, k = 0'),
  ('Substrate', 'index swept 1.30 to 2.00 in 0.05 steps, index-matched to the outcoupling structure'),
  ('Wavelength', '550 nm, single wavelength, PLQY = 1, u grid 3000 points'),
@@ -60,9 +60,9 @@ rows = [
  (None, None),
  ('Provenance', None),
  ('Script', 'sim/design_rule4/dr4f.m (Octave), MODE=nsub, run with UNUM=3000 and TOPMAT=al / ag'),
- ('Source files', 'nsub_al.csv and nsub_ag.csv (model output), fig2b_curves.csv (the assembled curves)'),
+ ('Source files', 'nsub_al_konig.csv and nsub_ag_konig.csv (model output), fig2b_curves_konig.csv (the assembled curves).  The earlier n = 1.9 + 0.02i run is kept alongside as nsub_{al,ag}.csv / fig2b_curves.csv'),
  ('p', "interpolated from the author's single-pass escape-probability curve: 0.665 / 0.470 / 0.380 / 0.355 / 0.335 / 0.305 / 0.275 / 0.248 at n_sub = 1.30 / 1.40 / 1.50 / 1.60 / 1.70 / 1.80 / 1.90 / 2.00"),
- ('Caution', "column 9 of nsub_al.csv and nsub_ag.csv is eta_ext at the script's default p = 0.4 and is NOT the plotted curve; the workbook recomputes eta_ext from the p column"),
+ ('Caution', "column 9 of nsub_al_konig.csv and nsub_ag_konig.csv is eta_ext at the script's default p = 0.4 and is NOT the plotted curve; the workbook recomputes eta_ext from the p column"),
  ('Repository', 'jjoono/OLED-, branch claude/oled-efficiency-paper-ag-955zsk, figures/fig2b_mock/'),
 ]
 for i, (a, b) in enumerate(rows, start=1):

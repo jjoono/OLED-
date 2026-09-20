@@ -135,3 +135,14 @@ EQE are live formulas driven by the single p cell on the README sheet, so changi
 updates every number. A closure column re-adds the channels and should read 1.000000
 on every row. All 301 formulas were recalculated and checked against the simulation
 output to 5e-6.
+
+## ITO optical constants (from v10 onwards)
+
+`nk_ITO_Konig2014.csv` is the Koenig et al. (2014) ITO tabulation from refractiveindex.info,
+supplied by the author. Interpolated at 550 nm it gives **n = 1.8636, k = 0.0032285**, which
+is what every Fig. 2 panel now uses in place of the flat `NTCO=1.9, KITO=0.02` the scripts
+were first set up with. It coincides with the `l_ITO` entry of `nk_JH_total.mat`.
+
+`aprime.py` computes the round-trip loss A' alone with a plain TMM — no dipole model — and
+reproduces the Octave output to 1e-4, which makes a sweep over k_TCO or n_TCO a second's work
+instead of a full run.
