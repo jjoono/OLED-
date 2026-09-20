@@ -21,8 +21,25 @@ single-pass escape probability of the outcoupling structure, which falls roughly
 | 2.0 | 0.248 | 0.827 / 0.637 / 0.527 | 0.931 / 0.786 / 0.732 |
 
 The Al device peaks at 0.54 near n_sub = 1.8 and then falls; the Ag device reaches 0.75 and
-holds it. Four curves per panel is close to the limit of what one panel carries — if it reads
-as crowded, p can move to the caption, since the text already gives its value and origin.
+holds it.
+
+## Layout variants
+
+`fig2b_mock.png` (`plot_fig2b.py`) — two panels, one per reflector, four curves each.
+
+`fig2b_single_vs_eqe.png` (`plot_fig2b_single.py`) — the author's intended layout (A: one
+panel, p + η_ext(Al) + η_ext(Ag)) beside the same panel with the two EQE curves added (B).
+A is self-contained: p falls with n_sub, so each photon makes more round trips and the two
+η_ext curves peel apart, from a few %p at 1.3 to 15 %p at 2.0 — the cost of a lossy mirror
+grows with the substrate index. What A cannot say is that the high index is worth having at
+all, because every curve in it falls; that needs η_sub^(0) or the product.
+
+`fig2b_single_inset.png` (`plot_fig2b_inset.py`) — variant C: A as the hero panel with the
+two EQE curves in an inset. Keeps the drafted three-curve reading and still carries the
+turnover at 0.54 / the climb to 0.75.
+
+η_ext gap between the reflectors, from `fig2b_curves.csv`: 4.4 %p at n_sub = 1.3, 12.2 %p at
+1.5, 14.2 %p at 1.8, 14.9 %p at 2.0 (ratio 1.05 → 1.23).
 
 Still to settle with the author: whether to mark the reported record devices on the EQE curve,
 as the earlier draft did with a shaded "previous works" circle. Individual literature points
