@@ -122,3 +122,46 @@ surround, so it supports a nominally guided TE0 mode; its V number is 0.27 and
 the mode index is 1.8003, i.e. within 0.0003 of the light line and not confined
 in any practical sense.  It falls inside the blanked window around the branch
 point and does not affect the budget.
+
+## Why the n_e curves cross at d_ETL ≈ 140 nm
+
+`spp_decoupling.py` settles this; it matters because the goal is to drive the
+plasmon loss to zero, not merely to reduce it.
+
+**It is not the electrode.**  An index-matched lossless bottom contact gives the
+same ordering (SPP at 150/200 nm: 9.76/2.68, 9.81/2.89, 10.03/3.40 for
+n_e = 1.80/1.70/1.60).  A wavevector-resolved decomposition puts all of the
+residual loss in each curve's own plasmon peak; the band just above the light
+line, where a TCO mode would live, and the near field above k_x/k0 = 2.15 each
+carry less than 0.2 % and do not move.
+
+**The decoupling rate is set by the layer that fills the emitter–metal gap.**
+The dipole couples to a bound plasmon as exp(−2κz), with κ the field decay
+constant of the mode *inside that layer* — for a uniaxial layer
+
+    kappa = (n_o/n_e) sqrt(k_SPP^2 - n_e^2 k0^2)
+
+Asymptotically this is **independent of n_e**: 1/(2κ) = 45.5 / 46.1 / 46.7 nm
+for n_e = 1.80 / 1.70 / 1.60, i.e. λ/12 throughout.  Lowering n_e lowers k_SPP
+by almost exactly as much as it lowers n_e, and the two cancel.
+
+**So the thin-ETL gain is a finite-thickness effect.**  While the ETL is thin
+the mode still feels the isotropic layers beyond it and its index is pulled up —
+1.882 at 60 nm for n_e = 1.60, against 1.804 asymptotically — which raises κ and
+gives 1/(2κ) = 39 nm against 45 nm for the isotropic case.  That ~15 % faster
+decoupling is the advantage the figure shows, and it fades as the layer thickens
+and the mode relaxes towards its asymptotic index.  Past ≈ 140 nm every n_e
+decouples at the same λ/12, the low-n_e mode having relaxed closest to the light
+line, and the curves cross.  The crossing sits below 12 % where all four curves
+are converging, so it does not touch the figure's message.
+
+**The low-n_e material has to fill the gap.**  A 20 nm low-n_e skin at the metal
+with isotropic 1.80 beyond it is worse than a uniform low-n_e layer at every
+thickness, and worse than plain isotropic once the gap exceeds ~150 nm
+(SPP at 250 nm: 1.67 uniform, 2.13 skin, 1.18 isotropic).
+
+**The only route to zero is the threshold.**  Thickness alone buys exp(−d/46 nm)
+whatever n_e is.  Once n_SPP falls below the organic/substrate light line the
+mode stops being bound and the loss collapses — at d = 200 nm, 4.04 % at
+n_e = 1.60 (n_SPP = 1.804), 0.95 % at 1.58 (1.781), 0.35 % at 1.56 (1.757),
+0.23 % at 1.50 (1.687).
