@@ -51,6 +51,7 @@ rows = [
  ('p', 'single-pass escape probability of the outcoupling structure, from the ray trace.  EDITABLE — column B of sheet fig2b_2c drives every eta_ext and EQE formula'),
  ('eta_ext', "p / [p + (1-p) A'].  FORMULA"),
  ('EQE', 'eta_sub x eta_ext.  FORMULA'),
+ ('extraction loss', 'eta_sub - EQE: what reached the substrate and never escaped.  This is the shaded band of panel (c).  FORMULA'),
  ('p (flat interface)', 'reference column only, not used by any formula: the escape probability of a flat substrate/air interface for angularly randomised light, mean Fresnel transmittance over the escape cone divided by n_sub^2 (Yablonovitch 1982, one-sided)'),
  (None, None),
  ('Sheets', None),
@@ -75,10 +76,11 @@ ws['A1'].font = Font(bold=True, size=14)
 # ------------------------------------------------------------- plotted curves
 ws = wb.create_sheet('fig2b_2c')
 ws['A1'] = 'The curves as plotted in fig2bc_squares.png'; ws['A1'].font = BOLD
-ws['A2'] = "eta_ext = p/[p+(1-p)A'] and EQE = eta_sub x eta_ext are formulas; edit column B (yellow) to redraw with a different p"
+ws['A2'] = "eta_ext, EQE and the two loss columns are formulas; edit column B (yellow) to redraw everything with a different p"
 hdr = ['n_sub', 'p', 'eta_sub (Al)', "A' (Al)", 'eta_ext (Al)', 'EQE (Al)',
        'eta_sub (Ag)', "A' (Ag)", 'eta_ext (Ag)', 'EQE (Ag)',
-       'eta_ext gap (Ag - Al)', 'p, flat interface (reference)']
+       'eta_ext gap (Ag - Al)', 'extraction loss (Al)', 'extraction loss (Ag)',
+       'p, flat interface (reference)']
 for j, h in enumerate(hdr, start=1):
     ws.cell(row=4, column=j, value=h).font = BOLD
 for i in range(N):
@@ -94,10 +96,12 @@ for i in range(N):
     ws.cell(row=r, column=9, value=f'=$B{r}/($B{r}+(1-$B{r})*H{r})').number_format = F4
     ws.cell(row=r, column=10, value=f'=G{r}*I{r}').number_format = F4
     ws.cell(row=r, column=11, value=f'=I{r}-E{r}').number_format = F4
-    ws.cell(row=r, column=12, value=float(pflat(n[i]))).number_format = F4
+    ws.cell(row=r, column=12, value=f'=C{r}-F{r}').number_format = F4
+    ws.cell(row=r, column=13, value=f'=G{r}-J{r}').number_format = F4
+    ws.cell(row=r, column=14, value=float(pflat(n[i]))).number_format = F4
 ws.column_dimensions['A'].width = 8
-for j in range(2, 13):
-    ws.column_dimensions[get_column_letter(j)].width = 21 if j in (11, 12) else 14
+for j in range(2, 15):
+    ws.column_dimensions[get_column_letter(j)].width = 21 if j in (11, 12, 13, 14) else 14
 ws.freeze_panes = 'A5'
 
 # ----------------------------------------------------------- the mode budgets
