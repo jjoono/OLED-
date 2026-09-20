@@ -68,3 +68,17 @@ grid search over the two thicknesses (`sim/design_rule4/fig2d.py` plus the searc
 lands on the same point the device's genetic algorithm found: ZnS 73 / LiF 110 nm against the
 device's 70 / 115 nm, 6.04 % against 6.05 % at n_sub = 1.8. Worth keeping the wording in
 Methods aligned with whichever method is described there.
+
+## Raw data for (g)-(j)
+
+`fig2ghij_rawdata.xlsx` (built by `export_ghij.py`): the three colour maps as matrices — rows
+wavelength in 5 nm steps, columns the angle in the substrate in 1° steps — plus the
+transmitted part of the DBR map on its own, the four spectrum-averaged angle curves of (j)
+with the cos·sin weight, and a summary sheet with the weighted numbers at both substrate
+indices. `ghij_csv/` holds the same arrays as plain CSV.
+
+Spot-checked against the plotted curves: at normal incidence 14.41 / 3.75 / 10.48 / 2.64 %
+for Al, Ag, the optimised DBR and the plain quarter-wave stack, matching the figure.
+
+The raw data for (a)-(c) is in `figures/fig2a_mock/fig2a_rawdata.xlsx` and for (d)-(f) in
+`figures/fig2b_mock/fig2bc_rawdata.xlsx`.
