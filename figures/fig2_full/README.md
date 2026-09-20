@@ -41,12 +41,12 @@ shaded gap is light that reaches the substrate and never escapes. With Al the ga
 η_sub^(0) is spent on the loss in η_ext and EQE turns over at 0.63; with Ag it keeps rising to
 0.89. The step at n_sub = n_EML is the waveguide cutoff.
 **g–j**, The three reflectors at a fixed 150 nm ITO, resolved in angle and wavelength: Al
-(**g**), Ag (**h**), and ten pairs of ZnS/LiF designed as a quarter-wave at 550 nm (**i**).
-**j**, the same averaged over the green emission spectrum, with the cos θ sin θ weight shaded;
-the flux- and spectrum-weighted losses are 15.6, 4.5 and 8.8 %. The dielectric mirror absorbs
-less than Ag (3.4 %) but transmits outside its stopband, and only for angles inside the escape
-cone to air; re-optimising the two thicknesses for angularly randomised light brings it to
-5.5 % (dashed).
+(**g**), Ag (**h**), and ten pairs of ZnS/LiF whose thicknesses were optimised over all
+substrate angles and over the emission spectrum (**i**). **j**, the same averaged over the
+green emission spectrum, with the cos θ sin θ weight shaded; the flux- and spectrum-weighted
+losses are 15.6, 4.5 and 5.5 %. The dielectric mirror absorbs less than Ag (3.4 %) but
+transmits outside its stopband, and only for angles inside the escape cone to air; designing
+the same ten pairs as a plain quarter-wave stack at 550 nm costs 8.8 % (dashed).
 
 All panels: 550 nm family, isotropic dipole, PLQY = 1, generic stack of substrate /
 transparent electrode / 420 nm non-absorbing organics (n = 1.8) / 100 nm reflector; McPeak Ag,
@@ -58,3 +58,13 @@ Johnson–Christy-type Al, Koenig ITO, measured IZO, ZnS and LiF. **a–c** and 
 Drop **g** and **h**: panel **j** carries the numbers and the angular story on its own, and the
 two metal maps are the least surprising part of the figure. That leaves 3 + 3 + 2 and frees
 roughly a fifth of the height.
+
+## A note on "optimised"
+
+The manuscript says the DBR thicknesses came from a genetic algorithm, which is what Methods
+records for the orange device. The optimum drawn in this figure was found by an exhaustive
+grid search over the two thicknesses (`sim/design_rule4/fig2d.py` plus the search recorded in
+`figures/fig2d_mock/README.md`) — with only two free parameters that search is global, and it
+lands on the same point the device's genetic algorithm found: ZnS 73 / LiF 110 nm against the
+device's 70 / 115 nm, 6.04 % against 6.05 % at n_sub = 1.8. Worth keeping the wording in
+Methods aligned with whichever method is described there.

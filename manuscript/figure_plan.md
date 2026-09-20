@@ -138,11 +138,12 @@ stronger than a shaded region.
 
 **(g)–(j) Angle- and wavelength-resolved round-trip loss.** The transparent electrode is
 fixed at 150 nm of ITO and only the reflector changes, so the panel compares Al, Ag and a
-ten-pair ZnS/LiF quarter-wave stack at 550 nm. Flux- and spectrum-weighted 1 − R at
-n_sub = 1.5: 15.6, 4.5 and 8.8 %, the last being 3.4 % absorbed plus 5.4 % leaked. (j) adds
-the cos·sin weight as shading, which is how the panel carries "the angular distribution
-matters as much as the reflectance", and a dashed curve for the DBR re-optimised for
-randomised light (5.5 %). The leak stops at arcsin(1/n_sub) — marked — because beyond the
+ten-pair ZnS/LiF stack whose thicknesses are optimised over all substrate angles and over the
+emission spectrum. Flux- and spectrum-weighted 1 − R at n_sub = 1.5: 15.6, 4.5 and 5.5 %, the
+last being 3.4 % absorbed plus 2.1 % leaked. (j) adds the cos·sin weight as shading, which is
+how the panel carries "the angular distribution matters as much as the reflectance", and a
+dashed curve for the same ten pairs designed as a plain quarter-wave stack at 550 nm (8.8 %),
+which is what justifies the optimisation. The leak stops at arcsin(1/n_sub) — marked — because beyond the
 escape cone the light is trapped by total internal reflection at the back surface.
 
 **Supplementary (was 2(d)): Poynting-vector loss accounting.** Layer-resolved dissipation

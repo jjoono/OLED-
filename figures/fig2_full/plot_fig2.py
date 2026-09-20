@@ -142,12 +142,13 @@ clean(f_); letter('f')
 
 # ================= row 3: the three reflectors at 150 nm ITO ==============
 VIS = np.arange(430.0, 701.0); NSUB = 1.5
-NAMES = [('Al', C_AL), ('Ag', C_AG), ('DBR (10 pairs)', C_DBR)]
+NAMES = [('Al', C_AL), ('Ag', C_AG), ('DBR, re-optimised', C_DBR)]
+TITLE = {'DBR, re-optimised': 'DBR, 10 pairs\n(thicknesses optimised)'}
 for k, (name, c) in zip('ghi', NAMES):
     th, lam, R, T = F.maps(name, n_sub=NSUB, lam=VIS)
     im = ax[k].pcolormesh(np.degrees(th), lam, 100*(1 - R), cmap='inferno_r', vmin=0, vmax=30,
                           shading='auto', rasterized=True)
-    ax[k].set_title(name, fontsize=FS_NOTE + 0.5, pad=2.5, color=c)
+    ax[k].set_title(TITLE.get(name, name), fontsize=FS_NOTE + 0.5, pad=2.5, color=c)
     ax[k].set_xlabel('$\\theta$ in substrate (°)')
     ax[k].set_xticks([0, 30, 60, 90])
     ax[k].set_xticklabels(['0', '30', '60', ''] if k != 'i' else ['0', '30', '60', '90'])
@@ -164,23 +165,23 @@ w = np.cos(th)*np.sin(th); w /= w.max()
 j_.fill_between(np.degrees(th), 0, 6*w, color='0.91', lw=0, zorder=0)
 j_.text(46, 0.3, '$\\cos\\theta\\sin\\theta$ weight', fontsize=FS_NOTE, color='0.5', ha='center')
 W = {}
-CURVES = NAMES + [('DBR, re-optimised', C_DBR)]
+CURVES = NAMES + [('DBR (10 pairs)', C_DBR)]
 for name, c in CURVES:
     t2, lam, R, T = F.maps(name, n_sub=NSUB, lam=VIS)
     sw = np.clip(np.interp(lam, F.LAM, F.GREEN), 0, None); sw /= sw.sum()
-    ls = DASH if 're-opt' in name else '-'
+    ls = DASH if name == 'DBR (10 pairs)' else '-'
     j_.plot(np.degrees(t2), 100*(1 - (R*sw[:, None]).sum(0)), color=c, lw=1.5, ls=ls)
     W[name] = F.weighted(name, n_sub=NSUB, spectrum=F.GREEN, lam=VIS)
 j_.axvline(np.degrees(np.arcsin(1/NSUB)), color=C_DBR, lw=0.7, ls=':', zorder=1)
-j_.text(89, 13.5, 'the dielectric mirror leaks only\ninside the escape cone to air',
+j_.text(89, 12.5, 'the dielectric mirror leaks only\ninside the escape cone to air',
         fontsize=FS_NOTE, color=C_DBR, ha='right', va='top')
 j_.set_xlim(0, 90); j_.set_ylim(0, 31); j_.set_xticks([0, 30, 60, 90])
 j_.set_xlabel('$\\theta$ in substrate (°)'); j_.set_ylabel('round-trip loss 1 − R  (%)')
 clean(j_); letter('j', dx=-0.20)
 lab = [('Al', f"Al   {100*W['Al']['loss']:.1f} %", C_AL, '-'),
        ('Ag', f"Ag   {100*W['Ag']['loss']:.1f} %", C_AG, '-'),
-       ('DBR (10 pairs)', f"DBR, λ/4 at 550 nm   {100*W['DBR (10 pairs)']['loss']:.1f} %", C_DBR, '-'),
-       ('DBR, re-optimised', f"DBR, re-optimised   {100*W['DBR, re-optimised']['loss']:.1f} %", C_DBR, DASH)]
+       ('DBR, re-optimised', f"DBR, optimised   {100*W['DBR, re-optimised']['loss']:.1f} %", C_DBR, '-'),
+       ('DBR (10 pairs)', f"DBR, plain λ/4 at 550 nm   {100*W['DBR (10 pairs)']['loss']:.1f} %", C_DBR, DASH)]
 j_.legend(handles=[Line2D([], [], color=c, lw=1.5, ls=s, label=t) for _, t, c, s in lab],
           loc='upper left', bbox_to_anchor=(0.01, 0.99), fontsize=FS_NOTE, frameon=False,
           handlelength=1.6, labelspacing=0.3)

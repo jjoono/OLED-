@@ -294,3 +294,27 @@ product, 2(g)–(j) for the reflectors. The order stays strictly monotonic. The 
 one panel and is now three; the extra one shows that the escape probability falls by 2.7×
 across the index range while A′ barely moves, which is the cleanest statement of why η_ext
 declines with substrate index — it is the escape probability, not a worsening mirror.
+
+## v13 — section 2 rewritten against the composed figure (`manuscript/unityEQE_v13_ko.docx`)
+
+The author's own text for the two paragraphs of §2 is taken as the base, with three
+corrections and one addition.
+
+Corrections. The Al parity sentence ("TCO 흡수가 거울 손실과 맞먹는 수준까지 커지고") does
+not hold with the Koenig ITO and is replaced by the two-step reading the numbers give; the
+electrode ranges (Al 15–25 %, Ag 5–15 %) become the computed 16 % and 4.5 % at a fixed 150 nm
+ITO; and the panel citations become ranges, 2(a)–(c) / 2(d),(e) / 2(f) / 2(g)–(j).
+
+Addition. The new Fig. 2(d) earns a sentence: across n_sub = 1.3 → 2.0 the escape probability
+falls by 2.7× while the round-trip loss barely moves, so the decline of η_ext is the escape
+probability's doing and not a worsening mirror. And the DBR now carries the design argument
+the author asked for — the thicknesses cannot be set by a quarter-wave condition at the
+emission wavelength, because at oblique incidence the stopband moves to shorter wavelengths
+and the two materials stop satisfying it together; they are optimised over all substrate
+angles and the whole emission spectrum instead, which takes the same ten pairs from 8.8 % to
+5.5 % of round-trip loss.
+
+One wording check for the author: the text credits a genetic algorithm, as Methods does for
+the orange device. The optimum in the figure was found by an exhaustive two-parameter grid
+search, which is global for two variables and lands on the device's design (ZnS 73 / LiF
+110 nm against 70 / 115 nm, 6.04 % against 6.05 % at n_sub = 1.8).
