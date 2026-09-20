@@ -39,9 +39,9 @@ SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 3.0, 2.0              # device footprint, Blender units
 PIX_R = 0.34                             # driven pixel radius (~11% of the panel)
-LAM_REF = 0.38                           # design-rule spreading length beyond the pixel edge
+LAM_REF = 0.28                           # design-rule spreading length beyond the pixel edge
 EMIT_STRENGTH = 7.5                      # design-rule peak emission
-LENS_EMIT_FRAC = 0.85                    # how much of the glow the caps themselves carry
+LENS_EMIT_FRAC = 1.00                    # the lit circle is carried by the lens caps alone
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
 HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
 SEP = 1.85                               # half distance between the two devices
@@ -49,8 +49,6 @@ LENS_PITCH = 0.15                        # micro-lens centre-to-centre, hexagona
 LENS_FILL = 0.97                         # lens radius as a fraction of half the pitch
 LENS_SINK = 0.16                         # how far each cap sits in the film, x radius
 LENS_SEGS, LENS_RINGS = 28, 9
-RAY_TAN = 1.0                            # guided light at 45 deg, past the 41.8 deg critical angle
-RAY_DIRS = 6                             # azimuths traced out of the pixel
 
 # A bottom emitter drawn substrate-up, so the light leaves through the top face.
 # Layers are alpha-blended rather than refractive: that is what lets the guided
@@ -63,7 +61,7 @@ LAYERS = [
     ("HTL",   0.09, (0.99, 0.87, 0.64), 0.96, 0.45, 0.0, "HTL"),
     ("ITO",   0.08, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "ITO anode"),
     ("Glass", 0.28, (0.78, 0.90, 0.97), 0.42, 0.05, 0.0, "Glass"),
-    ("Film",  0.08, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "MLA film"),
+    ("Film",  0.08, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "Outcoupling structure"),
 ]
 Z0 = {}                                  # bottom z of each layer, filled by device()
 def _z():
@@ -72,9 +70,7 @@ def _z():
         out[name] = (z, z + t); z += t
     return out, z
 BAND, STACK_H = _z()
-Z_EMIT = sum(BAND["EML"]) / 2.0          # emission plane, middle of the EML
-Z_TOP = BAND["Film"][1]                  # outer surface, where the lens caps sit
-Z_MET = BAND["Al"][1]                    # the mirror the guided light bounces off
+Z_TOP = BAND["Film"][1]                  # outer surface: lens caps and the lit circle
 
 # ------------------------------------------------------------------ helpers
 def clear():
@@ -258,26 +254,6 @@ def lens_material(tag, lam, amp, strength):
     return m
 
 
-def emitter_material(tag, lam, amp):
-    """Emission that falls off as exp(-r / lam) from the panel centre."""
-    m = bpy.data.materials.new("Emitting area " + tag)
-    m.use_nodes = True
-    nt = m.node_tree
-    nt.nodes.clear()
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    shape, scaled = radial_falloff(nt, lam, amp, PIX_R)
-    em = nt.nodes.new("ShaderNodeEmission")
-    em.inputs["Color"].default_value = (*GLOW, 1.0)
-    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
-    mix = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(scaled, em.inputs["Strength"])
-    nt.links.new(shape, mix.inputs["Fac"])             # transparent where nothing is emitted
-    nt.links.new(tr.outputs[0], mix.inputs[1])
-    nt.links.new(em.outputs[0], mix.inputs[2])
-    nt.links.new(mix.outputs[0], out.inputs["Surface"])
-    m.blend_method = "BLEND"
-    return m
-
 def haze_material(tag, height, r_base, slope, brightness):
     """Thin glowing volume: fades with height and softens toward the cone wall."""
     m = bpy.data.materials.new("Light haze " + tag)
@@ -332,94 +308,6 @@ def _node(nt, kind, operation=None, v0=None, v1=None, v2=None, clamp=False):
     return n
 
 # ------------------------------------------------------------------ scene
-def tube(pts, radii, segs=9):
-    """Round tube through a polyline, radius given per point."""
-    verts, faces, n = [], [], len(pts)
-    for i, (p, r) in enumerate(zip(pts, radii)):
-        if i == 0:
-            d = Vector(pts[1]) - Vector(pts[0])
-        elif i == n - 1:
-            d = Vector(pts[-1]) - Vector(pts[-2])
-        else:
-            d = Vector(pts[i + 1]) - Vector(pts[i - 1])
-        d.normalize()
-        a = Vector((0.0, 0.0, 1.0)).cross(d)
-        if a.length < 1e-4:
-            a = Vector((1.0, 0.0, 0.0)).cross(d)
-        a.normalize()
-        b = d.cross(a).normalized()
-        for k in range(segs):
-            th = 2.0 * math.pi * k / segs
-            verts.append(tuple(Vector(p) + a * (r * math.cos(th)) + b * (r * math.sin(th))))
-    for i in range(n - 1):
-        a0, b0 = i * segs, (i + 1) * segs
-        faces += [(a0 + k, a0 + (k + 1) % segs, b0 + (k + 1) % segs, b0 + k) for k in range(segs)]
-    return verts, faces
-
-
-def guided_rays(cx, tag, lam, c, mat):
-    """The light that left the pixel sideways, bouncing between the outer surface
-    and the cathode until it finds a lens to escape through -- the whole point of
-    the figure, and previously invisible.
-
-    Drawn on the front plane rather than buried in the slab: the micro-lens film
-    sits on top of everything, so a ray inside is hidden no matter how transparent
-    the glass is.  With the layer labels on that same face it reads as the section
-    it is.
-    """
-    verts, faces, nv = [], [], 0
-    rmax = PANEL_W / 2 - 0.04
-    for sgn in (1.0,):
-        pts, r, z, up = [(0.0, 0.0, Z_EMIT)], 0.0, Z_EMIT, True
-        for _ in range(9):
-            r += ((Z_TOP - z) if up else (z - Z_MET)) * RAY_TAN
-            z = Z_TOP if up else Z_MET
-            up = not up
-            stop = min(rmax, PIX_R + lam * 2.8)        # dies out before the panel edge,
-                                                       # so the reach itself is the comparison
-            if r >= stop:
-                prev = abs(pts[-1][0])
-                f = (stop - prev) / max(r - prev, 1e-6)
-                pts.append((sgn * stop, 0.0, pts[-1][2] + f * (z - pts[-1][2])))
-                break
-            pts.append((sgn * r, 0.0, z))
-        rad = []
-        for px, _, _ in pts:
-            rr = abs(px)
-            shape = 1.0 if rr <= PIX_R else math.exp(-(rr - PIX_R) / lam)
-            rad.append(0.026 * max(0.05, shape ** 0.6))
-        v, f = tube(pts, rad)
-        verts += v
-        faces += [tuple(k + nv for k in q) for q in f]
-        nv += len(v)
-    me = bpy.data.meshes.new("Guided rays (%s)" % tag)
-    me.from_pydata(verts, [], faces)
-    me.update()
-    for poly in me.polygons:
-        poly.use_smooth = True
-    me.materials.append(mat)
-    o = bpy.data.objects.new("Guided rays (%s)" % tag, me)
-    bpy.context.scene.collection.objects.link(o)
-    o.location = (cx, -PANEL_D / 2 - 0.018, 0.0)
-    o.visible_shadow = False
-    link(o, c)
-    return o
-
-
-def excitons(cx, tag, c, mat):
-    """Emitters in the EML, on the section, right under the driven pixel."""
-    for i, dx in enumerate((-0.16, 0.0, 0.16)):
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=20, ring_count=12, radius=0.034,
-                                             location=(cx + dx, -PANEL_D / 2 - 0.018, Z_EMIT))
-        o = bpy.context.active_object
-        o.name = "Exciton %d (%s)" % (i + 1, tag)
-        for poly in o.data.polygons:
-            poly.use_smooth = True
-        o.data.materials.append(mat)
-        o.visible_shadow = False
-        link(o, c)
-
-
 def stack_label(cx, text, z_mid, c, mat, size=0.075):
     bpy.ops.object.text_add(location=(cx - PANEL_W / 2 + 0.10,
                                       -PANEL_D / 2 - 0.006, z_mid - 0.33 * size))
@@ -448,21 +336,11 @@ def device(cx, tag, lam, amp, cone_h, brightness, label=True):
                         ink_light if name == "Al" else ink)
 
     lens_mat = lens_material(tag, lam, amp, LENS_EMIT_FRAC)
-    _, top, n_lens = lens_array(cx, Z_TOP, tag, c, lens_mat)
-
-    glow_mat = flat_material("Exciton glow %s" % tag, GLOW, 3.0 * amp / EMIT_STRENGTH * 7.5)
-    excitons(cx, tag, c, glow_mat)
-    guided_rays(cx, tag, lam, c, emitter_material("rays " + tag, lam, amp * 0.85))
-
-    # emitting area, just under the lens array
-    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(cx, 0.0, Z_TOP + 0.0015))
-    e = bpy.context.active_object
-    e.name = "Emitting area (%s)" % tag
-    e.scale = (PANEL_W, PANEL_D, 1.0)
-    bpy.ops.object.transform_apply(scale=True)
-    e.data.materials.append(emitter_material(tag, lam, amp))
-    e.visible_shadow = False
-    link(e, c)
+    lens, top, n_lens = lens_array(cx, Z_TOP, tag, c, lens_mat)
+    # the caps emit for the camera only: letting them light the scene washes the
+    # film green and, worse, lets each device glow on its neighbour's near edge
+    lens.visible_diffuse = False
+    lens.visible_glossy = False
 
     slope = 0.30
     cone_r = PIX_R * 1.35
@@ -682,9 +560,9 @@ def render(cam, w, h, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       cone_h=1.15, brightness=1.0 / BRIGHT)
+       cone_h=0.34, brightness=1.0 / BRIGHT)
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       cone_h=1.70, brightness=1.0)
+       cone_h=0.50, brightness=1.0)
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
