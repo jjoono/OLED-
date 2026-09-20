@@ -1,113 +1,90 @@
 # -*- coding: utf-8 -*-
-"""Fig 3(c): the surface plasmon has to be pushed past the substrate light line.
+"""Fig 3(c): a low out-of-plane index in the ETL buys the same plasmon
+suppression at a thinner layer.
 
-ci   where the dissipated power sits in the in-plane effective index k_x/k0.
-     Left of n_sub it can reach the substrate, right of it it is bound.  A low
-     out-of-plane index in the ETL walks the plasmon leftwards.
-cii  the substrate-delivered power against the plasmon index, at three ETL
-     thicknesses.  A step, not a slope -- and the measured ETLs sit on the
-     wrong side of it or barely on the right side."""
+ci   the plasmon sits at a lower in-plane index and carries less power when the
+     ETL's out-of-plane index is low.
+cii  so the same SPP loss is reached with a thinner ETL, which is also what the
+     drive voltage wants."""
 import numpy as np, matplotlib, os
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-import nspp, materials as M
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D_SHOW, N_SUB = 150.0, 1.80
-CF = [('n_e=1.80', 1.80, '#BDD7E7'), ('n_e=1.70', 1.70, '#6BAED6'),
-      ('n_e=1.60', 1.60, '#2171B5'), ('n_e=1.50', 1.50, '#08306B')]
-C_B3, C_B4 = '#D55E00', '#009E73'
-CD = {60.0: '#C6C6C6', 100.0: '#7F7F7F', 150.0: '#1A1A1A'}
-FS_LAB, FS_TICK, FS_NOTE, FS_LET = 7.2, 6.6, 6.1, 9.0
+D_SPEC, N_SUB, TARGET = 60.0, 1.80, 0.20
+SER = [('isotropic ETL', 'n_e=1.80', 1.80, '#4D4D4D', '-'),
+       ('B3PyMPM', 'B3PyMPM', 1.609, '#D55E00', '-'),
+       ('B4PyMPM', 'B4PyMPM', 1.560, '#009E73', '-'),
+       (r'$n_e$ = 1.50 (model)', 'n_e=1.50', 1.50, '#0072B2', (0, (3.0, 1.6)))]
+FS_LAB, FS_TICK, FS_NOTE, FS_LET = 7.2, 6.6, 6.2, 9.0
 plt.rcParams.update({'font.size': FS_LAB, 'axes.linewidth': 0.7,
                      'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
                      'xtick.major.size': 2.4, 'ytick.major.size': 2.4})
 
-fig, ax = plt.subplots(1, 2, figsize=(6.9, 2.7))
+fig, ax = plt.subplots(1, 2, figsize=(6.6, 2.5))
 
-# ---------------- ci : where the power sits in k-space ----------------------
+# ---- ci : where the plasmon sits ------------------------------------------
 S = np.genfromtxt(os.path.join(HERE, 'fig3c_spectrum.csv'), delimiter=',',
                   names=True, dtype=None, encoding='utf-8')
-S = S[S['d_ETL_nm'] == D_SHOW]
-# The EML light line at k_x/k0 = n_EML = 1.80 is a branch point of the kernel
-# (an integrable 1/sqrt divergence).  It is blanked out so that it does not
-# compete visually with the plasmon peaks; the dashed line marks it instead.
-S = S[np.abs(S['n_eff'] - 1.80) > 0.009]
+S = S[(S['d_ETL_nm'] == D_SPEC) & (np.abs(S['n_eff'] - N_SUB) > 0.009)]
 a = ax[0]
-a.axvspan(N_SUB, 2.6, color='#EFEFEF', zorder=0, lw=0)
-a.axvline(N_SUB, color='0.35', lw=0.9, dashes=(2.6, 1.6), zorder=3)
-for key, ne, c in CF:
+a.axvspan(N_SUB, 2.6, color='#F0F0F0', zorder=0, lw=0)
+a.axvline(N_SUB, color='0.45', lw=0.8, dashes=(2.4, 1.6), zorder=3)
+for lab, key, ne, c, ls in SER:
     m = S[S['series'] == key]
-    a.semilogy(m['n_eff'], m['TM'], color=c, lw=1.3, zorder=4)
-for key, c in (('B3PyMPM', C_B3), ('B4PyMPM', C_B4)):
-    m = S[S['series'] == key]
-    a.semilogy(m['n_eff'], m['TM'], color=c, lw=1.2, dashes=(3.0, 1.5), zorder=5)
-a.set_xlim(1.45, 2.35)
-a.set_ylim(3e-3, 22)
+    a.semilogy(m['n_eff'], m['TM'], color=c, lw=1.3, linestyle=ls, zorder=4)
+a.set_xlim(1.5, 2.35)
+a.set_ylim(1e-2, 60)
 a.set_xlabel(r'in-plane effective index   $k_x/k_0$')
 a.set_ylabel('TM power dissipation density')
-a.text(N_SUB - 0.04, 13, 'reaches the\nsubstrate', fontsize=FS_NOTE,
-       color='0.4', ha='right', va='top', linespacing=1.15)
-a.text(N_SUB + 0.04, 13, 'bound\n(SPP)', fontsize=FS_NOTE, color='0.4',
-       ha='left', va='top', linespacing=1.15)
-a.text(N_SUB - 0.02, 4.5e-3, r'$n_{\rm sub}$ = $n_{\rm EML}$ = 1.80',
-       fontsize=FS_NOTE, color='0.35', ha='right', va='bottom', rotation=90)
-a.legend(handles=[Line2D([], [], color=c, lw=1.3, label=r'$n_e$ = %.2f' % ne)
-                  for _, ne, c in CF]
-         + [Line2D([], [], color=C_B3, lw=1.2, dashes=(3, 1.5), label='B3PyMPM'),
-            Line2D([], [], color=C_B4, lw=1.2, dashes=(3, 1.5), label='B4PyMPM')],
-         loc='lower left', frameon=False, fontsize=FS_NOTE - 0.3,
-         handlelength=1.7, labelspacing=0.26, borderaxespad=0.25)
-a.set_title(r'$d_{\rm ETL}$ = %.0f nm,  $n_o$ = 1.80 (families)' % D_SHOW,
-            fontsize=FS_NOTE, pad=3.5)
+a.text(N_SUB - 0.015, 40, r'$n_{\rm sub}$', fontsize=FS_NOTE, color='0.45',
+       ha='right', va='top')
+a.text(0.97, 0.96, r'$d_{\rm ETL}$ = %.0f nm' % D_SPEC, transform=a.transAxes,
+       ha='right', va='top', fontsize=FS_NOTE, color='0.3')
+a.legend(handles=[Line2D([], [], color=c, lw=1.3, linestyle=ls, label=lab)
+                  for lab, _, _, c, ls in SER],
+         loc='lower left', frameon=False, fontsize=FS_NOTE,
+         handlelength=1.9, labelspacing=0.3, borderaxespad=0.25)
 
-# ---------------- cii : the step ------------------------------------------
-C = np.genfromtxt(os.path.join(HERE, 'fig3c_collapse.csv'), delimiter=',',
+# ---- cii : the thickness it buys ------------------------------------------
+A = np.genfromtxt(os.path.join(HERE, 'fig3c_sweep.csv'), delimiter=',',
                   names=True, dtype=None, encoding='utf-8')
 b = ax[1]
-b.axvspan(N_SUB, 2.3, color='#EFEFEF', zorder=0, lw=0)
-b.axvline(N_SUB, color='0.35', lw=0.9, dashes=(2.6, 1.6), zorder=3)
-for d in (60.0, 100.0, 150.0):
-    m = C[(C['series'] == 'n_o=1.80') & (C['d_ETL_nm'] == d)]
-    o = np.argsort(m['n_SPP_Ag'])
-    b.plot(m['n_SPP_Ag'][o], 100 * m['eta_sub'][o], color=CD[d], lw=1.4, zorder=4)
-for key, c, dy in (('B3PyMPM', C_B3, 10), ('B4PyMPM', C_B4, 10)):
-    m = C[(C['series'] == key) & (C['d_ETL_nm'] == D_SHOW)]
-    b.plot(m['n_SPP_Ag'], 100 * m['eta_sub'], marker='o', ms=4.4, color=c,
-           mew=0, ls='none', zorder=6)
-    b.annotate('%s\n$n_e$ = %.2f' % (key, m['n_e'][0]),
-               (m['n_SPP_Ag'][0], 100 * m['eta_sub'][0]),
-               textcoords='offset points',
-               xytext=(-5 if key == 'B4PyMPM' else 6, -3 if key == 'B4PyMPM' else 7),
-               va='top' if key == 'B4PyMPM' else 'bottom',
-               ha='right' if key == 'B4PyMPM' else 'left',
-               fontsize=FS_NOTE - 0.4, color=c, linespacing=1.15)
-b.set_xlim(1.56, 2.14)
-b.set_ylim(56, 101)
-b.set_xlabel(r'surface-plasmon index   $n_{\rm SPP}(n_o, n_e)$')
-b.set_ylabel(r'into the substrate mode  $\eta_{\rm sub}$  (%)')
-b.legend(handles=[Line2D([], [], color=CD[d], lw=1.4,
-                         label=r'$d_{\rm ETL}$ = %.0f nm' % d)
-                  for d in (60.0, 100.0, 150.0)],
-         loc='lower right', frameon=False, fontsize=FS_NOTE,
-         handlelength=1.7, labelspacing=0.26, borderaxespad=0.3,
-         title='markers: measured ETLs, 150 nm')
-b.get_legend().get_title().set_fontsize(FS_NOTE - 0.6)
-b.get_legend().get_title().set_color('0.35')
-sec = b.secondary_xaxis('top', functions=(
-    lambda x: np.interp(x, *(lambda t: (nspp.n_spp(M.AG, 1.8, t), t))(
-        np.linspace(1.30, 1.80, 400))),
-    lambda e: nspp.n_spp(M.AG, 1.8, np.clip(e, 1.30, 1.80))))
-sec.set_xlabel(r'$n_e$  at  $n_o$ = 1.80', fontsize=FS_NOTE, labelpad=2)
-sec.tick_params(labelsize=FS_TICK - 0.3, width=0.7, size=2.2)
+b.axhline(100 * TARGET, color='0.65', lw=0.7, dashes=(1.2, 1.8), zorder=2)
+cross = {}
+for lab, key, ne, c, ls in SER:
+    sel = ((A['series'] == key.split('=')[0] if 'Py' in key else
+            (A['series'] == 'no1.80') & np.isclose(A['n_e'], ne))
+           if 'Py' not in key else (A['series'] == key))
+    m = A[sel]
+    o = np.argsort(m['d_ETL_nm'])
+    d, s = m['d_ETL_nm'][o], m['spp'][o]
+    b.plot(d, 100 * s, color=c, lw=1.4, linestyle=ls, zorder=4)
+    i = np.where(s <= TARGET)[0][0]
+    x = np.interp(TARGET, [s[i], s[i - 1]], [d[i], d[i - 1]])
+    cross[key] = x
+    b.plot([x], [100 * TARGET], marker='o', ms=3.6, color=c, mew=0, zorder=6)
+    b.plot([x, x], [0, 100 * TARGET], color=c, lw=0.7, dashes=(1.2, 1.6),
+           zorder=3)
+b.set_xlim(0, 180)
+b.set_ylim(0, 82)
+b.set_xlabel(r'ETL thickness  $d_{\rm ETL}$  (nm)')
+b.set_ylabel('power lost to the SPP  (%)')
+b.text(178, 100 * TARGET + 1.5, 'same SPP loss', ha='right', va='bottom',
+       fontsize=FS_NOTE, color='0.55')
+b.text(0.97, 0.955, 'reached at  %s nm'
+       % ' / '.join('%.0f' % cross[k] for _, k, _, _, _ in SER),
+       transform=b.transAxes, ha='right', va='top', fontsize=FS_NOTE,
+       color='0.3')
 
 for k, a_ in enumerate(ax):
     a_.tick_params(labelsize=FS_TICK)
-    a_.text(-0.20, 1.14, 'c' + ('i' if k == 0 else 'ii'), transform=a_.transAxes,
+    a_.text(-0.19, 1.07, 'c' + ('i' if k == 0 else 'ii'), transform=a_.transAxes,
             fontsize=FS_LET, fontweight='bold', va='top')
 
-fig.tight_layout(pad=0.4, w_pad=2.0)
+fig.tight_layout(pad=0.4, w_pad=1.8)
 for e in ('png', 'pdf'):
     fig.savefig(os.path.join(HERE, 'fig3c_mock.' + e), dpi=400)
-print('fig3c_mock.png written')
+print('fig3c_mock.png written;  d at SPP = %.0f%% : ' % (100 * TARGET)
+      + ', '.join('%s %.0f nm' % (k, v) for k, v in cross.items()))

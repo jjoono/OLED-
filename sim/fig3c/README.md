@@ -1,4 +1,17 @@
-# Fig. 3(c) — a low out-of-plane index only helps past a threshold
+# Fig. 3(c) — a low out-of-plane index buys a thinner ETL
+
+**The figure in the paper is the light two-panel version** (`plot_fig3c.py`):
+the plasmon moves to a lower in-plane index and weakens, so the same SPP loss
+is reached with a thinner ETL — 20 % SPP at 110 nm for an isotropic ETL, 91 nm
+for B3PyMPM, 77 nm for B4PyMPM, 59 nm for a model n_e = 1.50.  A thinner
+transport layer is also what the drive voltage wants, so the gain is optical and
+electrical at once.  Exact thicknesses depend on the EML/HTL indices and on
+wavelength; the trend does not.
+
+The rest of this file is the supporting analysis (`plot_fig3c_detailed.py`),
+kept for the record and deliberately *not* carried into the manuscript.
+
+## Supporting analysis — the threshold behind the trend
 
     air | Ag 100 nm | ETL (n_o, n_e, d_ETL) | EML 1.80, 20 nm, dipole at the centre
         | HTL 1.80, 50 nm | ITO 50 nm (Koenig) | substrate 1.80
