@@ -83,3 +83,34 @@ genetic-algorithm design in Methods was for. The plain λ/4-at-550 design would 
 
 The earlier five-structure set (which also varied the transparent electrode) is still
 available as `stacks_v1()` in `sim/design_rule4/fig2d.py`; `plot_fig2d.py` draws it.
+
+## The 550 nm cut versus the emission band
+
+The author plotted the 550 nm row of the DBR map and found the dielectric mirror well below Ag
+over most angles. That reading is correct, and `dbr_550_vs_band.png` (`plot_550_check.py`)
+shows where it comes from and where it stops holding.
+
+At 550 nm alone the optimised stack sits at 2.0–3.3 % from normal incidence to the escape
+cone, against 3.3–4.8 % for Ag, and flux-weighted over angle it gives **3.96 % against Ag's
+4.29 %** — the DBR wins. Averaged over the green emission spectrum the ranking reverses,
+**5.47 % against 4.50 %**. Nothing is wrong with either number: the metals are flat in
+wavelength while the dielectric stack is only good inside its stopband, and the emitter is not
+monochromatic — 10 % to 90 % of its integral lies between 511 and 597 nm.
+
+Flux-weighted loss per wavelength for the optimised stack: 3.9 % at 520 nm, 4.0 % at 550,
+6.0 % at 580, 9.2 % at 610, 15 % at 650. Ag is 4.3–4.6 % across all of it. The stack is
+better than Ag over roughly 505–570 nm and worse outside.
+
+The three spikes the author noticed are physical and each has a name: 41.8° is the escape cone
+to air, where the leak turns on and off; 70.1° is where LiF stops propagating
+(n_LiF = 1.409 against an in-plane index of 1.5 sin θ), so the stack changes character; and
+82° is a further stack resonance. They are narrow at a single wavelength and smear out in the
+spectral average.
+
+One consequence of the weighting worth knowing: the optimiser is minimising a cos θ sin θ
+weighted average, and that weight vanishes at normal incidence, so it happily trades away
+normal-incidence reflectance. The optimised stack loses 10.5 % at θ = 0 spectrum-averaged
+against 2.6 % for the plain quarter-wave design. That is the right trade for recycled light
+inside the substrate, but it would look poor in a normal-incidence reflectance measurement,
+so the optimisation target should be stated explicitly, or constrained if a near-normal
+specification matters.
