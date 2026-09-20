@@ -1,12 +1,19 @@
 # Fig. 3(c) — a low out-of-plane index buys a thinner ETL
 
-**The figure in the paper is the light two-panel version** (`plot_fig3c.py`):
-the plasmon moves to a lower in-plane index and weakens, so the same SPP loss
-is reached with a thinner ETL — 20 % SPP at 110 nm for an isotropic ETL, 91 nm
-for B3PyMPM, 77 nm for B4PyMPM, 59 nm for a model n_e = 1.50.  A thinner
-transport layer is also what the drive voltage wants, so the gain is optical and
-electrical at once.  Exact thicknesses depend on the EML/HTL indices and on
-wavelength; the trend does not.
+**The figure in the paper is the light two-panel version** (`plot_fig3c.py`),
+built on a model family at fixed n_o = 1.80 with n_e = 1.80 / 1.70 / 1.60 / 1.50
+rather than on named materials.
+
+* **ci** — at d_ETL = 60 nm the TM plasmon peak sits at k_x/k0 = 2.05 / 1.96 /
+  1.88 / 1.81: a lower out-of-plane index moves it towards the substrate light
+  line and weakens it.
+* **cii** — so 20 % SPP loss is reached at 110 / 104 / 90 / 59 nm, i.e. the same
+  suppression with a thinner transport layer, which is also what the drive
+  voltage wants.
+
+Exact thicknesses depend on the EML/HTL indices and on wavelength; the trend
+does not.  The measured ETLs are kept in the data (`measured ETLs` sheet) but
+are not plotted.
 
 The rest of this file is the supporting analysis (`plot_fig3c_detailed.py`),
 kept for the record and deliberately *not* carried into the manuscript.

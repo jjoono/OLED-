@@ -3,7 +3,7 @@
 suppression at a thinner layer.
 
 ci   the plasmon sits at a lower in-plane index and carries less power when the
-     ETL's out-of-plane index is low.
+     ETL's out-of-plane index is low (n_o = 1.80 throughout).
 cii  so the same SPP loss is reached with a thinner ETL, which is also what the
      drive voltage wants."""
 import numpy as np, matplotlib, os
@@ -13,10 +13,10 @@ from matplotlib.lines import Line2D
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D_SPEC, N_SUB, TARGET = 60.0, 1.80, 0.20
-SER = [('isotropic ETL', 'n_e=1.80', 1.80, '#4D4D4D', '-'),
-       ('B3PyMPM', 'B3PyMPM', 1.609, '#D55E00', '-'),
-       ('B4PyMPM', 'B4PyMPM', 1.560, '#009E73', '-'),
-       (r'$n_e$ = 1.50 (model)', 'n_e=1.50', 1.50, '#0072B2', (0, (3.0, 1.6)))]
+SER = [(r'$n_e$ = 1.80 (isotropic)', 'n_e=1.80', 1.80, '#BDD7E7', '-'),
+       (r'$n_e$ = 1.70', 'n_e=1.70', 1.70, '#6BAED6', '-'),
+       (r'$n_e$ = 1.60', 'n_e=1.60', 1.60, '#2171B5', '-'),
+       (r'$n_e$ = 1.50', 'n_e=1.50', 1.50, '#08306B', '-')]
 FS_LAB, FS_TICK, FS_NOTE, FS_LET = 7.2, 6.6, 6.2, 9.0
 plt.rcParams.update({'font.size': FS_LAB, 'axes.linewidth': 0.7,
                      'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
@@ -40,8 +40,8 @@ a.set_xlabel(r'in-plane effective index   $k_x/k_0$')
 a.set_ylabel('TM power dissipation density')
 a.text(N_SUB - 0.015, 40, r'$n_{\rm sub}$', fontsize=FS_NOTE, color='0.45',
        ha='right', va='top')
-a.text(0.97, 0.96, r'$d_{\rm ETL}$ = %.0f nm' % D_SPEC, transform=a.transAxes,
-       ha='right', va='top', fontsize=FS_NOTE, color='0.3')
+a.text(0.97, 0.96, r'$d_{\rm ETL}$ = %.0f nm,  $n_o$ = 1.80' % D_SPEC,
+       transform=a.transAxes, ha='right', va='top', fontsize=FS_NOTE, color='0.3')
 a.legend(handles=[Line2D([], [], color=c, lw=1.3, linestyle=ls, label=lab)
                   for lab, _, _, c, ls in SER],
          loc='lower left', frameon=False, fontsize=FS_NOTE,
@@ -54,10 +54,7 @@ b = ax[1]
 b.axhline(100 * TARGET, color='0.65', lw=0.7, dashes=(1.2, 1.8), zorder=2)
 cross = {}
 for lab, key, ne, c, ls in SER:
-    sel = ((A['series'] == key.split('=')[0] if 'Py' in key else
-            (A['series'] == 'no1.80') & np.isclose(A['n_e'], ne))
-           if 'Py' not in key else (A['series'] == key))
-    m = A[sel]
+    m = A[(A['series'] == 'no1.80') & np.isclose(A['n_e'], ne)]
     o = np.argsort(m['d_ETL_nm'])
     d, s = m['d_ETL_nm'][o], m['spp'][o]
     b.plot(d, 100 * s, color=c, lw=1.4, linestyle=ls, zorder=4)
