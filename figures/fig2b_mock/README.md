@@ -67,3 +67,21 @@ supplied the tabulation: `nsub_{al,ag}_konig.csv`, assembled into `fig2b_curves_
 which is what the panels and the workbook now use. The earlier n = 1.9 + 0.02i run is kept as
 `nsub_{al,ag}.csv` / `fig2b_curves.csv`; `DATA=fig2b_curves.csv python3 plot_fig2bc.py`
 redraws it.
+
+## Fig. 2(c) layout
+
+`fig2c_variants.png` (`plot_fig2c_variants.py`) compares three readings of the same numbers.
+The four-curve version asks the reader to hold two line styles and two colours at once, and
+with the Koenig constants the Ag pair nearly touches above n_sub = 1.8 (0.96 against 0.89).
+
+The panel now drawn in `fig2bc_squares.png` draws the difference instead: EQE as the bold
+curve, η_sub^(0) as a thin line of the same colour, and the gap between them — what reached
+the substrate and never escaped — as a filled band. The two bands never overlap anywhere in
+the range (the Ag EQE curve stays above the Al η_sub curve throughout), so the thin blue
+sliver against the thick orange band carries the message without any legend lookup. The step
+at n_sub = 1.8 is labelled, since it is the waveguide cutoff at n_sub = n_EML and otherwise
+reads as an artefact.
+
+A third variant keeps one grey reference curve and drops the Al η_sub. It is the cleanest
+read but mixes two effects in the orange gap, since the Al stack also absorbs before the light
+reaches the substrate (η_sub 0.84 against 0.96 at n_sub = 1.8), so it was not used.

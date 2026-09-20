@@ -1,11 +1,12 @@
 """Fig. 2(b) and 2(c) as two small square panels, sharing the substrate-index axis.
 (b) the cost:   p falls with n_sub, so the two eta_ext curves peel apart.
-(c) the result: eta_sub keeps rising, but the product turns over for Al and not for Ag.
+(c) the result: eta_sub keeps rising; the shaded gap to EQE is what never escapes.
 Data: fig2b_curves.csv."""
 import numpy as np, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 import textwrap, os
 
 D = np.genfromtxt(os.environ.get('DATA', 'fig2b_curves_konig.csv'), delimiter=',', names=True)
@@ -50,28 +51,39 @@ axb.annotate('$p$', (1.90, p[12]), xytext=(0, 7), textcoords='offset points',
 axb.text(1.325, 0.075, 'fewer escapes per pass\n→ more round trips\n→ the mirror is tested harder',
          fontsize=8.2, color='0.35', va='bottom')
 
-# ---- (c) the result: the payoff and the turnover ----------------------------
-axc.plot(n, sAg, color=C_AG, lw=1.5, ls=DASH, zorder=3)
-axc.plot(n, sAl, color=C_AL, lw=1.5, ls=DASH, zorder=3)
-axc.plot(n, qAg, color=C_AG, lw=2.6, zorder=4, solid_capstyle='round')
-axc.plot(n, qAl, color=C_AL, lw=2.6, zorder=4, solid_capstyle='round')
-axc.set_ylabel('$\\eta_{sub}^{(0)}$,   EQE', fontsize=10.5)
-for q, c, dy in ((qAg, C_AG, -16), (qAl, C_AL, -16)):
+# ---- (c) the result: the payoff, and what is lost on the way out -------------
+axc.fill_between(n, qAl, sAl, color=C_AL, alpha=0.16, lw=0)
+axc.fill_between(n, qAg, sAg, color=C_AG, alpha=0.16, lw=0)
+axc.plot(n, sAl, color=C_AL, lw=1.0, alpha=0.65, zorder=3)
+axc.plot(n, sAg, color=C_AG, lw=1.0, alpha=0.65, zorder=3)
+axc.plot(n, qAl, color=C_AL, lw=2.8, zorder=4, solid_capstyle='round')
+axc.plot(n, qAg, color=C_AG, lw=2.8, zorder=4, solid_capstyle='round')
+axc.set_ylabel('power fraction', fontsize=10.5)
+for q, c in ((qAg, C_AG), (qAl, C_AL)):
     i = int(np.argmax(q))
     axc.plot(n[i], q[i], 'o', ms=6, mfc=c, mec='w', mew=1.3, zorder=5)
-    axc.annotate(f'{q[i]:.2f}', (n[i], q[i]), xytext=(9, dy), textcoords='offset points',
+    axc.annotate(f'{q[i]:.2f}', (n[i], q[i]), xytext=(9, -16), textcoords='offset points',
                  fontsize=9, fontweight='bold', color=c, ha='left')
-axc.legend(handles=[Line2D([], [], color='0.45', lw=1.5, ls=DASH, label='$\\eta_{sub}^{(0)}$'),
-                    Line2D([], [], color='0.45', lw=2.4, label='EQE')],
-           loc='lower right', bbox_to_anchor=(1.0, 0.015), fontsize=9, frameon=False,
-           handlelength=2.0, labelspacing=0.35)
-axc.text(1.325, 0.03, 'Al: the gain in $\\eta_{sub}^{(0)}$\nis spent on the loss\nin $\\eta_{ext}$ — EQE turns\nover near $n_{sub}$ = 1.8',
-         fontsize=8.2, color='0.35', va='bottom')
+j = 7   # n_sub = 1.65
+axc.annotate('delivered to the substrate,\nnever got out', (n[j], 0.5*(sAl[j] + qAl[j])),
+             xytext=(1.315, 0.05), textcoords='data', ha='left', va='bottom',
+             fontsize=8.5, color=C_AL,
+             arrowprops=dict(arrowstyle='->', color=C_AL, lw=0.9, alpha=0.85,
+                             connectionstyle='arc3,rad=-0.15'))
+axc.annotate('the same gap, once the\nround-trip loss is small', (1.915, 0.5*(sAg[-2] + qAg[-2])),
+             xytext=(1.40, 0.90), textcoords='data', ha='left', va='bottom',
+             fontsize=8.5, color=C_AG,
+             arrowprops=dict(arrowstyle='->', color=C_AG, lw=0.9, alpha=0.85))
+axc.axvline(1.8, color='0.82', lw=1.0, ls=':', zorder=1)
+axc.text(1.825, 0.20, '$n_{sub}$ = $n_{EML}$:\nthe waveguided\nmode vanishes',
+         fontsize=8.0, color='0.45', va='bottom', ha='left')
 
 fig.legend(handles=[Line2D([], [], color=C_AG, lw=2.4, label='Ag reflector  (low-loss)'),
-                    Line2D([], [], color=C_AL, lw=2.4, label='Al reflector  (conventional)')],
-           loc='lower center', bbox_to_anchor=(0.535, 0.125), ncol=2, fontsize=9, frameon=False,
-           handlelength=2.4, columnspacing=2.6)
+                    Line2D([], [], color=C_AL, lw=2.4, label='Al reflector  (conventional)'),
+                    Patch(facecolor='0.6', alpha=0.25,
+                          label='(c)  extraction loss,  $\\eta_{sub}^{(0)}$ − EQE')],
+           loc='lower center', bbox_to_anchor=(0.535, 0.115), ncol=3, fontsize=9, frameon=False,
+           handlelength=2.4, columnspacing=2.4)
 foot = ('550 nm, isotropic dipole, PLQY = 1; reflector 100 nm / ETL 200 nm / EML 20 nm / HTL 200 nm / ITO 50 nm (n = 1.864 + 0.0032i at 550 nm, Koenig 2014) / substrate, '
         'n_sub index-matched to the outcoupling structure.  η_ext = p/[p + (1−p)A′], EQE = η_sub^(0) η_ext.')
 fig.text(0.085, 0.02, '\n'.join(textwrap.wrap(foot, 118)), fontsize=7.8, va='bottom', ha='left', color='0.3')
