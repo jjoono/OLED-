@@ -44,3 +44,15 @@ turnover at 0.54 / the climb to 0.75.
 Still to settle with the author: whether to mark the reported record devices on the EQE curve,
 as the earlier draft did with a shaded "previous works" circle. Individual literature points
 with reference numbers would be stronger than a shaded region.
+
+## Raw data
+
+`fig2bc_rawdata.xlsx` — the numbers behind `fig2bc_squares.png` (and behind every other
+layout variant, since they all plot the same table). Three sheets: `fig2b_2c` with the
+plotted curves, where η_ext and EQE are live formulas driven by the editable yellow p
+column, and `Al_modes` / `Ag_modes` with the full five-channel budget as the model returns
+it. Built by `make_fig2bc_xlsx.py`; the formulas were checked by recalculating the workbook
+in LibreOffice and comparing all 60 formula cells against `fig2b_curves.csv` (exact match).
+
+Note that column 9 of `nsub_al.csv` / `nsub_ag.csv` is η_ext at the script's default p = 0.4
+and is *not* the plotted curve — the workbook recomputes η_ext from the p column.
