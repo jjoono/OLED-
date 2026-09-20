@@ -194,3 +194,28 @@ having to hand if a referee asks why every round trip carries the same p.
 
 No figure is cited at this point, so the citation order is undisturbed, and the ray-traced
 escape probability of Fig. 2(b) is left to speak for itself when that panel arrives.
+
+## v9 — the author's Fig. 2(a) paragraph, and the index sweep split in two (`manuscript/unityEQE_v9_ko.docx`)
+
+The parasitic-absorption paragraph is replaced with the author's own rewrite. Three things
+change in substance. The extraction-efficiency sentence no longer says the drop is steeper
+for Ag than for Al *in passing* — it now says η_ext is higher with Ag yet still falls steeply
+with TCO absorption, which is what the data show: over 30 → 200 nm of ITO at n_sub = 1.8,
+η_ext goes 0.863 → 0.646 with Ag against 0.701 → 0.570 with Al. The low-loss mirror is the
+more sensitive one, because dη_ext/dA′ = −p(1−p)/[p + (1−p)A′]² is steepest where A′ is
+smallest. Second, the mechanism behind "the trend grows stronger with a high-index structure"
+is now stated through eq. (2) rather than through the number of round trips: a smaller p gives
+a lower η_ext at the same absorption, because more of the circulating light is lost before it
+escapes. Third, the closing sentence — substrate-delivered power rises but extraction falls,
+and with large parasitic absorption the second outruns the first — now cites Fig. 2(c).
+
+One wording change beyond the author's text: "기판과 공기 사이의 굴절률 차이" became
+"광추출 구조와 공기 사이", since the escape happens at the structure/air boundary and the
+structure is index-matched to the substrate. Spacing normalised in two places.
+
+Figure consequences. The substrate-index sweep is now two small square panels sharing an x
+axis: (b) p and η_ext, (c) η_sub^(0) and EQE. The absorption maps move from (c) to (d). The
+Poynting-vector panel leaves the main text for the SI — it is the evidence behind the
+mirror/TCO split that 2(a) already draws, so as a fourth main-text panel it repeated (a); the
+text keeps it as one sentence with an SI citation and notes that it agrees with 2(a).
+The citation order stays strictly monotonic.

@@ -1,9 +1,14 @@
-# Figure plan — unityEQE v8
+# Figure plan — unityEQE v9
 
-Citation order in v8, strictly monotonic apart from one deliberate retrospective:
+Citation order in v9, strictly monotonic apart from one deliberate retrospective:
 
 1(a) → 1(b) → 1(c) → 2(a) → 2(b) → 2(c) → 2(d) → 3(a) → 3(b) → 3(c) → 4(a) → 4(b) → 4(c) →
 [3(a) retrospective] → 5(a) → 5(b) → 5(c)
+
+Changes from v8: Fig. 2's index sweep is split across two small square panels — (b) carries p
+and η_ext, (c) carries η_sub^(0) and EQE — following the author's revision of the
+parasitic-absorption paragraph. The absorption maps move from (c) to (d), and the
+Poynting-vector panel moves to the SI.
 
 Changes from v6: Fig. 1 has three panels again. The escape-cone panel stays dropped — the
 ray-optics limit is textbook material and now takes one sentence with no figure — but the
@@ -85,33 +90,48 @@ zoom on the high-reflectance end (the author's existing draft). Settled conventi
 Left and centre: round-trip loss A′ against ITO thickness, split into the mirror ohmic part
 (A′ recomputed at k_TCO = 0) and the TCO part (the remainder), for Al and for Ag. Right: the
 resulting η_ext for both. Shows that the mirror loss is flat in ITO thickness while the TCO
-loss grows linearly, so with Al the TCO reaches parity with the mirror (26 % → 50 % of A′
-over 50–150 nm) and with Ag it is essentially the only loss (75 % → 89 %).
+loss grows linearly, so with Al the TCO reaches parity with the mirror and with Ag it is
+essentially the only loss. On the n_sub = 1.8 sweep, over 30 → 200 nm of ITO: mirror A′ flat at
+0.137 (Al) and 0.0166 (Ag); TCO share of A′ 25 % → 60 % (Al) and 76 % → 93 % (Ag); η_ext
+0.701 → 0.570 (Al) and 0.863 → 0.646 (Ag). The low-loss mirror falls *faster* in absolute
+terms — 22 %p against 13 %p — because dη_ext/dA′ = −p(1−p)/[p + (1−p)A′]² is steepest where A′
+is smallest, and because more of the returning light survives to make a second pass through
+the TCO. That is the paragraph's "Ag에서 더 높게 나타나지만 … 가파르게 감소".
 
-**(b) Substrate index sweep, decomposed.** η_sub^(0), η_ext and their product EQE against the
-substrate/MLA index, for a lossy and a low-loss reflector. η_sub rises monotonically while
-η_ext falls, so a device with large parasitic absorption saturates around 60 % near n ≈ 1.65,
-whereas suppressing the absorption removes the trade-off and EQE rises monotonically. This is
-the panel the parasitic-absorption paragraph cites; it replaces the former Fig. 1(c).
-The author's draft of this panel also carries the single-pass escape probability p as a fourth
-curve, drawn as the substrate angular distribution weighted by the outcoupling structure's
-BSDF transmittance and confirmed by the author as p. Label it **p** in the legend so the
-symbol matches eq. (2), and leave the construction to the caption and Methods; p = 0.30 at
-n_sub = 1.8 is the value every extraction-efficiency calculation in `sim/design_rule4/` rests
-on, and p = 0.30 and 0.40 are two members of the curve family in Fig. 1(b). Adding
-η_ext = EQE / η_sub^(0) as dotted curves for both electrodes would let this one panel close
-eq. (2): p falls with substrate index, yet the low-loss device keeps rising while the Al
-device turns over. The vertical axis should then read as an efficiency or power fraction
-rather than "relative mode", and the "target value" marker be identified as simulated.
+**(b) The cost: escape probability and extraction efficiency.** Small square panel.
+η_ext against the substrate/MLA index for a lossy (Al) and a low-loss (Ag) reflector, with the
+single-pass escape probability **p** on the same axes. p falls with n_sub, so each photon makes
+more round trips and the two η_ext curves peel apart — 4 %p at n_sub = 1.3, 12 %p at 1.5,
+15 %p at 2.0 (a ratio of 1.05 → 1.23). This is the panel the parasitic-absorption paragraph
+cites for "the trend grows stronger when a high-index substrate and an outcoupling structure
+are used". p is the substrate angular distribution weighted by the outcoupling structure's
+BSDF transmittance, confirmed by the author; label it **p** so the symbol matches eq. (2) and
+leave the construction to the caption and Methods. p = 0.30 at n_sub = 1.8 is the value every
+extraction-efficiency calculation in `sim/design_rule4/` rests on, and p = 0.30 and 0.40 are
+two members of the curve family in Fig. 1(b).
 
-**(c) Angle- and wavelength-resolved round-trip absorption.** Maps of the absorption for light
+**(c) The result: substrate-delivered power and EQE.** Small square panel, same x axis as (b).
+η_sub^(0) (dashed) and EQE = η_sub^(0) η_ext (solid) for both reflectors. η_sub rises
+monotonically with the index, but with Al the gain is spent on the loss in η_ext, so EQE turns
+over at 0.54 near n_sub = 1.8; with Ag it keeps climbing to 0.75 and holds. This is the panel
+for the closing sentence of the paragraph — with large parasitic absorption the gain in
+substrate-delivered power is outrun by the loss in extraction, which is what limited the field
+near 60 %. Mocked up together with (b) in `figures/fig2b_mock/fig2bc_squares.png`.
+
+Open: whether to mark reported record devices on the EQE curve, as the earlier draft did with
+a shaded "previous works" circle. Individual literature points with reference numbers would be
+stronger than a shaded region.
+
+**(d) Angle- and wavelength-resolved round-trip absorption.** Maps of the absorption for light
 incident from the substrate onto the stack, for the candidate bottom-electrode structures.
 Al averages 15–25 %, Ag 5–15 %. Include the angular distribution of substrate-delivered power
 alongside, since the weighting matters as much as the reflectance.
 
-**(d) Poynting-vector loss accounting.** Layer-resolved dissipation through one round trip:
-flat through the transparent organics, linear in thickness through the TCO, and a step at the
-metal that is much larger for Al than for Ag.
+**Supplementary (was 2(d)): Poynting-vector loss accounting.** Layer-resolved dissipation
+through one round trip: flat through the transparent organics, linear in thickness through the
+TCO, and a step at the metal that is much larger for Al than for Ag. It is the evidence behind
+the mirror/TCO split already drawn in 2(a), so as a main-text panel it repeats (a); the text
+now describes it in one sentence and cites the SI.
 
 ## Fig. 3 — Design rules
 
