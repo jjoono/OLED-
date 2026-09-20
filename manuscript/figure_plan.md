@@ -90,6 +90,13 @@ zoom on the high-reflectance end (the author's existing draft). Settled conventi
 
 ## Fig. 2 — Parasitic absorption is the binding loss
 
+Composed as one full-width figure in `figures/fig2_full/` (`plot_fig2.py`, with a draft
+caption in that folder's README). Two rows: a | a | b | c on top, then (d)'s two maps, its
+angle plot and a key. (a) is two panels rather than three — the loss split is drawn as grouped
+stacked bars so both reflectors fit one panel — and (d) is three rather than four, with the
+DBR map left to the SI. Colour is the reflector throughout (vermillion Al, blue Ag) and grey
+is reserved for the TCO part of the loss.
+
 **(a) ITO thickness, Al vs Ag.** Three panels, mocked up in `figures/fig2a_mock/`.
 Left and centre: round-trip loss A' against ITO thickness, split into the mirror ohmic part
 (A' recomputed at k_TCO = 0) and the TCO part (the remainder), for Al and for Ag. Right: the
