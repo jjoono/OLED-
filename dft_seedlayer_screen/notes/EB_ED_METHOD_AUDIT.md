@@ -1704,3 +1704,46 @@ E_b 차이 1.202 eV는 Venables 지수로 exp(2ΔE/3kT) = **2.9×10¹³** — 2�
 - **Mo3O9 클러스터의 대표성**: 고립 클러스터는 모든 산소가 저배위다. 같은
   클러스터의 가교 O 자리 E_b를 재면 실제 표면(대부분 가교)이 약한지 알 수 있다.
   Mo3O8(0.875)이 Mo3O9(1.806)의 절반인 것도 산소 화학량론 과민성의 신호다.
+
+## Package D — does the seed layer compete with Ag–Ag bonding? (refuted)
+
+Free Ag2 bond = −1.553 eV (experiment −1.66). On the substrate:
+
+| candidate | E_b (1 Ag) | ΔE_dimer | recovered |
+|---|---|---|---|
+| F4TCNQ | 1.208 | +0.098 | +1.651 |
+| Mo3O9 | 1.806 | −0.554 | +0.998 |
+| Mo3O8 | 0.875 | −0.725 | +0.828 |
+| HATCN | 0.604 | −0.870 | +0.683 |
+| benzene | 0.205 | −1.572 | −0.019 |
+
+The hypothesis was that the organic claws back more of the Ag–Ag bond than the
+oxide, so Ag on HATCN stays atomic while Ag on MoOx coalesces. It does not:
+Mo3O9 recovers 0.998 eV against HATCN's 0.683. The geometries say the same
+thing the other way round — on the organics the dimer stands up (one Ag bound,
+the other 4.7–5.2 Å off the surface, a 3D island seed), on the oxides it lies
+flat with both Ag bound and the bond stretched to 2.80 Å. The oxide wets better
+at the dimer level too. Fourth angle, fourth failure.
+
+## Package E — is the Mo3O9 cluster an MoOx surface? (open)
+
+What is left is the model, not the mechanism. Mo3O9's oxygens:
+
+    6 terminal (one Mo neighbour), 3 bridging (two Mo neighbours)
+
+and Ag sits in the hollow 3.17 Å from three terminal O at once. An amorphous
+MoOx surface is mostly two-coordinate bridging O over saturated Mo; six free
+Mo=O tips arranged around one hollow is the cluster's artefact. `oxide_sites/`
+relaxes Ag from four starting sites on each of Mo3O9 and Mo3O8 — bridging O
+above the plane and in it, terminal O atop, Mo atop — at the same level, same
+frozen substrate. No new reference jobs: E(mol)+E(Ag) is recovered from the
+hollow's E_b and complex energy, since the substrate geometry never changes.
+
+If the bridging sites come in well under 1.806 eV, the oxide's place at the top
+of the E_b table is the cluster's worst case and not the film's. If they come
+in at 1.8 too, the model is not the problem and the screening metric genuinely
+disagrees with the one experiment — which has to be said in the paper rather
+than tuned away.
+
+    python scripts/130_oxide_site_survey.py
+    python scripts/130_oxide_site_survey.py --harvest oxide_sites
