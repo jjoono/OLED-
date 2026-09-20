@@ -115,3 +115,24 @@ median. The numbers are converged — the hemisphere average moves by 0.005 pp b
 3601 angles — so the fringes are physical, not sampling. Each map now carries its own
 flux- and spectrum-weighted number underneath, and panel (i) marks the escape cone with the
 two regimes labelled, so the comparison cannot be read off the fringes.
+
+## A compact alternative: fold the derived panels away
+
+`fig2_compact.png` (`plot_fig2_compact.py`) is the same content in eight panels instead of ten.
+
+The two panels that plotted η_ext on its own were sparse because they carry no data of their
+own: η_ext = p/[p + (1−p)A′] is a deterministic function of quantities the neighbouring panels
+already show. Filling that space with annotation would be decoration. Removing it is the
+honest fix, and there are two places to put the information instead:
+
+* **(a) and (b) gain a second y axis in η_ext.** Because η_ext is strictly monotonic in A′ at
+  fixed p, the right-hand ticks are just a relabelling of the same axis — non-linear, but
+  exact. Each panel states its p (0.38 on glass). The η_ext-against-ITO-thickness panel then
+  has nothing left to add and goes.
+* **The substrate-index sweep becomes one panel instead of two.** p, A′ and η_ext occupy three
+  separate horizontal bands of the same 0–1 axis, so five curves read as three groups with no
+  legend needed.
+
+Result: two rows of four, no panel with two lonely curves, and nothing added that is not data.
+The ten-panel version is kept — two clean curves on an axis is perfectly ordinary in a paper,
+and the dual axis does ask the reader to accept a non-linear scale.
