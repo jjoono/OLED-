@@ -143,8 +143,8 @@ clean(f_); letter('f')
 # ================= row 3: the three reflectors at 150 nm ITO ==============
 VIS = np.arange(430.0, 701.0); NSUB = 1.5
 THC = np.degrees(np.arcsin(1/NSUB))
-NAMES = [('Al', C_AL), ('Ag', C_AG), ('DBR, re-optimised', C_DBR)]
-TITLE = {'DBR, re-optimised': 'DBR, 10 pairs\n(thicknesses optimised)'}
+NAMES = [('Al', C_AL), ('Ag', C_AG), ('DBR, chirped', C_DBR)]
+TITLE = {'DBR, chirped': 'DBR, 10 pairs\n(chirped, optimised)'}
 WMAP = {n: F.weighted(n, n_sub=NSUB, spectrum=F.GREEN, lam=VIS) for n, _ in NAMES}
 for k, (name, c) in zip('ghi', NAMES):
     th, lam, R, T = F.maps(name, n_sub=NSUB, lam=VIS)
@@ -192,7 +192,7 @@ j_.set_xlabel('$\\theta$ in substrate (°)'); j_.set_ylabel('round-trip loss 1 �
 clean(j_); letter('j', dx=-0.20)
 lab = [('Al', f"Al   {100*W['Al']['loss']:.1f} %", C_AL, '-'),
        ('Ag', f"Ag   {100*W['Ag']['loss']:.1f} %", C_AG, '-'),
-       ('DBR, re-optimised', f"DBR, optimised   {100*W['DBR, re-optimised']['loss']:.1f} %", C_DBR, '-'),
+       ('DBR, chirped', f"DBR, chirped   {100*W['DBR, chirped']['loss']:.1f} %", C_DBR, '-'),
        ('DBR (10 pairs)', f"DBR, plain λ/4 at 550 nm   {100*W['DBR (10 pairs)']['loss']:.1f} %", C_DBR, DASH)]
 j_.legend(handles=[Line2D([], [], color=c, lw=1.5, ls=s, label=t) for _, t, c, s in lab],
           loc='upper left', bbox_to_anchor=(0.01, 0.99), fontsize=FS_NOTE, frameon=False,

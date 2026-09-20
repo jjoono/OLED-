@@ -114,3 +114,36 @@ against 2.6 % for the plain quarter-wave design. That is the right trade for rec
 inside the substrate, but it would look poor in a normal-incidence reflectance measurement,
 so the optimisation target should be stated explicitly, or constrained if a near-normal
 specification matters.
+
+## Chirping the stack is what makes the dielectric mirror competitive
+
+Following the 550 nm check, the obvious question was whether the band-averaged loss can be
+brought down to Ag's. It can, but not by stacking more of the same pair.
+
+**Uniform stacks saturate and then get worse.** Optimising the two thicknesses at 10, 15 and
+20 pairs gives 5.46, 5.72 and 6.00 % — more pairs deepen the stopband but do not widen it,
+and the loss is already set by what falls outside the band.
+
+**A linear chirp breaks that.** Letting both thicknesses grow through the stack by a common
+factor adds one parameter and widens the stopband, because each pair covers a slightly
+different wavelength. Full-resolution numbers on glass with the green emitter:
+
+| design | absorbed | leaked | 1 − R | at normal incidence |
+|---|---|---|---|---|
+| Ag, 100 nm | 4.49 % | 0.01 % | **4.50 %** | 3.75 % |
+| uniform 10 pairs (ZnS 69 / LiF 97) | 3.38 % | 2.09 % | 5.47 % | 10.48 % |
+| **chirped 10 pairs (ZnS 56→80 / LiF 88→125)** | 3.43 % | 1.02 % | **4.45 %** | 4.77 % |
+| chirped 15 pairs (ZnS 64.5→92 / LiF 74→105) | 3.55 % | 0.46 % | **4.01 %** | 3.28 % |
+| chirped 20 pairs (ZnS 67→95 / LiF 71→101) | 3.74 % | 0.24 % | **3.98 %** | 2.79 % |
+
+Ten chirped pairs already match Ag; fifteen or twenty beat it, and they also fix the
+normal-incidence problem the uniform optimum had (2.8–3.3 % against Ag's 3.75 %), so nothing
+is being traded away any more. On the high-index substrate with the orange emitter the same
+glass-optimised designs give 5.27 and 5.22 % against Ag's 5.25 % — level, and re-optimising
+for that case would go further.
+
+The chirp factor is a genuine optimum, not a grid edge: widening the search to ×2.3 returns
+ZnS 58 / LiF 84 at ×1.40, the same design to within the grid.
+
+Figure 2(i) and (j) now show the chirped 10-pair stack, with the plain quarter-wave design
+kept as the dashed comparison.

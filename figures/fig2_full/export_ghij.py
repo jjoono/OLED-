@@ -14,7 +14,7 @@ TH_M = np.radians(np.arange(0.0, 90.0, 1.0))  # map columns
 LAM_C = np.arange(430.0, 701.0, 1.0)          # curves: full spectral resolution
 TH_C = np.radians(np.linspace(0.0, 89.9, 180))
 SPEC = np.clip(np.interp(LAM_C, F.LAM, F.GREEN), 0, None); SPEC /= SPEC.sum()
-PANELS = [('g', 'Al', 'Al'), ('h', 'Ag', 'Ag'), ('i', 'DBR, re-optimised', 'DBR (optimised)')]
+PANELS = [('g', 'Al', 'Al'), ('h', 'Ag', 'Ag'), ('i', 'DBR, chirped', 'DBR (chirped, optimised)')]
 CURVES = PANELS + [('j', 'DBR (10 pairs)', 'DBR (plain quarter-wave at 550 nm)')]
 
 def rt(name, lam, th):
@@ -32,8 +32,9 @@ rows = [
  ('Common part', 'substrate (n = 1.50) / ITO 150 nm / 420 nm of non-absorbing organics (n = 1.8) / reflector.  The transparent electrode is fixed, only the reflector changes.'),
  ('Al', 'Johnson-Christy-type n,k from the project library, 100 nm'),
  ('Ag', 'McPeak measured n,k, 100 nm'),
- ('DBR (optimised)', f'ZnS {F.OPT15[0][1]:.0f} nm / LiF {F.OPT15[1][1]:.0f} nm, 10 pairs, ZnS facing the organics.  Thicknesses chosen to minimise the flux- and spectrum-weighted loss over all substrate angles.'),
- ('DBR (plain)', f'the same 10 pairs as a quarter-wave stack at 550 nm: ZnS {F.D_ZNS:.1f} nm / LiF {F.D_LIF:.1f} nm.  Drawn dashed in (j); shown for comparison only.'),
+ ('DBR (chirped)', 'ZnS 56 -> 80 nm / LiF 88 -> 125 nm over 10 pairs, ZnS facing the organics.  Both thicknesses grow linearly through the stack by a factor 1.42, which widens the stopband instead of deepening it; the three numbers were chosen to minimise the flux- and spectrum-weighted loss over all substrate angles and the whole emission band.'),
+ ('DBR (plain)', f'the same 10 pairs as a uniform quarter-wave stack at 550 nm: ZnS {F.D_ZNS:.1f} nm / LiF {F.D_LIF:.1f} nm.  Drawn dashed in (j); shown for comparison only.'),
+ ('uniform stacks', 'for reference, the best uniform ZnS/LiF stacks give 5.46 / 5.72 / 6.00 % at 10 / 15 / 20 pairs — more pairs deepen the stopband but do not widen it, so they get worse.'),
  ('ITO', 'n = 1.8636 + 0.0032285i at 550 nm — Koenig et al., ACS Nano 8, 6182 (2014), full dispersion used'),
  (None, None), ('Quantities', None),
  ('1 - R', 'the round-trip loss: absorbed plus, for the dielectric mirror, transmitted out of the back'),
@@ -70,8 +71,8 @@ for _, name, label in PANELS:
     R, T = rt(name, LAM_M, TH_M)
     write_matrix(f'{_}_{"Al" if name=="Al" else "Ag" if name=="Ag" else "DBR"}_map',
                  f'{label}: 100 × (1 − R), rows wavelength / columns angle in the substrate', 100*(1 - R))
-R, T = rt('DBR, re-optimised', LAM_M, TH_M)
-write_matrix('i_DBR_leak', 'DBR (optimised): the transmitted part, 100 × T', 100*T)
+R, T = rt('DBR, chirped', LAM_M, TH_M)
+write_matrix('i_DBR_leak', 'DBR (chirped): the transmitted part, 100 × T', 100*T)
 
 s = wb.create_sheet('j_angle_curves')
 s['A1'] = 'Panel (j): 100 × (1 − R) averaged over the green emission spectrum'; s['A1'].font = BOLD

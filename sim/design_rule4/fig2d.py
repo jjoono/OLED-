@@ -45,6 +45,16 @@ def dbr_qw(pairs=10, lam0=550.0):
     i = int(np.argmin(abs(LAM - lam0)))
     return dbr(pairs, lam0/(4*ZNS[i].real), lam0/(4*LIF[i].real))
 
+def dbr_chirp(pairs=10, d_zns=56.0, d_lif=88.0, factor=1.42):
+    """Linearly chirped ZnS/LiF stack: both thicknesses scale from 1 to `factor` across the
+    stack, which widens the stopband instead of deepening it.  The defaults minimise the
+    flux- and spectrum-weighted round-trip loss on glass with the green emitter."""
+    s = np.linspace(1.0, factor, pairs)
+    out = []
+    for i in range(pairs):
+        out += [(ZNS, d_zns*s[i]), (LIF, d_lif*s[i])]
+    return out
+
 QW = dbr_qw()
 D_ZNS, D_LIF = QW[0][1], QW[1][1]
 # thicknesses that minimise the flux- and spectrum-weighted loss for randomised light
@@ -65,6 +75,10 @@ def stacks(d_ito=150.0):
                                 note='low-loss Ag cathode'),
       'DBR (10 pairs)':    dict(layers=common + QW, exit=AIR,
                                 note=f'ZnS {D_ZNS:.0f} nm / LiF {D_LIF:.0f} nm, quarter-wave at 550 nm'),
+      'DBR, chirped':      dict(layers=common + dbr_chirp(), exit=AIR,
+                                note='10 pairs, ZnS 56->80 nm / LiF 88->125 nm; the chirp widens the stopband'),
+      'DBR, chirped 20':   dict(layers=common + dbr_chirp(20, 67.0, 71.0, 1.42), exit=AIR,
+                                note='the same idea with 20 pairs'),
       'DBR, re-optimised': dict(layers=common + OPT15, exit=AIR,
                                 note='ZnS 69 nm / LiF 97 nm, minimising the loss for randomised light on glass'),
       'DBR, re-opt. 1.8':  dict(layers=common + OPT18, exit=AIR,
