@@ -101,6 +101,10 @@ STACK_C = [
 DBR_PAIRS = 4                              # high/low index pairs drawn in the DBR block
 MLA_PITCH = 19.0                           # micro-lens pitch on the substrate's underside
 MLA_SEGS = 9                               # line segments per lens arc
+FW = 300.0                                 # front-view: width of the front face
+FDX, FDY = 32.0, 20.0                      # and how far back the top/side faces step
+FMIN = 32.0                                # smallest layer height that still fits a label
+FMIN2 = 50.0                               # ... and one that fits a label plus its note
 
 SH = None                                  # set per figure by figure()
 
@@ -231,6 +235,76 @@ def slab(ox, oy, z0, z1, fill, tag, top=True, lens_bottom=False):
     return P
 
 
+# --------------------------------------------------------------- front view
+def front_slab(x0, ybase, z0, z1, fill, tag, top=False, lens_bottom=False):
+    """One layer seen head-on: front face, a sliver of the right side, and the top
+    face on the layer that has nothing above it.
+
+    The reference figures this imitates put the layer name inside the band, which
+    only works head-on -- in the isometric view the front face is a sheared
+    parallelogram and horizontal text sits on it badly.
+    """
+    F = lambda x, z: (x0 + x, ybase - z)
+    B = lambda p: (p[0] + FDX, p[1] - FDY)
+    if lens_bottom:
+        bottom = [F(t, z0 - d) for t, d in lens_profile(FW)][::-1]
+    else:
+        bottom = [F(FW, z0), F(0, z0)]
+    poly([F(0, z1), F(FW, z1)] + bottom, shade(fill, 1.00), C("#5d666f"), tag + " front")
+    poly([F(FW, z0), B(F(FW, z0)), B(F(FW, z1)), F(FW, z1)],
+         shade(fill, 0.78), C("#5d666f"), tag + " side")
+    if top:
+        poly([F(0, z1), F(FW, z1), B(F(FW, z1)), B(F(0, z1))],
+             shade(fill, 1.10), C("#5d666f"), tag + " top")
+
+
+def front_device(x0, ybase, layers, title, title_y):
+    """`ybase` is the screen y of the stack's bottom edge."""
+    z = 0.0
+    for i, (name, fill, t, col, lens) in enumerate(layers):
+        head, _, note = name.partition("\n")
+        h = max(t, FMIN2 if note else FMIN)          # every band has to fit its label
+        z0, z1, is_top = z, z + h, (i == len(layers) - 1)
+        tag = "%s / %s" % (title, head)
+        if fill is None:                             # the DBR: alternating pairs
+            sub = h / (2.0 * DBR_PAIRS)
+            for k in range(2 * DBR_PAIRS):
+                front_slab(x0, ybase, z0 + k * sub, z0 + (k + 1) * sub,
+                           DBR_HI if k % 2 == 0 else DBR_LO,
+                           "%s pair %d" % (tag, k // 2 + 1),
+                           top=is_top and k == 2 * DBR_PAIRS - 1)
+            band = DBR_LO
+        else:
+            front_slab(x0, ybase, z0, z1, fill, tag, top=is_top, lens_bottom=lens)
+            band = fill
+        lum = sum(w * int(band[k:k + 2], 16) / 255.0
+                  for w, k in ((0.2126, 1), (0.7152, 3), (0.0722, 5)))
+        ink = C("#f2f5f8") if lum < 0.45 else col
+        ym = ybase - (z0 + z1) / 2.0
+        if note:
+            text(x0 + FW / 2.0, ym - 11.0, _runs(head), 14.5, ink, PP_ALIGN.CENTER,
+                 box_w=FW - 16.0, name=tag + " label")
+            text(x0 + FW / 2.0, ym + 11.0, _runs(note), 11.5, C("#ffd7d7") if lum < 0.45 else RED,
+                 PP_ALIGN.CENTER, box_w=FW - 16.0, name=tag + " label note")
+        else:
+            text(x0 + FW / 2.0, ym, _runs(head), 14.5, ink, PP_ALIGN.CENTER,
+                 box_w=FW - 16.0, name=tag + " label")
+        z = z1
+    text(x0 + FW / 2.0 + FDX / 2.0, title_y, title, 19.0, INK, PP_ALIGN.CENTER,
+         bold=True, box_w=520.0, name=title + " title")
+    return z
+
+
+def front_emission(x0, ybase, lenses):
+    drop = mla_depth(FW) if lenses else 0.0
+    cx = x0 + FW / 2.0
+    for dx, dy in ((-86.0, 62.0), (0.0, 78.0), (86.0, 62.0)):
+        arrow((cx + dx * 0.34, ybase + drop + 4), (cx + dx, ybase + drop + dy),
+              GREEN, 2.6, "bottom emission")
+    text(cx, ybase + drop + 112.0, "Bottom emission", 15.5, GREEN, PP_ALIGN.CENTER,
+         box_w=300.0, name="emission label")
+
+
 # ------------------------------------------------------------------ one device
 def device(ox, oy, layers, title, label_x, label_w, title_y):
     """`oy` is the screen y of the stack's bottom-back corner (pz = 0)."""
@@ -329,9 +403,45 @@ def figure(panels, filename):
     print("saved %s  (%d shapes, 0 groups, 0 pictures)" % (out, len(SH)))
 
 
+def front_figure(panels, filename, fw=None):
+    """Front view: `panels` is (x0, layers, title).
+
+    `fw` widens the stack for a figure that holds only one device, where the
+    default width leaves it marooned in the middle of the slide.  Text in a
+    PowerPoint shape does not scale when the shape is resized, so this has to be
+    right at build time rather than left to the reader.
+    """
+    global SH, FW
+    FW = fw or 300.0
+    def height(layers):
+        return sum(max(t, FMIN2 if "\n" in n else FMIN) for n, _, t, _, _ in layers)
+    tallest = max(height(layers) for _, layers, _ in panels)
+    lens = any(layers[0][4] for _, layers, _ in panels)
+    below = (mla_depth(FW) if lens else 0.0) + 134.0
+    ybase = H / 2.0 + (tallest + TITLE_GAP + 25.0 + FDY - below) / 2.0
+    title_y = ybase - tallest - FDY - TITLE_GAP
+
+    prs = Presentation()
+    prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
+    SH = prs.slides.add_slide(prs.slide_layouts[6]).shapes
+    for x0, layers, title in panels:
+        front_device(x0, ybase, layers, title, title_y)
+        front_emission(x0, ybase, layers[0][4])
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    prs.save(out)
+    print("saved %s  (%d shapes, 0 groups, 0 pictures)" % (out, len(SH)))
+
+
 figure([(230.0, STACK_A, "Ag reflector + MLA film", 430.0, 340.0),
         (860.0, STACK_B, "DBR + MLA substrate", 1060.0, 330.0)],
        "device_stacks.pptx")
 
 figure([(565.0, STACK_C, "Bottom-emitting OLED", 755.0, 400.0)],
        "device_stack_electrode.pptx")
+
+front_figure([(160.0, STACK_A, "Ag reflector + MLA film"),
+              (790.0, STACK_B, "DBR + MLA substrate")],
+             "device_stacks_front.pptx")
+
+front_figure([(490.0, STACK_C, "Bottom-emitting OLED")],
+             "device_stack_electrode_front.pptx", fw=420.0)

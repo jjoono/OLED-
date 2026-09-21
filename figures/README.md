@@ -197,7 +197,7 @@ python3 figures/make_emitting_area_figure.py
 팔레트는 `make_roundtrip_figure.py` 에서 import 하므로 Fig.1(a)와 색이 어긋나지
 않습니다.
 
-## 소자 적층 구조 — `device_stacks.pptx`, `device_stack_electrode.pptx`
+## 소자 적층 구조 — `device_stacks*.pptx`, `device_stack_electrode*.pptx`
 
 `make_stack_pptx.py` 가 만듭니다. 두 소자의 층 구성을 아이소메트릭 블록으로 쌓은
 그림이고, **파워포인트 네이티브 도형 102개, 그룹 0개, 이미지 0개** 입니다. 층 하나를
@@ -209,6 +209,16 @@ python3 figures/make_emitting_area_figure.py
 | DBR + MLA substrate | MLA substrate / IZO / TAPC:HAT-CN / TCTA / EML / B3PyMPM / Al:Liq / DBR |
 | Bottom-emitting OLED (`device_stack_electrode.pptx`) | Glass(n=1.77) / Transparent electrode / HTL 200 / EML 20 / ETL 200 / Ag 100 |
 
+- **뷰가 두 가지**입니다. `figure()` 는 아이소메트릭(라벨을 오른쪽에 리더선으로),
+  `front_figure()` 는 **정면뷰(라벨을 층 한가운데에)** 입니다. 파일명에 `_front`
+  가 붙은 쪽이 정면뷰입니다. 층 정의(`STACK_A`…)는 둘이 공유합니다.
+- 정면뷰에서는 **모든 층이 라벨이 들어갈 최소 높이(`FMIN`, 두 줄이면 `FMIN2`)를
+  보장받습니다.** 정면뷰의 요점이 층 위에 글자를 얹는 것이라, 얇은 층을 비율대로
+  그리면 그 층만 라벨을 못 답니다.
+- 정면뷰 글자색은 띠의 휘도로 정합니다(어두우면 흰 글씨). 층 색을 바꿔도 대비가
+  유지됩니다.
+- `front_figure(..., fw=)` 로 스택 폭을 키웁니다. 파워포인트는 도형을 키워도 **글자
+  크기가 따라 커지지 않으므로**, 한 소자만 있는 그림은 빌드 시점에 넓게 잡습니다.
 - **한 층에 두 줄짜리 라벨**을 줄 수 있습니다. 이름에 `\n` 을 넣으면 두번째 줄이
   작은 빨간 글씨로 아래에 붙습니다 — 실현 방법이 여러 가지인 층을 위한 것입니다
   (예: `Transparent electrode` + `ITO 50 nm or Ag 10 nm`).
