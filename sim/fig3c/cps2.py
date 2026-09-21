@@ -390,7 +390,7 @@ def solve_pol(S, u_max=3.0, npts=16000):
     half = np.pi / 2 - EDGE
     air = sub_tot = w_cone = wg = spp = 0.0
     for pol in ('p', 's'):
-        nref = ne if pol == 'p' else no
+        nref = float(np.real(ne if pol == 'p' else no))   # an absorbing EML is fine
         rat = ns / nref
         th_air = np.arcsin(min(1.0 / nref, rat, 1.0))
         th_c = np.arcsin(rat) if rat < 1.0 else half
