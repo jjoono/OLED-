@@ -582,9 +582,12 @@ def studio():
 def cameras():
     c = coll("Cameras")
     cams = {}
+    # Head-on: each device camera sits on its own centre line, not offset, and low
+    # enough (12 degrees) that the layer bands read as horizontal stripes rather
+    # than being swallowed by the top surface.
     for name, loc, target, lens in (("Cam both",  CAM_BOTH, (0.0, 0.0, 0.90), 85.0),
-                                    ("Cam conventional", (-SEP - 0.48, -10.90, 4.20), (-SEP, 0.0, 0.86), 102.0),
-                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 4.20), ( SEP, 0.0, 0.86), 102.0)):
+                                    ("Cam conventional", (-SEP, -11.00, 3.20), (-SEP, 0.0, 0.86), 102.0),
+                                    ("Cam design rule",  ( SEP, -11.00, 3.20), ( SEP, 0.0, 0.86), 102.0)):
         bpy.ops.object.camera_add(location=loc)
         cam = bpy.context.active_object
         cam.name = name
