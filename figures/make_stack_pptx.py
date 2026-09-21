@@ -37,7 +37,10 @@ C = lambda h: RGBColor.from_string(h.lstrip("#").upper())
 # screen x = 0.866 * (px - py)          px runs along the block's width
 # screen y = 0.500 * (px + py) - pz     py along its depth, pz up
 EX, EY = 0.866, 0.500
-BW, BD = 170.0, 130.0                      # block width and depth
+BW, BD = 150.0, 150.0                      # block width and depth: equal, so each layer
+                                           # is a square film seen corner-on rather than a
+                                           # rectangle.  BW + BD is unchanged, so the figure
+                                           # keeps its screen footprint and the layout holds.
 LH = 33.0                                  # default layer thickness on screen
 INK, MUTED = C("#1b2026"), C("#5b646e")
 RED = C("#d62828")                         # the source figures pick layers out in red
