@@ -9,6 +9,7 @@ can be recoloured, renamed, resized or deleted in PowerPoint directly.
 
 Layer order in STACKS is bottom -> top, the way the device is built.
 """
+import math
 import os
 
 from pptx import Presentation
@@ -84,6 +85,8 @@ STACK_B = [
 ]
 
 DBR_PAIRS = 4                              # high/low index pairs drawn in the DBR block
+MLA_PITCH = 19.0                           # micro-lens pitch on the substrate's underside
+MLA_SEGS = 9                               # line segments per lens arc
 
 prs = Presentation()
 prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
@@ -161,11 +164,40 @@ def arrow(p0, p1, colour, w=2.6, name="emission", head=True):
     return cn
 
 
-def slab(ox, oy, z0, z1, fill, tag, top=True):
+def lens_profile(length):
+    """A micro-lens array in cross-section: touching semicircles along `length`.
+
+    Returns (t, drop) pairs, t running 0 -> length and drop hanging below the face.
+    The pitch is adjusted to divide the edge exactly, so the array ends on a whole
+    lens at both corners instead of a clipped one.
+    """
+    n = max(1, int(round(length / MLA_PITCH)))
+    pitch = length / n
+    r = pitch / 2.0
+    out = []
+    for i in range(n):
+        c = (i + 0.5) * pitch
+        for k in range(MLA_SEGS + 1):
+            t = i * pitch + pitch * k / MLA_SEGS
+            out.append((t, math.sqrt(max(0.0, r * r - (t - c) ** 2))))
+    return out
+
+
+def mla_depth(length):
+    n = max(1, int(round(length / MLA_PITCH)))
+    return length / n / 2.0
+
+
+def slab(ox, oy, z0, z1, fill, tag, top=True, lens_bottom=False):
     """One layer: top face, front-left face (px = BW), front-right face (py = BD).
 
     Only the faces that can be seen are drawn -- an isometric box needs three, and
     the top one only on the layer that has nothing above it.
+
+    `lens_bottom` scallops the two visible bottom edges into a micro-lens array,
+    which is what the substrate of a bottom-emitting device actually looks like in
+    section.  The bottom face itself is never visible from this angle, so the edges
+    are the only place the array can show.
     """
     def P(px, py, pz):
         return (ox + EX * (px - py), oy + EY * (px + py) - pz)
@@ -174,10 +206,17 @@ def slab(ox, oy, z0, z1, fill, tag, top=True):
     if top:
         poly([P(0, 0, z1), P(BW, 0, z1), P(BW, BD, z1), P(0, BD, z1)],
              shade(base, 1.00), C("#5d666f"), tag + " top")
-    poly([P(BW, 0, z0), P(BW, 0, z1), P(BW, BD, z1), P(BW, BD, z0)],
-         shade(base, 0.86), C("#5d666f"), tag + " right")
-    poly([P(BW, BD, z0), P(BW, BD, z1), P(0, BD, z1), P(0, BD, z0)],
-         shade(base, 0.70), C("#5d666f"), tag + " front")
+
+    if lens_bottom:
+        right = ([P(BW, 0, z1), P(BW, BD, z1)] +
+                 [P(BW, BD - t, z0 - d) for t, d in lens_profile(BD)])
+        front = ([P(BW, BD, z1), P(0, BD, z1)] +
+                 [P(t, BD, z0 - d) for t, d in lens_profile(BW)])
+    else:
+        right = [P(BW, 0, z0), P(BW, 0, z1), P(BW, BD, z1), P(BW, BD, z0)]
+        front = [P(BW, BD, z0), P(BW, BD, z1), P(0, BD, z1), P(0, BD, z0)]
+    poly(right, shade(base, 0.86), C("#5d666f"), tag + " right")
+    poly(front, shade(base, 0.70), C("#5d666f"), tag + " front")
     return P
 
 
@@ -198,7 +237,7 @@ def device(ox, oy, layers, title, label_x, label_w):
                      "%s pair %d" % (tag, k // 2 + 1),
                      top=is_top and k == 2 * DBR_PAIRS - 1)
         else:
-            slab(ox, oy, z0, z1, fill, tag, top=is_top)
+            slab(ox, oy, z0, z1, fill, tag, top=is_top, lens_bottom=(i == 0))
 
         ym = oy + EY * BW - (z0 + z1) / 2.0        # the block's right-hand corner edge
         arrow((right_x + 6, ym), (label_x - 8, ym), LEADER, 1.1, tag + " leader", head=False)
@@ -233,9 +272,10 @@ def emission(ox, oy):
     face -- that point is behind the block, and arrows starting there look like they
     come out of the middle of the stack.
     """
-    corner = (ox + EX * (BW - BD), oy + EY * (BW + BD))     # lowest point of the block
-    left = (ox - EX * BD + 0.60 * EX * BW, oy + EY * BD + 0.60 * EY * BW)
-    right = (ox + EX * BW - 0.60 * EX * BD, oy + EY * BW + 0.60 * EY * BD)
+    dw, dd = mla_depth(BW), mla_depth(BD)                   # clear of the lens array
+    corner = (ox + EX * (BW - BD), oy + EY * (BW + BD) + max(dw, dd))
+    left = (ox - EX * BD + 0.60 * EX * BW, oy + EY * BD + 0.60 * EY * BW + dw)
+    right = (ox + EX * BW - 0.60 * EX * BD, oy + EY * BW + 0.60 * EY * BD + dd)
     for (tx, ty), (hx, hy) in ((left, (-58.0, 46.0)), (corner, (0.0, 68.0)), (right, (58.0, 46.0))):
         arrow((tx, ty + 3), (tx + hx, ty + hy), GREEN, 2.6, "bottom emission")
     text(corner[0], corner[1] + 100.0, "Bottom emission", 15.5, GREEN, PP_ALIGN.CENTER,
