@@ -524,7 +524,11 @@ def studio():
     fl.name = "Floor"
     fl.data.materials.append(principled("Floor", (0.52, 0.53, 0.55), rough=0.72))
     if BG == "transparent":
-        fl.is_shadow_catcher = True      # keeps the contact shadow, drops the grey plane
+        # invisible to the camera, so no plane and no contact shadow -- but still
+        # there for diffuse and glossy rays.  Deleting it outright also deletes the
+        # bounce it provides, and the metal layers, having nothing left to reflect
+        # but a dim world gradient, render nearly black.
+        fl.visible_camera = False
     link(fl, c)
 
     # a graded environment rather than a flat grey: the lens caps and the glass
@@ -728,14 +732,14 @@ print("spreading %.2fx  ->  lam %.3f vs %.3f   |   light %.2fx  ->  strength %.1
       % (SPREAD, LAM_REF / SPREAD, LAM_REF, BRIGHT, EMIT_STRENGTH / BRIGHT, EMIT_STRENGTH))
 
 # 2400 px wide is a Nature double-column figure (180 mm) at 300 dpi
-JOBS = [("Cam both", 2400, 1200, "emitting_area_render.png", None),
-        ("Cam conventional", 1200, 1200, "emitting_area_render_conventional.png", "conventional"),
-        ("Cam design rule", 1200, 1200, "emitting_area_render_designrule.png", "design rule")]
+# One file per device.  They are laid out side by side wherever the figure is
+# assembled, so rendering them together only fixes a gap somebody else has to
+# live with -- and the combined frame cannot be re-spaced without a re-render.
+JOBS = [("Cam conventional", 1400, 1400, "emitting_area_render_conventional.png", "conventional"),
+        ("Cam design rule", 1400, 1400, "emitting_area_render_designrule.png", "design rule")]
 if DO_RENDER:
     for cam_name, w, h, fn, only in JOBS:
         if ONLY_CAM and ONLY_CAM.lower() not in cam_name.lower():
-            continue
-        if not ONLY_CAM and QUALITY == "test" and cam_name != "Cam both":
             continue
         solo(only)
         render(cams[cam_name], w, h, os.path.join(OUT, fn))
