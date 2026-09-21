@@ -73,24 +73,25 @@ for k, c, lab in (('EQE_Ag', C_AG, 'Ag reflector'), ('EQE_Al', C_AL, 'Al reflect
     bx.plot(m['aspect_ratio'], 100 * m[k], color=c, lw=1.7, label=lab)
     flat = FLAT[k.split('_')[1]]
     bx.axhline(100 * flat, color=c, lw=0.7, dashes=(1.6, 2.0), zorder=1)
-    bx.text(0.03, 100 * flat + 1.0, 'flat interface', color=c,
-            fontsize=FS_NOTE - 0.4, ha='left', va='bottom')
     i = int(np.argmax(m[k]))
     thr = m['aspect_ratio'][m[k] >= 0.95 * m[k][i]][0]
     bx.plot([thr], [100 * m[k][m['aspect_ratio'] == thr][0]], marker='o', ms=4,
             color=c, mew=0, zorder=5)
+bx.text(0.03, 100 * FLAT['Ag'] + 1.0, 'flat interface (Ag / Al)', color='0.35',
+        fontsize=FS_NOTE - 0.4, ha='left', va='bottom')
 bx.axvline(1.0, color='0.75', lw=0.7, dashes=(2.5, 2.5), zorder=0)
-bx.text(1.01, 22.5, 'hemisphere', fontsize=FS_NOTE - 0.4, color='0.5',
+bx.text(1.015, 59.0, 'hemisphere', fontsize=FS_NOTE - 0.4, color='0.5',
         ha='left', va='bottom', rotation=90)
 bx.set_xlim(0.0, 1.55); bx.set_ylim(20, 95)
 bx.set_xlabel('aspect ratio   $h_{\\rm lens}/r_{\\rm lens}$')
 bx.set_ylabel('EQE  (%)')
 bx.tick_params(labelsize=FS_TICK)
-bx.legend(loc='center right', frameon=False, fontsize=FS_NOTE, handlelength=1.8,
-          borderaxespad=0.6)
+bx.legend(loc='center right', bbox_to_anchor=(1.0, 0.60), frameon=False,
+          fontsize=FS_NOTE, handlelength=1.8, borderaxespad=0.6)
 bx.text(0.02, 0.965, '$n_{\\rm sub}$ = $n_{\\rm MLA}$ = 1.80', transform=bx.transAxes,
         ha='left', va='top', fontsize=FS_NOTE, color='0.3')
-bx.text(0.78, 21.0, 'dots: within 5 % of the best', fontsize=FS_NOTE - 0.4, color='0.45')
+bx.text(0.40, 36.0, 'dots: from here on, within 5 % of the best', fontsize=FS_NOTE - 0.4,
+        color='0.45', ha='left', va='center')
 for s in ('top', 'right'):
     bx.spines[s].set_visible(False)
 for e in ('png', 'pdf'):
