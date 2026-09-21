@@ -55,10 +55,14 @@ HAZE_SCATTER = (0.12, 0.42, 0.22)        # scattering albedo, kept low: the opac
                                          # come from absorption and the colour from emission,
                                          # or the white key light scatters through and greys
                                          # the plume out
-LOBE_H = 0.42                            # height over which the escaped light fades out
-LOBE_SPREAD = 0.85                       # how much it widens per unit of height
+LOBE_H = 0.55                            # height over which the escaped light fades out
+LOBE_SPREAD = 0.25                       # how much it widens per unit of height.  Low, so
+                                         # the light leaves the pixel as a directed jet
+                                         # instead of mushrooming into a dome
+SHAFT_AMP = 0.35                         # depth of the soft angular ripple: shafts, not the
+SHAFT_N = 14.0                           # drawn beams that read as clip art
 LOBE_TOP = 3.2                           # dome height, in units of LOBE_H
-LOBE_DENS, LOBE_EMIS = 7.00, 9.00        # extinction and emission of that air volume.
+LOBE_DENS, LOBE_EMIS = 7.00, 6.00        # extinction and emission of that air volume.
                                          # Dense enough to be genuinely opaque in its core
                                          # (alpha 0.95), which is what keeps it bright over
                                          # a white page: a 30%-opaque green haze composited
@@ -345,6 +349,15 @@ def lobe_material(tag, lam, brightness):
     win = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
     f1 = N("ShaderNodeMath", operation="MULTIPLY")
     f2 = N("ShaderNodeMath", operation="MULTIPLY")
+    phi = N("ShaderNodeMath", operation="ARCTAN2")           # soft shafts around the jet
+    pn = N("ShaderNodeMath", operation="MULTIPLY", v1=SHAFT_N)
+    cs = N("ShaderNodeMath", operation="COSINE")
+    rr = N("ShaderNodeMath", operation="DIVIDE", v1=PIX_R)   # the ripple fades out on the
+    rr1 = N("ShaderNodeMath", operation="MINIMUM", v1=1.0)   # axis, where the angle is
+    amp = N("ShaderNodeMath", operation="MULTIPLY", v1=SHAFT_AMP)   # undefined and noisy
+    mod = N("ShaderNodeMath", operation="MULTIPLY")
+    shaft = N("ShaderNodeMath", operation="ADD", v0=1.0)
+    f3 = N("ShaderNodeMath", operation="MULTIPLY")
     dens = N("ShaderNodeMath", operation="MULTIPLY", v1=LOBE_DENS * brightness)
     emis = N("ShaderNodeMath", operation="MULTIPLY", v1=LOBE_EMIS * brightness)
     vol = N("ShaderNodeVolumePrincipled")
@@ -367,7 +380,14 @@ def lobe_material(tag, lam, brightness):
     L(edgep.outputs[0], win.inputs[1])
     L(latx.outputs[0], f1.inputs[0]); L(fz.outputs[0], f1.inputs[1])
     L(f1.outputs[0], f2.inputs[0]); L(win.outputs[0], f2.inputs[1])
-    L(f2.outputs[0], dens.inputs[0]); L(f2.outputs[0], emis.inputs[0])
+    L(sep.outputs["Y"], phi.inputs[0]); L(sep.outputs["X"], phi.inputs[1])
+    L(phi.outputs[0], pn.inputs[0]); L(pn.outputs[0], cs.inputs[0])
+    L(rad.outputs["Value"], rr.inputs[0]); L(rr.outputs[0], rr1.inputs[0])
+    L(rr1.outputs[0], amp.inputs[0])
+    L(amp.outputs[0], mod.inputs[0]); L(cs.outputs[0], mod.inputs[1])
+    L(mod.outputs[0], shaft.inputs[1])
+    L(f2.outputs[0], f3.inputs[0]); L(shaft.outputs[0], f3.inputs[1])
+    L(f3.outputs[0], dens.inputs[0]); L(f3.outputs[0], emis.inputs[0])
     L(dens.outputs[0], vol.inputs["Density"]); L(emis.outputs[0], vol.inputs["Emission Strength"])
     L(vol.outputs[0], out.inputs["Volume"])
     return m
@@ -540,7 +560,7 @@ def studio():
 def cameras():
     c = coll("Cameras")
     cams = {}
-    for name, loc, target, lens in (("Cam both",  CAM_BOTH, (0.0, 0.0, 0.42), 85.0),
+    for name, loc, target, lens in (("Cam both",  CAM_BOTH, (0.0, 0.0, 0.90), 85.0),
                                     ("Cam conventional", (-SEP - 0.48, -10.90, 4.20), (-SEP, 0.0, 0.86), 102.0),
                                     ("Cam design rule",  ( SEP - 0.48, -10.90, 4.20), ( SEP, 0.0, 0.86), 102.0)):
         bpy.ops.object.camera_add(location=loc)
