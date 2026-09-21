@@ -111,6 +111,15 @@ FSPLAY = 1.15                              # and how much it *widens*, about the
                                            # dead centre, its sides exactly edge-on
 FMIN = 32.0                                # smallest layer height that still fits a label
 FMIN2 = 50.0                               # ... and one that fits a label plus its note
+IEX, IEY = 0.94, 0.26                      # in-layer labels: a much flatter isometric.  A
+IBW, IBD = 340.0, 110.0                    # horizontal label of width W needs the band to be
+                                           # wide and shallow: the labelled face is the front
+                                           # one, so the depth stays a sliver or the text ends
+                                           # up crowded into the left third of the block
+IMIN, IMIN2 = 60.0, 86.0                   # at least H + (IEY/IEX)*W thick, so on the usual
+                                           # 30-degree projection (slope 0.58) a 140-wide
+                                           # label would need a 100-thick layer.  At slope
+                                           # 0.28 it needs 55.
 
 SH = None                                  # set per figure by figure()
 
@@ -239,6 +248,85 @@ def slab(ox, oy, z0, z1, fill, tag, top=True, lens_bottom=False):
     poly(right, shade(base, 0.86), C("#5d666f"), tag + " right")
     poly(front, shade(base, 0.70), C("#5d666f"), tag + " front")
     return P
+
+
+# ----------------------------------------------------- isometric, labels inside
+def inside_device(x0, ybase, layers, title, title_y):
+    """Isometric block with each label sitting inside its own layer.
+
+    Same three faces as slab(), but on a flattened projection, and the layers are
+    given whatever thickness their label needs.  Text is left horizontal: a run of
+    rotated labels is harder to read than it looks, and flattening buys enough
+    room to avoid it.
+    """
+    P = lambda px, py, pz: (x0 + IEX * (px - py), ybase + IEY * (px + py) - pz)
+    cx = x0 + IEX * (IBW - IBD) / 2.0            # screen centre of the block
+    z = 0.0
+    for i, (name, fill, t, col, lens) in enumerate(layers):
+        head, _, note = name.partition("\n")
+        h = max(t, IMIN2 if note else IMIN)
+        z0, z1, is_top = z, z + h, (i == len(layers) - 1)
+        tag = "%s / %s" % (title, head)
+        if is_top:
+            poly([P(0, 0, z1), P(IBW, 0, z1), P(IBW, IBD, z1), P(0, IBD, z1)],
+                 shade(fill, 1.00), C("#5d666f"), tag + " top")
+        poly([P(IBW, 0, z0), P(IBW, 0, z1), P(IBW, IBD, z1), P(IBW, IBD, z0)],
+             shade(fill, 0.86), C("#5d666f"), tag + " right")
+        if lens:
+            bottom = [P(t2, IBD, z0 - d) for t2, d in lens_profile(IBW)]
+        else:
+            bottom = [P(0, IBD, z0)]
+        poly([P(IBW, IBD, z0), P(IBW, IBD, z1), P(0, IBD, z1)] + bottom,
+             shade(fill, 0.70), C("#5d666f"), tag + " front")
+
+        lum = sum(w * int(fill[k:k + 2], 16) / 255.0
+                  for w, k in ((0.2126, 1), (0.7152, 3), (0.0722, 5))) * 0.70
+        ink = C("#f2f5f8") if lum < 0.34 else col
+        mx, my = P(IBW / 2.0, IBD, (z0 + z1) / 2.0)
+        if note:
+            text(mx, my - 14.0, _runs(head), 13.0, ink, PP_ALIGN.CENTER,
+                 box_w=IBW, name=tag + " label")
+            text(mx, my + 12.0, _runs(note), 11.0,
+                 C("#ffd7d7") if lum < 0.34 else RED, PP_ALIGN.CENTER,
+                 box_w=IBW, name=tag + " label note")
+        else:
+            text(mx, my, _runs(head), 13.0, ink, PP_ALIGN.CENTER,
+                 box_w=IBW, name=tag + " label")
+        z = z1
+    text(cx, title_y, title, 19.0, INK, PP_ALIGN.CENTER, bold=True,
+         box_w=520.0, name=title + " title")
+    return z
+
+
+def inside_emission(x0, ybase, lenses):
+    drop = (IBW / max(1, round(IBW / MLA_PITCH)) / 2.0) if lenses else 0.0
+    cx, cy = x0 + IEX * (IBW - IBD) / 2.0, ybase + IEY * (IBW + IBD) + drop
+    for dx, dy in ((-78.0, 60.0), (0.0, 76.0), (78.0, 60.0)):
+        arrow((cx + dx * 0.32, cy + 4), (cx + dx, cy + dy), GREEN, 2.6, "bottom emission")
+    text(cx, cy + 108.0, "Bottom emission", 15.5, GREEN, PP_ALIGN.CENTER,
+         box_w=300.0, name="emission label")
+
+
+def inside_figure(panels, filename):
+    """Isometric with in-layer labels: `panels` is (x0, layers, title)."""
+    global SH
+    def height(layers):
+        return sum(max(t, IMIN2 if "\n" in n else IMIN) for n, _, t, _, _ in layers)
+    tallest = max(height(layers) for _, layers, _ in panels)
+    lens = any(layers[0][4] for _, layers, _ in panels)
+    below = IEY * (IBW + IBD) + 130.0
+    ybase = H / 2.0 + (tallest + TITLE_GAP + 25.0 - below) / 2.0
+    title_y = ybase - tallest - TITLE_GAP
+
+    prs = Presentation()
+    prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
+    SH = prs.slides.add_slide(prs.slide_layouts[6]).shapes
+    for x0, layers, title in panels:
+        inside_device(x0, ybase, layers, title, title_y)
+        inside_emission(x0, ybase, layers[0][4])
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    prs.save(out)
+    print("saved %s  (%d shapes, 0 groups, 0 pictures)" % (out, len(SH)))
 
 
 # --------------------------------------------------------------- front view
@@ -458,3 +546,6 @@ front_figure([(160.0, STACK_A, "Ag reflector + MLA film"),
 
 front_figure([(490.0, STACK_C, "Bottom-emitting OLED")],
              "device_stack_electrode_front.pptx", fw=420.0)
+
+inside_figure([(592.0, STACK_C, "Bottom-emitting OLED")],
+              "device_stack_electrode_boxed.pptx")
