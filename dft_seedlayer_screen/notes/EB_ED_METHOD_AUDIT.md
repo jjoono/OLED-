@@ -1747,3 +1747,58 @@ than tuned away.
 
     python scripts/130_oxide_site_survey.py
     python scripts/130_oxide_site_survey.py --harvest oxide_sites
+
+### Package E result — the cluster is all edge, and the edges bind harder
+
+Eight relaxations, all converged, all `Normal termination`.
+
+| site | Mo3O9 E_b | Mo3O8 E_b |
+|---|---|---|
+| hollow (stage 1) | 1.806 | 0.875 |
+| bridgeO_out | **2.164** | 2.186 |
+| termO_top | 2.161 | 0.707 (S²=1.36, rejected) |
+| bridgeO_perp | 2.154 | 2.185 |
+| Mo_top | 1.624 | **2.185** |
+
+The hypothesis was that bridging sites would bind far more weakly than the
+hollow, making 1.806 eV the cluster's worst case. The opposite happened: three
+of the four new sites bind *harder*, and the stage-1 hollow was not the global
+minimum on either cluster. Fifth angle, fifth failure — and this one makes the
+disagreement with experiment worse, not better.
+
+Two things it did settle:
+
+**The stage-1 E_b column samples one site, not the deepest.** Mo3O9 goes
+1.806 → 2.164, Mo3O8 0.875 → 2.185. On Mo3O8 three independent starts converge
+to one geometry 0.4–0.6 Å from the stage-1 site but 1.31 eV lower with clean
+spin (S² 0.758), while the stage-1 energy sits beside the one run this survey
+rejects for S²=1.36 — so that 0.875 was very likely on a spin-contaminated
+branch, the same failure mode the PBE/DIIS route was disqualified for. Every
+other candidate was relaxed from a single starting site too, so the correction
+cannot be applied to the oxides alone without biasing the table.
+
+**Ag is ionised on the oxide at every site**: q(Ag) = +0.69 to +0.72 on Mo3O9
+regardless of where it lands, against +0.09 on Mo3O8's physisorbed site. Ag⁺ on
+an oxide is a deep, localised trap, not a wetting interaction.
+
+## Package F — the width of the landscape, not its mean
+
+The kMC result is the one thing in the project that predicts the experiment:
+at equal mean barrier and equal flux, a patchy landscape made 4× the islands
+and closed 21% later, because deep traps freeze adatoms as islands of one that
+cannot coalesce. Package E measured that width on Mo3O9 by accident — four
+sites spanning 0.54 eV on a 12-atom cluster.
+
+No organic has ever been measured this way. `site_spread/` relaxes Ag at every
+symmetry-inequivalent atop, bridge and hollow site of HATCN, F4TCNQ, Bphen and
+benzene — 27 jobs, Morgan equivalence classes, substrate frozen, same level,
+each referenced to its own candidate's stage-1 E_b so no reference job repeats.
+Atop alone would not do: benzene has one inequivalent carbon and would report a
+spread of zero.
+
+It returns the deepest site per candidate (a fair correction to the E_b column,
+applied to organics and oxides alike) and the width per candidate, which is the
+kMC's input and the quantity the screening table has silently assumed is zero.
+
+    python scripts/131_site_spread.py
+    python scripts/131_site_spread.py --harvest site_spread
