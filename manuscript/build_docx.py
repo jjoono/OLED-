@@ -39,8 +39,25 @@ def add_runs(p, text, bold_all=False, size=None):
         if size: r.font.size = size
 
 
+def add_table(rows):
+    rows = [[c.strip() for c in r.strip().strip('|').split('|')] for r in rows]
+    rows = [r for r in rows if not all(set(c) <= set('-: ') for c in r)]
+    t = d.add_table(rows=len(rows), cols=len(rows[0]))
+    t.style = d.styles['Table Grid'] if 'Table Grid' in [st.name for st in d.styles] else t.style
+    for i, r in enumerate(rows):
+        for j, c in enumerate(r):
+            cell = t.cell(i, j); cell.text = ''
+            run = cell.paragraphs[0].add_run(c); run.bold = (i == 0); run.font.size = Pt(8)
+    d.add_paragraph()
+
+
 lines = open(src, encoding='utf-8').read().split('\n')
-for line in lines:
+buf = []
+for line in lines + ['']:
+    if line.lstrip().startswith('|'):
+        buf.append(line); continue
+    if buf:
+        add_table(buf); buf = []
     s = line.rstrip()
     if not s:
         d.add_paragraph()
