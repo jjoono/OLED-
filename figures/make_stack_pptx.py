@@ -102,7 +102,13 @@ DBR_PAIRS = 4                              # high/low index pairs drawn in the D
 MLA_PITCH = 19.0                           # micro-lens pitch on the substrate's underside
 MLA_SEGS = 9                               # line segments per lens arc
 FW = 300.0                                 # front-view: width of the front face
-FDX, FDY = 32.0, 20.0                      # and how far back the top/side faces step
+FDY = 20.0                                 # how far the back edge rises on screen
+FSPLAY = 1.15                              # and how much it *widens*, about the centre line.
+                                           # Widening is what shows both side faces at once.
+                                           # A shear hides one of them; narrowing hides both,
+                                           # since they then fall inside the front silhouette
+                                           # -- which is simply what a box looks like from
+                                           # dead centre, its sides exactly edge-on
 FMIN = 32.0                                # smallest layer height that still fits a label
 FMIN2 = 50.0                               # ... and one that fits a label plus its note
 
@@ -237,25 +243,32 @@ def slab(ox, oy, z0, z1, fill, tag, top=True, lens_bottom=False):
 
 # --------------------------------------------------------------- front view
 def front_slab(x0, ybase, z0, z1, fill, tag, top=False, lens_bottom=False):
-    """One layer seen head-on: front face, a sliver of the right side, and the top
-    face on the layer that has nothing above it.
+    """One layer seen head-on and slightly from above: front face, both side faces,
+    and the top face on the layer that has nothing above it.
 
-    The reference figures this imitates put the layer name inside the band, which
-    only works head-on -- in the isometric view the front face is a sheared
-    parallelogram and horizontal text sits on it badly.
+    The back edge rises by FDY and splays by FSPLAY about the stack's centre line,
+    so each layer is a symmetric truncated wedge.  Both side faces then fall
+    outside the front face and are seen equally.
+
+    Faces are drawn sides-first, then the front, and the layers bottom-to-top: a
+    side face reaches FDY up into the layer above, whose front face has to cover
+    it.  Both sides carry the same shade, so neither reads as the lit one.
     """
+    cx = FW / 2.0
     F = lambda x, z: (x0 + x, ybase - z)
-    B = lambda p: (p[0] + FDX, p[1] - FDY)
+    B = lambda x, z: (x0 + cx + (x - cx) * FSPLAY, ybase - z - FDY)
+    poly([F(0, z0), B(0, z0), B(0, z1), F(0, z1)],
+         shade(fill, 0.84), C("#5d666f"), tag + " left")
+    poly([F(FW, z0), B(FW, z0), B(FW, z1), F(FW, z1)],
+         shade(fill, 0.84), C("#5d666f"), tag + " right")
+    if top:
+        poly([F(0, z1), F(FW, z1), B(FW, z1), B(0, z1)],
+             shade(fill, 1.10), C("#5d666f"), tag + " top")
     if lens_bottom:
         bottom = [F(t, z0 - d) for t, d in lens_profile(FW)][::-1]
     else:
         bottom = [F(FW, z0), F(0, z0)]
     poly([F(0, z1), F(FW, z1)] + bottom, shade(fill, 1.00), C("#5d666f"), tag + " front")
-    poly([F(FW, z0), B(F(FW, z0)), B(F(FW, z1)), F(FW, z1)],
-         shade(fill, 0.78), C("#5d666f"), tag + " side")
-    if top:
-        poly([F(0, z1), F(FW, z1), B(F(FW, z1)), B(F(0, z1))],
-             shade(fill, 1.10), C("#5d666f"), tag + " top")
 
 
 def front_device(x0, ybase, layers, title, title_y):
@@ -290,7 +303,7 @@ def front_device(x0, ybase, layers, title, title_y):
             text(x0 + FW / 2.0, ym, _runs(head), 14.5, ink, PP_ALIGN.CENTER,
                  box_w=FW - 16.0, name=tag + " label")
         z = z1
-    text(x0 + FW / 2.0 + FDX / 2.0, title_y, title, 19.0, INK, PP_ALIGN.CENTER,
+    text(x0 + FW / 2.0, title_y, title, 19.0, INK, PP_ALIGN.CENTER,
          bold=True, box_w=520.0, name=title + " title")
     return z
 
