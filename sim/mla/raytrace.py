@@ -103,12 +103,15 @@ def escape_probability(AR, n, N=400000, max_events=40, seed=0, chunk=100000,
     return esc / N
 
 
+PITCH = 2.0                     # lattice pitch in units of the base radius; 2 = touching
+
+
 def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
     if shape is None:                # cap up to the hemisphere, ellipsoid above it
         shape = 'cap' if AR <= 1.0 else 'ellipsoid'
     r = 1.0
     h = AR * r
-    a = 2 * r                       # pitch
+    a = PITCH * r                   # pitch; 2 r when the base circles touch
     off = _lattice_offsets(a)
     z_lo, r_gap, cyl = 0.0, r, False
     if shape == 'cap':              # spherical cap of fixed base r; it overlaps its neighbours for h > r
