@@ -37,11 +37,19 @@ LAM_C, TOT_C = model(.30, .82, .94)      # conventional (moderately lossy)
 LAM_D, TOT_D = model(.30, .98, .995)     # design rule
 SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
-PANEL_W, PANEL_D = 3.0, 2.0              # device footprint, Blender units
-PIX_R = 0.34                             # driven pixel radius (~11% of the panel)
-LAM_REF = 0.28                           # design-rule spreading length beyond the pixel edge
+PANEL_W, PANEL_D = 3.0, 2.3              # device footprint, Blender units
+PIX_R = 0.20                             # driven pixel radius
+LAM_REF = 0.17                           # design-rule spreading length beyond the pixel edge
+CUT_R = 1.05                             # emission is exactly zero from here out.  It has
+                                         # to stop short of the panel edge: an emitter that
+                                         # reaches the silhouette gets its partial-coverage
+                                         # pixels lifted by the compositor's alpha rebuild
+                                         # and prints a row of green spikes along the rim.
+WIN_P = 8.0                              # window exponent; high, so the window is ~1 until
+                                         # it is close to CUT_R and barely touches the profile
 EMIT_STRENGTH = 7.5                      # design-rule peak emission
-LENS_EMIT_FRAC = 1.00                    # the lit circle is carried by the lens caps alone
+LENS_EMIT_FRAC = 1.00                    # how much of the glow the caps carry
+GAP_EMIT_FRAC = 0.75                     # and the lit film showing through between them
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
 HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
 SEP = 1.85                               # half distance between the two devices
@@ -216,6 +224,9 @@ def radial_falloff(nt, lam, amp, pix=0.0):
         r <= pix :  1                        the pixel itself
         r >  pix :  exp(-(r - pix) / lam)    what leaked sideways and escaped later
 
+    all of it multiplied by 1 - (r / CUT_R)^WIN_P, which brings the emission to
+    exactly zero before the panel edge without noticeably reshaping the profile.
+
     A plateau rather than a peak is what makes it read as a pixel that lit up,
     instead of a blob that happens to be brightest in the middle.
     """
@@ -238,20 +249,43 @@ def radial_falloff(nt, lam, amp, pix=0.0):
     L(ln.outputs["Value"], edge.inputs[0])
     L(edge.outputs[0], out0.inputs[0])
     L(out0.outputs[0], div.inputs[0])
-    L(div.outputs[0], neg.inputs[0]); L(neg.outputs[0], ex.inputs[0]); L(ex.outputs[0], mul.inputs[0])
-    return ex.outputs[0], mul.outputs[0]        # (0..1 shape, shape * amp)
+    tn = nt.nodes.new("ShaderNodeMath"); tn.operation = "DIVIDE"; tn.inputs[1].default_value = CUT_R
+    tp = nt.nodes.new("ShaderNodeMath"); tp.operation = "POWER"; tp.inputs[1].default_value = WIN_P
+    win = nt.nodes.new("ShaderNodeMath"); win.operation = "SUBTRACT"
+    win.inputs[0].default_value = 1.0; win.use_clamp = True
+    shape = nt.nodes.new("ShaderNodeMath"); shape.operation = "MULTIPLY"
+    L(div.outputs[0], neg.inputs[0]); L(neg.outputs[0], ex.inputs[0])
+    L(ln.outputs["Value"], tn.inputs[0]); L(tn.outputs[0], tp.inputs[0]); L(tp.outputs[0], win.inputs[1])
+    L(ex.outputs[0], shape.inputs[0]); L(win.outputs[0], shape.inputs[1])
+    L(shape.outputs[0], mul.inputs[0])
+    return shape.outputs[0], mul.outputs[0]     # (0..1 shape, shape * amp)
+
+
+def add_glow(m, lam, amp):
+    """Give an existing Principled material the radial emission.
+
+    Only flat-lying geometry may carry this.  Putting it on the film -- a box --
+    lit that box's vertical side faces too, and since a close-up camera sees the
+    slab's near side, a scalloped green patch appeared along the edge that no
+    amount of tuning the radial profile could remove: the profile is radial in x
+    and y, so a vertical face at the panel rim is exactly where it is least able
+    to help.  Gating on the surface normal fixes the side faces but ruins the
+    caps, whose normals tilt everywhere except the apex.
+    """
+    nt = m.node_tree
+    p = nt.nodes["Principled BSDF"]
+    shape, scaled = radial_falloff(nt, lam, amp, PIX_R)
+    set_in(p, "emission_color", (*GLOW, 1.0))
+    nt.links.new(scaled, p.inputs["Emission Strength"])
+    return m
 
 
 def lens_material(tag, lam, amp, strength):
     """White cap that also emits: light really does leave through the lenses, so
     they can stay opaque enough to shade properly and still carry the glow."""
-    m = principled("Micro-lens %s" % tag, base=(0.95, 0.97, 1.00), rough=0.12, alpha=0.88)
-    nt = m.node_tree
-    p = nt.nodes["Principled BSDF"]
-    shape, scaled = radial_falloff(nt, lam, amp * strength, PIX_R)
-    set_in(p, "emission_color", (*GLOW, 1.0))
-    nt.links.new(scaled, p.inputs["Emission Strength"])
-    return m
+    return add_glow(principled("Micro-lens %s" % tag, base=(0.95, 0.97, 1.00),
+                               rough=0.12, alpha=0.88),
+                    lam, amp * strength)
 
 
 def haze_material(tag, height, r_base, slope, brightness):
@@ -323,6 +357,22 @@ def stack_label(cx, text, z_mid, c, mat, size=0.075):
     return t
 
 
+def no_bounce(o):
+    """Visible to the camera, invisible to every other kind of ray.
+
+    Every emitter needs this.  Left on, one device's lit circle illuminates the
+    near edge of the other one across the gap, and since that edge is where its
+    own emission is weakest the light reads as a row of bright green scallops
+    appearing from nowhere -- the artifact that survived three other fixes
+    because it never came from the device it appeared on.
+    """
+    o.visible_diffuse = False
+    o.visible_glossy = False
+    o.visible_transmission = False
+    o.visible_volume_scatter = False
+    o.visible_shadow = False
+
+
 def device(cx, tag, lam, amp, cone_h, brightness, label=True):
     c = coll("Device " + tag)
     ink = flat_material("Label ink %s" % tag, (0.045, 0.05, 0.055))
@@ -339,8 +389,25 @@ def device(cx, tag, lam, amp, cone_h, brightness, label=True):
     lens, top, n_lens = lens_array(cx, Z_TOP, tag, c, lens_mat)
     # the caps emit for the camera only: letting them light the scene washes the
     # film green and, worse, lets each device glow on its neighbour's near edge
-    lens.visible_diffuse = False
-    lens.visible_glossy = False
+    no_bounce(lens)
+
+    # hexagonal packing leaves a small hole wherever three lenses meet, and with
+    # only the caps lit every one of them stayed grey -- the circle turned into a
+    # field of chevrons.  A disc of exactly CUT_R fills them: its rim is where the
+    # emission reaches zero anyway, so the disc has no visible edge, and being flat
+    # it has no side faces to light.  It is the same material as the caps, because
+    # a plain emission shader in the gaps glows a raw saturated green beside the
+    # caps' white-plus-green and the packing turns into a field of dots instead.
+    bpy.ops.mesh.primitive_circle_add(vertices=128, radius=CUT_R, fill_type="NGON",
+                                      location=(cx, 0.0, Z_TOP + 0.0015))
+    g = bpy.context.active_object
+    g.name = "Lit film (%s)" % tag
+    g.data.materials.append(add_glow(principled("Lit film %s" % tag, base=(0.95, 0.97, 1.00),
+                                                rough=0.35, alpha=1.0),
+                                     lam, amp * GAP_EMIT_FRAC))
+    no_bounce(g)
+    link(g, c)
+
 
     slope = 0.30
     cone_r = PIX_R * 1.35
@@ -423,8 +490,8 @@ def cameras():
     c = coll("Cameras")
     cams = {}
     for name, loc, target, lens in (("Cam both",  (0.0, -19.10, 11.30), (0.0, 0.0, 0.42), 85.0),
-                                    ("Cam conventional", (-SEP - 0.48, -10.90, 7.60), (-SEP, 0.0, 0.34), 85.0),
-                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 7.60), ( SEP, 0.0, 0.34), 85.0)):
+                                    ("Cam conventional", (-SEP - 0.48, -10.90, 7.60), (-SEP, 0.0, 0.34), 118.0),
+                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 7.60), ( SEP, 0.0, 0.34), 118.0)):
         bpy.ops.object.camera_add(location=loc)
         cam = bpy.context.active_object
         cam.name = name
@@ -541,6 +608,16 @@ def render_settings(quality):
     s.render.film_transparent = (BG == "transparent")
 
 
+def solo(tag):
+    """Hide every device but one.  The close-up cameras sit close enough that the
+    neighbouring slab creeps into the edge of frame, which reads as a mistake."""
+    for name in ("conventional", "design rule"):
+        col = bpy.data.collections.get("Device " + name)
+        if col:
+            for o in col.all_objects:
+                o.hide_render = (tag is not None and name != tag)
+
+
 def render(cam, w, h, path):
     s = bpy.context.scene
     s.camera = cam
@@ -576,13 +653,15 @@ print("spreading %.2fx  ->  lam %.3f vs %.3f   |   light %.2fx  ->  strength %.1
       % (SPREAD, LAM_REF / SPREAD, LAM_REF, BRIGHT, EMIT_STRENGTH / BRIGHT, EMIT_STRENGTH))
 
 # 2400 px wide is a Nature double-column figure (180 mm) at 300 dpi
-JOBS = [("Cam both", 2400, 1200, "emitting_area_render.png"),
-        ("Cam conventional", 1200, 1200, "emitting_area_render_conventional.png"),
-        ("Cam design rule", 1200, 1200, "emitting_area_render_designrule.png")]
+JOBS = [("Cam both", 2400, 1200, "emitting_area_render.png", None),
+        ("Cam conventional", 1200, 1200, "emitting_area_render_conventional.png", "conventional"),
+        ("Cam design rule", 1200, 1200, "emitting_area_render_designrule.png", "design rule")]
 if DO_RENDER:
-    for cam_name, w, h, fn in JOBS:
+    for cam_name, w, h, fn, only in JOBS:
         if ONLY_CAM and ONLY_CAM.lower() not in cam_name.lower():
             continue
         if not ONLY_CAM and QUALITY == "test" and cam_name != "Cam both":
             continue
+        solo(only)
         render(cams[cam_name], w, h, os.path.join(OUT, fn))
+    solo(None)
