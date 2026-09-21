@@ -532,8 +532,8 @@ def cameras():
     c = coll("Cameras")
     cams = {}
     for name, loc, target, lens in (("Cam both",  CAM_BOTH, (0.0, 0.0, 0.42), 85.0),
-                                    ("Cam conventional", (-SEP - 0.48, -10.90, 4.20), (-SEP, 0.0, 0.34), 118.0),
-                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 4.20), ( SEP, 0.0, 0.34), 118.0)):
+                                    ("Cam conventional", (-SEP - 0.48, -10.90, 4.20), (-SEP, 0.0, 0.86), 102.0),
+                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 4.20), ( SEP, 0.0, 0.86), 102.0)):
         bpy.ops.object.camera_add(location=loc)
         cam = bpy.context.active_object
         cam.name = name
