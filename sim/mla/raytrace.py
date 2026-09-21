@@ -1,11 +1,34 @@
-"""Single-pass escape probability of a microlens array, by Monte-Carlo ray tracing.
+"""Angle-resolved response of a microlens array, by Monte-Carlo ray tracing.
 
-Hexagonally close-packed spherical caps of base radius r and height h on a
-planar substrate, index-matched to it (n_MLA = n_sub), infinite in extent.
-Aspect ratio AR = h/r; AR = 1 is a hemisphere.  The lens material and the
-substrate are the same medium, so there is no interface at the base plane; the
-9.3 % of the base plane that the close-packed circles do not cover is flat
-glass/air.
+Hexagonally close-packed lenses of base radius r and height h on a planar
+substrate, index-matched to it (n_MLA = n_sub), infinite in extent.  Aspect
+ratio AR = h/r.
+
+Two lens shapes, selected with `shape`:
+
+  'cap'        a spherical cap, the shape a reflowed lens takes.  Its sphere has
+               R = (r^2+h^2)/2h and centre z = h - R.  For h < r the centre is
+               below the base plane, the widest circle of the cap is the base
+               circle, and close-packed caps touch without overlapping; at h = r
+               it is exactly a hemisphere.  For h > r the centre rises above the
+               base plane and the widest circle becomes R > r, so the caps cut
+               into their neighbours (by 0.0045 r at AR = 1.1, 0.083 r at 1.5)
+               and the trace is no longer meaningful -- it meets an internal
+               surface of the overlap region and reads it as an exit, which puts
+               a spurious dip of about 3 %p near AR = 1.1.
+
+  'ellipsoid'  a half-ellipsoid, (x^2+y^2)/r^2 + z^2/h^2 = 1 for z >= 0, whose
+               widest circle is the base circle at every height, so it never
+               overlaps.  It is the same hemisphere as the cap at AR = 1, which
+               is where the two families are meant to be joined.  Below AR = 1
+               it is a legitimate shape but not a reflowed one: its rim always
+               meets the substrate vertically.
+
+So use 'cap' up to AR = 1 and 'ellipsoid' above it; run_aspect.py does that.
+
+The lens material and the substrate are the same medium, so there is no
+interface at the base plane; the 9.3 % of the base plane that the close-packed
+circles do not cover is flat glass/air.
 
 p is defined as in the recycling law: the fraction of angularly randomised
 light arriving at the extraction surface from inside that leaves into air in
@@ -80,13 +103,20 @@ def escape_probability(AR, n, N=400000, max_events=40, seed=0, chunk=100000,
     return esc / N
 
 
-def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None):
+def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
+    if shape is None:                # cap up to the hemisphere, ellipsoid above it
+        shape = 'cap' if AR <= 1.0 else 'ellipsoid'
     r = 1.0
     h = AR * r
-    R = (r * r + h * h) / (2 * h)
-    zc = h - R                      # sphere centre height
     a = 2 * r                       # pitch
-    off = _lattice_offsets(a)       # (9,2)
+    off = _lattice_offsets(a)
+    if shape == 'cap':              # spherical cap; it overlaps its neighbours for h > r
+        R = (r * r + h * h) / (2 * h)
+        zc = h - R
+        inv = np.array([1.0, 1.0, 1.0])
+    else:                           # half-ellipsoid, the default
+        R, zc = 1.0, 0.0
+        inv = np.array([1.0 / r ** 2, 1.0 / r ** 2, 1.0 / h ** 2])
 
     # start on the base plane, uniform over one rhombic cell
     u1, u2 = rng.random(N), rng.random(N)
@@ -120,17 +150,19 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None):
         for o in off:
             c = np.array([o[0], o[1], zc])
             L = p - c
-            b = np.sum(L * d, 1)
-            cq = np.sum(L * L, 1) - R * R
-            disc = b * b - cq
+            qa = np.sum(d * d * inv, 1)
+            qb = 2.0 * np.sum(L * d * inv, 1)
+            qc = np.sum(L * L * inv, 1) - R * R
+            disc = qb * qb - 4.0 * qa * qc
             ok = disc > 0
             sq = np.sqrt(np.where(ok, disc, 0.0))
-            for t in (-b - sq, -b + sq):
+            for t in ((-qb - sq) / (2 * qa), (-qb + sq) / (2 * qa)):
                 hit = p + t[:, None] * d
                 good = ok & (t > 1e-9) & (hit[:, 2] >= 0.0) & (t < best_t)
                 if good.any():
                     best_t = np.where(good, t, best_t)
-                    nrm = (hit - c) / R
+                    g = (hit - c) * inv
+                    nrm = g / np.linalg.norm(g, axis=1, keepdims=True)
                     best_n = np.where(good[:, None], nrm, best_n)
 
         # --- the base plane z = 0.  The close-packed circles leave 1 - pi/(2sqrt3)
@@ -220,7 +252,7 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None):
     return escaped, ret_cos
 
 
-def bsdf(AR, n, N=40000, n_bin=90, max_events=40, seed=0):
+def bsdf(AR, n, N=40000, n_bin=90, max_events=40, seed=0, shape=None):
     """Angle-resolved response of the array, as the recycling series needs it.
 
     B_T[i]    fraction of light arriving at polar angle bin i that escapes to air
@@ -229,14 +261,18 @@ def bsdf(AR, n, N=40000, n_bin=90, max_events=40, seed=0):
     Bins are 1 degree wide, bin i covering [i, i+1) degrees, so that they line up
     with the 0-89 degree grid the stack reflectance is computed on.  The two
     together sum to 1 for every column: the array neither absorbs nor traps.
+
+    shape = None picks the cap up to AR = 1 and the half-ellipsoid above it.
     """
+    if shape is None:
+        shape = 'cap' if AR <= 1.0 else 'ellipsoid'
     rng = np.random.default_rng(seed)
     edges = np.linspace(0.0, 90.0, n_bin + 1)
     centres = 0.5 * (edges[:-1] + edges[1:])
     BT = np.zeros(n_bin)
     BR = np.zeros((n_bin, n_bin))
     for i, th in enumerate(centres):
-        esc, rc = _trace_chunk(AR, n, N, max_events, rng, float(th))
+        esc, rc = _trace_chunk(AR, n, N, max_events, rng, float(th), shape)
         BT[i] = esc.mean()
         good = np.isfinite(rc)
         if good.any():
