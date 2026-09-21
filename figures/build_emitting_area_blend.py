@@ -51,11 +51,20 @@ EMIT_STRENGTH = 20.0                     # design-rule peak emission
 LENS_EMIT_FRAC = 1.00                    # how much of the glow the caps carry
 GAP_EMIT_FRAC = 0.75                     # and the lit film showing through between them
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
-HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
+HAZE_SCATTER = (0.12, 0.42, 0.22)        # scattering albedo, kept low: the opacity should
+                                         # come from absorption and the colour from emission,
+                                         # or the white key light scatters through and greys
+                                         # the plume out
 LOBE_H = 0.42                            # height over which the escaped light fades out
 LOBE_SPREAD = 0.85                       # how much it widens per unit of height
 LOBE_TOP = 3.2                           # dome height, in units of LOBE_H
-LOBE_DENS, LOBE_EMIS = 1.20, 4.60        # scattering density and emission of that air volume
+LOBE_DENS, LOBE_EMIS = 7.00, 9.00        # extinction and emission of that air volume.
+                                         # Dense enough to be genuinely opaque in its core
+                                         # (alpha 0.95), which is what keeps it bright over
+                                         # a white page: a 30%-opaque green haze composited
+                                         # onto white is mostly white, and faking the
+                                         # brightness in the compositor instead is what put
+                                         # a hard line along the slab's silhouette.
 CAM_BOTH = (0.0, -18.00, 6.80)           # lowering this reads more side-on: light in the air
                                          # rises against the background instead of foreshortening
 SEP = 1.85                               # half distance between the two devices
@@ -544,14 +553,23 @@ def cameras():
     return cams
 
 def compositor():
-    """Give the emissive haze an alpha so the glow survives a transparent background.
+    """Straight-alpha output: divide the premultiplied render by its own alpha.
 
-    Cycles gives a thin emissive volume almost no alpha, so with film_transparent the
-    cone is there in RGB but vanishes once composited.  Alpha is rebuilt from the
-    per-pixel channel maximum -- not the luminance, which for a saturated colour would
-    push the strong channel past 1 on un-premultiply and clip the hue back to white.
-    The colour is un-premultiplied only where the render had no alpha of its own, so
-    the glow composites cleanly over a light page and over a dark one alike.
+    The render carries a real alpha.  The escaping-light volume has scattering
+    density, so Cycles reports 0.32-0.42 of coverage through it, and the shadow
+    catcher reports its own partial coverage.  Dividing by that alpha is just the
+    premultiplied-to-straight conversion a PNG needs, and it is continuous.
+
+    An earlier version rebuilt alpha from the per-pixel channel maximum instead,
+    written back when the glow above the surface was a thin almost-pure-emission
+    haze with no alpha to speak of.  That hack outlived its scene.  Against a real
+    volume it clamps the plume to alpha 1 and normalises its colour to full
+    saturation -- but only where the render is transparent.  Where the plume is in
+    front of the slab the render is opaque and keeps its true, paler colour, so the
+    glow jumped from saturated to washed out exactly along the slab's silhouette.
+    Measured across that line: greenness 82 above, 38 below.  Rendering the same
+    scene with the compositor off gave 17 on both sides, which is what pinned it on
+    the compositor rather than on the shape of the lobe.
     """
     s = bpy.context.scene
     s.use_nodes = True
@@ -562,43 +580,20 @@ def compositor():
     for key, val in (("Saturation", 1.30), ("Fac", 1.0)):   # this build, so do it here
         if key in sat.inputs:
             sat.inputs[key].default_value = val
-    try:
-        sep = nt.nodes.new("CompositorNodeSeparateColor")
-        sep.mode = "RGB"
-        chans = ("Red", "Green", "Blue")
-    except RuntimeError:
-        sep = nt.nodes.new("CompositorNodeSepRGBA")
-        chans = ("R", "G", "B")
-    m1 = nt.nodes.new("CompositorNodeMath"); m1.operation = "MAXIMUM"
-    lum = nt.nodes.new("CompositorNodeMath"); lum.operation = "MAXIMUM"
-    safe = nt.nodes.new("CompositorNodeMath"); safe.operation = "MAXIMUM"
-    safe.inputs[1].default_value = 0.004
+    safe = nt.nodes.new("CompositorNodeMath")        # never divide by ~0: the outer
+    safe.operation = "MAXIMUM"                       # fringe of the volume would just
+    safe.inputs[1].default_value = 0.02              # amplify its own sampling noise
     unp = nt.nodes.new("CompositorNodeMixRGB"); unp.blend_type = "DIVIDE"
     unp.inputs[0].default_value = 1.0
-    hard = nt.nodes.new("CompositorNodeMath")        # partial alpha (shadow) -> 1
-    hard.operation = "MULTIPLY"; hard.inputs[1].default_value = 12.0; hard.use_clamp = True
-    keep = nt.nodes.new("CompositorNodeMixRGB"); keep.blend_type = "MIX"
-    amax = nt.nodes.new("CompositorNodeMath"); amax.operation = "MAXIMUM"
     sa = nt.nodes.new("CompositorNodeSetAlpha"); sa.mode = "REPLACE_ALPHA"
     out = nt.nodes.new("CompositorNodeComposite")
     L = nt.links.new
     L(rl.outputs["Image"], sat.inputs["Image"])
-    L(sat.outputs[0], sep.inputs[0])
-    L(sep.outputs[chans[0]], m1.inputs[0])
-    L(sep.outputs[chans[1]], m1.inputs[1])
-    L(m1.outputs[0], lum.inputs[0])
-    L(sep.outputs[chans[2]], lum.inputs[1])
-    L(lum.outputs[0], safe.inputs[0])
+    L(rl.outputs["Alpha"], safe.inputs[0])
     L(sat.outputs[0], unp.inputs[1])
     L(safe.outputs[0], unp.inputs[2])
-    L(rl.outputs["Alpha"], hard.inputs[0])
-    L(hard.outputs[0], keep.inputs[0])
-    L(unp.outputs[0], keep.inputs[1])
-    L(sat.outputs[0], keep.inputs[2])
-    L(lum.outputs[0], amax.inputs[0])
-    L(rl.outputs["Alpha"], amax.inputs[1])
-    L(keep.outputs[0], sa.inputs["Image"])
-    L(amax.outputs[0], sa.inputs["Alpha"])
+    L(unp.outputs[0], sa.inputs["Image"])
+    L(rl.outputs["Alpha"], sa.inputs["Alpha"])
     L(sa.outputs["Image"], out.inputs["Image"])
     for i, n in enumerate(nt.nodes):
         n.location = (260 * i, 0)
