@@ -112,10 +112,10 @@ FSPLAY = 1.15                              # and how much it *widens*, about the
 FMIN = 32.0                                # smallest layer height that still fits a label
 FMIN2 = 50.0                               # ... and one that fits a label plus its note
 IEX, IEY = 0.94, 0.26                      # in-layer labels: a much flatter isometric.  A
-IBW, IBD = 340.0, 110.0                    # horizontal label of width W needs the band to be
-                                           # wide and shallow: the labelled face is the front
-                                           # one, so the depth stays a sliver or the text ends
-                                           # up crowded into the left third of the block
+IBW, IBD = 300.0, 215.0                    # horizontal label of width W needs the band to be
+                                           # at least H + (IEY/IEX)*W thick.  Labels go on the
+                                           # right-hand face, so IBD (not IBW) sets how much
+                                           # room a label has: IEX*IBD wide.
 IMIN, IMIN2 = 60.0, 86.0                   # at least H + (IEY/IEX)*W thick, so on the usual
                                            # 30-degree projection (slope 0.58) a 140-wide
                                            # label would need a 100-thick layer.  At slope
@@ -279,19 +279,21 @@ def inside_device(x0, ybase, layers, title, title_y):
         poly([P(IBW, IBD, z0), P(IBW, IBD, z1), P(0, IBD, z1)] + bottom,
              shade(fill, 0.70), C("#5d666f"), tag + " front")
 
+        # the label rides the right-hand face, as the schematics this imitates do
         lum = sum(w * int(fill[k:k + 2], 16) / 255.0
-                  for w, k in ((0.2126, 1), (0.7152, 3), (0.0722, 5))) * 0.70
-        ink = C("#f2f5f8") if lum < 0.34 else col
-        mx, my = P(IBW / 2.0, IBD, (z0 + z1) / 2.0)
+                  for w, k in ((0.2126, 1), (0.7152, 3), (0.0722, 5))) * 0.86
+        ink = C("#f2f5f8") if lum < 0.40 else col
+        mx, my = P(IBW, IBD / 2.0, (z0 + z1) / 2.0)
+        bw = IEX * IBD - 14.0
         if note:
             text(mx, my - 14.0, _runs(head), 13.0, ink, PP_ALIGN.CENTER,
-                 box_w=IBW, name=tag + " label")
+                 box_w=bw, name=tag + " label")
             text(mx, my + 12.0, _runs(note), 11.0,
-                 C("#ffd7d7") if lum < 0.34 else RED, PP_ALIGN.CENTER,
-                 box_w=IBW, name=tag + " label note")
+                 C("#ffd7d7") if lum < 0.40 else RED, PP_ALIGN.CENTER,
+                 box_w=bw, name=tag + " label note")
         else:
             text(mx, my, _runs(head), 13.0, ink, PP_ALIGN.CENTER,
-                 box_w=IBW, name=tag + " label")
+                 box_w=bw, name=tag + " label")
         z = z1
     text(cx, title_y, title, 19.0, INK, PP_ALIGN.CENTER, bold=True,
          box_w=520.0, name=title + " title")
@@ -547,5 +549,5 @@ front_figure([(160.0, STACK_A, "Ag reflector + MLA film"),
 front_figure([(490.0, STACK_C, "Bottom-emitting OLED")],
              "device_stack_electrode_front.pptx", fw=420.0)
 
-inside_figure([(592.0, STACK_C, "Bottom-emitting OLED")],
+inside_figure([(660.0, STACK_C, "Bottom-emitting OLED")],
               "device_stack_electrode_boxed.pptx")
