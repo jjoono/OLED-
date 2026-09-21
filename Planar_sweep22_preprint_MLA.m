@@ -13,17 +13,10 @@ BSDF=BSDF_MLA(:,:,11);
 % n_MLA = 1.80 while the substrate below is 1.5 (no_bar(end)). Confirm the slice that
 % matches your substrate index, or the BSDF describes the wrong interface.
 
-% --- one-off diagnostics on the BSDF (safe to delete) -------------------------
-%   1. energy: every column (incidence angle) should sum to 1
-%   2. reciprocity: for a reciprocal surface  R(AOR,AOI)*cos(AOR)  is symmetric.
-%      If it is, the orientation of BSDF_R below does not matter. If it is not,
-%      the AOR/AOI convention has to be confirmed -- with a strongly asymmetric
-%      BSDF the two orientations differ by several points in eta_ext.
+% --- one-off diagnostic on the BSDF (safe to delete): every column
+% --- (incidence angle) should sum to 1 if the BSDF conserves energy.
 col_sum = sum(BSDF,1);
-Rchk = BSDF(180:-1:91,:).*repmat(cosd((0:89)'+0.5),1,90);
-fprintf('BSDF energy  : column sums %.4f .. %.4f\n', min(col_sum), max(col_sum));
-fprintf('BSDF recipro.: max|M-M''|/max|M| = %.4f  (small => BSDF_R orientation is irrelevant)\n', ...
-    max(max(abs(Rchk-Rchk')))/max(max(abs(Rchk))));
+fprintf('BSDF energy: column sums %.4f .. %.4f\n', min(col_sum), max(col_sum));
 % -----------------------------------------------------------------------------
 
 wavelength=550;
@@ -194,12 +187,12 @@ for k1=1:length(d1)
 
 
         %% ======================= MLA out-coupling =======================
-        % Photon recycling on the extraction surface, exactly as in
-        % planar_Sweep22_MLA_JH_full_lambda.m:
+        % Photon recycling on the extraction surface, following
+        % planar_Sweep22_MLA_JH_full_lambda_modified.m:
         %   the substrate-delivered power P0 leaves with angular distribution
         %   Psub_norm, the BSDF transmits part of it and sends the rest back,
         %   the OLED stack reflects the returned light with R_LED, and the
-        %   series is summed over R_step round trips.
+        %   series is summed over R_step terms.
 
         % --- kernels without the factor 2 of U_bottom_* (reference convention)
         K_bottom_transmit_p       = const3.*K_p_v2 + const4.*K_p_h2;
@@ -253,42 +246,56 @@ for k1=1:length(d1)
             [0 thickness(layer_num-2:-1:1) 0],no_bar(:,layer_num)*sin089,wavelength);
         ROLED = (abs(TMF_OLED_bot_p.r_p).^2 + abs(TMF_OLED_bot_s.r_s).^2)/2;   % unpolarised
 
-        % --- recycling series
+        % --- recycling series, following
+        %     planar_Sweep22_MLA_JH_full_lambda_modified.m
+        %   R_step is the NUMBER OF TERMS j = 1 .. R_step: j = 1 is the direct
+        %   pass through the BSDF, j = k is k-1 round trips, each one a BSDF
+        %   reflection followed by the OLED mirror.  The reference writes the
+        %   k-th term as  Psub_norm * M^(k-1) * BSDF_T_total'  with
+        %   M = BSDF_R' .* R_LED; here the vector is carried forward instead of
+        %   raising M to a power, which is the same arithmetic and much faster.
         R_step       = 20;
-        BSDF_R       = BSDF(180:-1:91,:);     % rows AOR, columns AOI
-        BSDF_T_total = sum(BSDF(1:90,:));     % 1 x 90, total transmittance per AOI
-        R_bot        = repmat(ROLED,1,1,90);  % wavelength x 90 x 90
-        P0           = EQE_sub_matrix;
+        BSDF_R       = BSDF(180:-1:91,:);
+        BSDF_T_total = sum(BSDF(1:90,:));
 
-        Power = zeros(1,R_step+2);
-        tpow  = zeros(R_step+2,wavelength_num);
-
-        % zeroth pass: straight out through the BSDF
-        Power(1) = sum(Psub_norm.*repmat(BSDF_T_total,wavelength_num,1),2)'*P0;
-
-        % first round trip: BSDF reflection followed by the OLED mirror
-        R_cur = repmat(reshape(BSDF_R,1,90,90),wavelength_num,1,1).*R_bot;
-        for j=1:wavelength_num
-            tpow(2,j) = Psub_norm(j,:)*reshape(R_cur(j,:,:),90,90)*BSDF_T_total';
-        end
-        Power(2) = tpow(2,:)*P0;
-
-        for i=1:R_step
-            R_next = zeros(size(R_cur));
-            for j=1:wavelength_num
-                R_temp = sum(R_cur(j,:,:),3);
-                R_temp = reshape(repmat(R_temp,1,1,90),90,90)';
-                Rn = R_temp.*BSDF_R.*reshape(R_bot(j,:,:),90,90);
-                R_next(j,:,:) = Rn;
-                tpow(i+2,j) = Psub_norm(j,:)*Rn*BSDF_T_total';
+        % BSDF as an intensity (per solid angle) rather than a power term,
+        % used for the angular profile after the MLA
+        BSDF_CE = zeros(180,90);
+        for a = 1:90
+            for b = 1:180
+                BSDF_CE(b,a) = BSDF(b,a)*sind(a-0.5)/sind(b-0.5);
             end
-            R_cur = R_next;
-            Power(i+2) = tpow(i+2,:)*P0;
+        end
+        BSDF_T_CE = BSDF_CE(1:90,:);
+
+        ROLED_3    = repmat(ROLED,1,1,90);
+        R_matrix_1 = repmat(reshape(BSDF_R',1,90,90),wavelength_num,1,1).*ROLED_3;
+        P0         = EQE_sub_matrix;
+
+        Power      = zeros(1,R_step);
+        temp_power = zeros(wavelength_num,R_step);
+        P_MLA      = zeros(wavelength_num,90,R_step);
+
+        for i = 1:wavelength_num
+            M = reshape(R_matrix_1(i,:,:),90,90);
+            v = Psub_norm(i,:);                 % normalised, carries the EQE
+            w = P_sub(i,:);                     % unnormalised, carries the angular shape
+            for j = 1:R_step
+                temp_power(i,j) = v*BSDF_T_total';
+                P_MLA(i,:,j)    = w*BSDF_T_CE';
+                v = v*M;
+                w = w*M;
+            end
+        end
+        for j = 1:R_step
+            Power(j) = temp_power(:,j)'*P0;
         end
 
-        EQE_sub  = sum(EQE_sub_matrix);
-        EQE_MLA  = sum(Power);
-        MLA_tail = Power(end)/EQE_MLA;        % convergence check: last term / total
+        EQE_sub    = sum(EQE_sub_matrix);
+        EQE_MLA    = sum(Power);                % = TotalPower of the reference
+        MLA_tail   = Power(end)/EQE_MLA;        % convergence: last term / total
+        P_MLA_total = sum(P_MLA,3);             % angular emission profile after the MLA
+
         %% ===================== end MLA out-coupling =====================
 
         % fprintf('\nEQE_air = %d \n', EQE_air);
