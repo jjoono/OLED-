@@ -196,7 +196,7 @@ python3 figures/make_emitting_area_figure.py
 팔레트는 `make_roundtrip_figure.py` 에서 import 하므로 Fig.1(a)와 색이 어긋나지
 않습니다.
 
-## 소자 적층 구조 — `device_stacks.pptx`
+## 소자 적층 구조 — `device_stacks.pptx`, `device_stack_electrode.pptx`
 
 `make_stack_pptx.py` 가 만듭니다. 두 소자의 층 구성을 아이소메트릭 블록으로 쌓은
 그림이고, **파워포인트 네이티브 도형 102개, 그룹 0개, 이미지 0개** 입니다. 층 하나를
@@ -206,7 +206,13 @@ python3 figures/make_emitting_area_figure.py
 |---|---|
 | Ag reflector + MLA film | Glass+MLA / ITO / HATCN:TAPC / TCTA / EML / B3PyMPM / B3PyMPM:Cs₂CO₃ / Ag / Nanolaminate / Parylene-C / MoOx+Ag reflector |
 | DBR + MLA substrate | MLA substrate / IZO / TAPC:HAT-CN / TCTA / EML / B3PyMPM / Al:Liq / DBR |
+| Bottom-emitting OLED (`device_stack_electrode.pptx`) | Glass(n=1.77) / Transparent electrode / HTL 200 / EML 20 / ETL 200 / Ag 100 |
 
+- **한 층에 두 줄짜리 라벨**을 줄 수 있습니다. 이름에 `\n` 을 넣으면 두번째 줄이
+  작은 빨간 글씨로 아래에 붙습니다 — 실현 방법이 여러 가지인 층을 위한 것입니다
+  (예: `Transparent electrode` + `ITO 50 nm or Ag 10 nm`).
+- **세로 배치는 가장 높은 스택을 따라갑니다** (`figure()`). 11층짜리에 맞춘 고정
+  베이스라인에 6층짜리를 올리면 제목만 빈 슬라이드 꼭대기에 덩그러니 남습니다.
 - **층 목록이 곧 그림입니다.** `STACK_A`, `STACK_B` 리스트를 고치면 블록과 라벨,
   리더선이 같이 따라옵니다. 튜플은 `(라벨, 색, 두께, 라벨색)` 이고 순서는 **아래에서
   위** — 소자를 쌓는 순서 그대로입니다.

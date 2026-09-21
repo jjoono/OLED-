@@ -54,7 +54,7 @@ def shade(hexcol, f):
     return RGBColor(*(min(255, int(round(v * f))) for v in (r, g, b)))
 
 # ------------------------------------------------------------------ the stacks
-# (label, fill, thickness, label colour, white text on the block?)
+# (label, fill, thickness, label colour, micro-lens array on its underside?)
 GLASS, TCO = "#cfe4f5", "#7fd3e8"
 HIL, HTL, EML = "#f6dfae", "#f0b860", "#b23a3a"
 ETL, EIL = "#7f9ada", "#4560a8"
@@ -63,38 +63,46 @@ NANO, PARY, REFL = "#d9e6e2", "#e2dcef", "#9aa1a8"
 DBR_HI, DBR_LO = "#a02828", "#2b2f33"
 
 STACK_A = [
-    ("Glass + Microlens array film", GLASS, 46.0, RED),
-    ("ITO [150]",                    TCO,   33.0, INK),
-    ("HATCN/TAPC [5/55] 3 pairs",    HIL,   33.0, INK),
-    ("TCTA [10]",                    HTL,   28.0, INK),
-    (u"TCTA:B3PyMPM:Irppy₂acac [25]", EML, 36.0, INK),
-    ("B3PyMPM [50]",                 ETL,   33.0, INK),
-    (u"B3PyMPM:Cs₂CO₃ [5]", EIL,  26.0, INK),
-    ("Ag [100]",                     AG,    30.0, INK),
-    ("Nanolaminate",                 NANO,  33.0, INK),
-    ("Parylene-C [3000]",            PARY,  40.0, RED),
-    ("MoOx [5] + Ag reflector [100]", REFL, 34.0, RED),
+    ("Glass + Microlens array film", GLASS, 46.0, RED, True),
+    ("ITO [150]",                    TCO,   33.0, INK, False),
+    ("HATCN/TAPC [5/55] 3 pairs",    HIL,   33.0, INK, False),
+    ("TCTA [10]",                    HTL,   28.0, INK, False),
+    (u"TCTA:B3PyMPM:Irppy\u2082acac [25]", EML, 36.0, INK, False),
+    ("B3PyMPM [50]",                 ETL,   33.0, INK, False),
+    (u"B3PyMPM:Cs\u2082CO\u2083 [5]", EIL, 26.0, INK, False),
+    ("Ag [100]",                     AG,    30.0, INK, False),
+    ("Nanolaminate",                 NANO,  33.0, INK, False),
+    ("Parylene-C [3000]",            PARY,  40.0, RED, False),
+    ("MoOx [5] + Ag reflector [100]", REFL, 34.0, RED, False),
 ]
 
 STACK_B = [
-    ("MLA substrate (n = 1.77)",     GLASS, 46.0, INK),
-    ("IZO",                          TCO,   33.0, INK),
-    ("TAPC/HAT-CN/TAPC/HAT-CN",      HIL,   33.0, INK),
-    ("TCTA",                         HTL,   28.0, INK),
-    (u"TCTA:B3PyMPM:Ir(dmppy-ph)₂tmd", EML, 36.0, INK),
-    ("B3PyMPM",                      ETL,   33.0, INK),
-    ("Al/Liq",                       ALU,   30.0, INK),
-    ("DBR",                          None,  54.0, INK),      # drawn as alternating pairs
+    ("MLA substrate (n = 1.77)",     GLASS, 46.0, INK, True),
+    ("IZO",                          TCO,   33.0, INK, False),
+    ("TAPC/HAT-CN/TAPC/HAT-CN",      HIL,   33.0, INK, False),
+    ("TCTA",                         HTL,   28.0, INK, False),
+    (u"TCTA:B3PyMPM:Ir(dmppy-ph)\u2082tmd", EML, 36.0, INK, False),
+    ("B3PyMPM",                      ETL,   33.0, INK, False),
+    ("Al/Liq",                       ALU,   30.0, INK, False),
+    ("DBR",                          None,  54.0, INK, False),   # alternating pairs
+]
+
+# A layer name may carry a second line: drawn smaller and in red under the label,
+# for a layer that has more than one possible realisation.
+STACK_C = [
+    ("Glass (n = 1.77)",                                GLASS, 46.0, INK, False),
+    ("Transparent electrode\nITO 50 nm   or   Ag 10 nm", TCO,  34.0, INK, False),
+    ("HTL (200 nm)",                                    HTL,   40.0, INK, False),
+    ("EML (20 nm)",                                     EML,   24.0, INK, False),
+    ("ETL (200 nm)",                                    ETL,   40.0, INK, False),
+    ("Ag (100 nm)",                                     AG,    30.0, INK, False),
 ]
 
 DBR_PAIRS = 4                              # high/low index pairs drawn in the DBR block
 MLA_PITCH = 19.0                           # micro-lens pitch on the substrate's underside
 MLA_SEGS = 9                               # line segments per lens arc
 
-prs = Presentation()
-prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-SH = slide.shapes
+SH = None                                  # set per figure by figure()
 
 
 # ------------------------------------------------------------------ helpers
@@ -224,14 +232,14 @@ def slab(ox, oy, z0, z1, fill, tag, top=True, lens_bottom=False):
 
 
 # ------------------------------------------------------------------ one device
-def device(ox, oy, layers, title, label_x, label_w):
+def device(ox, oy, layers, title, label_x, label_w, title_y):
     """`oy` is the screen y of the stack's bottom-back corner (pz = 0)."""
-    total = sum(t for _, _, t, _ in layers)
+    total = sum(t for _, _, t, _, _ in layers)
     z = 0.0
     right_x = ox + EX * BW                 # screen x of the block's right-hand corner
-    for i, (name, fill, t, col) in enumerate(layers):
+    for i, (name, fill, t, col, lens) in enumerate(layers):
         z0, z1, is_top = z, z + t, (i == len(layers) - 1)
-        tag = "%s / %s" % (title, name)
+        tag = "%s / %s" % (title, name.replace("\n", " / "))
         if fill is None:                   # the DBR: alternating quarter-wave pairs
             sub = t / (2.0 * DBR_PAIRS)
             for k in range(2 * DBR_PAIRS):
@@ -240,15 +248,22 @@ def device(ox, oy, layers, title, label_x, label_w):
                      "%s pair %d" % (tag, k // 2 + 1),
                      top=is_top and k == 2 * DBR_PAIRS - 1)
         else:
-            slab(ox, oy, z0, z1, fill, tag, top=is_top, lens_bottom=(i == 0))
+            slab(ox, oy, z0, z1, fill, tag, top=is_top, lens_bottom=lens)
 
         ym = oy + EY * BW - (z0 + z1) / 2.0        # the block's right-hand corner edge
         arrow((right_x + 6, ym), (label_x - 8, ym), LEADER, 1.1, tag + " leader", head=False)
-        text(label_x, ym, _runs(name), 14.5, col, PP_ALIGN.LEFT,
-             box_w=label_w, name=tag + " label")
+        head, _, note = name.partition("\n")
+        if note:
+            text(label_x, ym - 12.0, _runs(head), 14.5, col, PP_ALIGN.LEFT,
+                 box_w=label_w, name=tag + " label")
+            text(label_x, ym + 12.0, _runs(note), 12.0, RED, PP_ALIGN.LEFT,
+                 box_w=label_w, name=tag + " label note")
+        else:
+            text(label_x, ym, _runs(name), 14.5, col, PP_ALIGN.LEFT,
+                 box_w=label_w, name=tag + " label")
         z = z1
 
-    text(ox + EX * (BW - BD) / 2.0, TITLE_Y, title, 19.0, INK, PP_ALIGN.CENTER, bold=True,
+    text(ox + EX * (BW - BD) / 2.0, title_y, title, 19.0, INK, PP_ALIGN.CENTER, bold=True,
          box_w=520.0, name=title + " title")
     return total
 
@@ -268,14 +283,14 @@ def _runs(name):
     return out
 
 
-def emission(ox, oy):
+def emission(ox, oy, lenses=True):
     """Green arrows leaving the substrate: both devices emit through the bottom.
 
     The tails sit on the two visible bottom edges, not at the centre of the bottom
     face -- that point is behind the block, and arrows starting there look like they
     come out of the middle of the stack.
     """
-    dw, dd = mla_depth(BW), mla_depth(BD)                   # clear of the lens array
+    dw, dd = (mla_depth(BW), mla_depth(BD)) if lenses else (0.0, 0.0)
     corner = (ox + EX * (BW - BD), oy + EY * (BW + BD) + max(dw, dd))
     left = (ox - EX * BD + 0.60 * EX * BW, oy + EY * BD + 0.60 * EY * BW + dw)
     right = (ox + EX * BW - 0.60 * EX * BD, oy + EY * BW + 0.60 * EY * BD + dd)
@@ -286,14 +301,37 @@ def emission(ox, oy):
 
 
 # ------------------------------------------------------------------ build
-BASE_Y = 498.0                             # screen y of each stack's bottom-back corner
-TITLE_Y = 62.0
-device(230.0, BASE_Y, STACK_A, "Ag reflector + MLA film", 430.0, 340.0)
-device(860.0, BASE_Y, STACK_B, "DBR + MLA substrate", 1060.0, 330.0)
-emission(230.0, BASE_Y)
-emission(860.0, BASE_Y)
+TITLE_GAP = 62.0                           # between a title and the top of its stack
 
-out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "device_stacks.pptx")
-prs.save(out)
-n_group = sum(1 for s in SH if s.shape_type is not None and "GROUP" in str(s.shape_type))
-print("saved %s  (%d shapes, %d groups, 0 pictures)" % (out, len(SH), n_group))
+
+def figure(panels, filename):
+    """One slide, one file.  `panels` is (ox, layers, title, label_x, label_w).
+
+    The baseline follows the tallest stack rather than being fixed: a six-layer
+    stack under a baseline set for an eleven-layer one leaves the title marooned
+    at the top of an empty slide.
+    """
+    global SH
+    tallest = max(sum(t for _, _, t, _, _ in layers) for _, layers, _, _, _ in panels)
+    lens = any(layers[0][4] for _, layers, _, _, _ in panels)
+    below = EY * (BW + BD) + (mla_depth(BW) if lens else 0.0) + 122.0
+    base_y = H / 2.0 + (tallest + TITLE_GAP + 25.0 - below) / 2.0
+    title_y = base_y - tallest - TITLE_GAP
+
+    prs = Presentation()
+    prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
+    SH = prs.slides.add_slide(prs.slide_layouts[6]).shapes
+    for ox, layers, title, label_x, label_w in panels:
+        device(ox, base_y, layers, title, label_x, label_w, title_y)
+        emission(ox, base_y, lenses=layers[0][4])
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    prs.save(out)
+    print("saved %s  (%d shapes, 0 groups, 0 pictures)" % (out, len(SH)))
+
+
+figure([(230.0, STACK_A, "Ag reflector + MLA film", 430.0, 340.0),
+        (860.0, STACK_B, "DBR + MLA substrate", 1060.0, 330.0)],
+       "device_stacks.pptx")
+
+figure([(565.0, STACK_C, "Bottom-emitting OLED", 755.0, 400.0)],
+       "device_stack_electrode.pptx")
