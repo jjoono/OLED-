@@ -52,6 +52,12 @@ LENS_EMIT_FRAC = 1.00                    # how much of the glow the caps carry
 GAP_EMIT_FRAC = 0.75                     # and the lit film showing through between them
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
 HAZE_SCATTER = (0.55, 1.0, 0.72)         # what the haze scatters, kept lighter
+LOBE_H = 0.42                            # height over which the escaped light fades out
+LOBE_SPREAD = 0.85                       # how much it widens per unit of height
+LOBE_TOP = 3.2                           # dome height, in units of LOBE_H
+LOBE_DENS, LOBE_EMIS = 1.20, 4.60        # scattering density and emission of that air volume
+CAM_BOTH = (0.0, -18.00, 6.80)           # lowering this reads more side-on: light in the air
+                                         # rises against the background instead of foreshortening
 SEP = 1.85                               # half distance between the two devices
 LENS_PITCH = 0.15                        # micro-lens centre-to-centre, hexagonal packing
 LENS_FILL = 0.97                         # lens radius as a fraction of half the pitch
@@ -288,9 +294,22 @@ def lens_material(tag, lam, amp, strength):
                     lam, amp * strength)
 
 
-def haze_material(tag, height, r_base, slope, brightness):
-    """Thin glowing volume: fades with height and softens toward the cone wall."""
-    m = bpy.data.materials.new("Light haze " + tag)
+def lobe_material(tag, lam, brightness):
+    """The light that has left the surface and is travelling through air.
+
+    The shape is the surface profile continued upward, which is the whole point:
+
+        rs = r / (1 + z * LOBE_SPREAD)       widens with height
+        f  = exp(-max(0, rs - PIX_R) / lam) * exp(-z / LOBE_H)
+               * window(r / CUT_R) * window(z / (LOBE_TOP * LOBE_H))
+
+    At z = 0 that is *exactly* the emission profile of the lit circle below, so
+    the glow in the air and the glow on the film are the same function and meet
+    without a seam.  The earlier version weighted the volume by cos(theta), which
+    is zero at the surface: the lobe only lit up well above the film and read as
+    a ball hovering over the device with a dead grey band underneath it.
+    """
+    m = bpy.data.materials.new("Escaping light " + tag)
     m.use_nodes = True
     nt = m.node_tree
     nt.nodes.clear()
@@ -298,37 +317,74 @@ def haze_material(tag, height, r_base, slope, brightness):
     out = N("ShaderNodeOutputMaterial")
     tex = N("ShaderNodeTexCoord")
     sep = N("ShaderNodeSeparateXYZ")
-    # vertical fade  (1 - z/h)^2.2
-    zn = N("ShaderNodeMath", operation="DIVIDE", v1=height)
-    inv = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0)
-    vfade = N("ShaderNodeMath", operation="POWER", v1=2.2)
-    # radial fade  1 - (r / R(z))^3   with  R(z) = r_base + slope * z
-    xy = N("ShaderNodeCombineXYZ")
+    flat = N("ShaderNodeCombineXYZ")
     rad = N("ShaderNodeVectorMath", operation="LENGTH")
-    rz = N("ShaderNodeMath", operation="MULTIPLY_ADD", v1=slope, v2=r_base)
-    t = N("ShaderNodeMath", operation="DIVIDE")
-    t3 = N("ShaderNodeMath", operation="POWER", v1=3.0)
-    rfade = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
-    fade = N("ShaderNodeMath", operation="MULTIPLY")
-    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.75 * brightness)
-    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=2.90 * brightness)
+    wide = N("ShaderNodeMath", operation="MULTIPLY_ADD", v1=LOBE_SPREAD, v2=1.0)   # 1 + z*spread
+    rs = N("ShaderNodeMath", operation="DIVIDE")
+    ring = N("ShaderNodeMath", operation="SUBTRACT", v1=PIX_R)
+    ring0 = N("ShaderNodeMath", operation="MAXIMUM", v1=0.0)
+    lat = N("ShaderNodeMath", operation="DIVIDE", v1=-lam)
+    latx = N("ShaderNodeMath", operation="EXPONENT")
+    vert = N("ShaderNodeMath", operation="DIVIDE", v1=-LOBE_H)
+    vertx = N("ShaderNodeMath", operation="EXPONENT")
+    ztop = N("ShaderNodeMath", operation="DIVIDE", v1=LOBE_TOP * LOBE_H)
+    ztop4 = N("ShaderNodeMath", operation="POWER", v1=4.0)
+    zwin = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
+    fz = N("ShaderNodeMath", operation="MULTIPLY")
+    edge = N("ShaderNodeMath", operation="DIVIDE", v1=CUT_R)
+    edgep = N("ShaderNodeMath", operation="POWER", v1=WIN_P)
+    win = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
+    f1 = N("ShaderNodeMath", operation="MULTIPLY")
+    f2 = N("ShaderNodeMath", operation="MULTIPLY")
+    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=LOBE_DENS * brightness)
+    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=LOBE_EMIS * brightness)
     vol = N("ShaderNodeVolumePrincipled")
     vol.inputs["Color"].default_value = (*HAZE_SCATTER, 1.0)
     vol.inputs["Emission Color"].default_value = (*GLOW, 1.0)
     vol.inputs["Anisotropy"].default_value = 0.3
     L = nt.links.new
     L(tex.outputs["Object"], sep.inputs[0])
-    L(sep.outputs["Z"], zn.inputs[0]); L(zn.outputs[0], inv.inputs[1]); L(inv.outputs[0], vfade.inputs[0])
-    L(sep.outputs["X"], xy.inputs["X"]); L(sep.outputs["Y"], xy.inputs["Y"])
-    L(xy.outputs[0], rad.inputs[0])
-    L(sep.outputs["Z"], rz.inputs[0])
-    L(rad.outputs["Value"], t.inputs[0]); L(rz.outputs[0], t.inputs[1])
-    L(t.outputs[0], t3.inputs[0]); L(t3.outputs[0], rfade.inputs[1])
-    L(vfade.outputs[0], fade.inputs[0]); L(rfade.outputs[0], fade.inputs[1])
-    L(fade.outputs[0], dens.inputs[0]); L(fade.outputs[0], emis.inputs[0])
+    L(sep.outputs["X"], flat.inputs["X"]); L(sep.outputs["Y"], flat.inputs["Y"])
+    L(flat.outputs[0], rad.inputs[0])
+    L(sep.outputs["Z"], wide.inputs[0])
+    L(rad.outputs["Value"], rs.inputs[0]); L(wide.outputs[0], rs.inputs[1])
+    L(rs.outputs[0], ring.inputs[0]); L(ring.outputs[0], ring0.inputs[0])
+    L(ring0.outputs[0], lat.inputs[0]); L(lat.outputs[0], latx.inputs[0])
+    L(sep.outputs["Z"], vert.inputs[0]); L(vert.outputs[0], vertx.inputs[0])
+    L(sep.outputs["Z"], ztop.inputs[0]); L(ztop.outputs[0], ztop4.inputs[0])
+    L(ztop4.outputs[0], zwin.inputs[1])
+    L(vertx.outputs[0], fz.inputs[0]); L(zwin.outputs[0], fz.inputs[1])
+    L(rad.outputs["Value"], edge.inputs[0]); L(edge.outputs[0], edgep.inputs[0])
+    L(edgep.outputs[0], win.inputs[1])
+    L(latx.outputs[0], f1.inputs[0]); L(fz.outputs[0], f1.inputs[1])
+    L(f1.outputs[0], f2.inputs[0]); L(win.outputs[0], f2.inputs[1])
+    L(f2.outputs[0], dens.inputs[0]); L(f2.outputs[0], emis.inputs[0])
     L(dens.outputs[0], vol.inputs["Density"]); L(emis.outputs[0], vol.inputs["Emission Strength"])
     L(vol.outputs[0], out.inputs["Volume"])
     return m
+
+
+def escape_lobe(cx, tag, top, lam, brightness, c):
+    """A dome of air over the lit circle, carrying the light that got out.
+
+    Radius is CUT_R plus a hair -- the radius at which both the surface emission
+    and this volume reach zero, and still inside the panel's short side, so the
+    dome never hangs over an edge.
+    """
+    reach = CUT_R + 0.05
+    verts, faces = dome(reach, 56, 22)
+    me = bpy.data.meshes.new("Escaping light (%s)" % tag)
+    me.from_pydata([(x, y, z) for x, y, z in verts], [], faces)
+    me.update()
+    o = bpy.data.objects.new("Escaping light (%s)" % tag, me)
+    o.data.materials.append(lobe_material(tag, lam, brightness))
+    bpy.context.scene.collection.objects.link(o)
+    o.location = (cx, 0.0, top)
+    o.scale = (1.0, 1.0, LOBE_TOP * LOBE_H / reach)   # tall enough to hold the fade
+    no_bounce(o)
+    link(o, c)
+    return o
+
 
 def _node(nt, kind, operation=None, v0=None, v1=None, v2=None, clamp=False):
     n = nt.nodes.new(kind)
@@ -373,7 +429,7 @@ def no_bounce(o):
     o.visible_shadow = False
 
 
-def device(cx, tag, lam, amp, cone_h, brightness, label=True):
+def device(cx, tag, lam, amp, brightness, label=True):
     c = coll("Device " + tag)
     ink = flat_material("Label ink %s" % tag, (0.045, 0.05, 0.055))
     ink_light = flat_material("Label ink light %s" % tag, (0.88, 0.90, 0.93))
@@ -409,24 +465,7 @@ def device(cx, tag, lam, amp, cone_h, brightness, label=True):
     link(g, c)
 
 
-    # wide and low.  Brightness has to come from the haze being denser and broader,
-    # not taller: a tall cone rises past the slab's back edge in this view and reads
-    # as a green cloud floating over the device rather than light leaving its surface.
-    slope = 0.55
-    cone_r = PIX_R * 2.2
-    bpy.ops.mesh.primitive_cone_add(vertices=72, radius1=cone_r, radius2=cone_r + cone_h * slope,
-                                    depth=cone_h, end_fill_type="NGON",
-                                    location=(cx, 0.0, top + cone_h / 2.0))
-    k = bpy.context.active_object
-    k.name = "Light haze (%s)" % tag
-    for v in k.data.vertices:
-        v.co.z += cone_h / 2.0
-    k.location.z = top
-    k.data.materials.append(haze_material(tag, cone_h, cone_r, slope, brightness))
-    k.visible_shadow = False
-    k.visible_diffuse = False
-    k.visible_glossy = False
-    link(k, c)
+    escape_lobe(cx, tag, top, lam, brightness, c)
     print("   %-12s  %d micro-lenses, pitch %.3f" % (tag, n_lens, LENS_PITCH))
     return top
 
@@ -492,9 +531,9 @@ def studio():
 def cameras():
     c = coll("Cameras")
     cams = {}
-    for name, loc, target, lens in (("Cam both",  (0.0, -19.10, 11.30), (0.0, 0.0, 0.42), 85.0),
-                                    ("Cam conventional", (-SEP - 0.48, -10.90, 7.60), (-SEP, 0.0, 0.34), 118.0),
-                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 7.60), ( SEP, 0.0, 0.34), 118.0)):
+    for name, loc, target, lens in (("Cam both",  CAM_BOTH, (0.0, 0.0, 0.42), 85.0),
+                                    ("Cam conventional", (-SEP - 0.48, -10.90, 4.20), (-SEP, 0.0, 0.34), 118.0),
+                                    ("Cam design rule",  ( SEP - 0.48, -10.90, 4.20), ( SEP, 0.0, 0.34), 118.0)):
         bpy.ops.object.camera_add(location=loc)
         cam = bpy.context.active_object
         cam.name = name
@@ -640,9 +679,9 @@ def render(cam, w, h, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       cone_h=0.42, brightness=1.0 / BRIGHT)
+       brightness=1.0 / BRIGHT)
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       cone_h=0.60, brightness=1.0)
+       brightness=1.0)
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
