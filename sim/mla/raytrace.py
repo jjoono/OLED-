@@ -110,11 +110,25 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
     h = AR * r
     a = 2 * r                       # pitch
     off = _lattice_offsets(a)
-    if shape == 'cap':              # spherical cap; it overlaps its neighbours for h > r
+    z_lo, r_gap, cyl = 0.0, r, False
+    if shape == 'cap':              # spherical cap of fixed base r; it overlaps its neighbours for h > r
         R = (r * r + h * h) / (2 * h)
         zc = h - R
         inv = np.array([1.0, 1.0, 1.0])
-    else:                           # half-ellipsoid, the default
+    elif shape == 'trunc':          # sphere of fixed radius r = half pitch, truncated at height h:
+        # AR = h / r_base with r_base = sqrt(2 r h - h^2), so h = 2 AR^2 r / (1 + AR^2);
+        # the base circle shrinks below the hemisphere and the flat gap grows (AR <= 1 only)
+        R = r
+        h = 2.0 * AR * AR * r / (1.0 + AR * AR)
+        zc = h - R
+        r_gap = np.sqrt(max(R * R - zc * zc, 0.0))
+        inv = np.array([1.0, 1.0, 1.0])
+    elif shape == 'bullet':         # AR >= 1: cylinder of radius r up to z = h - r, hemisphere on top
+        R = r
+        zc = h - r
+        inv = np.array([1.0, 1.0, 1.0])
+        z_lo, cyl = zc, True
+    else:                           # half-ellipsoid
         R, zc = 1.0, 0.0
         inv = np.array([1.0 / r ** 2, 1.0 / r ** 2, 1.0 / h ** 2])
 
@@ -158,12 +172,29 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
             sq = np.sqrt(np.where(ok, disc, 0.0))
             for t in ((-qb - sq) / (2 * qa), (-qb + sq) / (2 * qa)):
                 hit = p + t[:, None] * d
-                good = ok & (t > 1e-9) & (hit[:, 2] >= 0.0) & (t < best_t)
+                good = ok & (t > 1e-9) & (hit[:, 2] >= z_lo) & (t < best_t)
                 if good.any():
                     best_t = np.where(good, t, best_t)
                     g = (hit - c) * inv
                     nrm = g / np.linalg.norm(g, axis=1, keepdims=True)
                     best_n = np.where(good[:, None], nrm, best_n)
+            if cyl:                 # the cylindrical wall of the bullet, 0 <= z <= zc
+                Lx, Ly = p[:, 0] - o[0], p[:, 1] - o[1]
+                ca = d[:, 0] ** 2 + d[:, 1] ** 2
+                cb = 2.0 * (Lx * d[:, 0] + Ly * d[:, 1])
+                cc = Lx * Lx + Ly * Ly - R * R
+                cdisc = cb * cb - 4.0 * ca * cc
+                cok = (cdisc > 0) & (ca > 1e-12)
+                csq = np.sqrt(np.where(cok, cdisc, 0.0))
+                for t in ((-cb - csq) / (2 * np.where(cok, ca, 1.0)),
+                          (-cb + csq) / (2 * np.where(cok, ca, 1.0))):
+                    hit = p + t[:, None] * d
+                    good = cok & (t > 1e-9) & (hit[:, 2] >= 0.0) & (hit[:, 2] <= zc) & (t < best_t)
+                    if good.any():
+                        best_t = np.where(good, t, best_t)
+                        g = np.stack([hit[:, 0] - o[0], hit[:, 1] - o[1], np.zeros(len(idx))], 1)
+                        nrm = g / np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-300)
+                        best_n = np.where(good[:, None], nrm, best_n)
 
         # --- the base plane z = 0.  The close-packed circles leave 1 - pi/(2sqrt3)
         # --- = 9.3 % of it uncovered, and that part is flat glass/air.
@@ -179,7 +210,7 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
         rho = np.full(len(idx), np.inf)
         for o in off:
             rho = np.minimum(rho, np.hypot(cross[:, 0] - o[0], cross[:, 1] - o[1]))
-        t_up = np.where(up & (rho >= r), tu, np.inf)
+        t_up = np.where(up & (rho >= r_gap), tu, np.inf)
 
         t_pl = np.minimum(t_down, t_up)
         take_sphere = best_t < t_pl
