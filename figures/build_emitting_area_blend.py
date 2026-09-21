@@ -33,8 +33,8 @@ def model(eta, r_met, t_tco):
     rho = (1 - eta) * r_met * t_tco ** 2
     return 1.0 / math.log(1.0 / rho), eta / (1.0 - rho)
 
-LAM_C, TOT_C = model(.30, .82, .94)      # conventional (moderately lossy)
-LAM_D, TOT_D = model(.30, .98, .995)     # design rule
+LAM_C, TOT_C = model(.30, .75, .94)      # conventional: Al mirror, lossier TCO
+LAM_D, TOT_D = model(.30, .98, .995)     # design rule: Ag mirror, low-loss TCO
 SPREAD, BRIGHT = LAM_D / LAM_C, TOT_D / TOT_C
 
 PANEL_W, PANEL_D = 3.0, 2.3              # device footprint, Blender units
@@ -87,11 +87,11 @@ LENS_SEGS, LENS_RINGS = 28, 9
 # rays inside the glass be seen, and it is far cheaper than real transmission.
 #   name, thickness, colour, alpha, roughness, metallic, label
 LAYERS = [
-    ("Al",    0.13, (0.26, 0.28, 0.31), 1.00, 0.28, 1.0, "Al cathode"),
+    ("Al",    0.13, (0.26, 0.28, 0.31), 1.00, 0.28, 1.0, "Al electrode"),
     ("ETL",   0.09, (0.72, 0.76, 0.94), 0.96, 0.45, 0.0, "ETL"),
     ("EML",   0.11, (0.98, 0.66, 0.22), 0.96, 0.45, 0.0, "EML"),
     ("HTL",   0.09, (0.99, 0.87, 0.64), 0.96, 0.45, 0.0, "HTL"),
-    ("ITO",   0.08, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "ITO anode"),
+    ("ITO",   0.08, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "Transparent electrode"),
     ("Glass", 0.28, (0.78, 0.90, 0.97), 0.42, 0.05, 0.0, "Glass"),
     ("Film",  0.08, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "Outcoupling structure"),
 ]
@@ -468,17 +468,25 @@ def no_bounce(o):
     o.visible_shadow = False
 
 
-def device(cx, tag, lam, amp, brightness, label=True):
+def device(cx, tag, lam, amp, brightness, mirror=None, label=True):
+    """`mirror` overrides the back electrode's caption and colour.  It is the one
+    layer the two devices do not share: Al on the lossy one, Ag on the good one,
+    which is exactly the r_met the loss model is given."""
     c = coll("Device " + tag)
     ink = flat_material("Label ink %s" % tag, (0.045, 0.05, 0.055))
     ink_light = flat_material("Label ink light %s" % tag, (0.88, 0.90, 0.93))
     for name, t, col, al, rough, met, cap in LAYERS:
         z0, z1 = BAND[name]
+        if name == "Al" and mirror:
+            cap, col = mirror
         box("%s (%s)" % (name, tag), PANEL_W, PANEL_D, t, cx, 0.0, z0,
             principled("%s %s" % (name, tag), base=col, metallic=met, rough=rough, alpha=al), c)
         if label:
-            stack_label(cx, cap, (z0 + z1) / 2.0, c,
-                        ink_light if name == "Al" else ink)
+            # light ink on a dark band.  Keyed on the band's luminance, not on the
+            # layer's name: the back electrode's colour differs per device, and a
+            # name-based rule silently loses contrast the moment someone changes it
+            lum = 0.2126 * col[0] + 0.7152 * col[1] + 0.0722 * col[2]
+            stack_label(cx, cap, (z0 + z1) / 2.0, c, ink_light if lum < 0.40 else ink)
 
     lens_mat = lens_material(tag, lam, amp, LENS_EMIT_FRAC)
     lens, top, n_lens = lens_array(cx, Z_TOP, tag, c, lens_mat)
@@ -704,9 +712,9 @@ def render(cam, w, h, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       brightness=1.0 / BRIGHT)
+       brightness=1.0 / BRIGHT, mirror=("Al electrode", (0.25, 0.27, 0.32)))
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       brightness=1.0)
+       brightness=1.0, mirror=("Ag electrode", (0.34, 0.32, 0.28)))
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
