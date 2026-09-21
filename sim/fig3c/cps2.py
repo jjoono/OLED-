@@ -270,3 +270,146 @@ def spectrum(S, n_eff, u_max=3.0, tol=2e-3):
         out.append(np.nan_to_num(dens / nref, nan=0.0, posinf=0.0, neginf=0.0))
     tot = solve(S, u_max=u_max)['P_tot']
     return out[0] / tot, out[1] / tot
+
+
+def sub_angular(S, th_deg):
+    """Power delivered into the substrate, per unit substrate angle (degrees).
+
+    Same quantity as P_sub in planar_Sweep22_MLA_JH_full_lambda.m, but obtained
+    from the kernels at the exact u of each substrate angle instead of by
+    interpolating a u-grid, so it does not inherit the grid's jitter.
+    Integrating it over 0..90 deg returns the substrate-delivered power."""
+    no, ne = S.no_e, S.ne_e
+    ns = S.n_sub.real
+    cv, ch = _weights(S)
+    th = np.radians(np.asarray(th_deg, dtype=float))
+    cS = np.cos(th)
+    out = np.zeros_like(th)
+    for pol, nref in (('p', ne), ('s', no)):
+        u = (ns / nref) * np.sin(th)
+        P = _prop(u, S)
+        rb, tb, rt = P[pol]
+        one_u2 = np.abs(1.0 - u ** 2)
+        jac = (ns / nref) * cS                      # du / d(theta) in radians
+        with np.errstate(divide='ignore', invalid='ignore'):
+            if pol == 'p':
+                Apv = (1 + rt) * tb / (1 - rb * rt)
+                Aph = (1 - rt) * tb / (1 - rb * rt)
+                Kpv2 = 0.375 * ne * ns / no ** 2 * cS * u ** 2 * np.abs(Apv) ** 2 / one_u2
+                Kph2 = 3.0 * (ns / no) * cS * np.abs(Aph) ** 2 / (12 * (no / ne) ** 2 + 4)
+                d = u * (cv * Kpv2 + ch * Kph2)
+            else:
+                Ash = (1 + rt) * tb / (1 - rb * rt)
+                Ksh2 = 3.0 * (ns / no) * cS * np.abs(Ash) ** 2 / \
+                       ((4 * (ne / no) ** 2 + 12) * one_u2)
+                d = u * ch * Ksh2
+        out = out + np.nan_to_num(d * jac, nan=0.0, posinf=0.0, neginf=0.0)
+    return out * np.pi / 180.0                      # per degree
+
+
+def stack_reflectance(S, th_deg):
+    """Unpolarised reflectance of the whole OLED seen from inside the substrate."""
+    k0 = 2 * np.pi / S.lam
+    kx = S.n_sub.real * np.sin(np.radians(np.asarray(th_deg, dtype=float))) * k0
+    rs, _ = stack_rt(S.all_no, S.all_ne, S.all_d, kx, k0, 's')
+    rp, _ = stack_rt(S.all_no, S.all_ne, S.all_d, kx, k0, 'p')
+    return (np.abs(rs) ** 2 + np.abs(rp) ** 2) / 2.0
+
+
+# --------------------------------------------------------------------------
+# Polarisation-resolved channels.
+#
+# p and s normalise the in-plane wavevector differently -- u_p = k_x/(k0 n_e),
+# u_s = k_x/(k0 n_o) -- so with a birefringent EML the substrate cut-off, the
+# escape cone and the light line all sit at different u for the two.  Binning
+# them on a single set of break points mixes the channels: it charges the
+# s-polarised light between n_sub/n_o and n_sub/n_e to absorption instead of to
+# the waveguide.  Each polarisation is therefore integrated on its own.
+# --------------------------------------------------------------------------
+
+def _pol_integrands(th, S, pol, need_air=True):
+    no, ne = S.no_e, S.ne_e
+    ns = S.n_sub.real
+    nref = ne if pol == 'p' else no
+    cv, ch = _weights(S)
+    u, c = np.sin(th), np.cos(th)
+    P = _prop(u, S)
+    rb, tb, rt = P[pol]
+    safe = np.where(c > 0, c, 1.0)
+
+    if pol == 'p':
+        Xp = (1 + rb) * (1 + rt) / (1 - rb * rt)
+        Yp = (1 - rb) * (1 - rt) / (1 - rb * rt)
+        W = u * (cv * 0.75 * (ne / no) * u ** 2 * np.real(Xp)
+                 + ch * 3.0 / (6 * (no / ne) ** 2 + 2) * c ** 2 * np.real(Yp))
+        Apv = (1 + rt) * tb / (1 - rb * rt)
+        Aph = (1 - rt) * tb / (1 - rb * rt)
+        cS = np.sqrt(np.clip(1.0 - (ne * u / ns) ** 2, 0.0, None))
+        K1 = 0.375 * ne * ns / no ** 2 * cS * u ** 2 * np.abs(Apv) ** 2 / safe
+        K2 = 3.0 * (ns / no) * cS * np.abs(Aph) ** 2 / (12 * (no / ne) ** 2 + 4) * c
+        Sb = u * (cv * K1 + ch * K2)
+    else:
+        Xs = (1 + rb) * (1 + rt) / (1 - rb * rt)
+        W = u * ch * 3.0 / (2 * (ne / no) ** 2 + 6) * np.real(Xs)
+        Ash = (1 + rt) * tb / (1 - rb * rt)
+        cS = np.sqrt(np.clip((ns / no) ** 2 - u ** 2, 0.0, None))
+        K3 = 3.0 * cS * np.abs(Ash) ** 2 / ((4 * (ne / no) ** 2 + 12) * safe)
+        Sb = u * ch * K3
+
+    if need_air:
+        with np.errstate(divide='ignore', invalid='ignore'):
+            Fp, Fs = _outcoupled(u, S)
+        F = Fp if pol == 'p' else Fs
+        F = np.where((u < 1.0 / nref) & np.isfinite(F), F, 0.0)
+        A = Sb * F
+    else:
+        A = np.zeros_like(W)
+    return tuple(np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0) for x in (W, Sb, A))
+
+
+def _pol_integrand_v(v, S, pol):
+    no, ne = S.no_e, S.ne_e
+    cv, ch = _weights(S)
+    u = np.sqrt(1.0 + v ** 2)
+    rb, tb, rt = _prop(u, S)[pol]
+    if pol == 'p':
+        Xp = (1 + rb) * (1 + rt) / (1 - rb * rt)
+        Yp = (1 - rb) * (1 - rt) / (1 - rb * rt)
+        d = (cv * 0.75 * (ne / no) * u ** 2 * np.imag(Xp)
+             - ch * 3.0 / (6 * (no / ne) ** 2 + 2) * v ** 2 * np.imag(Yp))
+    else:
+        Xs = (1 + rb) * (1 + rt) / (1 - rb * rt)
+        d = ch * 3.0 / (2 * (ne / no) ** 2 + 6) * np.imag(Xs)
+    return np.nan_to_num(d, nan=0.0, posinf=0.0, neginf=0.0)
+
+
+def solve_pol(S, u_max=3.0, npts=16000):
+    """Five-channel budget with the channels binned per polarisation."""
+    no, ne = S.no_e, S.ne_e
+    ns = S.n_sub.real
+    half = np.pi / 2 - EDGE
+    air = sub_tot = w_cone = wg = spp = 0.0
+    for pol in ('p', 's'):
+        nref = ne if pol == 'p' else no
+        rat = ns / nref
+        th_air = np.arcsin(min(1.0 / nref, rat, 1.0))
+        th_c = np.arcsin(rat) if rat < 1.0 else half
+
+        def f(t, na=True):
+            return np.stack(_pol_integrands(t, S, pol, na))
+
+        I1 = _simpson(f, 0.0, th_air, npts)
+        I2 = (_simpson(lambda t: f(t, False), th_air, th_c, npts)
+              if th_c > th_air else np.zeros(3))
+        I3 = (_simpson(lambda t: f(t, False)[0:1], th_c, half, npts)[0]
+              if half - th_c > 1e-9 else 0.0)
+        I4 = _simpson(lambda v: _pol_integrand_v(v, S, pol), EDGE,
+                      np.sqrt(u_max ** 2 - 1.0), npts)
+        air += I1[2] + I2[2]
+        sub_tot += I1[1] + I2[1]
+        w_cone += I1[0] + I2[0]
+        wg += I3
+        spp += I4
+    P = w_cone + wg + spp
+    return dict(air=air / P, sub=(sub_tot - air) / P, wg=wg / P, spp=spp / P,
+                abs=(w_cone - sub_tot) / P, P_tot=P, sub_raw=sub_tot)

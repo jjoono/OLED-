@@ -122,6 +122,12 @@ for k1=1:length(d1)
         const4=const2*u;
 
         U_tot=2*(const3.*K_p_v+const4.*(K_p_h+K_s_h));
+        % polarisation-resolved total dissipation (U_tot = U_tot_p + U_tot_s).
+        % p and s use DIFFERENT normalisations of u -- u_p = k_x/(k0 n_e) and
+        % u_s = k_x/(k0 n_o) -- so with a birefringent EML they have different
+        % substrate cut-offs and the channels must be binned separately.
+        U_tot_p=2*(const3.*K_p_v+const4.*K_p_h);
+        U_tot_s=2*const4.*K_s_h;
         U_bottom_transmit_p=2*(const3.*K_p_v2+const4.*K_p_h2);
         U_bottom_transmit_s=2*const4.*K_s_h2;
         U_bottom_transmit_thick_p=2*(const3.*K_p_v3+const4.*K_p_h3);
@@ -148,18 +154,21 @@ for k1=1:length(d1)
         EQE_abs_matrix=zeros(wavelength_num,1);
 
         for i=1:wavelength_num
-            u_air_range_p = 1:u_air_max_p(i); u_air_range_s = 1:u_air_max_s(i);
-            u_sub_range_p = 1:u_sub_max_p(i); u_sub_range_s = 1:u_sub_max_s(i);
-            u_wg_range = u_sub_max_s(i)+1:u_data_num;
-            u_spp_range = u_data_num+1:u_num;
+            % the three ranges partition 1:u_num separately for each polarisation
+            ip_air=1:u_air_max_p(i);                       is_air=1:u_air_max_s(i);
+            ip_sub=1:u_sub_max_p(i);                       is_sub=1:u_sub_max_s(i);
+            ip_wg =u_sub_max_p(i)+1:u_data_num;            is_wg =u_sub_max_s(i)+1:u_data_num;
+            ip_spp=max(u_sub_max_p(i),u_data_num)+1:u_num; is_spp=max(u_sub_max_s(i),u_data_num)+1:u_num;
 
-            EQE_air_matrix(i) = sum(U_bottom_transmit_thick_p(i, u_air_range_p)) + sum(U_bottom_transmit_thick_s(i, u_air_range_s));
-            power_sub_total = sum(U_bottom_transmit_p(i, u_sub_range_p)) + sum(U_bottom_transmit_s(i, u_sub_range_s));
-            EQE_sub_confined_matrix(i) = power_sub_total - EQE_air_matrix(i);
+            P_air    = sum(U_bottom_transmit_thick_p(i,ip_air))+sum(U_bottom_transmit_thick_s(i,is_air));
+            P_sub    = sum(U_bottom_transmit_p(i,ip_sub))      +sum(U_bottom_transmit_s(i,is_sub));
+            P_totsub = sum(U_tot_p(i,ip_sub))                  +sum(U_tot_s(i,is_sub));
 
-            EQE_wg_matrix(i) = sum(U_tot(i, u_wg_range));
-            EQE_spp_matrix(i) = sum(U_tot(i, u_spp_range));
-            EQE_abs_matrix(i) = sum(U_tot(i, u_sub_range_s)) - power_sub_total;
+            EQE_air_matrix(i)          = P_air;
+            EQE_sub_confined_matrix(i) = P_sub - P_air;
+            EQE_abs_matrix(i)          = P_totsub - P_sub;     % absorbed, both sides
+            EQE_wg_matrix(i)           = sum(U_tot_p(i,ip_wg)) +sum(U_tot_s(i,is_wg));
+            EQE_spp_matrix(i)          = sum(U_tot_p(i,ip_spp))+sum(U_tot_s(i,is_spp));
         end
 
         photon_weight = emission_spectrum.*eta_eff./sumUtot;
@@ -169,22 +178,14 @@ for k1=1:length(d1)
         EQE_air = sum(photon_weight .* EQE_air_matrix);
         EQE_sub_confined = sum(photon_weight .* EQE_sub_confined_matrix);
 
-        total_eta_eff = sum(emission_spectrum .* eta_eff);
-        remaining_eta = total_eta_eff - (EQE_air + EQE_sub_confined);
+        EQE_wg  = sum(photon_weight .* EQE_wg_matrix);
+        EQE_spp = sum(photon_weight .* EQE_spp_matrix);
+        EQE_abs = sum(photon_weight .* EQE_abs_matrix);
 
-        power_wg_total = sum(photon_weight .* EQE_wg_matrix);
-        power_spp_total = sum(photon_weight .* EQE_spp_matrix);
-        power_abs_total = sum(photon_weight .* EQE_abs_matrix);
-        total_loss_power = power_wg_total + power_spp_total + power_abs_total;
-
-        if total_loss_power > 0
-            EQE_wg = remaining_eta * (power_wg_total / total_loss_power);
-            EQE_spp = remaining_eta * (power_spp_total / total_loss_power);
-            EQE_abs = remaining_eta * (power_abs_total / total_loss_power);
-        else
-            EQE_wg = 0; EQE_spp = 0; EQE_abs = 0;
-        end
-
+        % With the ranges above the five channels add up to eta_eff by construction,
+        % so nothing is rescaled; the residual is printed as a check instead.
+        EQE_closure  = EQE_air + EQE_sub_confined + EQE_wg + EQE_spp + EQE_abs;
+        EQE_residual = sum(emission_spectrum .* eta_eff) - EQE_closure;
 
         %% ======================= MLA out-coupling =======================
         % Photon recycling on the extraction surface, following
@@ -311,8 +312,10 @@ for k1=1:length(d1)
         disp_matrix(k_all,:)=[d1(k1),d2(k2),EQE_air,EQE_sub_confined,EQE_wg,EQE_spp,EQE_abs];
         % inplane_matrix(k_all,:)=[d1(k1),d2(k2),U_tot];
         data_matrix(k_all,:)=[d1(k1),d2(k2),EQE_air,EQE_sub_confined,EQE_wg,EQE_spp,EQE_abs,EQE_MLA,EQE_sub];
-        fprintf('d1=%4d d2=%4d | EQE_air=%.4f EQE_sub=%.4f EQE_MLA=%.4f (eta_ext=%.4f, tail=%.1e)\n', ...
-            d1(k1),d2(k2),EQE_air,EQE_sub,EQE_MLA,EQE_MLA/EQE_sub,MLA_tail);
+        fprintf(['d1=%4d d2=%4d | air=%.4f sub=%.4f wg=%.4f spp=%.4f abs=%.4f ' ...
+                 '| sum=%.6f res=%+.1e | EQE_MLA=%.4f eta_ext=%.4f tail=%.1e\n'], ...
+            d1(k1),d2(k2),EQE_air,EQE_sub_confined,EQE_wg,EQE_spp,EQE_abs, ...
+            EQE_closure,EQE_residual,EQE_MLA,EQE_MLA/EQE_sub,MLA_tail);
 
     end
 end
