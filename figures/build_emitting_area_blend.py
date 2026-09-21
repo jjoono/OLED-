@@ -47,7 +47,7 @@ CUT_R = 1.05                             # emission is exactly zero from here ou
                                          # and prints a row of green spikes along the rim.
 WIN_P = 8.0                              # window exponent; high, so the window is ~1 until
                                          # it is close to CUT_R and barely touches the profile
-EMIT_STRENGTH = 7.5                      # design-rule peak emission
+EMIT_STRENGTH = 20.0                     # design-rule peak emission
 LENS_EMIT_FRAC = 1.00                    # how much of the glow the caps carry
 GAP_EMIT_FRAC = 0.75                     # and the lit film showing through between them
 GLOW = (0.06, 1.0, 0.30)                 # emitted light: vivid green (linear)
@@ -310,8 +310,8 @@ def haze_material(tag, height, r_base, slope, brightness):
     t3 = N("ShaderNodeMath", operation="POWER", v1=3.0)
     rfade = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
     fade = N("ShaderNodeMath", operation="MULTIPLY")
-    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.26 * brightness)
-    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=0.85 * brightness)
+    dens = N("ShaderNodeMath", operation="MULTIPLY", v1=0.75 * brightness)
+    emis = N("ShaderNodeMath", operation="MULTIPLY", v1=2.90 * brightness)
     vol = N("ShaderNodeVolumePrincipled")
     vol.inputs["Color"].default_value = (*HAZE_SCATTER, 1.0)
     vol.inputs["Emission Color"].default_value = (*GLOW, 1.0)
@@ -409,8 +409,11 @@ def device(cx, tag, lam, amp, cone_h, brightness, label=True):
     link(g, c)
 
 
-    slope = 0.30
-    cone_r = PIX_R * 1.35
+    # wide and low.  Brightness has to come from the haze being denser and broader,
+    # not taller: a tall cone rises past the slab's back edge in this view and reads
+    # as a green cloud floating over the device rather than light leaving its surface.
+    slope = 0.55
+    cone_r = PIX_R * 2.2
     bpy.ops.mesh.primitive_cone_add(vertices=72, radius1=cone_r, radius2=cone_r + cone_h * slope,
                                     depth=cone_h, end_fill_type="NGON",
                                     location=(cx, 0.0, top + cone_h / 2.0))
@@ -637,9 +640,9 @@ def render(cam, w, h, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       cone_h=0.34, brightness=1.0 / BRIGHT)
+       cone_h=0.42, brightness=1.0 / BRIGHT)
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       cone_h=0.50, brightness=1.0)
+       cone_h=0.60, brightness=1.0)
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
