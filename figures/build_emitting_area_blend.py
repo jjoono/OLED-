@@ -55,14 +55,19 @@ HAZE_SCATTER = (0.12, 0.42, 0.22)        # scattering albedo, kept low: the opac
                                          # come from absorption and the colour from emission,
                                          # or the white key light scatters through and greys
                                          # the plume out
-LOBE_H = 0.55                            # height over which the escaped light fades out
-LOBE_SPREAD = 0.25                       # how much it widens per unit of height.  Low, so
-                                         # the light leaves the pixel as a directed jet
-                                         # instead of mushrooming into a dome
-SHAFT_AMP = 0.35                         # depth of the soft angular ripple: shafts, not the
-SHAFT_N = 14.0                           # drawn beams that read as clip art
-LOBE_TOP = 3.2                           # dome height, in units of LOBE_H
-LOBE_DENS, LOBE_EMIS = 7.00, 6.00        # extinction and emission of that air volume.
+LOBE_R = 1.55                            # radius of the air dome: how far the burst reaches.
+                                         # It may overhang the panel -- the volume is in the
+                                         # air, and only an *emitting surface* touching the
+                                         # slab's silhouette causes trouble
+LOBE_FALL = 0.52                         # e-folding distance of the burst along a ray
+LOBE_GRAZE = 0.35                        # how much still goes out near-horizontally.  Never
+                                         # zero: a cosine lobe is zero at the surface, which
+                                         # detaches the glow from the pixel it comes from
+FAN_AMP = 0.55                           # soft shafts in elevation.  These are what make it
+FAN_N = 34.0                             # a fan radiating from the pixel rather than a cloud
+SHAFT_AMP = 0.15                         # weaker azimuthal variation, so the fan is not a
+SHAFT_N = 14.0                           # set of perfect cones
+LOBE_DENS, LOBE_EMIS = 6.00, 5.60        # extinction and emission of that air volume.
                                          # Dense enough to be genuinely opaque in its core
                                          # (alpha 0.95), which is what keeps it bright over
                                          # a white page: a 30%-opaque green haze composited
@@ -310,54 +315,65 @@ def lens_material(tag, lam, amp, strength):
 def lobe_material(tag, lam, brightness):
     """The light that has left the surface and is travelling through air.
 
-    The shape is the surface profile continued upward, which is the whole point:
+    A burst radiating from the lit pixel, in spherical terms about it:
 
-        rs = r / (1 + z * LOBE_SPREAD)       widens with height
-        f  = exp(-max(0, rs - PIX_R) / lam) * exp(-z / LOBE_H)
-               * window(r / CUT_R) * window(z / (LOBE_TOP * LOBE_H))
+        r'    = max(0, r - PIX_R)           measured from the lit disc, not its centre
+        d     = hypot(r', z)                distance travelled through the air
+        theta = atan2(z, r')                elevation, 0 at grazing and pi/2 straight up
+        f     = exp(-d / fall)
+                * (LOBE_GRAZE + (1 - LOBE_GRAZE) * sin(theta))
+                * (1 + FAN_AMP * cos(FAN_N * theta))
+                * (1 + SHAFT_AMP * cos(SHAFT_N * phi) * ramp(r))
+                * (1 - (d / LOBE_R)^4)
 
-    At z = 0 that is *exactly* the emission profile of the lit circle below, so
-    the glow in the air and the glow on the film are the same function and meet
-    without a seam.  The earlier version weighted the volume by cos(theta), which
-    is zero at the surface: the lobe only lit up well above the film and read as
-    a ball hovering over the device with a dead grey band underneath it.
+    The elevation ripple is the point.  Modulating on theta makes nested cones,
+    and a cone seen from the side projects to a pair of straight rays leaving the
+    pixel -- so the volume reads as a fan radiating outward, not as a cloud, while
+    still being a smooth volume rather than drawn-on beams.
+
+    The grazing term never reaches zero.  An earlier version weighted by cos(theta)
+    alone, which is zero at the surface: the glow only lit up well above the film
+    and read as a ball hovering over the device.
     """
     m = bpy.data.materials.new("Escaping light " + tag)
     m.use_nodes = True
     nt = m.node_tree
     nt.nodes.clear()
     N = lambda kind, **kw: _node(nt, kind, **kw)
+    fall = LOBE_FALL * (0.55 + 0.45 * lam / LAM_REF)     # the brighter device reaches further
     out = N("ShaderNodeOutputMaterial")
     tex = N("ShaderNodeTexCoord")
     sep = N("ShaderNodeSeparateXYZ")
     flat = N("ShaderNodeCombineXYZ")
     rad = N("ShaderNodeVectorMath", operation="LENGTH")
-    wide = N("ShaderNodeMath", operation="MULTIPLY_ADD", v1=LOBE_SPREAD, v2=1.0)   # 1 + z*spread
-    rs = N("ShaderNodeMath", operation="DIVIDE")
     ring = N("ShaderNodeMath", operation="SUBTRACT", v1=PIX_R)
     ring0 = N("ShaderNodeMath", operation="MAXIMUM", v1=0.0)
-    lat = N("ShaderNodeMath", operation="DIVIDE", v1=-lam)
-    latx = N("ShaderNodeMath", operation="EXPONENT")
-    vert = N("ShaderNodeMath", operation="DIVIDE", v1=-LOBE_H)
-    vertx = N("ShaderNodeMath", operation="EXPONENT")
-    ztop = N("ShaderNodeMath", operation="DIVIDE", v1=LOBE_TOP * LOBE_H)
-    ztop4 = N("ShaderNodeMath", operation="POWER", v1=4.0)
-    zwin = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
-    fz = N("ShaderNodeMath", operation="MULTIPLY")
-    edge = N("ShaderNodeMath", operation="DIVIDE", v1=CUT_R)
-    edgep = N("ShaderNodeMath", operation="POWER", v1=WIN_P)
-    win = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
-    f1 = N("ShaderNodeMath", operation="MULTIPLY")
-    f2 = N("ShaderNodeMath", operation="MULTIPLY")
-    phi = N("ShaderNodeMath", operation="ARCTAN2")           # soft shafts around the jet
+    rz = N("ShaderNodeCombineXYZ")
+    dist = N("ShaderNodeVectorMath", operation="LENGTH")
+    dec = N("ShaderNodeMath", operation="DIVIDE", v1=-fall)
+    decx = N("ShaderNodeMath", operation="EXPONENT")
+    th = N("ShaderNodeMath", operation="ARCTAN2")
+    sth = N("ShaderNodeMath", operation="SINE")
+    up = N("ShaderNodeMath", operation="MULTIPLY_ADD", v1=1.0 - LOBE_GRAZE, v2=LOBE_GRAZE)
+    fn = N("ShaderNodeMath", operation="MULTIPLY", v1=FAN_N)
+    fc = N("ShaderNodeMath", operation="COSINE")
+    fa = N("ShaderNodeMath", operation="MULTIPLY", v1=FAN_AMP)
+    fan = N("ShaderNodeMath", operation="ADD", v0=1.0)
+    phi = N("ShaderNodeMath", operation="ARCTAN2")
     pn = N("ShaderNodeMath", operation="MULTIPLY", v1=SHAFT_N)
     cs = N("ShaderNodeMath", operation="COSINE")
-    rr = N("ShaderNodeMath", operation="DIVIDE", v1=PIX_R)   # the ripple fades out on the
-    rr1 = N("ShaderNodeMath", operation="MINIMUM", v1=1.0)   # axis, where the angle is
+    rr = N("ShaderNodeMath", operation="DIVIDE", v1=PIX_R)   # the azimuthal ripple fades out
+    rr1 = N("ShaderNodeMath", operation="MINIMUM", v1=1.0)   # on the axis, where the angle is
     amp = N("ShaderNodeMath", operation="MULTIPLY", v1=SHAFT_AMP)   # undefined and noisy
     mod = N("ShaderNodeMath", operation="MULTIPLY")
     shaft = N("ShaderNodeMath", operation="ADD", v0=1.0)
+    edge = N("ShaderNodeMath", operation="DIVIDE", v1=LOBE_R)
+    edge4 = N("ShaderNodeMath", operation="POWER", v1=4.0)
+    win = N("ShaderNodeMath", operation="SUBTRACT", v0=1.0, clamp=True)
+    f1 = N("ShaderNodeMath", operation="MULTIPLY")
+    f2 = N("ShaderNodeMath", operation="MULTIPLY")
     f3 = N("ShaderNodeMath", operation="MULTIPLY")
+    f4 = N("ShaderNodeMath", operation="MULTIPLY")
     dens = N("ShaderNodeMath", operation="MULTIPLY", v1=LOBE_DENS * brightness)
     emis = N("ShaderNodeMath", operation="MULTIPLY", v1=LOBE_EMIS * brightness)
     vol = N("ShaderNodeVolumePrincipled")
@@ -368,40 +384,35 @@ def lobe_material(tag, lam, brightness):
     L(tex.outputs["Object"], sep.inputs[0])
     L(sep.outputs["X"], flat.inputs["X"]); L(sep.outputs["Y"], flat.inputs["Y"])
     L(flat.outputs[0], rad.inputs[0])
-    L(sep.outputs["Z"], wide.inputs[0])
-    L(rad.outputs["Value"], rs.inputs[0]); L(wide.outputs[0], rs.inputs[1])
-    L(rs.outputs[0], ring.inputs[0]); L(ring.outputs[0], ring0.inputs[0])
-    L(ring0.outputs[0], lat.inputs[0]); L(lat.outputs[0], latx.inputs[0])
-    L(sep.outputs["Z"], vert.inputs[0]); L(vert.outputs[0], vertx.inputs[0])
-    L(sep.outputs["Z"], ztop.inputs[0]); L(ztop.outputs[0], ztop4.inputs[0])
-    L(ztop4.outputs[0], zwin.inputs[1])
-    L(vertx.outputs[0], fz.inputs[0]); L(zwin.outputs[0], fz.inputs[1])
-    L(rad.outputs["Value"], edge.inputs[0]); L(edge.outputs[0], edgep.inputs[0])
-    L(edgep.outputs[0], win.inputs[1])
-    L(latx.outputs[0], f1.inputs[0]); L(fz.outputs[0], f1.inputs[1])
-    L(f1.outputs[0], f2.inputs[0]); L(win.outputs[0], f2.inputs[1])
+    L(rad.outputs["Value"], ring.inputs[0]); L(ring.outputs[0], ring0.inputs[0])
+    L(ring0.outputs[0], rz.inputs["X"]); L(sep.outputs["Z"], rz.inputs["Y"])
+    L(rz.outputs[0], dist.inputs[0])
+    L(dist.outputs["Value"], dec.inputs[0]); L(dec.outputs[0], decx.inputs[0])
+    L(sep.outputs["Z"], th.inputs[0]); L(ring0.outputs[0], th.inputs[1])
+    L(th.outputs[0], sth.inputs[0]); L(sth.outputs[0], up.inputs[0])
+    L(th.outputs[0], fn.inputs[0]); L(fn.outputs[0], fc.inputs[0])
+    L(fc.outputs[0], fa.inputs[0]); L(fa.outputs[0], fan.inputs[1])
     L(sep.outputs["Y"], phi.inputs[0]); L(sep.outputs["X"], phi.inputs[1])
     L(phi.outputs[0], pn.inputs[0]); L(pn.outputs[0], cs.inputs[0])
     L(rad.outputs["Value"], rr.inputs[0]); L(rr.outputs[0], rr1.inputs[0])
     L(rr1.outputs[0], amp.inputs[0])
     L(amp.outputs[0], mod.inputs[0]); L(cs.outputs[0], mod.inputs[1])
     L(mod.outputs[0], shaft.inputs[1])
+    L(dist.outputs["Value"], edge.inputs[0]); L(edge.outputs[0], edge4.inputs[0])
+    L(edge4.outputs[0], win.inputs[1])
+    L(decx.outputs[0], f1.inputs[0]); L(up.outputs[0], f1.inputs[1])
+    L(f1.outputs[0], f2.inputs[0]); L(fan.outputs[0], f2.inputs[1])
     L(f2.outputs[0], f3.inputs[0]); L(shaft.outputs[0], f3.inputs[1])
-    L(f3.outputs[0], dens.inputs[0]); L(f3.outputs[0], emis.inputs[0])
+    L(f3.outputs[0], f4.inputs[0]); L(win.outputs[0], f4.inputs[1])
+    L(f4.outputs[0], dens.inputs[0]); L(f4.outputs[0], emis.inputs[0])
     L(dens.outputs[0], vol.inputs["Density"]); L(emis.outputs[0], vol.inputs["Emission Strength"])
     L(vol.outputs[0], out.inputs["Volume"])
     return m
 
 
 def escape_lobe(cx, tag, top, lam, brightness, c):
-    """A dome of air over the lit circle, carrying the light that got out.
-
-    Radius is CUT_R plus a hair -- the radius at which both the surface emission
-    and this volume reach zero, and still inside the panel's short side, so the
-    dome never hangs over an edge.
-    """
-    reach = CUT_R + 0.05
-    verts, faces = dome(reach, 56, 22)
+    """A hemisphere of air over the lit circle, carrying the light that got out."""
+    verts, faces = dome(LOBE_R, 64, 26)
     me = bpy.data.meshes.new("Escaping light (%s)" % tag)
     me.from_pydata([(x, y, z) for x, y, z in verts], [], faces)
     me.update()
@@ -409,7 +420,6 @@ def escape_lobe(cx, tag, top, lam, brightness, c):
     o.data.materials.append(lobe_material(tag, lam, brightness))
     bpy.context.scene.collection.objects.link(o)
     o.location = (cx, 0.0, top)
-    o.scale = (1.0, 1.0, LOBE_TOP * LOBE_H / reach)   # tall enough to hold the fade
     no_bounce(o)
     link(o, c)
     return o
