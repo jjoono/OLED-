@@ -67,8 +67,10 @@ class Stack(object):
     `above` and `below` are lists of (n_o, n_e, thickness) ordered outwards from
     the EML.  The dipole sits z0 above the bottom face of the EML."""
 
-    def __init__(self, lam, eml, d_eml, z0, above, below, n_sub, n_top=1.0):
+    def __init__(self, lam, eml, d_eml, z0, above, below, n_sub, n_top=1.0,
+                 h=2.0 / 3.0):
         self.lam = lam
+        self.h = h                       # horizontal dipole ratio Theta
         self.no_e, self.ne_e = eml
         self.d_eml, self.z0 = d_eml, z0
         self.n_sub = complex(n_sub)
@@ -117,10 +119,13 @@ def _outcoupled(u, S):
     return res[0], res[1]
 
 
-def _weights(S, h=2.0 / 3.0):
+def _weights(S, h=None):
     """The two dipole-orientation prefactors of the source script, with the
-    1/lambda^4 dropped (everything is used as a ratio)."""
+    1/lambda^4 dropped (everything is used as a ratio).  h is the horizontal
+    dipole ratio Theta; 2/3 is the isotropic emitter."""
     no, ne = S.no_e, S.ne_e
+    if h is None:
+        h = getattr(S, 'h', 2.0 / 3.0)
     return (1.0 - h) * ne, h * no * (3.0 + (ne / no) ** 2) / 4.0
 
 
