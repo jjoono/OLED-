@@ -196,6 +196,35 @@ python3 figures/make_emitting_area_figure.py
 팔레트는 `make_roundtrip_figure.py` 에서 import 하므로 Fig.1(a)와 색이 어긋나지
 않습니다.
 
+## 소자 적층 구조 — `device_stacks.pptx`
+
+`make_stack_pptx.py` 가 만듭니다. 두 소자의 층 구성을 아이소메트릭 블록으로 쌓은
+그림이고, **파워포인트 네이티브 도형 102개, 그룹 0개, 이미지 0개** 입니다. 층 하나를
+클릭해서 색·이름·두께를 바로 고칠 수 있습니다.
+
+| 소자 | 아래 → 위 |
+|---|---|
+| Ag reflector + MLA film | Glass+MLA / ITO / HATCN:TAPC / TCTA / EML / B3PyMPM / B3PyMPM:Cs₂CO₃ / Ag / Nanolaminate / Parylene-C / MoOx+Ag reflector |
+| DBR + MLA substrate | MLA substrate / IZO / TAPC:HAT-CN / TCTA / EML / B3PyMPM / Al:Liq / DBR |
+
+- **층 목록이 곧 그림입니다.** `STACK_A`, `STACK_B` 리스트를 고치면 블록과 라벨,
+  리더선이 같이 따라옵니다. 튜플은 `(라벨, 색, 두께, 라벨색)` 이고 순서는 **아래에서
+  위** — 소자를 쌓는 순서 그대로입니다.
+- **DBR** 은 `fill=None` 으로 두면 `DBR_PAIRS` 쌍의 고/저굴절 층으로 자동으로
+  나뉘어 그려집니다. 원본 그림의 줄무늬 띠와 같은 뜻입니다.
+- 두께 숫자(`[150]` 등)는 라벨의 일부입니다. 블록 두께는 **가독성 기준**이지 실제
+  비율이 아닙니다 — Parylene-C 3000 nm 를 비율대로 그리면 나머지가 안 보입니다.
+- 아이소메트릭은 `EX, EY = 0.866, 0.5`. 층 하나당 면 세 개(윗면·오른쪽·앞면)를
+  그리고, 윗면은 맨 위 층에만 그립니다. 밝기는 `shade()` 로 1.00 / 0.86 / 0.70.
+- 아래첨자(Cs₂CO₃ 등)는 유니코드가 아니라 **진짜 파워포인트 아래첨자 런**입니다
+  (`baseline="-25000"`). 폰트를 바꿔도 깨지지 않고 편집도 됩니다.
+- 발광 화살표는 블록의 **보이는 아래 모서리 두 개**에서 출발합니다. 아랫면 중심에서
+  쏘면 스택 한가운데에서 빛이 나오는 것처럼 보입니다.
+
+```bash
+python3 figures/make_stack_pptx.py        # -> figures/device_stacks.pptx
+```
+
 ### Blender 버전 — `emitting_area_render.blend`
 
 같은 비교를 실제 3D 렌더로 만든 Blender 4.0 파일입니다. 회색 스튜디오 바닥 위에

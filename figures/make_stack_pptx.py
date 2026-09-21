@@ -1,0 +1,256 @@
+# -*- coding: utf-8 -*-
+"""Two OLED layer stacks as an isometric PowerPoint figure, in the style of the
+exploded-block device schematics Nature-family papers use.
+
+Everything is a native PowerPoint shape: each layer is three freeform faces (top,
+front-left, front-right), each label is a real text box, each emission arrow is a
+straight arrow connector.  Nothing is grouped and nothing is a picture, so a layer
+can be recoloured, renamed, resized or deleted in PowerPoint directly.
+
+Layer order in STACKS is bottom -> top, the way the device is built.
+"""
+import os
+
+from pptx import Presentation
+from pptx.util import Emu, Pt, Inches
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_CONNECTOR
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
+from pptx.oxml.ns import qn
+
+# ------------------------------------------------------------------ canvas
+W, H = 1400.0, 790.0                       # figure units
+SLIDE_W, SLIDE_H = Inches(13.333), Inches(7.5)
+SCALE = SLIDE_W / W                        # EMU per figure unit
+OX = 0
+OY = int((SLIDE_H - H * SCALE) / 2.0)
+
+def X(u): return int(round(OX + u * SCALE))
+def Y(u): return int(round(OY + u * SCALE))
+def D(u): return int(round(u * SCALE))
+def PTS(u): return Pt(u * SCALE / 12700.0)
+
+C = lambda h: RGBColor.from_string(h.lstrip("#").upper())
+
+# ------------------------------------------------------------------ isometric
+# screen x = 0.866 * (px - py)          px runs along the block's width
+# screen y = 0.500 * (px + py) - pz     py along its depth, pz up
+EX, EY = 0.866, 0.500
+BW, BD = 170.0, 130.0                      # block width and depth
+LH = 33.0                                  # default layer thickness on screen
+INK, MUTED = C("#1b2026"), C("#5b646e")
+RED = C("#d62828")                         # the source figures pick layers out in red
+GREEN = C("#2e9e4f")
+LEADER = C("#98a2ac")
+LW = Emu(9525)                             # 0.75 pt outlines
+
+def shade(hexcol, f):
+    """Same hue, scaled toward black (f < 1) -- the three faces of one layer."""
+    r, g, b = (int(hexcol[i:i + 2], 16) for i in (1, 3, 5))
+    return RGBColor(*(min(255, int(round(v * f))) for v in (r, g, b)))
+
+# ------------------------------------------------------------------ the stacks
+# (label, fill, thickness, label colour, white text on the block?)
+GLASS, TCO = "#cfe4f5", "#7fd3e8"
+HIL, HTL, EML = "#f6dfae", "#f0b860", "#b23a3a"
+ETL, EIL = "#7f9ada", "#4560a8"
+AG, ALU = "#c9ced3", "#b9bfc5"
+NANO, PARY, REFL = "#d9e6e2", "#e2dcef", "#9aa1a8"
+DBR_HI, DBR_LO = "#a02828", "#2b2f33"
+
+STACK_A = [
+    ("Glass + Microlens array film", GLASS, 46.0, RED),
+    ("ITO [150]",                    TCO,   33.0, INK),
+    ("HATCN/TAPC [5/55] 3 pairs",    HIL,   33.0, INK),
+    ("TCTA [10]",                    HTL,   28.0, INK),
+    (u"TCTA:B3PyMPM:Irppy₂acac [25]", EML, 36.0, INK),
+    ("B3PyMPM [50]",                 ETL,   33.0, INK),
+    (u"B3PyMPM:Cs₂CO₃ [5]", EIL,  26.0, INK),
+    ("Ag [100]",                     AG,    30.0, INK),
+    ("Nanolaminate",                 NANO,  33.0, INK),
+    ("Parylene-C [3000]",            PARY,  40.0, RED),
+    ("MoOx [5] + Ag reflector [100]", REFL, 34.0, RED),
+]
+
+STACK_B = [
+    ("MLA substrate (n = 1.77)",     GLASS, 46.0, INK),
+    ("IZO",                          TCO,   33.0, INK),
+    ("TAPC/HAT-CN/TAPC/HAT-CN",      HIL,   33.0, INK),
+    ("TCTA",                         HTL,   28.0, INK),
+    (u"TCTA:B3PyMPM:Ir(dmppy-ph)₂tmd", EML, 36.0, INK),
+    ("B3PyMPM",                      ETL,   33.0, INK),
+    ("Al/Liq",                       ALU,   30.0, INK),
+    ("DBR",                          None,  54.0, INK),      # drawn as alternating pairs
+]
+
+DBR_PAIRS = 4                              # high/low index pairs drawn in the DBR block
+
+prs = Presentation()
+prs.slide_width, prs.slide_height = SLIDE_W, SLIDE_H
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+SH = slide.shapes
+
+
+# ------------------------------------------------------------------ helpers
+def _alpha(parent, a):
+    if a is None or a >= 0.999 or parent is None:
+        return
+    sf = parent.find(qn("a:solidFill"))
+    if sf is None:
+        return
+    clr = sf.find(qn("a:srgbClr"))
+    clr.append(clr.makeelement(qn("a:alpha"), {"val": str(int(a * 100000))}))
+
+
+def poly(pts, fill, line, name, lw=LW, op=None):
+    """One flat face, as a closed freeform in figure coordinates."""
+    dev = [(X(x), Y(y)) for x, y in pts]
+    b = SH.build_freeform(dev[0][0], dev[0][1], scale=1.0)
+    b.add_line_segments(dev[1:], close=True)
+    s = b.convert_to_shape()
+    s.fill.solid()
+    s.fill.fore_color.rgb = fill
+    _alpha(s._element.spPr, op)
+    if line is None:
+        s.line.fill.background()
+    else:
+        s.line.color.rgb = line
+        s.line.width = lw
+    s.shadow.inherit = False
+    s.name = name
+    return s
+
+
+def text(x, y, body, size, colour, align=PP_ALIGN.LEFT, bold=False,
+         box_w=420.0, name="label", anchor=MSO_ANCHOR.MIDDLE):
+    """`body` is a string, or a list of (text, subscript?) pairs."""
+    left = {PP_ALIGN.LEFT: x, PP_ALIGN.CENTER: x - box_w / 2.0,
+            PP_ALIGN.RIGHT: x - box_w}[align]
+    h = size * 2.6
+    tb = SH.add_textbox(X(left), Y(y - h / 2.0), D(box_w), D(h))
+    tf = tb.text_frame
+    tf.word_wrap = True                    # wrap="none" would override `align`
+    tf.auto_size = MSO_AUTO_SIZE.NONE
+    tf.vertical_anchor = anchor
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+    p = tf.paragraphs[0]
+    p.alignment = align
+    for chunk, sub in ([(body, False)] if isinstance(body, str) else body):
+        r = p.add_run()
+        r.text = chunk
+        r.font.size = PTS(size)
+        r.font.bold = bold
+        r.font.name = "Arial"
+        r.font.color.rgb = colour
+        if sub:                            # a real PowerPoint subscript, still editable
+            r.font._rPr.set("baseline", "-25000")
+    tb.name = name
+    return tb
+
+
+def arrow(p0, p1, colour, w=2.6, name="emission", head=True):
+    cn = SH.add_connector(MSO_CONNECTOR.STRAIGHT, X(p0[0]), Y(p0[1]), X(p1[0]), Y(p1[1]))
+    cn.line.color.rgb = colour
+    cn.line.width = Emu(max(3175, D(w)))
+    ln = cn.line._get_or_add_ln()
+    if head:
+        ln.append(ln.makeelement(qn("a:tailEnd"),
+                                 {"type": "triangle", "w": "med", "len": "med"}))
+    cn.shadow.inherit = False
+    cn.name = name
+    return cn
+
+
+def slab(ox, oy, z0, z1, fill, tag, top=True):
+    """One layer: top face, front-left face (px = BW), front-right face (py = BD).
+
+    Only the faces that can be seen are drawn -- an isometric box needs three, and
+    the top one only on the layer that has nothing above it.
+    """
+    def P(px, py, pz):
+        return (ox + EX * (px - py), oy + EY * (px + py) - pz)
+
+    base = fill
+    if top:
+        poly([P(0, 0, z1), P(BW, 0, z1), P(BW, BD, z1), P(0, BD, z1)],
+             shade(base, 1.00), C("#5d666f"), tag + " top")
+    poly([P(BW, 0, z0), P(BW, 0, z1), P(BW, BD, z1), P(BW, BD, z0)],
+         shade(base, 0.86), C("#5d666f"), tag + " right")
+    poly([P(BW, BD, z0), P(BW, BD, z1), P(0, BD, z1), P(0, BD, z0)],
+         shade(base, 0.70), C("#5d666f"), tag + " front")
+    return P
+
+
+# ------------------------------------------------------------------ one device
+def device(ox, oy, layers, title, label_x, label_w):
+    """`oy` is the screen y of the stack's bottom-back corner (pz = 0)."""
+    total = sum(t for _, _, t, _ in layers)
+    z = 0.0
+    right_x = ox + EX * BW                 # screen x of the block's right-hand corner
+    for i, (name, fill, t, col) in enumerate(layers):
+        z0, z1, is_top = z, z + t, (i == len(layers) - 1)
+        tag = "%s / %s" % (title, name)
+        if fill is None:                   # the DBR: alternating quarter-wave pairs
+            sub = t / (2.0 * DBR_PAIRS)
+            for k in range(2 * DBR_PAIRS):
+                slab(ox, oy, z0 + k * sub, z0 + (k + 1) * sub,
+                     DBR_HI if k % 2 == 0 else DBR_LO,
+                     "%s pair %d" % (tag, k // 2 + 1),
+                     top=is_top and k == 2 * DBR_PAIRS - 1)
+        else:
+            slab(ox, oy, z0, z1, fill, tag, top=is_top)
+
+        ym = oy + EY * BW - (z0 + z1) / 2.0        # the block's right-hand corner edge
+        arrow((right_x + 6, ym), (label_x - 8, ym), LEADER, 1.1, tag + " leader", head=False)
+        text(label_x, ym, _runs(name), 14.5, col, PP_ALIGN.LEFT,
+             box_w=label_w, name=tag + " label")
+        z = z1
+
+    text(ox + EX * (BW - BD) / 2.0, TITLE_Y, title, 19.0, INK, PP_ALIGN.CENTER, bold=True,
+         box_w=520.0, name=title + " title")
+    return total
+
+
+def _runs(name):
+    """Split a layer name so digits after an element symbol become real subscripts."""
+    out, buf = [], ""
+    for ch in name:
+        if ch in u"₂₃":
+            if buf:
+                out.append((buf, False)); buf = ""
+            out.append(({u"₂": "2", u"₃": "3"}[ch], True))
+        else:
+            buf += ch
+    if buf:
+        out.append((buf, False))
+    return out
+
+
+def emission(ox, oy):
+    """Green arrows leaving the substrate: both devices emit through the bottom.
+
+    The tails sit on the two visible bottom edges, not at the centre of the bottom
+    face -- that point is behind the block, and arrows starting there look like they
+    come out of the middle of the stack.
+    """
+    corner = (ox + EX * (BW - BD), oy + EY * (BW + BD))     # lowest point of the block
+    left = (ox - EX * BD + 0.60 * EX * BW, oy + EY * BD + 0.60 * EY * BW)
+    right = (ox + EX * BW - 0.60 * EX * BD, oy + EY * BW + 0.60 * EY * BD)
+    for (tx, ty), (hx, hy) in ((left, (-58.0, 46.0)), (corner, (0.0, 68.0)), (right, (58.0, 46.0))):
+        arrow((tx, ty + 3), (tx + hx, ty + hy), GREEN, 2.6, "bottom emission")
+    text(corner[0], corner[1] + 100.0, "Bottom emission", 15.5, GREEN, PP_ALIGN.CENTER,
+         box_w=300.0, name="emission label")
+
+
+# ------------------------------------------------------------------ build
+BASE_Y = 498.0                             # screen y of each stack's bottom-back corner
+TITLE_Y = 62.0
+device(230.0, BASE_Y, STACK_A, "Ag reflector + MLA film", 430.0, 340.0)
+device(860.0, BASE_Y, STACK_B, "DBR + MLA substrate", 1060.0, 330.0)
+emission(230.0, BASE_Y)
+emission(860.0, BASE_Y)
+
+out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "device_stacks.pptx")
+prs.save(out)
+n_group = sum(1 for s in SH if s.shape_type is not None and "GROUP" in str(s.shape_type))
+print("saved %s  (%d shapes, %d groups, 0 pictures)" % (out, len(SH), n_group))
