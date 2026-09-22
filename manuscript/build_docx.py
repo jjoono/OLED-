@@ -48,12 +48,16 @@ def add_table(rows):
     t = d.add_table(rows=len(rows), cols=len(rows[0]))
     t.style = d.styles['Table Grid'] if 'Table Grid' in [st.name for st in d.styles] else t.style
     ncol = len(rows[0])
-    widths = [0.75, 0.7, 0.5, 1.15, 1.0, 0.6, 1.05, 1.05] if ncol == 8 else [6.5 / ncol] * ncol
+    widths = [0.62, 0.58, 0.42, 1.02, 0.9, 0.5, 1.0, 1.0] if ncol == 8 else [6.0 / ncol] * ncol
     t.autofit = False
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    tblPr = t._tbl.tblPr; lay = OxmlElement('w:tblLayout'); lay.set(qn('w:type'), 'fixed'); tblPr.append(lay)
+    for j, w in enumerate(widths): t.columns[j].width = Inches(w)
     for i, r in enumerate(rows):
         for j, c in enumerate(r):
             cell = t.cell(i, j); cell.text = ''; cell.width = Inches(widths[j])
-            run = cell.paragraphs[0].add_run(c); run.bold = (i == 0); run.font.size = Pt(8)
+            run = cell.paragraphs[0].add_run(c); run.bold = (i == 0); run.font.size = Pt(7.5)
     d.add_paragraph()
 
 
