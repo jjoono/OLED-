@@ -14,7 +14,7 @@ is eyeballed: the same round-trip loss model as Fig.1(a) supplies
 Cycles on CPU, OpenImageDenoise if the build has it.  Saves emitting_area_render.blend
 plus three renders (both devices, and one close-up per device).
 """
-import bpy, math, sys, os, time
+import bpy, json, math, sys, os, time
 from mathutils import Vector
 
 # ------------------------------------------------------------------ arguments
@@ -22,6 +22,7 @@ argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = os.path.abspath(argv[argv.index("--out") + 1]) if "--out" in argv else os.getcwd()
 QUALITY = argv[argv.index("--quality") + 1] if "--quality" in argv else "final"
 DO_RENDER = "--no-render" not in argv
+BAKE_LABELS = "--no-labels" not in argv   # off => text boxes go on top in PowerPoint
 BG = argv[argv.index("--bg") + 1] if "--bg" in argv else "transparent"
 ONLY_CAM = argv[argv.index("--cam") + 1] if "--cam" in argv else None
 RES_PCT = int(argv[argv.index("--res") + 1]) if "--res" in argv else None
@@ -97,6 +98,7 @@ LAYERS = [
     ("Glass",   0.26, (0.78, 0.90, 0.97), 0.42, 0.05, 0.0, "Glass"),
     ("Film",    0.16, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "Outcoupling structure"),
 ]
+LABEL_ANCHORS = []                       # (tag, text, light ink?, left-middle xyz, size)
 Z0 = {}                                  # bottom z of each layer, filled by device()
 def _z():
     z, out = 0.0, {}
@@ -439,7 +441,11 @@ def _node(nt, kind, operation=None, v0=None, v1=None, v2=None, clamp=False):
     return n
 
 # ------------------------------------------------------------------ scene
-def stack_label(cx, text, z_mid, c, mat, size=0.105):
+LABEL_SIZE = 0.105                       # 3D text height, and the size the
+                                         # PowerPoint text boxes match
+
+
+def stack_label(cx, text, z_mid, c, mat, size=LABEL_SIZE):
     bpy.ops.object.text_add(location=(cx - PANEL_W / 2 + 0.10,
                                       -PANEL_D / 2 - 0.006, z_mid - 0.33 * size))
     t = bpy.context.active_object
@@ -493,7 +499,14 @@ def device(cx, tag, lam, amp, brightness, mirror=None, label=True):
                                    # returns the environment rather than a fraction of
                                    # it, so judging its ink by albedo alone puts white
                                    # text on a band that comes out nearly white
-            stack_label(cx, cap, (z0 + z1) / 2.0, c, ink_light if lum < 0.40 else ink)
+            light = lum < 0.40
+            if BAKE_LABELS:
+                stack_label(cx, cap, (z0 + z1) / 2.0, c, ink_light if light else ink)
+            # recorded either way: the .pptx build puts real text boxes on exactly
+            # these points, so the two paths cannot drift apart
+            LABEL_ANCHORS.append((tag, cap, light,
+                                  (cx - PANEL_W / 2.0 + 0.10, -PANEL_D / 2.0 - 0.006,
+                                   (z0 + z1) / 2.0), LABEL_SIZE))
 
     lens_mat = lens_material(tag, lam, amp, LENS_EMIT_FRAC)
     lens, top, n_lens = lens_array(cx, Z_TOP, tag, c, lens_mat)
@@ -722,6 +735,29 @@ def render(cam, w, h, path):
     s.render.image_settings.file_format, s.render.image_settings.color_depth = fmt, depth
     print("   rendered %s  (%.0f s)" % (os.path.basename(path), time.time() - t))
 
+
+def dump_labels(cam, only, path):
+    """Where each label lands in the image, as fractions of width and height.
+
+    Taken from the camera that rendered the frame rather than worked out by hand,
+    so the text boxes cannot drift when the camera or the layer thicknesses move.
+    """
+    from bpy_extras.object_utils import world_to_camera_view
+    from mathutils import Vector
+    s = bpy.context.scene
+    out = []
+    for tag, txt, light, (x, y, z), size in LABEL_ANCHORS:
+        if only and only not in tag:
+            continue
+        p0 = world_to_camera_view(s, cam, Vector((x, y, z)))
+        p1 = world_to_camera_view(s, cam, Vector((x, y, z + size)))
+        out.append({"text": txt, "light": bool(light),
+                    "x": round(p0.x, 6), "y": round(1.0 - p0.y, 6),
+                    "h": round(abs(p1.y - p0.y), 6)})
+    with open(path, "w") as f:
+        json.dump(out, f, indent=1)
+    print("   labels   %s  (%d)" % (os.path.basename(path), len(out)))
+
 # ------------------------------------------------------------------ build
 clear()
 studio()
@@ -753,4 +789,5 @@ if DO_RENDER:
             continue
         solo(only)
         render(cams[cam_name], w, h, os.path.join(OUT, fn))
+        dump_labels(cams[cam_name], only, os.path.join(OUT, os.path.splitext(fn)[0] + "_labels.json"))
     solo(None)
