@@ -84,8 +84,8 @@ LT = np.genfromtxt(os.path.join(HERE, 'mla_aspect_lt_slice11.csv'), delimiter=',
 for r in LT:                                   # the author's LightTools hemisphere, same series
     bx.plot([1.0], [100 * float(r['EQE'])], marker='o', ms=5.5, mfc='white', mew=1.0,
             color=C_AG if r['reflector'] == 'Ag' else C_AL, zorder=6)
-bx.text(1.05, 94.0, 'open: LightTools BSDF (hemisphere, slice 11)',
-        fontsize=FS_NOTE - 0.8, color='0.4', ha='left', va='top')
+bx.text(1.53, 94.0, 'open: LightTools BSDF, slice 11',
+        fontsize=FS_NOTE - 0.8, color='0.4', ha='right', va='top')
 bx.axvline(1.0, color='0.75', lw=0.7, dashes=(2.5, 2.5), zorder=0)
 bx.text(1.015, 59.0, 'hemisphere', fontsize=FS_NOTE - 0.4, color='0.5',
         ha='left', va='bottom', rotation=90)
