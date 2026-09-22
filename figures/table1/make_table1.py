@@ -9,6 +9,17 @@ from pptx.oxml.ns import qn
 from lxml import etree
 
 rows = list(csv.DictReader(open('/home/user/OLED-/sim/audit/table1_series.csv')))
+FULL = {}
+try:
+    for r in csv.DictReader(open('/home/user/OLED-/sim/table1_full/table1_full_spectrum.csv')):
+        FULL[(r['d_ETL_nm'], '%.4f' % float(r['k_ITO']), '%.3f' % float(r['Theta']), r['mode'])] = r
+except FileNotFoundError:
+    pass
+def cell2(r, key_series, key_full):
+    k = (r['d_ETL_nm'], '%.4f' % float(r['k_ITO']), '%.3f' % float(r['Theta']))
+    f = FULL.get(k + ('full_400_700',))
+    return ('%.3f / %.3f' % (float(f[key_full]), float(r[key_series]))) if f else '%.3f' % float(r[key_series])
+
 prs = Presentation(); prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
 s = prs.slides.add_slide(prs.slide_layouts[6])
 F = 'Arial'
@@ -21,12 +32,12 @@ def text(x, y, w, h, runs, size, color='000000', anchor=MSO_ANCHOR.TOP):
         r = p.add_run(); r.text = t; r.font.name = F; r.font.size = Pt(size); r.font.bold = bold; r.font.color.rgb = RGBColor.from_string(color)
     return tb
 
-text(0.6, 0.35, 12.1, 0.45, [('표 1. ', True), ('실제 재료 스택으로 계산한 near-unity 설계의 EQE (550 nm, PLQY = 1)', False)], 16)
+text(0.6, 0.35, 12.1, 0.45, [('표 1. ', True), ('실제 재료 스택으로 계산한 near-unity 설계의 EQE (PLQY = 1; 각 칸은 다파장 400–700 nm / 550 nm)', False)], 16)
 text(0.6, 0.85, 12.1, 0.8, [('스택: Ag 100 nm / B3PyMPM d_ETL / TCTA:B3PyMPM 25 nm (발광 위치 중앙) / TAPC 180 nm / ITO 50 nm / 기판 n = 1.8 + 반구형 microlens array (n_MLA = 1.8, 행렬 급수). '
                              '광학상수는 실측값(B3PyMPM n_o/n_e = 1.821/1.609, TCTA:B3PyMPM 1.833/1.671, TAPC 1.691/1.664); ITO는 König 등의 n = 1.864에 k = 0.0032(문헌값) 또는 0.002.', False)], 11, '404040')
 
 hdr = ['d_ETL (nm)', 'k_ITO', 'Θ', 'η_sub', 'SPP 손실', 'A′', 'η_ext', 'EQE']
-colw = [1.35, 1.2, 1.55, 1.5, 1.5, 1.5, 1.75, 1.75]
+colw = [1.15, 1.0, 1.35, 1.75, 1.6, 1.0, 2.1, 2.15]
 tbl = s.shapes.add_table(len(rows) + 1, 8, Inches(0.6), Inches(1.8), Inches(sum(colw)), Inches(0.32 * (len(rows) + 1))).table
 for j, w in enumerate(colw): tbl.columns[j].width = Inches(w)
 tblPr = tbl._tbl.tblPr; tblPr.set('firstRow', '0'); tblPr.set('bandRow', '0')
@@ -51,12 +62,12 @@ def setcell(cell, t, bold=False, fill='FFFFFF', size=12, top=None, bottom=None, 
 for j, h in enumerate(hdr): setcell(tbl.cell(0, j), h, bold=True, top=1.25, bottom=0.75)
 for i, r in enumerate(rows):
     th = float(r['Theta']); ths = '0.67 (등방성)' if abs(th - 0.667) < 1e-3 else '%.2f' % th
-    vals = [r['d_ETL_nm'], '%.4f' % float(r['k_ITO']), ths, '%.3f' % float(r['eta_sub']), '%.3f' % float(r['spp']),
-            '%.3f' % float(r['Aprime']), '%.3f' % float(r['eta_ext_series']), '%.3f' % float(r['EQE_series'])]
+    vals = [r['d_ETL_nm'], '%.4f' % float(r['k_ITO']), ths, cell2(r, 'eta_sub', 'eta_sub'), cell2(r, 'spp', 'spp'),
+            '%.3f' % float(r['Aprime']), cell2(r, 'eta_ext_series', 'eta_ext'), cell2(r, 'EQE_series', 'EQE')]
     last = i == len(rows) - 1; grp = (i + 1) % 3 == 0 and not last
     fill = 'F2F2F2' if (3 <= i < 6 or i >= 9) else 'FFFFFF'
     for j, v in enumerate(vals):
-        setcell(tbl.cell(i + 1, j), v, bold=(j == 7), fill=fill, bottom=(1.25 if last else (0.5 if grp else None)), bcol=('000000' if last else 'A0A0A0'))
+        setcell(tbl.cell(i + 1, j), v, bold=(j == 7), fill=fill, size=11, bottom=(1.25 if last else (0.5 if grp else None)), bcol=('000000' if last else 'A0A0A0'))
 for i in range(len(rows) + 1): tbl.rows[i].height = Inches(0.32)
 
 ec = [float(r['eta_ext_closed']) for r in rows]; qc = [float(r['EQE_closed']) for r in rows]; qs = [float(r['EQE_series']) for r in rows]

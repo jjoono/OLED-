@@ -2,7 +2,7 @@
 % Planar_sweep22_preprint_MLA.m): real material stack, hemispherical MLA BSDF
 % (slice 11, n_MLA = 1.8), recycling series with R_step terms.
 %
-% Runs every Table 1 case twice: full wavelength (530-580 nm, Ir(ppy)2acac
+% Runs every Table 1 case twice: full wavelength (400-700 nm, Ir(ppy)2acac
 % spectrum, photon-number weighting) and single wavelength (550 nm), and writes
 % table1_author_model.csv.  Needs nk_JH_total.mat, the BSDF .mat and the
 % TMF_birefringence_whole* functions on the path, exactly like the sweep script.
@@ -29,7 +29,7 @@ end
 fid = fopen('table1_author_model.csv','w');
 fprintf(fid,'d_ETL_nm,k_ITO_550,Theta,mode,eta_sub,spp,wg,abs,eta_ext,EQE\n');
 for mode = 1:2
-  if mode == 1, W = 131:181; label = 'full_530_580'; else, W = 151; label = 'single_550'; end
+  if mode == 1, W = 1:301; label = 'full_400_700'; else, W = 151; label = 'single_550'; end
   wavelength = (400:800)'; wavelength = wavelength(W); wavelength_num = length(wavelength);
   emission_spectrum = spectrum.I_Irppy2acac(W); emission_spectrum = emission_spectrum(:)/sum(emission_spectrum);
   bottom_air_refractive_index = ones(wavelength_num,1);
@@ -98,7 +98,10 @@ for mode = 1:2
       P_sub_ang(i,:) = P_sub_ang(i,:) + rs*interp1(no_bar(i,EML_position)*us, sqrt(max(0,rs^2-us.^2)).*K_bt_s(i,1:u_sub_max_s(i)), no_bar(i,layer_num)*sin089,'spline',0)/const_free(i);
     end
     I_sub = P_sub_ang.*repmat(emission_spectrum.*eta_eff./Purcell_factor,1,90);
-    Psub_norm = I_sub.*sin089; Psub_norm = Psub_norm./repmat(sum(Psub_norm,2),1,90); Psub_norm(isnan(Psub_norm)) = 0;
+    % P_sub_ang is already the power per unit polar angle (it goes as sin(theta) for a
+    % homogeneous medium, see test_psub_shape.m), so it is NOT multiplied by sin089 again
+    % as in the sweep script; the BSDF columns take the power per 1-degree bin.
+    Psub_norm = I_sub; Psub_norm = Psub_norm./repmat(sum(Psub_norm,2),1,90); Psub_norm(isnan(Psub_norm)) = 0;
     Tp = TMF_birefringence_whole_p(no_bar(:,layer_num:-1:1),ne_bar(:,layer_num:-1:1),[0 thickness(layer_num-2:-1:1) 0],ne_bar(:,layer_num)*sin089,wavelength);
     Ts = TMF_birefringence_whole_s(no_bar(:,layer_num:-1:1),ne_bar(:,layer_num:-1:1),[0 thickness(layer_num-2:-1:1) 0],no_bar(:,layer_num)*sin089,wavelength);
     ROLED = (abs(Tp.r_p).^2+abs(Ts.r_s).^2)/2;
