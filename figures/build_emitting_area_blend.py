@@ -86,14 +86,16 @@ LENS_SEGS, LENS_RINGS = 28, 9
 # Layers are alpha-blended rather than refractive: that is what lets the guided
 # rays inside the glass be seen, and it is far cheaper than real transmission.
 #   name, thickness, colour, alpha, roughness, metallic, label
+# Thicknesses are set for legibility, not to scale: every band has to hold its own
+# label, and a transport stack drawn to scale against a 0.7 mm substrate would be
+# a hairline.  HTL/EML/ETL are one band because this figure is about what happens
+# to the light after it is made, not about how it is made.
 LAYERS = [
-    ("Al",    0.13, (0.26, 0.28, 0.31), 1.00, 0.28, 1.0, "Al electrode"),
-    ("ETL",   0.09, (0.72, 0.76, 0.94), 0.96, 0.45, 0.0, "ETL"),
-    ("EML",   0.11, (0.98, 0.66, 0.22), 0.96, 0.45, 0.0, "EML"),
-    ("HTL",   0.09, (0.99, 0.87, 0.64), 0.96, 0.45, 0.0, "HTL"),
-    ("ITO",   0.08, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "Transparent electrode"),
-    ("Glass", 0.28, (0.78, 0.90, 0.97), 0.42, 0.05, 0.0, "Glass"),
-    ("Film",  0.08, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "Outcoupling structure"),
+    ("Metal",   0.18, (0.26, 0.28, 0.31), 1.00, 0.28, 1.0, "Conventional metal electrode"),
+    ("Organic", 0.29, (0.97, 0.74, 0.33), 0.96, 0.45, 0.0, "Organic layer"),
+    ("ITO",     0.16, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "Transparent electrode"),
+    ("Glass",   0.26, (0.78, 0.90, 0.97), 0.42, 0.05, 0.0, "Glass"),
+    ("Film",    0.16, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "Outcoupling structure"),
 ]
 Z0 = {}                                  # bottom z of each layer, filled by device()
 def _z():
@@ -437,7 +439,7 @@ def _node(nt, kind, operation=None, v0=None, v1=None, v2=None, clamp=False):
     return n
 
 # ------------------------------------------------------------------ scene
-def stack_label(cx, text, z_mid, c, mat, size=0.075):
+def stack_label(cx, text, z_mid, c, mat, size=0.105):
     bpy.ops.object.text_add(location=(cx - PANEL_W / 2 + 0.10,
                                       -PANEL_D / 2 - 0.006, z_mid - 0.33 * size))
     t = bpy.context.active_object
@@ -477,7 +479,7 @@ def device(cx, tag, lam, amp, brightness, mirror=None, label=True):
     ink_light = flat_material("Label ink light %s" % tag, (0.88, 0.90, 0.93))
     for name, t, col, al, rough, met, cap in LAYERS:
         z0, z1 = BAND[name]
-        if name == "Al" and mirror:
+        if name == "Metal" and mirror:
             cap, col = mirror
         box("%s (%s)" % (name, tag), PANEL_W, PANEL_D, t, cx, 0.0, z0,
             principled("%s %s" % (name, tag), base=col, metallic=met, rough=rough, alpha=al), c)
@@ -486,6 +488,11 @@ def device(cx, tag, lam, amp, brightness, mirror=None, label=True):
             # layer's name: the back electrode's colour differs per device, and a
             # name-based rule silently loses contrast the moment someone changes it
             lum = 0.2126 * col[0] + 0.7152 * col[1] + 0.0722 * col[2]
+            if met:
+                lum *= 1.35        # a metal renders far brighter than its albedo: it
+                                   # returns the environment rather than a fraction of
+                                   # it, so judging its ink by albedo alone puts white
+                                   # text on a band that comes out nearly white
             stack_label(cx, cap, (z0 + z1) / 2.0, c, ink_light if lum < 0.40 else ink)
 
     lens_mat = lens_material(tag, lam, amp, LENS_EMIT_FRAC)
@@ -719,9 +726,9 @@ def render(cam, w, h, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       brightness=1.0 / BRIGHT, mirror=("Al electrode", (0.25, 0.27, 0.32)))
+       brightness=1.0 / BRIGHT, mirror=("Conventional metal electrode", (0.25, 0.27, 0.32)))
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       brightness=1.0, mirror=("Ag electrode", (0.34, 0.32, 0.28)))
+       brightness=1.0, mirror=("Lossless metal electrode", (0.34, 0.32, 0.28)))
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
