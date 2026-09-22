@@ -14,6 +14,9 @@ from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 template, src, out = sys.argv[1:4]
+FIGDIR = sys.argv[4] if len(sys.argv) > 4 else None
+import os
+from docx.shared import Inches
 d = docx.Document(template)
 body = d.element.body
 # clear the body but keep the final section properties
@@ -78,6 +81,9 @@ for line in lines + ['']:
         continue
     if s.startswith('---'):
         continue
+    mfig = re.match(r'^\*\*(?:그림|Figure|Fig\.)\s*(\d+)[.\s]', s)
+    if FIGDIR and mfig and os.path.exists(os.path.join(FIGDIR, 'fig%s.png' % mfig.group(1))):
+        d.add_picture(os.path.join(FIGDIR, 'fig%s.png' % mfig.group(1)), width=Inches(6.3))
     p = d.add_paragraph()
     # centred, single-line equation paragraphs
     if re.search(r'\s\(\d\)$', s) and ('=' in s) and len(s) < 90:

@@ -110,3 +110,11 @@
 - 그림 대조 결과: 그림 1(b) 수렴값·1(c) 표식, 2(a)–(f) 식 (3) 값(터널링 반영 η_sub 포함), 2(g)–(j), 3(a)–(c) 수치, 4(a),(b)의 EQE(20→55.8, 23/61/77), 5(a),(b) 최댓값(34.9/87.4), 5(d), 5(e) 모두 본문·캡션과 일치.
 - 불일치 3건: (1) 그림 5(c)가 이전 데이터(reference 34→60 %, proposed 88→91 %)로 그려져 있어 본문(31→55, 83→85, 84 %)·캡션과 다름 → Fig5c 시트로 재작도 필요. (2) 그림 3(a) 모식도의 "Glass (n = 1.77)"는 계산·캡션의 n_sub = 1.8과 다름 → 라벨 수정. (3) 그림 5(d)에 캡션의 점(95 % 시작점)·파선(평면 기판)이 없음 → 캡션을 "평면 기판 EQE Al 21.6 %, Ag 25.5 %" 문장으로 교체(v23).
 - v23 = 저자 v22 docx에 캡션 5(d), Methods 5(a),(b) 두께 범위 10–300 nm(그림 축 범위), 저자 확인 목록만 고친 것(그림 유지).
+
+## 7차 (2026-09-22) — 저자 답변 반영, 영문 초안 v1
+
+- 반영: 영문 제목(Towards near-unity OLEDs: synergetic photon management; 'managements' → 'management'), 저자·소속, 발광체 문헌 [25] Sci. Adv. 9, eadf1388 (2023), [26] Sci. Adv. 11, eadr1326 (2025), 기준 소자(평면 유리/ITO 위 동일 스택), EQE 산출은 [22,23] 인용, 5(e) 스택(ETL 500 nm, (TAPC 500/HATCN 3)×3, ITO 50, n_sub 1.8로 기재), 증착 기저 압력 10⁻⁶ Torr.
+- 표 1: "다파장 / 550 nm" 병기 구조로 바꾸고 다파장 값은 [[ ]]. 저자 모델용 스크립트 `sim/table1_author/table1_author_model.m`(Octave 파싱 확인; nk_JH_total.mat·TMF 함수 필요) 제공.
+- 저자 스크립트 `Planar_sweep22_preprint_MLA.m` 282–283행: ROLED_3 = repmat(ROLED,1,1,90)은 R_LED를 BSDF 반사 전 각도(2번째 차원)에 곱한다. 참조 규약 M = BSDF_R' .* R_LED(반사 후 각도)와 맞추려면 permute(…,[1 3 2]) 필요. 5(b)의 87.4 %는 이 판으로 계산된 값일 수 있음(영향은 작을 것으로 예상, 재실행 권장).
+- 반사판→반사체 치환의 조사 오류(반사체이/을/은/으로) 10건 수정.
+- 영문 초안 `manuscript/unityEQE_en.md` → `unityEQE_en_v1.docx`(본문 + Methods + 캡션 + 표 1, 그림 포함, 약 8,600 단어).
