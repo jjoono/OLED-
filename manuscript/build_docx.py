@@ -47,9 +47,12 @@ def add_table(rows):
     rows = [r for r in rows if not all(set(c) <= set('-: ') for c in r)]
     t = d.add_table(rows=len(rows), cols=len(rows[0]))
     t.style = d.styles['Table Grid'] if 'Table Grid' in [st.name for st in d.styles] else t.style
+    ncol = len(rows[0])
+    widths = [0.75, 0.7, 0.5, 1.15, 1.0, 0.6, 1.05, 1.05] if ncol == 8 else [6.5 / ncol] * ncol
+    t.autofit = False
     for i, r in enumerate(rows):
         for j, c in enumerate(r):
-            cell = t.cell(i, j); cell.text = ''
+            cell = t.cell(i, j); cell.text = ''; cell.width = Inches(widths[j])
             run = cell.paragraphs[0].add_run(c); run.bold = (i == 0); run.font.size = Pt(8)
     d.add_paragraph()
 
