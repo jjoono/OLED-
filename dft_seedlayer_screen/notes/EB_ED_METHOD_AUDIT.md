@@ -1802,3 +1802,29 @@ kMC's input and the quantity the screening table has silently assumed is zero.
 
     python scripts/131_site_spread.py
     python scripts/131_site_spread.py --harvest site_spread
+
+### Package F ran 8x slower than predicted — three causes, all mine
+
+Measured, first run: benzene 33–57 min per site (12 atoms), F4TCNQ 137–375,
+Bphen 201–394, HATCN 305–584. I had said Bphen would be the long pole and the
+rest quick; HATCN's atop sites were the longest in the campaign and benzene,
+which I called fast, took the better part of an hour each. 18 of 27 done in
+30 h, with ~30 h of HATCN left on the critical path.
+
+1. **Four folders means four jobs.** The runner parallelises across folders and
+   runs one job at a time inside each, so 27 jobs in 4 folders used 32 of 64
+   logical processors and ran nine-deep serially. One folder per job fixes it.
+2. **Every carbon site started half an Angstrom inside the wall.** `contact(C)`
+   is 2.21 Å; the relaxed Ag–C distance is 2.67. The optimiser climbed out of a
+   steep wall and then crawled across a flat basin. Carbon and sulfur sites now
+   start at 1.20 × contact, which is where the Ag₂ geometries say they end up.
+3. **Default thresholds on a soft coordinate.** Ag on a physisorbed organic has
+   a nearly flat basin, and `Opt` was asking for a position the energy cannot
+   resolve. `Opt=Loose` bounds the energy left on the table at roughly
+   ½·F·Δx = 0.0025 × 0.01 Ha ≈ 0.3 meV per degree of freedom — three orders
+   below the spread being measured.
+
+The 18 finished jobs keep their tight convergence; site names are ranked on the
+contact-distance position, before the carbon back-off, so they are unchanged
+and the two batches merge. `--split --pending a,b,c` writes only the jobs named,
+one per folder.

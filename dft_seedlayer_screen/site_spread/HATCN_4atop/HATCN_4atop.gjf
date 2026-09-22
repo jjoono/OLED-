@@ -1,9 +1,9 @@
-%Chk=HATCN_5bridge.chk
-%NProcShared=8
-%Mem=48GB
-#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(MaxCycles=80) SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
+%Chk=HATCN_4atop.chk
+%NProcShared=3
+%Mem=24GB
+#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(Loose,MaxCycles=60) SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
 
-HATCN Ag at the bridge site nearest N0, substrate frozen
+HATCN Ag at the atop site nearest C4, substrate frozen
 
 0 2
  N  -1    -2.61134800     5.39998500    -1.15553800
@@ -36,5 +36,5 @@ HATCN Ag at the bridge site nearest N0, substrate frozen
  C  -1     0.34276900     3.54776100    -0.64334000
  C  -1     1.00321200     4.80344100    -0.84058300
  N  -1     1.51612400     5.83162000    -1.00374300
- Ag  0    -2.79873693     4.10691140    -3.01150633
+ Ag  0    -0.10198846     0.39130486    -2.80135600
 

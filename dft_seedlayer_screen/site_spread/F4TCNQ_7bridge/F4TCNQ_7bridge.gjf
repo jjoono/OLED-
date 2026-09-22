@@ -1,9 +1,9 @@
-%Chk=F4TCNQ_5atop.chk
-%NProcShared=8
-%Mem=48GB
-#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(MaxCycles=80) SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
+%Chk=F4TCNQ_7bridge.chk
+%NProcShared=3
+%Mem=24GB
+#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(Loose,MaxCycles=60) SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
 
-F4TCNQ Ag at the atop site nearest C5, substrate frozen
+F4TCNQ Ag at the bridge site nearest C8, substrate frozen
 
 0 2
  N  -1     3.83179500     2.64037000    -1.28925000
@@ -26,5 +26,5 @@ F4TCNQ Ag at the atop site nearest C5, substrate frozen
  F  -1    -1.76461800     1.99116400    -0.68177900
  C  -1     0.42840700     1.23949100    -0.56764200
  F  -1     0.83468700     2.42788200    -1.01067800
- Ag  0     1.75783248    -1.00189145    -2.19202333
+ Ag  0    -0.04834273    -1.52813054    -2.32262200
 

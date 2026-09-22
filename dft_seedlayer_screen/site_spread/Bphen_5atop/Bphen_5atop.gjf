@@ -1,9 +1,9 @@
-%Chk=Bphen_3bridge.chk
-%NProcShared=8
-%Mem=48GB
-#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(MaxCycles=80) SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
+%Chk=Bphen_5atop.chk
+%NProcShared=3
+%Mem=24GB
+#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(Loose,MaxCycles=60) SCF=(XQC,MaxCycle=128,VShift=300) NoSymm
 
-Bphen Ag at the bridge site nearest C1, substrate frozen
+Bphen Ag at the atop site nearest H30, substrate frozen
 
 0 2
  C  -1    -5.07510400     2.59605700    -0.84858200
@@ -48,5 +48,5 @@ Bphen Ag at the bridge site nearest C1, substrate frozen
  H  -1     2.99041900    -4.16575200     1.55595000
  H  -1    -3.67719800    -0.20533800    -2.12404600
  H  -1    -4.97962600     1.76976200    -2.82135600
- Ag  0    -6.18697153     0.99114304     1.49797217
+ Ag  0    -4.78856105    -4.07659437    -0.74861500
 

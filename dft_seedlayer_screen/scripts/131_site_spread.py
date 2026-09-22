@@ -38,6 +38,18 @@ E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
 S2_RE = re.compile(r"S\*\*2 before annihilation\s+(\d+\.\d+)")
 S2_MAX = 0.90                 # a doublet is 0.75; 1.36 is a different state
 MAX_SITES = 8
+# Ag sits on a donor atom at its contact distance and on a carbon face well
+# outside it: the Ag2 geometries put Ag-N at 2.22 A on HATCN but Ag-C at 2.67
+# on benzene, against a 2.21 A contact distance for carbon. Starting half an
+# Angstrom inside the wall on every carbon site is what made the first run
+# crawl -- the optimiser walks out of a steep wall and then across a flat
+# basin. Donor sites start where they belong; carbon faces start where the
+# relaxed dimer says they end up.
+START_SCALE = {"C": 1.20, "S": 1.15}
+# The Ag coordinate on a physisorbed organic is soft, so the default thresholds
+# ask for a position the energy cannot tell apart. On a flat basin Loose costs
+# well under a meV and saves most of the steps.
+OPT = os.environ.get("GAUSS_OPT", "Loose,MaxCycles=60")
 
 # The organics the screening table ranks, plus the two extremes as controls.
 TARGETS = [("HATCN", "HATCN_Ag_CN.xyz"), ("F4TCNQ", "F4TCNQ_Ag.xyz"),
@@ -118,15 +130,27 @@ def unique_sites(syms, X):
             hint = v / n if n > 1e-6 else nrm
         d = outward(syms, X, anchor, h, hint)
         pos = place(X, anchor, d, syms)
+        # Ranking (and so the job names) is decided on the contact-distance
+        # position, before the carbon back-off: the names have to stay the same
+        # across reruns or finished jobs cannot be merged with new ones.
         clear = float((np.linalg.norm(X - pos, axis=1)
                        - [contact(x) for x in syms]).min())
         near = int(np.linalg.norm(X - pos, axis=1).argmin())
+        near0 = int(np.linalg.norm(X - anchor, axis=1).argmin())
+        pos = pos + d * (START_SCALE.get(syms[near0], 1.0) - 1.0) * h
         out.append((key[0], near, pos, clear))
     out.sort(key=lambda r: -r[3])
     return out[:MAX_SITES]
 
 
-def write():
+def write(pending=None, split=False):
+    """pending: only these job names. split: one job per folder.
+
+    The runner fills folders in parallel and runs one job at a time inside
+    each, so four folders means four jobs at once whatever the core count. With
+    a handful of long jobs left, one folder each is the difference between
+    running them side by side and running them end to end.
+    """
     nproc = int(os.environ.get("GAUSS_NPROC", "8"))
     mem = int(os.environ.get("GAUSS_MEM_GB", "48"))
     big = int(os.environ.get("GAUSS_BIG_ATOMS", "60"))
@@ -141,7 +165,8 @@ def write():
         # A rerun with different sites must not leave the old ones behind: the
         # runner takes every .gjf in the folder, not only the ones in ORDER.
         shutil.rmtree(d, ignore_errors=True)
-        os.makedirs(d, exist_ok=True)
+        if not split:
+            os.makedirs(d, exist_ok=True)
         order = []
         np_ = nproc * 2 if len(syms) >= big else nproc
         mem_ = mem * 2 if len(syms) >= big else mem
@@ -149,21 +174,31 @@ def write():
             # Two inequivalent sites can share a nearest atom, so the name is
             # numbered and the atom named in the title instead.
             name = f"{tag}_{k}{kind}"
+            if pending is not None and name not in pending:
+                continue
+            dj = os.path.join(OUT, name) if split else d
+            os.makedirs(dj, exist_ok=True)
             lines = [f"%Chk={name}.chk", f"%NProcShared={np_}", f"%Mem={mem_}GB",
                      f"#P {gen.FUNC}/Def2SVP EmpiricalDispersion=GD3BJ "
-                     f"Opt=(MaxCycles=80) SCF=({gen.SCF_FIRST}) NoSymm", "",
+                     f"Opt=({OPT}) SCF=({gen.SCF_FIRST}) NoSymm", "",
                      f"{tag} Ag at the {kind} site nearest {syms[i]}{i}, substrate frozen", "", "0 2"]
             for a, c in zip(syms, X):
                 lines.append(f" {a:<2s} {-1:>2d} {c[0]:14.8f} {c[1]:14.8f} {c[2]:14.8f}")
             lines.append(f" {'Ag':<2s} {0:>2d} {pos[0]:14.8f} {pos[1]:14.8f} {pos[2]:14.8f}")
-            with open(os.path.join(d, f"{name}.gjf"), "w") as f:
+            with open(os.path.join(dj, f"{name}.gjf"), "w") as f:
                 f.write("\n".join(lines) + "\n\n")
+            if split:
+                with open(os.path.join(dj, "ORDER.txt"), "w") as f:
+                    f.write(name + "\n")
             order.append(name)
             n += 1
         # The molecule and the Ag atom are already computed for this geometry;
         # only the complexes are new.
-        with open(os.path.join(d, "ORDER.txt"), "w") as f:
-            f.write("\n".join(order) + "\n")
+        if not split:
+            with open(os.path.join(d, "ORDER.txt"), "w") as f:
+                f.write("\n".join(order) + "\n")
+        elif not order:
+            shutil.rmtree(d, ignore_errors=True)
         print(f"  {tag:<9} {len(syms):>3} atoms  {len(order)} sites  {np_:>2} threads")
     with open(os.path.join(OUT, "run_campaign.py"), "w") as f:
         f.write(gen.RUNNER)
@@ -234,4 +269,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 2 and sys.argv[1] == "--harvest":
         harvest(sys.argv[2])
     else:
-        write()
+        a = sys.argv[1:]
+        pend = None
+        if "--pending" in a:
+            pend = set(a[a.index("--pending") + 1].split(","))
+        write(pending=pend, split="--split" in a)
