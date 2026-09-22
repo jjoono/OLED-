@@ -59,5 +59,6 @@ for i, r in enumerate(rows):
         setcell(tbl.cell(i + 1, j), v, bold=(j == 7), fill=fill, bottom=(1.25 if last else (0.5 if grp else None)), bcol=('000000' if last else 'A0A0A0'))
 for i in range(len(rows) + 1): tbl.rows[i].height = Inches(0.32)
 
-text(0.6, 6.15, 12.1, 0.7, [('회색 행은 흡수가 더 작은 ITO(k = 0.002). SPP 손실은 evanescent 성분 전체(SPP 모드 포함). 식 (3)으로 계산하면 η_ext 0.932–0.945, EQE 0.888–0.924로 급수보다 1.4–2.5 %p 높다(식 (3)은 상한). 원자료: sim/audit/table1_series.csv.', False)], 10.5, '404040')
+ec = [float(r['eta_ext_closed']) for r in rows]; qc = [float(r['EQE_closed']) for r in rows]; qs = [float(r['EQE_series']) for r in rows]
+text(0.6, 6.15, 12.1, 0.7, [('회색 행은 흡수가 더 작은 ITO(k = 0.002). Θ = 0.67은 등방성. SPP 손실은 evanescent 성분 전체(SPP 모드 포함). 식 (3)으로 계산하면 η_ext %.3f–%.3f, EQE %.3f–%.3f로 급수보다 %.1f–%.1f %%p 높다(식 (3)은 상한). 원자료: sim/audit/table1_series.csv.' % (min(ec), max(ec), min(qc), max(qc), 100 * min(q - s_ for q, s_ in zip(qc, qs)), 100 * max(q - s_ for q, s_ in zip(qc, qs))), False)], 10.5, '404040')
 prs.save('table1.pptx'); print('table1.pptx written')

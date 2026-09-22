@@ -277,7 +277,7 @@ def spectrum(S, n_eff, u_max=3.0, tol=2e-3):
     return out[0] / tot, out[1] / tot
 
 
-def sub_angular(S, th_deg):
+def sub_angular(S, th_deg, pols=('p', 's')):
     """Power delivered into the substrate, per unit substrate angle (degrees).
 
     Same quantity as P_sub in planar_Sweep22_MLA_JH_full_lambda.m, but obtained
@@ -291,6 +291,8 @@ def sub_angular(S, th_deg):
     cS = np.cos(th)
     out = np.zeros_like(th)
     for pol, nref in (('p', ne), ('s', no)):
+        if pol not in pols:
+            continue
         u = (ns / nref) * np.sin(th)
         P = _prop(u, S)
         rb, tb, rt = P[pol]
@@ -416,5 +418,20 @@ def solve_pol(S, u_max=3.0, npts=16000):
         wg += I3
         spp += I4
     P = w_cone + wg + spp
+    # A substrate denser than the EML (n_sub > n_o or n_e) also receives the
+    # near field with 1 < u < n_sub/n_EML, which tunnels through the layers
+    # below the dipole and propagates in the substrate beyond the angle
+    # asin(n_EML/n_sub).  The v-integral above books that power as
+    # evanescent; move what actually reaches the substrate to the substrate
+    # channel, polarisation by polarisation.
+    tun = 0.0
+    for pol in ('p', 's'):
+        nref = float(np.real(ne if pol == 'p' else no))
+        if ns > nref + 1e-9:
+            th = np.arange(0.005, 90.0, 0.01)
+            Pang = sub_angular(S, th, pols=(pol,))
+            tun += Pang[th > np.degrees(np.arcsin(nref / ns))].sum() * 0.01
+    sub_tot += tun
+    spp -= tun
     return dict(air=air / P, sub=(sub_tot - air) / P, wg=wg / P, spp=spp / P,
-                abs=(w_cone - sub_tot) / P, P_tot=P, sub_raw=sub_tot)
+                abs=(w_cone - sub_tot + tun) / P, P_tot=P, sub_raw=sub_tot, tunnel=tun / P)
