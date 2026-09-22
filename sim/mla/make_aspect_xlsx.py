@@ -97,6 +97,8 @@ rows = [
  (None, None),
  ('Caveats', 'infinite planar substrate and infinite array - no edge, no finite-panel waveguiding.'),
  (None, 'Single wavelength, isotropic emitter, PLQY = 1, lossless index-matched lenses.'),
+ (None, 'Every EQE is the matrix series of eq. (1); the closed form is not used.  At AR = 1 the tracer reproduces the'),
+ (None, "author's LightTools BSDF (sheet 'LightTools slice 11'), so the curve is on the same footing as Fig. 5(a),(b),(e)."),
  (None, 'The numbers are for this generic stack; the shape of the curve is the message.'),
  (None, None),
  ('Sheets', None),
@@ -105,6 +107,7 @@ rows = [
  ('  alt shapes', 'each lens family outside its own range (see above)'),
  ('  B_T vs angle', 'escape probability per 1-degree incidence bin, for every AR'),
  ('  B_R at AR=0.50', 'the full return matrix at the Ag optimum, rows = outgoing bin'),
+ ('  LightTools slice 11', "the author's LightTools hemisphere BSDF (n_MLA 1.80) through the same series: p 0.2884, eta_ext 0.6595 (Al) / 0.8755 (Ag), EQE 0.5550 / 0.8372 - identical to the tracer's AR = 1.00 row to 3e-4, which is what validates the other aspect ratios"),
 ]
 for i, (a, b) in enumerate(rows, 1):
     ws.cell(i, 1, a).font = BOLD if (a and not a.startswith(' ')) else Font()
@@ -129,6 +132,8 @@ def write(name, arr, fmt=None):
 n1 = write('aspect sweep', A, {'aspect_ratio': '0.00'})
 n2 = write('flat reference', F)
 n3 = write('alt shapes', ALT, {'aspect_ratio': '0.00'})
+LT = np.genfromtxt(os.path.join(HERE, 'mla_aspect_lt_slice11.csv'), delimiter=',', names=True, dtype=None, encoding='utf-8')
+write('LightTools slice 11', LT)
 
 ar = np.asarray(Z['aspect'], float)
 o = np.argsort(ar)

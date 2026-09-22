@@ -79,8 +79,15 @@ for k, c, lab in (('EQE_Ag', C_AG, 'Ag reflector'), ('EQE_Al', C_AL, 'Al reflect
             color=c, mew=0, zorder=5)
 bx.text(0.03, 100 * FLAT['Ag'] + 1.0, 'flat interface (Ag / Al)', color='0.35',
         fontsize=FS_NOTE - 0.4, ha='left', va='bottom')
+LT = np.genfromtxt(os.path.join(HERE, 'mla_aspect_lt_slice11.csv'), delimiter=',', names=True,
+                   dtype=None, encoding='utf-8')
+for r in LT:                                   # the author's LightTools hemisphere, same series
+    bx.plot([1.0], [100 * float(r['EQE'])], marker='o', ms=5.5, mfc='white', mew=1.0,
+            color=C_AG if r['reflector'] == 'Ag' else C_AL, zorder=6)
+bx.text(1.03, 100 * float(LT[LT['reflector'] == 'Ag']['EQE'][0]) - 5.5, 'open: LightTools BSDF\n(hemisphere, slice 11)',
+        fontsize=FS_NOTE - 0.8, color='0.4', ha='left', va='top')
 bx.axvline(1.0, color='0.75', lw=0.7, dashes=(2.5, 2.5), zorder=0)
-bx.text(1.015, 59.0, 'hemisphere', fontsize=FS_NOTE - 0.4, color='0.5',
+bx.text(1.015, 62.0, 'hemisphere', fontsize=FS_NOTE - 0.4, color='0.5',
         ha='left', va='bottom', rotation=90)
 bx.set_xlim(0.0, 1.55); bx.set_ylim(20, 95)
 bx.set_xlabel('aspect ratio   $h_{\\rm lens}/r_{\\rm lens}$')
