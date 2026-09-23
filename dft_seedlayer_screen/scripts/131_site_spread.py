@@ -252,7 +252,13 @@ def harvest(root):
                   f"{('yes' if ok else 'NO'):>7}"
                   f"{syms[js] + ' ' + format(dd.min(), '.2f') + ' A':>14}"
                   + ("   rejected: spin" if bad else ""))
+        # The survey ranks sites by clearance and keeps the eight most open, so
+        # a site that is deep but tucked in is not guaranteed a slot: on Bphen
+        # every surveyed site came out 0.34-0.39 eV above the N chelate stage 1
+        # had already found. The stage-1 site is a sample like any other and
+        # belongs in the pool.
         if got:
+            got["stage1"] = round(eb0, 4)
             v = list(got.values())
             table[tag] = {"sites": got, "deepest": max(v), "shallowest": min(v),
                           "spread": round(max(v) - min(v), 4),

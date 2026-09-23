@@ -1828,3 +1828,46 @@ The 18 finished jobs keep their tight convergence; site names are ranked on the
 contact-distance position, before the carbon back-off, so they are unchanged
 and the two batches merge. `--split --pending a,b,c` writes only the jobs named,
 one per folder.
+
+### Package F result — the E_b column was sampling one site of a wide landscape
+
+25 of 27 converged (F4TCNQ_7bridge and HATCN_5bridge were still running; both
+duplicate a site already sampled, so nothing waits on them). Each candidate's
+stage-1 site is folded in as one more sample.
+
+| candidate | stage-1 E_b | deepest site | spread | sites |
+|---|---|---|---|---|
+| Mo3O9 | 1.806 | **2.164** | 0.540 | 4 |
+| HATCN | 0.604 | **1.631** | **1.400** | 8 |
+| F4TCNQ | 1.208 | 1.208 | 0.903 | 8 |
+| Bphen | 0.621 | 0.621 | 0.386 | 9 |
+| benzene | 0.205 | 0.205 | 0.002 | 4 |
+
+**HATCN's strongest site is not the one this project has been using.** Stage 1
+sat on the nitrile pocket — Ag bridging two C≡N nitrogens at 2.39 Å, 0.508 eV.
+The deepest site is the aza pocket of the hexaazatriphenylene core, Ag chelated
+between two ring nitrogens (each bonded to two carbons) at 2.27 Å, **1.631 eV**.
+The two sites are 5.3 Å apart and both relax cleanly (S² 0.766), so this is a
+different site, not a different SCF solution. HATCN's E_b nearly triples, and
+the input structure is literally named `HATCN_Ag_CN.xyz`.
+
+The gap to the oxide closes from 1.20 to 0.53 eV, but does not invert.
+
+**The survey is biased toward open sites.** It keeps the eight most open
+inequivalent sites, and on Bphen that missed the N chelate entirely — all eight
+surveyed sites came out 0.34–0.39 eV above the stage-1 site. Every "deepest"
+here is a lower bound.
+
+**What the spread says.** The kMC predicted that patchiness, at fixed mean,
+delays closure. Taken at face value the spread column ranks HATCN (1.400) as
+patchier than Mo3O9 (0.540), which points the wrong way. The distinction the
+numbers cannot make on their own is *ordered* versus *disordered*: HATCN's deep
+sites are three equivalent aza pockets per molecule in a regular array, so every
+adatom meets the same landscape, while an amorphous MoOx surface offers its
+0.54 eV range at random. The kMC's patchy case was a spatially correlated random
+field, which is the oxide, not the organic. This is a hypothesis the present
+data supports but does not prove; proving it needs the landscape sampled on a
+periodic surface, not a cluster.
+
+**Every other candidate in the screening table is a single-site sample too.**
+The table cannot be updated for these five alone without biasing it.

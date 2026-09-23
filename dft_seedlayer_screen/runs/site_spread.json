@@ -1,0 +1,63 @@
+{
+ "HATCN": {
+  "sites": {
+   "0atop": 0.5084,
+   "1atop": 1.6308,
+   "2bridge": 0.233,
+   "3atop": 0.2312,
+   "4atop": 0.2519,
+   "6atop": 1.6292,
+   "7hollow": 0.2471,
+   "stage1": 0.6037
+  },
+  "deepest": 1.6308,
+  "shallowest": 0.2312,
+  "spread": 1.3996,
+  "mean": 0.6669
+ },
+ "F4TCNQ": {
+  "sites": {
+   "0atop": 1.2083,
+   "1bridge": 0.6273,
+   "2bridge": 0.3056,
+   "3atop": 0.9251,
+   "4atop": 0.6268,
+   "5atop": 0.6278,
+   "6atop": 0.3051,
+   "stage1": 1.2084
+  },
+  "deepest": 1.2084,
+  "shallowest": 0.3051,
+  "spread": 0.9033,
+  "mean": 0.7293
+ },
+ "Bphen": {
+  "sites": {
+   "0atop": 0.2348,
+   "1atop": 0.2348,
+   "2atop": 0.2347,
+   "3bridge": 0.2348,
+   "4bridge": 0.2348,
+   "5atop": 0.2813,
+   "6atop": 0.2803,
+   "7hollow": 0.2692,
+   "stage1": 0.6206
+  },
+  "deepest": 0.6206,
+  "shallowest": 0.2347,
+  "spread": 0.3859,
+  "mean": 0.2917
+ },
+ "benzene": {
+  "sites": {
+   "0bridge": 0.2052,
+   "1atop": 0.2052,
+   "2hollow": 0.2028,
+   "stage1": 0.2052
+  },
+  "deepest": 0.2052,
+  "shallowest": 0.2028,
+  "spread": 0.0024,
+  "mean": 0.2046
+ }
+}
