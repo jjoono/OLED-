@@ -289,7 +289,13 @@ def main():
                     qlock.notify_all()
 
     t0 = time.time()
-    nthread = max(workers, budget // 8)
+    # One worker thread per folder. Concurrency is governed by the thread
+    # budget above -- a worker blocks until the folder it wants fits -- so the
+    # only thing this number does is cap how many folders can be in flight at
+    # once. Deriving it from 8 threads a job, as it used to, silently held a
+    # 32-core machine to 4 jobs when the jobs asked for 3 threads each: 12
+    # cores busy, 20 idle, and nine jobs run four at a time.
+    nthread = max(workers, min(len(folders), budget))
     threads = [threading.Thread(target=worker, args=(k,), daemon=True)
                for k in range(nthread)]
     for t in threads:
