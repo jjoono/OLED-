@@ -1886,8 +1886,8 @@ surfaces differ chemically rather than topographically.
 |---|---|---|---|---|---|---|
 | HATCN | 0.40 | 0.065 / 0.332 / 1.455 | 0.870 | **4.45 ± 0.06** | 0.985 | 1.91 |
 | MoOx | 0.49 | 0.386 / 0.922 | 0.554 | **4.64 ± 0.04** | 0.982 | 1.99 |
-| flat 0.065, no traps | 0 | 0.065 | 0.870 | 2.23 | 1.000 | 0.73 |
-| flat 0.386, no traps | 0 | 0.386 | 0.554 | 4.72 | 0.980 | 1.99 |
+| flat 0.065, no traps | 0 | 0.065 | 0.870 | 2.26 ± 0.02 | 1.000 | 0.74 |
+| flat 0.386, no traps | 0 | 0.386 | 0.554 | 4.64 ± 0.06 | 0.982 | 2.00 |
 
 **The ordering is right and the size is wrong.** HATCN closes first, by 0.19 ML
 against a seed scatter of 0.06 — real, but 4%. The experiment is 7 nm against
@@ -1895,8 +1895,12 @@ against a seed scatter of 0.06 — real, but 4%. The experiment is 7 nm against
 model gives the oxide 1.8% voids at 4 ML where the measurement gives 9–23% at
 a comparable thickness.
 
-The controls say why. A trap-free surface closes at 2.23 ML with rms 0.73; both
-real surfaces land near the flat-0.386 control at 4.6–4.7 ML with rms ~2.0. Once
+The controls say why, and the last of them says it exactly: a featureless
+surface at the oxide's own terrain barrier closes at 4.64 ± 0.06 ML, which is
+MoOx's 4.64 ± 0.04 to the digit. **Every site energy measured on the oxide
+changes nothing** — its closure thickness is fixed by the terrain barrier alone.
+A trap-free surface closes at 2.26 ML with rms 0.74; both real surfaces sit at
+4.6 with rms ~2.0. Once
 a surface has deep traps at 40–50% site density, the closure thickness is set by
 the traps and barely notices whose traps they are. HATCN's aza pockets are
 deeper than anything on the oxide (1.455 vs 0.922 eV escape), which costs it
