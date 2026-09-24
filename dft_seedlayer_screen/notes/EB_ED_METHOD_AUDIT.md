@@ -1871,3 +1871,40 @@ periodic surface, not a cluster.
 
 **Every other candidate in the screening table is a single-site sample too.**
 The table cannot be updated for these five alone without biasing it.
+
+## The kMC on the measured landscapes — right order, wrong size
+
+Script 132 runs script 36's model on the two landscapes as measured, nothing
+fitted: site energies from packages E and F, terrain barriers from the E_d
+campaign, the Ag–Ag bond on each surface from package D, site densities from
+HATCN's film density and the α-MoO₃(010) lattice, all projected onto a common
+Ag(111) adlattice. Attachment is reversible — one measured Ag–Ag bond per
+lateral neighbour enters the escape barrier — which is the only place the two
+surfaces differ chemically rather than topographically.
+
+| surface | deep fraction | escape barriers (eV) | Ag–Ag | θ closed (ML) | cov @4 ML | rms @4 ML |
+|---|---|---|---|---|---|---|
+| HATCN | 0.40 | 0.065 / 0.332 / 1.455 | 0.870 | **4.45 ± 0.06** | 0.985 | 1.91 |
+| MoOx | 0.49 | 0.386 / 0.922 | 0.554 | **4.64 ± 0.04** | 0.982 | 1.99 |
+| flat 0.065, no traps | 0 | 0.065 | 0.870 | 2.23 | 1.000 | 0.73 |
+| flat 0.386, no traps | 0 | 0.386 | 0.554 | 4.72 | 0.980 | 1.99 |
+
+**The ordering is right and the size is wrong.** HATCN closes first, by 0.19 ML
+against a seed scatter of 0.06 — real, but 4%. The experiment is 7 nm against
+"still 9–23% voids at 8", which is at least 14% and qualitatively different: the
+model gives the oxide 1.8% voids at 4 ML where the measurement gives 9–23% at
+a comparable thickness.
+
+The controls say why. A trap-free surface closes at 2.23 ML with rms 0.73; both
+real surfaces land near the flat-0.386 control at 4.6–4.7 ML with rms ~2.0. Once
+a surface has deep traps at 40–50% site density, the closure thickness is set by
+the traps and barely notices whose traps they are. HATCN's aza pockets are
+deeper than anything on the oxide (1.455 vs 0.922 eV escape), which costs it
+most of the advantage its free terrain buys.
+
+So the barrier landscape is not the explanation. That is a real result and it
+narrows the field: what is left is the adatom's charge state — Ag(0) at q=+0.07
+on 60% of HATCN's surface against Ag(I) at q=+0.70 on every site of the oxide —
+and a silver atom that has given up an electron is not a metallic nucleus at
+all, which is a chemical effect this kMC has no term for. Adding one would mean
+deciding the answer in advance, so it is not added here.
