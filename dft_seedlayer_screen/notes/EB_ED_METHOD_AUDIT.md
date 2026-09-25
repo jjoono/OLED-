@@ -1912,3 +1912,40 @@ on 60% of HATCN's surface against Ag(I) at q=+0.70 on every site of the oxide �
 and a silver atom that has given up an electron is not a metallic nucleus at
 all, which is a chemical effect this kMC has no term for. Adding one would mean
 deciding the answer in advance, so it is not added here.
+
+## Package G — does the next atom join the cluster or take a fresh site?
+
+The kMC closed the barrier-landscape route, so the remaining question is whether
+a silver atom that has given up an electron can start a metal island at all.
+Everything measured up to here is a one-atom quantity, and one atom cannot tell
+a nucleus from a trapped ion.
+
+`cluster_growth/` relaxes Ag_n for n = 2, 3, 4 on the **deepest** site of HATCN
+(aza pocket, 1.631 eV), Mo3O9 (bridging O, 2.164), F4TCNQ (nitrile, 1.208) and
+benzene (0.205), substrate frozen, all silver free, plus the free Ag atom. The
+n = 1 geometries are the relaxed package E/F outputs, saved as
+`structures/<tag>_Ag1_deep.xyz`.
+
+Two numbers per step:
+
+    E_add(n) = E(Ag_(n-1)/sub) + E(Ag) - E(Ag_n/sub)
+    E_b(1)   = what that atom gains by taking an empty deep site instead
+
+`E_add(n) > E_b(1)` means growth wins and the deposit coarsens into islands.
+`E_add(n) < E_b(1)` means an atom is better off alone, which is a deposit of
+many nuclei that never becomes a film. That is the Volmer–Weber criterion
+written with the two energies this project can actually measure, and it is the
+first quantity here that ranks substrates by whether they nucleate **metal**
+rather than by how hard they pull.
+
+Beside it, the summed charge on Ag_n. If Ag_4 on the oxide still carries most of
+a positive charge per atom, 2.16 eV of binding is buying an ionic adlayer, not a
+seed.
+
+Clusters start flat — dimer, triangle, rhombus at 2.60 Å, in the plane parallel
+to the surface — so the relaxation decides whether they stand up. Package D
+found the organics stand a dimer up on one atom (a 3D island seed) while the
+oxides lay it down with both atoms bound and the bond stretched to 2.80 Å.
+
+    python scripts/133_cluster_growth.py
+    python scripts/133_cluster_growth.py --harvest cluster_growth
