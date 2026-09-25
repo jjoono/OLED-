@@ -1949,3 +1949,20 @@ oxides lay it down with both atoms bound and the bond stretched to 2.80 Å.
 
     python scripts/133_cluster_growth.py
     python scripts/133_cluster_growth.py --harvest cluster_growth
+
+### Package F closed — all 27 sites converged
+
+The two jobs still running at the last harvest finished; nothing in the
+conclusions moves.
+
+- `HATCN_5bridge` = **0.606 eV**, Ag at 2.17 Å from a nitrile N. Stage 1's
+  independent relaxation of the same tier gave 0.604 from a different starting
+  point, so HATCN's nitrile-tier value is reproduced to 2 meV by two unrelated
+  paths — no SCF pathology in that number, unlike Mo3O8's.
+- `F4TCNQ_7bridge` = **0.306 eV**, which is `2bridge`'s 0.306: a duplicate site,
+  as predicted when the decision was taken not to wait for it.
+
+HATCN's census is now complete and three-tiered: five terrain sites at
+0.231–0.252 eV (q(Ag) = +0.07…+0.17), a nitrile tier at 0.508–0.606, and the aza
+chelate at 1.629–1.631 (q = +0.572). Final spreads: HATCN 1.400, F4TCNQ 0.903,
+Bphen 0.386, benzene 0.002, Mo3O9 0.540.

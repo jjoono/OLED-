@@ -6,6 +6,7 @@
    "2bridge": 0.233,
    "3atop": 0.2312,
    "4atop": 0.2519,
+   "5bridge": 0.6059,
    "6atop": 1.6292,
    "7hollow": 0.2471,
    "stage1": 0.6037
@@ -13,7 +14,7 @@
   "deepest": 1.6308,
   "shallowest": 0.2312,
   "spread": 1.3996,
-  "mean": 0.6669
+  "mean": 0.6601
  },
  "F4TCNQ": {
   "sites": {
@@ -24,12 +25,13 @@
    "4atop": 0.6268,
    "5atop": 0.6278,
    "6atop": 0.3051,
+   "7bridge": 0.3055,
    "stage1": 1.2084
   },
   "deepest": 1.2084,
   "shallowest": 0.3051,
   "spread": 0.9033,
-  "mean": 0.7293
+  "mean": 0.6822
  },
  "Bphen": {
   "sites": {
