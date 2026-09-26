@@ -2058,3 +2058,56 @@ whose thesis is electrode absorption is a property worth having.
 
     python scripts/134_pei_models.py
     python scripts/134_pei_models.py --harvest pei_jobs
+
+## Package I — a HATCN derivative series, and a prediction that can be wrong
+
+Ranking unrelated seed materials cannot separate the two things that matter,
+because packing, surface energy, roughness and sublimation temperature all move
+with the electronics. A homologous series holds the film physics roughly fixed
+and moves one electronic parameter. Package F handed us the axis: HATCN binds Ag
+in the **aza pocket of the core** (1.631 eV) and not on the nitriles (0.508), so
+
+    the core's ring nitrogens   provide the binding pocket
+    the peripheral substituents set how much charge leaves the silver
+
+**Axis A — periphery, pocket kept.** HAT-H6 (24 atoms, C12N6H6) < HAT-F6 (24,
+C12N6F6) < HATCN (30, C18N12) in acceptor strength, all planar to 1e-4, all with
+the same N–N pocket at 2.75 Å.
+
+**Axis B — core swapped, periphery kept.** TP-CN6, triphenylene-hexacarbonitrile
+(36, C24N6H6): the six ring nitrogens replaced by C–H, nitriles untouched, no
+pocket left. If package F's mechanism is right this should lose most of the
+1.631 eV and fall back to the nitrile tier.
+
+**The prediction worth having is an interior optimum.** E_b and q(Ag) both rise
+toward the nitrile end of axis A. If the good seed is the one that binds hard and
+still leaves silver metallic, the best member is an *interior* one and not HATCN.
+No descriptor that is merely monotone in E_b can produce an interior optimum, so
+that outcome is far stronger evidence than any number of additional agreeing
+rankings — and if the ranking comes out monotone in E_b instead, the criterion
+is dead and we will know from a series it was not built on.
+
+13 jobs: bare molecule, Ag₁ at the pocket, Ag₂ at the pocket, per member, plus
+the Ag atom. Ag₂ is on every member because the **charge hand-back** q(Ag₁) −
+q(Ag₂)/2 is what separated HATCN (+0.471) from Mo3O9 (+0.311).
+
+What the series does *not* control, and the experiment must:
+
+- **Packing and orientation.** Substituents change film density and whether the
+  discs lie flat, which changes how many pockets a silver atom can reach. That
+  confound is inside the series and does not cancel: XRR density and AFM RMS on
+  the bare seed layers are not optional.
+- **The electrical job.** HATCN is in the stack as an acceptor. A member with no
+  acceptor strength may seed well and inject badly. The clean way out is a
+  **bilayer** — keep the injection layer fixed and vary only the 1–2 nm that
+  touches the silver — which also isolates the wetting variable properly.
+- **Synthetic reach.** HAT-CN and the HAT parent are known; the fluorinated and
+  hexacyanotriphenylene members need a route check before anyone counts on them.
+
+Measurement precision, not the number of members, is the binding constraint. An
+interior optimum needs closure thickness resolved to well under a nanometre,
+which means a thickness series per member — sheet resistance against thickness
+in 0.5 nm steps is the cheap, sharp version, ~5–6 films per member.
+
+    python scripts/135_hatcn_series.py
+    python scripts/135_hatcn_series.py --harvest hat_series
