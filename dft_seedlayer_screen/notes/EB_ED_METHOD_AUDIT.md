@@ -1966,3 +1966,47 @@ HATCN's census is now complete and three-tiered: five terrain sites at
 0.231–0.252 eV (q(Ag) = +0.07…+0.17), a nitrile tier at 0.508–0.606, and the aza
 chelate at 1.629–1.631 (q = +0.572). Final spreads: HATCN 1.400, F4TCNQ 0.903,
 Bphen 0.386, benzene 0.002, Mo3O9 0.540.
+
+### Package G result — the oxide never lets the silver become metal
+
+11 of 13 converged; HATCN's Ag₃ and Ag₄ were still running (26.7 h for HATCN's
+Ag₂ alone), so HATCN has n = 1, 2.
+
+| surface | E_add mean | vs deepest | Ag₁ q | Ag₄ q total | q/atom | Ag–Ag (Å) |
+|---|---|---|---|---|---|---|
+| benzene | 1.551 | **cluster** | −0.061 | **−0.174** | −0.044 | 2.62–2.74 |
+| HATCN | 0.852 (n=2) | fresh | +0.572 | **+0.203** (n=2) | +0.101 | 2.62 |
+| F4TCNQ | 1.366 | cluster | +0.545 | +0.586 | +0.147 | 2.66–2.76 |
+| Mo3O9 | 1.766 | **fresh** | +0.722 | **+1.216** | +0.304 | 2.75–2.80 |
+
+**Mo3O9 is the only surface where a fresh deep site beats joining the cluster.**
+1.766 eV per added atom against 2.164 eV for an empty oxide site: every atom is
+better off alone. That is a deposit of many nuclei that never becomes a film,
+which is what the measurement sees at 8 nm.
+
+**The charge trajectory is the mechanism.** On HATCN the single adatom is
++0.572, and the moment a second atom arrives the pair holds only +0.203 in total
+— the charge is handed back and the dimer is metal. On Mo3O9 the single atom is
++0.722 and the **total** charge *grows* with the cluster: +0.821 at Ag₂, +1.216
+at Ag₄, never below +0.25 per atom. The oxide oxidises each new atom as it
+arrives. The Ag–Ag distance says the same: 2.75–2.80 Å on the oxide at every n
+against 2.57–2.62 Å on benzene and HATCN, where the free dimer is 2.53–2.61.
+
+Ranked by how metallic a small cluster is — benzene (−0.04/atom), HATCN (+0.10),
+F4TCNQ (+0.15), Mo3O9 (+0.30) — **HATCN sits above MoOx, from a quantity that
+was not used to build any earlier metric.** This is the first number in the
+project that agrees with the experiment without being fitted to it.
+
+Four caveats, none of them cosmetic:
+
+1. **HATCN's n = 3, 4 are missing.** The hand-back is one data point. If Ag₄ on
+   HATCN returns near +0.10/atom the story holds; at +0.30 it does not.
+2. **E_add oscillates with n** because the cluster alternates closed-shell
+   singlet and odd-electron doublet — F4TCNQ runs 1.110 / 2.402 / 0.587. Only
+   the mean over the steps is usable, and with three steps it is coarse.
+3. **Mulliken charges are basis-set artefacts as absolute numbers.** The trend
+   across n on one surface is far safer than the value. Hirshfeld or NBO on the
+   same geometries would settle it and costs one single point each.
+4. **"A fresh deep site" is the dilute limit.** Deep sites saturate — HATCN has
+   three aza pockets per molecule — and against the next tier down Mo3O9 does
+   cluster at n = 2 and 3, dispersing only at n = 4.

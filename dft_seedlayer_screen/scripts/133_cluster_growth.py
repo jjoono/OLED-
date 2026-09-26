@@ -54,9 +54,13 @@ S2_RE = re.compile(r"S\*\*2 before annihilation\s+(\d+\.\d+)")
 D_AG = 2.60                # A, on-surface Ag-Ag from package D (2.57-2.61)
 NMAX = 4
 OPT = os.environ.get("GAUSS_OPT", "Loose,MaxCycles=80")
-# (tag, the deepest site's E_b in eV) -- from packages E and F
-TARGETS = [("HATCN", 1.631), ("Mo3O9", 2.164), ("F4TCNQ", 1.208),
-           ("benzene", 0.205)]
+# From packages E and F: the deepest site's E_b, the NEXT-deepest tier, and the
+# charge on the single adatom at the deepest site. The second tier matters
+# because the deep sites saturate -- HATCN offers only three aza pockets per
+# molecule -- and after that the alternative to joining a cluster is the next
+# site down, not another deep one.
+TARGETS = [("HATCN", 1.631, 0.606, 0.572), ("Mo3O9", 2.164, 1.624, 0.722),
+           ("F4TCNQ", 1.208, 0.925, 0.545), ("benzene", 0.205, 0.205, -0.061)]
 
 
 def basis(sub_s, sub_x, ag):
@@ -128,7 +132,7 @@ def write():
     with open(os.path.join(d, "ORDER.txt"), "w") as f:
         f.write("Ag_atom\n")
     n_job = 1
-    for tag, eb1 in TARGETS:
+    for tag, eb1, eb2, q1 in TARGETS:
         p = os.path.join(STRUCT, f"{tag}_Ag1_deep.xyz")
         if not os.path.exists(p):
             print(f"  {tag:<9} no {os.path.basename(p)}; skipped")
@@ -198,7 +202,7 @@ def harvest(root):
             + glob.glob(os.path.join(root, "Ag_atom.out")):
         e_ag = energy(open(c, errors="replace").read())
     res = {}
-    for tag, eb1 in TARGETS:
+    for tag, eb1, eb2, q1 in TARGETS:
         p = os.path.join(STRUCT, f"{tag}_Ag1_deep.xyz")
         if not os.path.exists(p):
             continue
@@ -223,11 +227,12 @@ def harvest(root):
         if len(ens) < 2 or e_ag is None:
             print(f"{tag}: need the Ag atom energy and at least Ag2")
             continue
-        print(f"\n{tag}   deepest site E_b(1) = {eb1:.3f} eV")
-        print(f"{'n':>3}{'E_add(n) eV':>13}{'vs E_b(1)':>11}{'q(Ag_n)':>9}"
-              f"{'q/atom':>8}{'Ag-Ag (A)':>11}")
-        print(f"{1:>3}{eb1:>13.3f}{'--':>11}")
-        row = {"E_b1": eb1, "steps": {}}
+        print(f"\n{tag}   deepest site {eb1:.3f} eV (q={q1:+.3f}), "
+              f"next tier {eb2:.3f} eV")
+        print(f"{'n':>3}{'E_add(n)':>10}{'vs deep':>10}{'vs tier2':>10}"
+              f"{'q(Ag_n)':>9}{'q/atom':>8}{'Ag-Ag (A)':>13}")
+        print(f"{1:>3}{eb1:>10.3f}{'--':>10}{'--':>10}{q1:>9.3f}{q1:>8.3f}")
+        row = {"E_b1": eb1, "E_b_tier2": eb2, "q1": q1, "steps": {}}
         for k in range(2, NMAX + 1):
             if k not in ens or (k - 1) not in ens:
                 continue
@@ -238,15 +243,30 @@ def harvest(root):
             dd = [np.linalg.norm(ag[a] - ag[b])
                   for a in range(len(ag)) for b in range(a + 1, len(ag))]
             near = sorted(dd)[:k - 1]
-            verdict = "cluster" if add > eb1 else "fresh site"
-            print(f"{k:>3}{add:>13.3f}{verdict:>11}{qs[k]:>9.3f}"
+            v1 = "cluster" if add > eb1 else "fresh"
+            v2 = "cluster" if add > eb2 else "fresh"
+            print(f"{k:>3}{add:>10.3f}{v1:>10}{v2:>10}{qs[k]:>9.3f}"
                   f"{qs[k] / k:>8.3f}"
-                  + ("  " + ", ".join(f"{x:.2f}" for x in near)).rjust(11))
+                  + ("  " + ", ".join(f"{x:.2f}" for x in near)).rjust(13))
             row["steps"][k] = {"E_add_eV": round(add, 4),
                                "q_total": round(float(qs[k]), 4),
                                "q_per_atom": round(float(qs[k]) / k, 4),
-                               "prefers": verdict,
+                               "prefers_vs_deep": v1,
+                               "prefers_vs_tier2": v2,
                                "Ag_Ag": [round(float(x), 3) for x in near]}
+        adds = [v["E_add_eV"] for v in row["steps"].values()]
+        if adds:
+            # E_add oscillates with n because the cluster alternates between a
+            # closed-shell singlet and an odd-electron doublet, so a single step
+            # is a poor discriminator; the mean over the steps measured is the
+            # cohesive energy per added atom on that surface.
+            m = float(np.mean(adds))
+            row["E_add_mean"] = round(m, 4)
+            print(f"  mean over n={min(row['steps'])}..{max(row['steps'])}: "
+                  f"{m:.3f} eV per added atom -> "
+                  + ("clustering wins" if m > eb1 else
+                     "a fresh deep site wins" if m < eb1 else "tie")
+                  + f" (deep {eb1:.3f}, tier2 {eb2:.3f})")
         res[tag] = row
     if res:
         out = os.path.join(RUNS, "cluster_growth.json")
