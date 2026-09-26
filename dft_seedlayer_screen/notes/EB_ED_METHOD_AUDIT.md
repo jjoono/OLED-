@@ -2010,3 +2010,51 @@ Four caveats, none of them cosmetic:
 4. **"A fresh deep site" is the dilute limit.** Deep sites saturate — HATCN has
    three aza pockets per molecule — and against the next tier down Mo3O9 does
    cluster at n = 2 and 3, dispersing only at n = 4.
+
+## Package H — PEI, and the first falsifiable prediction the criterion makes
+
+Solution-processed polyethyleneimine is reported repeatedly to wet silver well,
+and it is the one candidate class this project never touched. It is also the
+sharpest available test of package G, because an aliphatic amine is the opposite
+of an oxide in exactly the way that mattered: MoO₃ is an acceptor that takes
+0.72 e from a silver atom and keeps taking more as the cluster grows, while an
+amine nitrogen is a σ-donor.
+
+So the criterion makes a specific, falsifiable prediction:
+
+> **PEI should bind Ag strongly through the nitrogen lone pair while leaving
+> q(Ag) near zero or negative** — strong *and* metallic, the combination package
+> G says a seed layer needs.
+
+Three outcomes and what each would mean:
+
+| result | reading |
+|---|---|
+| E_b ≳ 1 eV, q(Ag) ≲ +0.1 | the criterion survives a candidate it was not built on |
+| E_b ≲ 0.4 eV | the wetting reports are not about single-atom binding at all — adhesion, chain mobility or solvent effects |
+| E_b ≳ 1 eV with q(Ag) ≳ +0.5 | the criterion is wrong: strong binding and oxidation are not separable |
+
+`pei_jobs/` — 11 jobs, largest 21 atoms. Three fragments chosen to separate the
+chemistry rather than imitate the polymer: **ethylamine** (primary, the chain
+end), **trimethylamine** (tertiary, the branch point of branched PEI), and
+**DETA** H₂N–CH₂CH₂–NH–CH₂CH₂–NH₂ (the linear repeat: two primary and one
+secondary nitrogen, plus two chelating pockets at N–N 2.92 and 3.76 Å). Ag starts
+along each nitrogen's computed lone-pair direction.
+
+Geometries are built here from standard bond lengths and angles, not optimised.
+That is sound for E_b specifically: the molecule enters both terms at the same
+geometry, so conformer strain cancels exactly, the same construction script 127
+uses. What the conformer does fix is which sites exist, so DETA is built gauche
+so two nitrogens can reach one silver.
+
+Two things the package cannot say. **PEI is spin-coated** — nothing here argues
+it could go under a thermally evaporated top electrode on a finished stack, and
+the wetting literature is bottom-contact and inverted geometries. And the
+polymer's own properties (hygroscopicity, insulation, chain mobility) are outside
+a 20-atom fragment. The value is the test of the criterion, and the pointer to
+what an *evaporable* molecule would need: a strong σ-donor that does not oxidise
+silver. An aliphatic amine also has no visible chromophore, which for a paper
+whose thesis is electrode absorption is a property worth having.
+
+    python scripts/134_pei_models.py
+    python scripts/134_pei_models.py --harvest pei_jobs
