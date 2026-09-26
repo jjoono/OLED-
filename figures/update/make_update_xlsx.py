@@ -16,7 +16,7 @@ rows = [
  ('Fig. 2(d)', 'p and A\' vs n_sub.  p is now the structure property: 0.58 (1.3) -> 0.43 (1.5) -> 0.29 (1.8) -> 0.23 (2.0), 2.5x; was the device-weighted 0.665 -> 0.248.  A\' unchanged.'),
  ('Fig. 2(e)', 'eta_ext vs n_sub, eq. (3).  Gap Ag - Al: 7 %p (1.3), 12 %p (1.5), 22 %p (2.0).  Smooth; the series version with its cut-off dips is in SI_Fig1_nsub.'),
  ('Fig. 2(f)', 'eta_sub and EQE vs n_sub, eq. (3); extraction loss = eta_sub - EQE.  Al 61 % maximum at 1.8 then 59-61 %; Ag 89 % at 1.8, 88 % at 2.0.  eta_sub for n_sub > 1.8 now includes the near field that tunnels into the denser substrate (about 2 %p; it was booked as SPP before 2026-09-22).'),
- ('SI_Fig1_nsub', 'Supplementary Fig. 1 data: same stack, n_sub in 0.01 steps (BSDF interpolated between the 0.05 slices): eta_ext and EQE by eq. (3) and by the series, P_sub fraction beyond 70 deg.  Guided modes at 550 nm: n_eff 1.352 (TM), 1.523 (TE), 1.663 (TM), 1.734 (TE).'),
+ ('SI_Fig1_nsub', 'Supplementary Fig. 1 data: same stack, n_sub in 0.01 steps (BSDF interpolated between the 0.05 slices): eta_ext and EQE by eq. (3) and by the series, P_sub fraction beyond 70 deg.  Guided-mode cut-offs at 550 nm (n_eff = n_sub; peaks of dP/dn_eff tracked while n_sub is swept): Ag 1.46 (TM), 1.59 (TE), 1.76 (TM), 1.78 (TE); Al 1.42, 1.58, 1.75, 1.78.'),
  ('Fig. 2(a),(b),(g)-(j)', 'unchanged (A\' split and the angle/wavelength maps do not depend on the extraction model).'),
  ('Fig. 3(a)', 'k_ITO and n_Ag sweeps at n_sub 1.8, series.  k 0 -> 0.01: eta_ext 0.95 -> 0.81, EQE 0.91 -> 0.75 (was 0.96 -> 0.88, 0.93 -> 0.82); k 0.08: EQE 0.45 (was 0.49).  n_Ag 0.2: EQE 0.55 (was 0.60).'),
  ('Fig. 3(b),(c)', 'unchanged.'),
