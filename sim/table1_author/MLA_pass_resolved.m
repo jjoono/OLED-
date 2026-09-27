@@ -83,8 +83,10 @@ else                                   % planar substrate/air interface: Fresnel
             lo = n_sub*sind(th(a)-0.5); hi = min(1, n_sub*sind(th(a)+0.5));
             e1 = asind(lo); e2 = asind(hi);
             for bb = floor(e1)+1 : min(90, ceil(e2))
-                ov = max(0, min(bb, e2) - max(bb-1, e1));
-                BSDF(bb, a) = BSDF(bb, a) + (1 - Rf) * ov/(e2 - e1);
+                x1 = max(bb-1, e1); x2 = min(bb, e2);          % overlap in air angle
+                if x2 > x1   % share by solid angle (a uniform-radiance cone), not by angle
+                    BSDF(bb, a) = BSDF(bb, a) + (1 - Rf) * (cosd(x1) - cosd(x2))/(cosd(e1) - cosd(e2));
+                end
             end
         else
             Rf = 1;
@@ -176,7 +178,10 @@ for i = 1:Nl
         else,          nref = noE(i); ns = no(i,end); T = Ts; im = isub_s(i); end
         ut  = ns*sind(th)'/nref;                        % u of each substrate angle
         dud = ns*cosd(th)'/nref * pi/180;               % du/dtheta per degree
-        Psub(i,:) = Psub(i,:) + interp1(u(1:im), T(i,1:im)*Nu, ut, 'linear', 0) .* dud;   % T*Nu = density per unit u
+        dens = interp1(u(1:im), T(i,1:im)*Nu, ut, 'linear');          % T*Nu = density per unit u
+        last = find(isfinite(dens), 1, 'last'); dens(last+1:end) = dens(last) * (ut(last+1:end) <= ns/nref + 1e-9);   % bins just beyond the u grid
+        dens(~isfinite(dens)) = 0;
+        Psub(i,:) = Psub(i,:) + dens .* dud;
     end
 end
 Psub = Psub ./ sum(Psub, 2);                            % angular shape per wavelength (sum = 1)
