@@ -222,7 +222,7 @@ for j = [1:6 8 11 16 21 31]
 end
 
 save('MLA_pass_resolved_out.mat', 'th', 'lam', 'eta_sub', 'budget', 'eta_ext', 'EQE', 'eta_ext_eq3', 'p_lamb', 'A_lamb', 'p_eff', 'A_eff', ...
-     'U', 'p_j', 'A_j', 'Pout', 'V_arr', 'V_ret', 'I_sub', 'I_sub_k', 'I_air_k', 'I_sub_k_total', 'I_air_k_total', 'R_LED', 'B_T', 'P0');
+     'U', 'p_j', 'A_j', 'Pout', 'V_arr', 'V_ret', 'I_sub', 'I_sub_k_total', 'I_air_k_total', 'R_LED', 'B_T', 'P0');
 csvwrite('MLA_pass_table.csv', [(1:N_pass)', U', p_j', (p_j/p_lamb)', [A_j NaN]', Pout', cumsum(Pout)'/eta_sub, f60']);
 csvwrite('MLA_I_sub_k_total.csv', [th I_sub_k_total]);
 csvwrite('MLA_I_air_k_total.csv', [th I_air_k_total sum(I_air_k_total,2)]);
