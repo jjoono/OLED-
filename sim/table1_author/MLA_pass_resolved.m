@@ -18,7 +18,8 @@
 % (the version with the evanescent-branch fix, imag(n cos) >= 0).
 % Runs in MATLAB and Octave (the polar plots are skipped in Octave).
 
-clear; clc;
+if exist('cfg','var') ~= 1, cfg = struct(); end   % optional overrides, see below
+clc;
 
 %% ------------------------------------------------------------------ settings
 nkfile   = 'nk_JH_total.mat';
@@ -31,6 +32,9 @@ Theta    = 2/3;                        % horizontal dipole ratio
 PLQY     = 1;                          % radiative efficiency eta_rad
 n_sub    = 1.8;                        % substrate (= MLA) index
 N_pass   = 60;                         % number of passes in the series (j = 1 is the direct pass)
+bsdf_mode = 'MLA';                     % 'MLA' (BSDF file) or 'flat' (planar substrate/air interface, Fresnel)
+n_top    = 1.0;                        % medium above the top layer
+tag      = '';                         % suffix for the output files
 
 % stack from the reflector (top) to the substrate (bottom); EML is one of the layers
 %            name                     n_o field                 n_e field              d (nm)
@@ -41,6 +45,8 @@ stack = { 'Ag',                      'l_Ag_McPeak',           'l_Ag_McPeak',    
           'ITO',                     'l_ITO',                 'l_ITO',                 50 };
 iEML = 3;                              % row of the EML in 'stack'
 z0   = 12.5;                           % dipole position, measured from the EML/ETL interface (nm)
+% a field of cfg overrides the setting of the same name (e.g. cfg.n_sub = 1.5; cfg.bsdf_mode = 'flat';)
+fn = fieldnames(cfg); for q = 1:numel(fn), eval([fn{q} ' = cfg.(fn{q});']); end
 
 %% ------------------------------------------------------------------ inputs
 L = load(nkfile); mat = L.material; spec = L.spectrum;
@@ -49,22 +55,39 @@ S  = spec.(spec_name); S = S(iw); S = S(:) / sum(S);
 
 nL = size(stack,1);
 no = zeros(Nl, nL+2); ne = zeros(Nl, nL+2);          % [air, stack..., substrate]
-no(:,1) = 1; ne(:,1) = 1;
+no(:,1) = n_top; ne(:,1) = n_top;
 for k = 1:nL
-    a = mat.(stack{k,2}); b = mat.(stack{k,3});
-    no(:,k+1) = a(iw); ne(:,k+1) = b(iw);
+    if ischar(stack{k,2}), a = mat.(stack{k,2}); a = a(iw); else, a = stack{k,2}*ones(Nl,1); end   % library field or constant
+    if ischar(stack{k,3}), b = mat.(stack{k,3}); b = b(iw); else, b = stack{k,3}*ones(Nl,1); end
+    no(:,k+1) = a; ne(:,k+1) = b;
 end
 no(:,end) = n_sub; ne(:,end) = n_sub;
 d  = cell2mat(stack(:,4))';            % layer thicknesses
 E  = iEML + 1;                         % EML column in no/ne (column 1 is air)
 NC = nL + 2;                           % total columns
 
-B = load(bsdffile); B = B.BSDF_MLA;
-[~, islice] = min(abs(n_MLA_grid - n_sub));
-BSDF = B(:,:,islice);
-fprintf('BSDF slice %d (n_MLA = %.2f); column sums %.4f..%.4f\n', islice, n_MLA_grid(islice), min(sum(BSDF)), max(sum(BSDF)));
-
 th  = (0.5:1:89.5)';                   % angle bins in the substrate / air (deg)
+if strcmp(bsdf_mode, 'MLA')
+    B = load(bsdffile); B = B.BSDF_MLA;
+    [~, islice] = min(abs(n_MLA_grid - n_sub));
+    BSDF = B(:,:,islice);
+    fprintf('BSDF slice %d (n_MLA = %.2f); column sums %.4f..%.4f\n', islice, n_MLA_grid(islice), min(sum(BSDF)), max(sum(BSDF)));
+else                                   % planar substrate/air interface: Fresnel, specular
+    BSDF = zeros(180, 90);
+    for a = 1:90
+        ci = cosd(th(a)); st = n_sub*sind(th(a));
+        if st < 1
+            ct = sqrt(1-st^2);
+            rs = ((n_sub*ci-ct)/(n_sub*ci+ct))^2; rp = ((ci-n_sub*ct)/(ci+n_sub*ct))^2; Rf = (rs+rp)/2;
+            bin = min(90, floor(asind(st)) + 1);
+            BSDF(bin, a) = 1 - Rf;
+        else
+            Rf = 1;
+        end
+        BSDF(181-a, a) = Rf;           % specular: returned at the same angle (row 181-a <-> angle a)
+    end
+    fprintf('flat substrate/air interface, n_sub = %.2f\n', n_sub);
+end
 B_T = sum(BSDF(1:90,:), 1);            % angle-resolved escape probability B_T(theta_i), 1 x 90
 B_R = BSDF(180:-1:91, :);              % returned power: row = returned angle, column = incident angle
 B_T_air = BSDF(1:90,:) ./ sind(th);    % air intensity per solid angle: row = air angle, column = incident angle
@@ -203,11 +226,11 @@ for j = [1:6 8 11 16 21 31]
     fprintf('%4d   %.4f   %.4f   %.3f      %.4f  %.3f\n', j, U(j), p_j(j), p_j(j)/p_lamb, A_j(min(j,N_pass-1)), f60(j));
 end
 
-save('MLA_pass_resolved_out.mat', 'th', 'lam', 'eta_sub', 'budget', 'eta_ext', 'EQE', 'eta_ext_eq3', 'p_lamb', 'A_lamb', 'p_eff', 'A_eff', ...
+save(['MLA_pass_resolved_out' tag '.mat'], 'th', 'lam', 'eta_sub', 'budget', 'eta_ext', 'EQE', 'eta_ext_eq3', 'p_lamb', 'A_lamb', 'p_eff', 'A_eff', ...
      'U', 'p_j', 'A_j', 'Pout', 'V_arr', 'V_ret', 'I_sub', 'I_air', 'Psub', 'R_LED', 'B_T', 'P0');
-csvwrite('MLA_pass_table.csv', [(1:N_pass)', U', p_j', (p_j/p_lamb)', [A_j NaN]', Pout', cumsum(Pout)'/eta_sub, f60']);
-csvwrite('MLA_I_sub.csv', [th I_sub]);
-csvwrite('MLA_I_air.csv', [th I_air sum(I_air,2)]);
+csvwrite(['MLA_pass_table' tag '.csv'], [(1:N_pass)', U', p_j', (p_j/p_lamb)', [A_j NaN]', Pout', cumsum(Pout)'/eta_sub, f60']);
+csvwrite(['MLA_I_sub' tag '.csv'], [th I_sub]);
+csvwrite(['MLA_I_air' tag '.csv'], [th I_air sum(I_air,2)]);
 
 %% ------------------------------------------------------------------ plots
 if ~exist('OCTAVE_VERSION', 'builtin')
