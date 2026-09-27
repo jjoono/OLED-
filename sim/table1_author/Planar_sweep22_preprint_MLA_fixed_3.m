@@ -99,6 +99,7 @@ Utot = sum(Up + Us, 2);
 
 % power transmitted into the (semi-infinite) substrate, per u
 Tp = zeros(Nl, nu); Ts = zeros(Nl, nu); isub_p = zeros(Nl,1); isub_s = zeros(Nl,1);
+K_T_p = zeros(Nl, nu); K_T_s = zeros(Nl, nu);   % planar_Sweep K_bottom_transmit_p/_s (no u, no factor 2)
 for i = 1:Nl
     for pol = 'ps'
         if pol == 'p', nref = neE(i); ns = ne(i,end); else, nref = noE(i); ns = no(i,end); end
@@ -114,10 +115,12 @@ for i = 1:Nl
             kv = 3/8*neE(i)*no(i,end)/noE(i)^2 * sqrt(1-(neE(i)*uu/ne(i,end)).^2) .* ph .* uu.^2 .* A1 ./ abs(1-uu.^2);
             kh = 3*sqrt((no(i,end)/noE(i))^2*(1-(neE(i)*uu/ne(i,end)).^2)) .* ph .* A2 / (12*(noE(i)/neE(i))^2+4);
             Tp(i,1:im) = 2*(cv(i)*uu.*kv + ch(i)*uu.*kh); isub_p(i) = im;
+            K_T_p(i,1:im) = cv(i)*kv + ch(i)*kh;
         else
             A3 = abs((1+TT.r_s(i,1:im)).*TB.t_s(i,1:im)./den_s(i,1:im)).^2;
             ks = 3*sqrt((no(i,end)/noE(i))^2 - uu.^2) .* ph .* A3 ./ ((4*(neE(i)/noE(i))^2+12)*abs(1-uu.^2));
             Ts(i,1:im) = 2*ch(i)*uu.*ks; isub_s(i) = im;
+            K_T_s(i,1:im) = ch(i)*ks;
         end
     end
 end
@@ -134,9 +137,7 @@ end
 ch_sub = ch_sub./Utot; ch_abs = ch_abs./Utot; ch_wg = ch_wg./Utot; ch_spp = ch_spp./Utot;
 
 % Purcell factor and effective radiative efficiency
-Kfree = 3/4*(neE./noE)*(u(1:Nu).^2./sqrt(1-u(1:Nu).^2)) .* (cv*u(1:Nu))*2 ...
-      + 2*(ch*u(1:Nu)).*(3./(6*(noE./neE).^2+2)*sqrt(1-u(1:Nu).^2) + 3./(2*(neE./noE).^2+6)*(1./sqrt(1-u(1:Nu).^2)));
-F = Utot ./ sum(Kfree, 2);
+F = Utot ./ ((cv + ch)*Nu);            % Purcell factor as in planar_Sweep.m (analytic free-space power)
 eta_eff = PLQY*F ./ (1 - PLQY + PLQY*F);
 
 w_ph = lam.*S / sum(lam.*S);           % photon-number weight of the spectrum
@@ -147,8 +148,6 @@ budget  = [sum(w_ph.*eta_eff.*ch_sub), sum(w_ph.*eta_eff.*ch_wg), sum(w_ph.*eta_
 %% ------------------------------------------------------------------ I_sub(theta) and R_LED(theta)  (planar_Sweep.m definitions)
 % intensity per solid angle in the substrate, per wavelength: P_sub as in planar_Sweep.m, then
 % I_sub = P_sub .* (emission_spectrum .* eta_eff ./ Purcell)
-uu0 = u; uu0(1) = 1;                                    % u = 0 column is 0 anyway
-K_T_p = Tp ./ (2*uu0);  K_T_s = Ts ./ (2*uu0);          % = const.*K_v2 + const2.*K_h2 of planar_Sweep (no factor 2, no u)
 c_free = pi*(cv + ch);                                   % pi * (free-space dissipation per unit u)
 P_sub = zeros(Nl, 90);
 for i = 1:Nl
