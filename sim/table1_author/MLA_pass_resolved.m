@@ -79,8 +79,13 @@ else                                   % planar substrate/air interface: Fresnel
         if st < 1
             ct = sqrt(1-st^2);
             rs = ((n_sub*ci-ct)/(n_sub*ci+ct))^2; rp = ((ci-n_sub*ct)/(ci+n_sub*ct))^2; Rf = (rs+rp)/2;
-            bin = min(90, floor(asind(st)) + 1);
-            BSDF(bin, a) = 1 - Rf;
+            % the 1-deg substrate bin maps to a wider air range near the critical angle: spread it
+            lo = n_sub*sind(th(a)-0.5); hi = min(1, n_sub*sind(th(a)+0.5));
+            e1 = asind(lo); e2 = asind(hi);
+            for bb = floor(e1)+1 : min(90, ceil(e2))
+                ov = max(0, min(bb, e2) - max(bb-1, e1));
+                BSDF(bb, a) = BSDF(bb, a) + (1 - Rf) * ov/(e2 - e1);
+            end
         else
             Rf = 1;
         end
