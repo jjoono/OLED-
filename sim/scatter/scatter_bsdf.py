@@ -13,7 +13,7 @@ def fresnel_R(n, ci):
 def hg_cos(g, u):
     if abs(g) < 1e-6: return 2*u - 1
     return (1 + g*g - ((1 - g*g)/(1 - g + 2*g*u))**2)/(2*g)
-def bsdf(n, S, g, N=20000, seed=1):
+def bsdf(n, S, g, N=20000, seed=1, albedo=1.0):
     rng = np.random.default_rng(seed); B = np.zeros((180, 90))
     for a in range(90):
         th = np.radians(a + 0.5); mu = np.full(N, np.cos(th)); ph = rng.uniform(0, 2*np.pi, N)
@@ -36,6 +36,8 @@ def bsdf(n, S, g, N=20000, seed=1):
                 back = ii[refl]; d[back, 2] *= -1; z[back] = 1.0
             if mid.any():
                 ii = idx[mid]; z[ii] = znew[mid]
+                if albedo < 1:
+                    dead = rng.random(ii.size) > albedo; alive[ii[dead]] = False; ii = ii[~dead]
                 ct = hg_cos(g, rng.random(ii.size)); stt = np.sqrt(np.clip(1 - ct**2, 0, 1)); p2 = rng.uniform(0, 2*np.pi, ii.size)
                 dd = d[ii]; uz = dd[:, 2]; ux, uy = dd[:, 0], dd[:, 1]
                 den = np.sqrt(np.clip(1 - uz**2, 1e-12, None))
