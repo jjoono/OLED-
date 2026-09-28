@@ -13,9 +13,33 @@
     "Ag_Ag": [
      2.617
     ]
+   },
+   "3": {
+    "E_add_eV": 2.8405,
+    "q_total": 0.494,
+    "q_per_atom": 0.1647,
+    "prefers_vs_deep": "cluster",
+    "prefers_vs_tier2": "cluster",
+    "Ag_Ag": [
+     2.669,
+     2.682
+    ]
+   },
+   "4": {
+    "E_add_eV": 0.8608,
+    "q_total": 0.6328,
+    "q_per_atom": 0.1582,
+    "prefers_vs_deep": "fresh",
+    "prefers_vs_tier2": "cluster",
+    "Ag_Ag": [
+     2.716,
+     2.719,
+     2.755
+    ]
    }
   },
-  "E_add_mean": 0.8519
+  "E_add_mean": 1.5177,
+  "E_add_mean_even": 0.8563
  },
  "Mo3O9": {
   "E_b1": 2.164,
@@ -56,7 +80,8 @@
     ]
    }
   },
-  "E_add_mean": 1.7659
+  "E_add_mean": 1.7659,
+  "E_add_mean_even": 1.6922
  },
  "F4TCNQ": {
   "E_b1": 1.208,
@@ -97,7 +122,8 @@
     ]
    }
   },
-  "E_add_mean": 1.366
+  "E_add_mean": 1.366,
+  "E_add_mean_even": 0.8483
  },
  "benzene": {
   "E_b1": 0.205,
@@ -138,6 +164,7 @@
     ]
    }
   },
-  "E_add_mean": 1.5511
+  "E_add_mean": 1.5511,
+  "E_add_mean_even": 1.8428
  }
 }

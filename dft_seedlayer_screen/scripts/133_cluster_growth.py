@@ -261,12 +261,23 @@ def harvest(root):
             # is a poor discriminator; the mean over the steps measured is the
             # cohesive energy per added atom on that surface.
             m = float(np.mean(adds))
+            even = [v["E_add_eV"] for k, v in row["steps"].items() if k % 2 == 0]
             row["E_add_mean"] = round(m, 4)
+            row["E_add_mean_even"] = round(float(np.mean(even)), 4) if even else None
             print(f"  mean over n={min(row['steps'])}..{max(row['steps'])}: "
-                  f"{m:.3f} eV per added atom -> "
-                  + ("clustering wins" if m > eb1 else
-                     "a fresh deep site wins" if m < eb1 else "tie")
-                  + f" (deep {eb1:.3f}, tier2 {eb2:.3f})")
+                  f"{m:.3f} eV -> "
+                  + ("clustering wins" if m > eb1 else "a fresh deep site wins")
+                  + f", margin {m - eb1:+.3f}")
+            if even and len(adds) != len(even):
+                # The odd-n step is a doublet forming from a singlet and runs
+                # 1.5-2 eV above the even ones, which is larger than any
+                # difference between substrates. A mean over a mixed set of n is
+                # therefore dominated by which parities happen to be in it, so
+                # the same-parity mean is reported beside it -- and it does not
+                # agree.
+                e = float(np.mean(even))
+                print(f"  even n only ({', '.join(str(k) for k in row['steps'] if k % 2 == 0)}): "
+                      f"{e:.3f} eV, margin {e - eb1:+.3f}")
         res[tag] = row
     if res:
         out = os.path.join(RUNS, "cluster_growth.json")

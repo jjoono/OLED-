@@ -2111,3 +2111,47 @@ in 0.5 nm steps is the cheap, sharp version, ~5–6 films per member.
 
     python scripts/135_hatcn_series.py
     python scripts/135_hatcn_series.py --harvest hat_series
+
+### Package G closed — the charge survives, E_add does not
+
+HATCN's Ag₃ and Ag₄ landed; all 13 jobs converged. Charge per silver atom:
+
+| n | benzene | HATCN | F4TCNQ | Mo3O9 |
+|---|---|---|---|---|
+| 1 | −0.061 | +0.572 | +0.545 | +0.722 |
+| 2 | −0.067 | +0.101 | +0.078 | +0.411 |
+| 3 | −0.052 | +0.165 | +0.216 | +0.245 |
+| 4 | −0.044 | **+0.158** | +0.147 | **+0.304** |
+| total at n=4 | −0.174 | +0.633 | +0.586 | **+1.216** |
+
+The prediction stated when Ag₃ and Ag₄ were still running was that HATCN near
++0.10 per atom would keep the story and +0.30 would kill it. It came in at
+**+0.158** — the hand-back is real (0.572 → 0.16 and flat) and Mo3O9 stays at
+twice that with a total charge that keeps growing. **The charge observable is
+robust**: at every size the order is benzene < HATCN ≈ F4TCNQ < Mo3O9.
+
+**E_add is not, and this has to be said plainly.** The odd-n step forms a doublet
+from a singlet and runs 1.5–2 eV above the even steps — HATCN goes 0.852 /
+2.840 / 0.861 — which is *larger than any difference between substrates*. So the
+mean depends on which parities are in it:
+
+| | mean n=2..4 | margin | mean even n only | margin |
+|---|---|---|---|---|
+| benzene | 1.551 | +1.346 | 1.843 | +1.638 |
+| F4TCNQ | 1.366 | **+0.158** | 0.848 | **−0.360** |
+| HATCN | 1.518 | −0.113 | 0.856 | −0.775 |
+| Mo3O9 | 1.766 | −0.398 | 1.692 | −0.472 |
+
+F4TCNQ changes sign, and on the same-parity comparison HATCN looks *more*
+dispersion-favouring than the oxide. **The "does the next atom join the cluster"
+criterion cannot be published on three steps.** It needs either larger n, so the
+alternation averages out, or same-parity comparison at more sizes — and the
+same-parity numbers available now do not support the reading the mixed mean gave.
+
+What stands from package G, then, is narrower than it looked but still the only
+thing that agrees with the experiment: **Mo3O9 keeps the silver ionised at every
+cluster size it was measured at, and HATCN hands the charge back as soon as a
+second atom arrives.** The ordering of E_add is not usable.
+
+This also sharpens what package I is for: it measures q(Ag₁) and q(Ag₂) on a
+series, which is the robust half, and does not depend on E_add at all.
