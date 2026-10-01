@@ -2155,3 +2155,49 @@ second atom arrives.** The ordering of E_add is not usable.
 
 This also sharpens what package I is for: it measures q(Ag₁) and q(Ag₂) on a
 series, which is the robust half, and does not depend on E_add at all.
+
+## Where the project stands (2026-10-01) — E_add dropped, charge carried forward
+
+**Correction.** Earlier entries say the Ag–Ag bond on the oxide is "2.75–2.80 Å
+at every n". With HATCN's n = 3, 4 in, that is wrong: the distance separates the
+oxide only at n = 2 (2.80 against 2.57–2.62). At n = 3 and 4 all four substrates
+sit at 2.66–2.76 Å. Bond length is not a discriminator; only charge is.
+
+**What stands**
+
+1. HATCN binds Ag in the aza pocket of its core (1.631 eV), not on the nitriles
+   (0.508 / 0.606, the latter reproduced to 2 meV by two unrelated starts). The
+   project's original input structure had the weaker site.
+2. Single-site E_b is not a ranking: HATCN 0.604 → 1.631, Mo3O8 0.875 → 2.185
+   (the old value on a spin-contaminated branch). The 25-candidate table samples
+   one site per candidate and cannot be published as a ranking.
+3. E_b ranks MoOx above HATCN against the experiment, and tracks charge transfer
+   rather than trap depth.
+4. Six mechanisms tested and refuted: total charge transfer, site density, Ag₂
+   "recovered" cohesion, cluster-edge artefact, multi-site sampling, and the
+   barrier-landscape kMC (the measured oxide is indistinguishable from a
+   featureless surface at its own terrain barrier, 4.64 vs 4.64 ML).
+5. **The one observable that agrees with the experiment without being fitted to
+   it:** HATCN hands the adatom's charge back once a second atom arrives (+0.572
+   → +0.10–0.16 per atom), Mo3O9 keeps every cluster ionised (+0.25–0.41 per
+   atom, total rising to +1.22 at n = 4). Order benzene < HATCN ≈ F4TCNQ < Mo3O9
+   at every n.
+
+**What does not stand:** E_add (parity alternation larger than the signal), the
+Ag–Ag distance beyond n = 2, absolute Venables d_c, the kMC's absolute thickness.
+
+**What charge alone cannot do.** Benzene is the most metallic substrate and is a
+poor wetting surface, so "less charge is better" is false. The criterion is two-
+dimensional: binding strong enough to nucleate densely (E_b at the deepest site)
+*and* clusters that stay metallic (low q per atom). HATCN sits in that corner,
+MoOx fails the second axis, benzene the first. F4TCNQ (1.208 eV, +0.147) sits
+near HATCN on both, which is a prediction an experiment can check. Charge does
+not separate HATCN from F4TCNQ.
+
+**Next computational step — package J (`charge_jobs/`, 20 single points).** The
+argument now rests on Mulliken charges in def2-SVP, the least trustworthy
+absolute number in the project. Hirshfeld, CM5, NBO natural charge and the Ag 5s
+natural occupation on all 16 package-G geometries, plus def2-TZVP for HATCN and
+Mo3O9 at n = 1, 2. The claim survives if every scheme gives the same substrate
+order at every n; it does not need the absolute values to agree. Geometries are
+now durable in `structures/clusters/`.
