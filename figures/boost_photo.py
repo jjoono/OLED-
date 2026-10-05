@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """Brighten a near-black device photo by an exact factor, for display.
 
-    python3 figures/boost_photo.py dbr_back.jpg --gain 100 \
-        --crop 854,602,1063,721 --size 401x228 --out dbr_back_x100.png
+    python3 figures/boost_photo.py dbr_back.jpg --gain 20 \
+        --crop 854,602,1063,721 --size 401x228 --out dbr_back_x20.png
 
 What is done, so a caption can say it in one line:
 
-1. sRGB decode to linear light, multiply by --gain, re-encode.  "x100" means one
-   hundred times the light, not a curve or contrast stretch; nothing is clipped
+1. sRGB decode to linear light, multiply by --gain, re-encode.  "x20" means twenty
+   times the light, not a curve or contrast stretch; nothing is clipped
    unless the boosted pixel exceeds white, which the script reports.
 2. Unless --raw: colour noise reduction.  A photo this dark lives in the bottom
    few code values, where JPEG colour subsampling leaves green/red/purple blocks
@@ -16,8 +16,8 @@ What is done, so a caption can say it in one line:
    the local average colour over ~9 px.
 3. Crop and resize (bicubic) to match the photo it will sit next to.
 
-Caption wording: "Back view of the DBR device, brightness x100 (linear gain;
-colour noise reduced)."
+Caption wording: "Inset: same region, brightness x20 (linear gain; colour noise
+reduced)."
 """
 import argparse
 
