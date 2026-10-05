@@ -600,3 +600,29 @@ escaped on pass *n* = `p·[(1−p)(1−A′)]ⁿ`, cumulative `p(1−rⁿ⁺¹)/
 Note: the device notes in (c) are shortened to `Conventional` / `Low loss`
 because a full name set vertically is taller than the plot. (a) carries the full
 names directly above, so nothing is lost — but if the panel grows, restore them.
+
+## `backside_grayscale.py` — backside leakage from device photos
+
+Converts each photo to linear luminance (sRGB decode, Rec. 709 weights — the
+photopic weighting a luminance meter uses) and shows all of them on **one shared
+logarithmic grey scale**, so a backside glow too faint to see in the original
+photo becomes visible without any photo getting its own gain. The lit finger's
+peak surface brightness is measured in each photo and reported relative to the
+first one; a line profile through the finger shows lit vs. unlit fingers.
+
+    python3 figures/backside_grayscale.py "w/o reflector=wo.jpg" "w/ DBR=dbr.jpg" \
+        --meter "w/o reflector=998" --meter "w/ DBR=52" --out figures/backside
+
+Outputs `<out>.png/.svg` (images + profile + checks), `<out>.json` (numbers),
+and one greyscale PNG per photo on the shared scale for placing in a figure.
+
+The photo ratios are only physical at identical exposure. EXIF exposure
+(t·ISO/N²) is applied automatically when present. `--meter` cross-checks each
+photo ratio against the meter's L_back ratio and prints any mismatch beyond 1.5×
+in red on the figure. Photos whose lit finger spans < 32 code values are flagged
+as too dark or quantised.
+
+First run (slide copies of the 5 V backside photos, no EXIF): the log scale
+shows the 4.5-stack DBR finger clearly, but the ratios fail the meter check in
+both directions — 2.5 stacks 0.76 vs 0.25, 4.5 stacks 0.009 vs 0.052 — so those
+photos were taken at different exposures and their numbers must not be quoted.
