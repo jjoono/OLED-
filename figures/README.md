@@ -651,3 +651,26 @@ overstates the leakage about seven-fold.
 
 Slide copies of the same photos do *not* pass the check (2.5 stacks 0.76 vs.
 0.25; 4.5 stacks 0.009 vs. 0.052): use the originals.
+
+## `boost_photo.py` — brightening a near-black photo by an exact factor
+
+For the DBR back view in Fig. c, which is black at its true exposure. The photo
+is sRGB-decoded, multiplied by `--gain` in linear light (so "×100" is one hundred
+times the light, not a contrast stretch), and re-encoded. Because the signal sits
+in the bottom ~18 code values, the gain exposes JPEG colour blocks; unless
+`--raw`, luminance is kept (lightly smoothed, σ ≈ 1.2 px) and colour is averaged
+over ~9 px. Nothing clips at ×100.
+
+    python3 figures/boost_photo.py dbr_back.jpg --gain 100 \
+        --crop 854,602,1063,721 --size 401x228 --out DBR_back_x100.png
+
+The crop is the w/o-reflector back-view crop used in the figure (x 906–1115,
+y 613–732 of its original, found by template matching), shifted by the
+registration offset (−52, −11) px, so the two panels show the same region.
+At ×100 the DBR's U reaches ~87% of the w/o device's brightness, consistent with
+the 0.87% line-profile ratio. The uniform substrate glow is about as bright in
+absolute terms as the w/o device's substrate, so it is probably stray light, not
+leakage through the DBR.
+
+Caption: "Back view of the DBR device, brightness ×100 (linear gain; colour
+noise reduced)."
