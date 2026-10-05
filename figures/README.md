@@ -544,7 +544,7 @@ python3 figures/denoise_renders.py figures/emitting_area_render*.png
 
 Built by `make_full_figure_pptx.py`. A mock-up of the layout argued for in review:
 panel (a) across the full width, (b) and (c) side by side underneath. One slide,
-297 shapes, nothing grouped; only the two 3D renders are pictures.
+345 shapes, nothing grouped; only the two 3D renders are pictures.
 
 Three things differ from the draft it is answering, and they are the point of it:
 
@@ -571,6 +571,26 @@ trip rather than bigger domes and fatter arrows. The two rows sit 370 apart
 although each render is 430 square: a render's top strip is glow below 8% alpha,
 so the renders may overlap there and a row need not be as tall as a square
 picture. Together that puts (a) at 58% of the figure's height instead of 68%.
+
+The ray diagram carries light, not just lines. Every effect is scaled by the
+same radiometry that sets the arrow widths, so it adds emphasis without adding
+a second story:
+
+* **Escape fans** — a teal sector opening from each lit lens, radial gradient
+  from the apex, peak alpha `0.50·I^0.8` where `I` is the power arriving there;
+  the lens under it glows by the same amount. The decay along the conventional
+  row now reads before anyone compares arrow widths.
+* **Ray halos** — a wide (3.2×), faint (`0.20·I^0.5`) underlay beneath each ray.
+* **Heat at the mirror** — a red radial glow at each bounce, alpha `4·loss`,
+  with no floor: the low-loss device's 2% barely registers, as it should.
+* **Emitter glow** — a gold halo around the exciton.
+* **Material shading** — a white cap on each lens, a brighter top to the glass,
+  a specular strip along the metal's mirror face. Base colours are unchanged, so
+  the match with the render holds.
+
+All of it is native DrawingML gradient fills (`grad()`, `glow()`, `fan()`), so
+the slide stays editable. Colours in `srgbClr` must be bare hex: the SVG module's
+`#e8901f` style renders black in LibreOffice, so `grad()` strips the `#`.
 
 (b) and (c) are computed from the same round-trip model as (a):
 escaped on pass *n* = `p·[(1−p)(1−A′)]ⁿ`, cumulative `p(1−rⁿ⁺¹)/(1−r)`, and

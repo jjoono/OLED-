@@ -30,7 +30,8 @@ from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 from pptx.enum.dml import MSO_LINE_DASH_STYLE as DASH
-from pptx.oxml.ns import qn
+from pptx.oxml.ns import qn, nsdecls
+from pptx.oxml import parse_xml
 
 # ------------------------------------------------------------------ canvas
 W, H = 1800.0, 1500.0                  # figure units; 1800 across = 180 mm printed
@@ -69,6 +70,7 @@ MET_F   = tuple(mix(BAND[k], 0.18) for k in ("met_c", "met_d"))   # per device,
 LINE_K  = 0.62                                # every outline is its fill, darkened
 
 RAY, LOSS, EMIT, EMIT_EDGE = F.RAY, F.LOSS, F.EMIT, F.EMIT_EDGE
+RAY_GLOW = "1FC79B"                  # the ray's hue, lifted: what a halo of it looks like
 BURST = F.BURST
 INK, MUTED, AXIS = "1A1A1A", "55585C", "2B2B2B"
 BLU, GRN, RED = "3B6FD4", "3F9E4D", "DE5B5B"          # A' = 0.02 / 0.1 / 0.15
@@ -197,6 +199,59 @@ def star(cx, cy, r, kind, fill, line, op=None, lw=1.1, name="star"):
         pass
     return style(s, fill, line, lw, op, name)
 
+def grad(s, stops, ang=90.0, centre=None):
+    """Replace a shape's fill with a gradient.  `stops` = [(pos 0..1, hex, alpha)].
+
+    Linear by default (DrawingML angle: 90 = top to bottom).  With `centre` =
+    (fx, fy), fractions of the bounding box, it is a radial gradient whose first
+    stop sits at that point -- used for glows that fall off from a source.
+    """
+    sp = s._element.spPr
+    for t in ("a:solidFill", "a:noFill", "a:gradFill"):
+        e = sp.find(qn(t))
+        if e is not None:
+            sp.remove(e)
+    gs = "".join('<a:gs pos="%d"><a:srgbClr val="%s"><a:alpha val="%d"/></a:srgbClr></a:gs>'
+                 % (int(p_ * 100000), c.lstrip("#").upper(), int(a * 100000))
+                 for p_, c, a in stops)          # "#e8901f" is not a valid val: black
+    if centre is None:
+        tail = '<a:lin ang="%d" scaled="0"/>' % int(ang * 60000)
+    else:
+        l, t = int(centre[0] * 100000), int(centre[1] * 100000)
+        tail = ('<a:path path="circle"><a:fillToRect l="%d" t="%d" r="%d" b="%d"/>'
+                '</a:path>' % (l, t, 100000 - l, 100000 - t))
+    el = parse_xml('<a:gradFill %s rotWithShape="1"><a:gsLst>%s</a:gsLst>%s</a:gradFill>'
+                   % (nsdecls("a"), gs, tail))
+    ln = sp.find(qn("a:ln"))
+    if ln is not None:
+        ln.addprevious(el)
+    else:
+        sp.append(el)
+    return s
+
+def glow(cx, cy, r, color, a0, name="glow", squash=1.0):
+    """A soft radial glow: `color` at alpha a0 in the centre, nothing at radius r."""
+    s = SH.add_shape(MSO_SHAPE.OVAL, X(cx - r), Y(cy - r * squash), D(2 * r),
+                     D(2 * r * squash))
+    style(s, "FFFFFF", None, name=name)
+    return grad(s, [(0.0, color, a0), (0.45, color, a0 * 0.45), (1.0, color, 0.0)],
+                centre=(0.5, 0.5))
+
+def fan(ax, ay, r, half, color, a0, name="fan"):
+    """Light leaving a lens: a sector opening upward from (ax, ay), fading out."""
+    n = 24
+    pts = [(ax, ay)] + [(ax + r * math.sin(math.radians(-half + 2 * half * i / n)),
+                         ay - r * math.cos(math.radians(-half + 2 * half * i / n)))
+                        for i in range(n + 1)]
+    q = [(X(x), Y(y)) for x, y in pts]
+    b = SH.build_freeform(q[0][0], q[0][1], scale=1.0)
+    b.add_line_segments(q[1:], close=True)
+    sh_ = b.convert_to_shape()
+    style(sh_, "FFFFFF", None, name=name)
+    # radial from the apex, which is the bottom-centre of the sector's box
+    return grad(sh_, [(0.0, color, a0), (0.35, color, a0 * 0.55), (1.0, color, 0.0)],
+                centre=(0.5, 1.0))
+
 def text(cx, cy, runs, size, color, align=PP_ALIGN.CENTER, bold=False,
          w=600.0, rot=0.0, name="label", italic=False):
     """`runs` is a string, or [(text, baseline, italic), ...] for subscripts."""
@@ -234,18 +289,29 @@ def row(i, eta, r_met, t_tco, tag):
     def fd(d): return d * SX
 
     # --- micro-lens domes, then the slab over their lower halves
+    # Each material gets a light falling from above: a white cap on every lens,
+    # a brighter top to the glass, a specular strip along the metal's mirror
+    # face.  Same base colours as before, so the match with the render holds.
     for k in range(int(PW_F / F.PITCH)):
         cx = F.PITCH * k + F.LENS_R
-        oval(fx(cx - F.LENS_R), fy(F.Y_TOP - F.LENS_R), fd(2 * F.LENS_R),
-             fd(2 * F.LENS_R), LENS_F, shade(LENS_F, LINE_K), 1.1,
-             "%s lens %02d" % (tag, k + 1))
-    rect(fx(0), fy(F.Y_TOP), fd(PW_F), fd(F.Y_TCO - F.Y_TOP), GLASS_F,
-         shade(GLASS_F, LINE_K), 1.3, name="%s glass" % tag)
-    for y1, y2, fl, nm in ((F.Y_TCO, F.Y_ORG, TCO_F, "TCO"),
-                           (F.Y_ORG, F.Y_MET, ORG_F, "organic"),
-                           (F.Y_MET, F.Y_BOT, met, "metal")):
-        rect(fx(0), fy(y1), fd(PW_F), fd(y2 - y1), fl, shade(fl, LINE_K), 1.1,
-             name="%s %s" % (tag, nm))
+        grad(oval(fx(cx - F.LENS_R), fy(F.Y_TOP - F.LENS_R), fd(2 * F.LENS_R),
+                  fd(2 * F.LENS_R), LENS_F, shade(LENS_F, LINE_K), 1.1,
+                  "%s lens %02d" % (tag, k + 1)),
+             [(0.0, "FFFFFF", 1.0), (0.30, "FFFFFF", 1.0), (0.50, LENS_F, 1.0),
+              (1.0, LENS_F, 1.0)])
+    grad(rect(fx(0), fy(F.Y_TOP), fd(PW_F), fd(F.Y_TCO - F.Y_TOP), GLASS_F,
+              shade(GLASS_F, LINE_K), 1.3, name="%s glass" % tag),
+         [(0.0, mix(GLASS_F, 0.55), 1.0), (1.0, GLASS_F, 1.0)])
+    for y1, y2, fl, nm, st in (
+            (F.Y_TCO, F.Y_ORG, TCO_F, "TCO",
+             [(0.0, mix(TCO_F, 0.35), 1.0), (1.0, TCO_F, 1.0)]),
+            (F.Y_ORG, F.Y_MET, ORG_F, "organic",
+             [(0.0, mix(ORG_F, 0.30), 1.0), (1.0, ORG_F, 1.0)]),
+            (F.Y_MET, F.Y_BOT, met, "metal",
+             [(0.0, mix(met, 0.55), 1.0), (0.14, mix(met, 0.20), 1.0),
+              (0.40, met, 1.0), (1.0, shade(met, 0.84), 1.0)])):
+        grad(rect(fx(0), fy(y1), fd(PW_F), fd(y2 - y1), fl, shade(fl, LINE_K), 1.1,
+                  name="%s %s" % (tag, nm)), st)
 
     # --- radiometry (same formulas as the SVG)
     I, sg, esc, loss = 1.0, [], [], []
@@ -263,6 +329,29 @@ def row(i, eta, r_met, t_tco, tag):
             wave(fx(xm + sgn * 24 - tw / 2), fy(F.Y_TCO + 8), fd(tw), fd(ta), 2,
                  LOSS, (0.9 + 9.0 * tl) * SX, min(1.0, 0.25 + 6.5 * tl),
                  name="%s TCO loss %d%s" % (tag, n + 1, "LR"[j]))
+
+    # --- light leaving each lens: a fan whose strength is the power escaping
+    #     there, so the eye reads the decay before it reads the arrow widths
+    for k, xl in enumerate(HIT_TOP):
+        fan(fx(xl), fy(F.Y_TOP), fd(108.0), 58.0, RAY_GLOW, 0.50 * sg[k] ** 0.8,
+            "%s escape fan %d" % (tag, k + 1))
+        glow(fx(xl), fy(F.Y_TOP - F.LENS_R * 0.45), fd(F.LENS_R * 1.15), RAY_GLOW,
+             0.55 * sg[k] ** 0.8, "%s lit lens %d" % (tag, k + 1), squash=0.75)
+
+    # --- a soft halo under every ray segment, same decay as the ray itself
+    halo = [((X_EMIT + 7.1, F.Y_EMIT - 7.1), (HIT_TOP[0], F.Y_TOP), sg[0])]
+    for k in range(NP - 1):
+        halo.append(((HIT_TOP[k] + 9.2, F.Y_TOP + 9.2),
+                     (HIT_METAL[k] - 6.4, F.Y_MET - 6.4), sg[k] * (1 - eta)))
+        halo.append(((HIT_METAL[k] + 6.4, F.Y_MET - 6.4),
+                     (HIT_TOP[k + 1], F.Y_TOP), sg[k + 1]))
+    for n, (p0, p1, v) in enumerate(halo):
+        seg((fx(p0[0]), fy(p0[1])), (fx(p1[0]), fy(p1[1])), RAY_GLOW,
+            F.W_RAY * SX * 3.2 * v ** 0.6, op=0.20 * v ** 0.5,
+            name="%s ray halo %d" % (tag, n + 1))
+
+    glow(fx(X_EMIT), fy(F.Y_EMIT), fd(30.0), EMIT, 0.75, "%s emitter glow" % tag,
+         squash=0.8)
 
     seg((fx(X_EMIT + 7.1), fy(F.Y_EMIT - 7.1)), (fx(HIT_TOP[0]), fy(F.Y_TOP)),
         RAY, wid[0], True, name="%s ray emit" % tag)
@@ -286,6 +375,11 @@ def row(i, eta, r_met, t_tco, tag):
                 (fx(o[0] + ln_ * math.sin(b)), fy(o[1] - ln_ * math.cos(b))),
                 RAY, fw, True, name="%s escaping %d-%d" % (tag, k + 1, j + 1))
 
+    for k, xm in enumerate(HIT_METAL):
+        v = loss[k]
+        glow(fx(xm), fy(F.Y_MET), fd(14.0 + 120.0 * v ** 0.7), LOSS,
+             min(0.70, 4.0 * v), "%s heat %d" % (tag, k + 1), squash=0.55)
+        # strictly proportional, no floor: a 2% loss should barely register
     for k, xm in enumerate(HIT_METAL):
         v = loss[k]
         r = 3.0 + 30.0 * v ** 0.6
