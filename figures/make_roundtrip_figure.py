@@ -4,13 +4,17 @@ Top    - conventional device: strong ohmic / TCO absorption, beam dies out.
 Bottom - low-loss device: absorption suppressed, beam survives many round trips.
 
 One figure.  Each row pairs the 3D render of a device with its cross-section: the
-render shows how far the light actually spreads, the cross-section shows why.  The
-layer names sit on the cross-section only -- carrying them twice is what made the
-3D panel look like it was adding nothing.
+render shows how far the light actually spreads, the cross-section shows why.
+
+The layer names sit *inside* the render's own bands, not in a column beside the
+drawing, so nothing hangs off the edge of the figure.  Their positions come from
+the render's label JSON, which the Blender build wrote by projecting each label
+through the camera -- mapped here through the crop box.  The cross-section's
+colours are keyed by swatches in the legend instead.
 """
 import math, os
 
-W, H = 1620, 790
+W, H = 1430, 865
 FONT = "Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif"
 
 # ---------------------------------------------------------------- stack (y)
@@ -19,9 +23,11 @@ Y_TCO, Y_ORG, Y_MET, Y_BOT = 261.0, 277.0, 295.0, 335.0
 Y_EMIT = 286.0                     # emitting plane, middle of the organic stack
 LENS_R, PITCH = 30.0, 60.0
 PW = 900.0                         # panel width = 15 lenses
-RENDER_X, RENDER_Y, RENDER_W = 55.0, 35.0, 300.0   # 3D render slot, square, per panel
-PANEL_X = 640.0                    # both panels share a left edge; they stack
-PANEL_DY = (0.0, 365.0)            # and are offset vertically instead.  A panel is
+RENDER_X, RENDER_Y, RENDER_W = 55.0, -5.0, 340.0   # 3D render slot, square, per panel.
+                                   # RENDER_Y puts the render's slab bottom on the
+                                   # cross-section's, which is what makes the row read
+PANEL_X = 450.0                    # both panels share a left edge; they stack
+PANEL_DY = (10.0, 385.0)            # and are offset vertically instead.  A panel is
                                    # 335 tall: the escaping rays reach ~85 above the lens
                                    # crests, so the title has to sit clear of them
 
@@ -30,14 +36,6 @@ TITLES = (("Conventional metal reflector",
            "large absorption per round trip \u2014 the beam dies out within a few passes"),
           ("Low loss reflector",
            "absorption suppressed \u2014 intensity survives many round trips"))
-LAYER_Y = ((150, 152), (222, 218), (263, 269), (292, 286), (318, 315))
-LAYER_KEYS = (("Outcoupling structure", "Glass substrate",
-               "Transparent conductive oxide (TCO)", "Organic layers",
-               "Conventional metal electrode"),
-              ("Outcoupling structure", "Glass substrate",
-               "Low loss TCO", "Organic layers",
-               "Low loss metal electrode"))
-
 # ---------------------------------------------------------------- ray path
 TAN = 1.0                          # 45 deg in the glass  (critical angle 41.8 deg)
 HIT_TOP   = [150.0, 390.0, 630.0, 870.0]      # all of them lens centres
@@ -61,6 +59,9 @@ W_RAY = 9.5             # line width of the full-power ray
 GREEN, BLUE, AMBER = RAY, LOSS, EMIT          # kept for backward compatibility
 
 
+_CROP = {}        # tag -> (crop box in source px, source width)
+
+
 def render_crop(tag):
     """Crop a device render to its own content and cache it beside the original.
 
@@ -76,26 +77,54 @@ def render_crop(tag):
     dst = os.path.join(here, "emitting_area_render_%s_crop.png" % tag)
     if not os.path.exists(src):
         return None
-    if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
+    if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src) \
+            and tag in _CROP:
         return dst
     im = Image.open(src).convert("RGBA")
     # threshold first: the glow fades to alpha 1-2 across almost the whole
     # frame, so a plain getbbox() on alpha crops nothing
     bb = im.getchannel("A").point(lambda v: 255 if v > 10 else 0).getbbox()
+    box = None
+    src_w = im.width
     if bb:
         x0, y0, x1, y1 = bb
-        side = max(x1 - x0, y1 - y0)
+        side = max(x1 - x0, y1 - y0) * 1.08
         cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
-        pad = side * 0.04
-        side += 2 * pad
-        im = im.crop((int(cx - side / 2), int(cy - side / 2),
-                      int(cx + side / 2), int(cy + side / 2)))
+        box = (cx - side / 2, cy - side / 2, side)
+        im = im.crop(tuple(int(v) for v in (box[0], box[1], box[0] + side, box[1] + side)))
+    else:
+        box = (0.0, 0.0, float(src_w))
     # 900 px is ~2x what the slot needs even at a 2400 px export, and it keeps the
     # base64 copy embedded in the SVG down to a few hundred kB
     if im.width > 900:
         im = im.resize((900, max(1, round(900 * im.height / im.width))), Image.LANCZOS)
     im.save(dst)
+    _CROP[tag] = (box, src_w)
     return dst
+
+
+
+def render_labels(tag):
+    """Each layer name in panel-local figure units, mapped through the crop.
+
+    The JSON holds fractions of the *uncropped* frame, so a label has to go
+    frame fraction -> source pixel -> offset inside the crop -> figure units.
+    """
+    import json
+    import os
+    here = os.path.dirname(os.path.abspath(__file__))
+    meta = os.path.join(here, "emitting_area_render_%s_labels.json" % tag)
+    if render_crop(tag) is None or not os.path.exists(meta):
+        return []
+    (bx, by, side), src_w = _CROP[tag]
+    k = RENDER_W / side                      # figure units per source pixel
+    out = []
+    for lab in json.load(open(meta, encoding="utf-8")):
+        out.append({"text": lab["text"], "light": lab["light"],
+                    "x": RENDER_X + (lab["x"] * src_w - bx) * k,
+                    "y": RENDER_Y + (lab["y"] * src_w - by) * k,
+                    "size": lab["h"] * src_w * k})
+    return out
 
 
 def f(v):
@@ -252,8 +281,8 @@ A('<title>Repeated outcoupling attempts in a conventional OLED versus one design
   'with the proposed design rule</title>')
 
 esc = []
-for i, (dy, (title, sub), keys, loss) in enumerate(
-        zip(PANEL_DY, TITLES, LAYER_KEYS, ((.72, .90), (.98, .995)))):
+for i, (dy, (title, sub), loss) in enumerate(
+        zip(PANEL_DY, TITLES, ((.72, .90), (.98, .995)))):
     body, e = panel(PANEL_X, .30, loss[0], loss[1], title, sub)
     esc.append(e)
     A('<g transform="translate(0,%s)">' % f(dy))
@@ -268,21 +297,32 @@ for i, (dy, (title, sub), keys, loss) in enumerate(
           'width="%s" height="%s"/>'
           % (b64, f(RENDER_X), f(RENDER_Y), f(RENDER_W), f(RENDER_W)))
     A(body)
-    for (y_lab, y_tip), s_lab in zip(LAYER_Y, keys):
-        A(txt(PANEL_X - 19, y_lab + 5, s_lab, 14, MUTED, "end"))
-        A('<path d="M %s,%s L %s,%s" stroke="%s" stroke-width="0.9" fill="none"/>'
-          % (f(PANEL_X - 13), f(y_lab), f(PANEL_X - 5), f(y_tip), LEADER))
+    for lab in render_labels(("conventional", "designrule")[i]):
+        A(txt(lab["x"], lab["y"] + lab["size"] * 0.36, lab["text"], lab["size"],
+              "#f2f5f8" if lab["light"] else "#1b2026"))
     A('</g>')
 e1, e2 = esc
 
 # ---------------------------------------------------------------- legend
-LG = 745.0
-A(ray((280, LG), (344, LG), 6.2))
-A(txt(358, LG + 5, "Light ray  (line width \u221d optical power)", 16, MUTED))
-A(star(720, LG - 2, 8.5, EMIT, EMIT_EDGE, n=9, inner=0.42, sw=LW_STAR))
-A(txt(738, LG + 5, "Exciton emission", 15, MUTED))
-A(wave(920, LG - 2, 56, 3.4, 2.5, LOSS, 2.2, 0.95))
-A(txt(996, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED))
+# The cross-section's layers are no longer named beside it, so the legend has to
+# carry the colour key as well as the symbols.
+def swatch(x, y, fill, stroke, label, w=22.0, h=14.0):
+    A('<rect x="%s" y="%s" width="%s" height="%s" fill="%s" stroke="%s" '
+      'stroke-width="1"/>' % (f(x), f(y - h / 2), f(w), f(h), fill, stroke))
+    A(txt(x + w + 9, y + 5, label, 14, MUTED))
+
+LG1, LG2 = 790.0, 826.0
+swatch(60, LG1, GLASS_F, GLASS_L, "Outcoupling structure / Glass substrate")
+swatch(400, LG1, TCO_F, TCO_L, "Transparent electrode")
+swatch(640, LG1, ORG_F, ORG_L, "Organic layers")
+swatch(840, LG1, MET_F, MET_L, "Metal electrode")
+
+A(ray((66, LG2), (122, LG2), 6.2))
+A(txt(136, LG2 + 5, "Light ray  (line width \u221d optical power)", 14, MUTED))
+A(star(470, LG2 - 2, 8.5, EMIT, EMIT_EDGE, n=9, inner=0.42, sw=LW_STAR))
+A(txt(488, LG2 + 5, "Exciton emission", 14, MUTED))
+A(wave(670, LG2 - 2, 52, 3.2, 2.5, LOSS, 2.2, 0.95))
+A(txt(742, LG2 + 5, "Absorption loss  (ohmic at the metal, TCO)", 14, MUTED))
 A('</svg>')
 
 dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcoupling_roundtrip.svg")

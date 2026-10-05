@@ -207,8 +207,8 @@ def panel(x0, eta, r_met, t_tco, tag):
     return sum(esc)
 
 esc = []
-for i, (dy, (title, sub), keys, loss) in enumerate(
-        zip(F.PANEL_DY, F.TITLES, F.LAYER_KEYS, ((.72, .90), (.98, .995)))):
+for i, (dy, (title, sub), loss) in enumerate(
+        zip(F.PANEL_DY, F.TITLES, ((.72, .90), (.98, .995)))):
     DY = dy                                      # every Y() below lands in this panel
     tag = ("conventional", "designrule")[i]
     crop = F.render_crop(tag)                    # the 3D render, cropped to its content
@@ -220,24 +220,37 @@ for i, (dy, (title, sub), keys, loss) in enumerate(
     text(F.PANEL_X + F.PW / 2, 28, title, 21, INK, bold=True, box_w=700.0,
          name="title %d" % (i + 1))
     text(F.PANEL_X + F.PW / 2, 52, sub, 16, MUTED, name="subtitle %d" % (i + 1))
-    for (y_lab, y_tip), s_lab in zip(F.LAYER_Y, keys):
-        text(F.PANEL_X - 19, y_lab + 5, s_lab, 14, MUTED, PP_ALIGN.RIGHT,
-             box_w=260.0, name="key %d: %s" % (i + 1, s_lab))
-        arrow((F.PANEL_X - 13, y_lab), (F.PANEL_X - 5, y_tip), 0.9, LEADER,
-              head=False, name="key leader %d: %s" % (i + 1, s_lab))
+    # layer names ride the render's own bands, so nothing hangs off the figure
+    for lab in F.render_labels(tag):
+        text(lab["x"], lab["y"] + 0.34 * lab["size"], lab["text"], lab["size"],
+             C("F2F5F8") if lab["light"] else C("1B2026"), PP_ALIGN.LEFT,
+             box_w=F.RENDER_W * 0.95, name="%s: %s" % (tag, lab["text"]))
 e1, e2 = esc
 DY = 0.0
 
-LG = 745.0
-arrow((280, LG), (344, LG), 6.2, name="legend ray")
-text(358, LG + 5, "Light ray  (line width \u221d optical power)", 15, MUTED,
+# The cross-section's layers are no longer named beside it, so the legend carries
+# the colour key as well as the symbols.
+def swatch(x, y, fill, stroke, label, w=22.0, h=14.0):
+    style(SH.add_shape(MSO_SHAPE.RECTANGLE, X(x), Y(y - h / 2), D(w), D(h)),
+          C(fill), C(stroke), PTS(1.0), name="legend swatch: " + label)
+    text(x + w + 9, y + 5, label, 14, MUTED, PP_ALIGN.LEFT, box_w=420.0,
+         name="legend text: " + label)
+
+LG1, LG2 = 790.0, 826.0
+swatch(60, LG1, F.GLASS_F, F.GLASS_L, "Outcoupling structure / Glass substrate")
+swatch(400, LG1, F.TCO_F, F.TCO_L, "Transparent electrode")
+swatch(640, LG1, F.ORG_F, F.ORG_L, "Organic layers")
+swatch(840, LG1, F.MET_F, F.MET_L, "Metal electrode")
+
+arrow((66, LG2), (122, LG2), 6.2, name="legend ray")
+text(136, LG2 + 5, "Light ray  (line width \u221d optical power)", 14, MUTED,
      PP_ALIGN.LEFT, box_w=400.0, name="legend ray text")
-star(720, LG - 2, 8.5, MSO_SHAPE.STAR_8_POINT, AMBER, C(F.EMIT_EDGE), None, F.LW_STAR,
+star(470, LG2 - 2, 8.5, MSO_SHAPE.STAR_8_POINT, AMBER, C(F.EMIT_EDGE), None, F.LW_STAR,
      "legend emitter")
-text(738, LG + 5, "Exciton emission", 15, MUTED, PP_ALIGN.LEFT, box_w=300.0,
+text(488, LG2 + 5, "Exciton emission", 14, MUTED, PP_ALIGN.LEFT, box_w=300.0,
      name="legend emission text")
-freewave(920, LG - 2, 56, 3.4, 2.5, BLUE, 2.2, 0.95, name="legend loss", head=True)
-text(996, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED,
+freewave(670, LG2 - 2, 52, 3.2, 2.5, BLUE, 2.2, 0.95, name="legend loss", head=True)
+text(742, LG2 + 5, "Absorption loss  (ohmic at the metal, TCO)", 14, MUTED,
      PP_ALIGN.LEFT, box_w=460.0, name="legend loss text")
 
 dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcoupling_roundtrip.pptx")
