@@ -634,5 +634,20 @@ leakage comes out spread over the substrate rather than at the pixel. The meter'
 consistent with the meter. The DBR finger reaches only code 18 of 255, so its
 value is a mean over ~400 px and good to roughly ±20%.
 
+**Line profile.** `--line=dx0,dy0,dx1,dy1` samples every photo along one line
+given in px relative to the reference's lit finger — the same physical line in
+each photo after alignment — averaging across a 5 px band (`--line-half 2`). It
+writes `<out>_line.png/.svg` (log relative luminance), `<out>_line.csv` (relative
+luminance *and* the photo's own 0–255 grey value per photo, for Origin), and
+draws the line on the panel. For Fig. c the line crosses both arms of the lit U,
+15 px above its bottom, parallel to the substrate (−3°):
+
+    --line=-36,-13,44,-17
+
+Along it the DBR's arms peak at **0.87%** of the w/o device's (stable at
+0.8–0.9% for any height 10–20 px up the arms). Plot the relative luminance, not
+the 0–255 grey value: grey values are gamma-encoded, so their ratio (~15/240)
+overstates the leakage about seven-fold.
+
 Slide copies of the same photos do *not* pass the check (2.5 stacks 0.76 vs.
 0.25; 4.5 stacks 0.009 vs. 0.052): use the originals.

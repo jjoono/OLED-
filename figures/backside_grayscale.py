@@ -57,6 +57,8 @@ WINDOWS = (10, 20, 40, 80, 120, 160, 240, 320)   # half-sizes for the area curve
 MIN_CODE = 32          # finger brighter than this code value is well resolved
 MISMATCH = 1.5         # meter outside the curve by more than this -> flagged
 LOG_MIN = 1e-3         # bottom of the shared log grey scale (relative to reference)
+LINE_MARK = "#e64b35"  # the profile line drawn on the photos
+LINE_COLOURS = ("#1a1a1a", "#2b62d9", "#d62728", "#3f9e4d")   # profile curves, in order
 
 
 def srgb_to_linear(c):
@@ -98,6 +100,7 @@ def load(label, path, exposure=None):
     sm = box_blur(y, PEAK_SMOOTH)
     c = np.unravel_index(np.argmax(sm), sm.shape)
     return {"label": label, "path": path, "Y": y, "code": rgb.max(2),
+            "gray8": np.asarray(img.convert("L")).astype(float),
             "exposure": exp, "exposure_source": "manual" if exposure else
                         ("exif" if exif_exp else None),
             "argmax": (int(c[0]), int(c[1]))}
@@ -151,6 +154,33 @@ def align(ref, r):
     return (by - cy, bx - cx), s
 
 
+def bilinear(img, ys, xs):
+    y0 = np.clip(np.floor(ys).astype(int), 0, img.shape[0] - 2)
+    x0 = np.clip(np.floor(xs).astype(int), 0, img.shape[1] - 2)
+    fy, fx = ys - y0, xs - x0
+    return (img[y0, x0] * (1 - fy) * (1 - fx) + img[y0 + 1, x0] * fy * (1 - fx)
+            + img[y0, x0 + 1] * (1 - fy) * fx + img[y0 + 1, x0 + 1] * fy * fx)
+
+
+def sample_line(img, centre, d0, d1, half, step=0.5):
+    """Mean of `img` across a (2*half+1)-px band along the segment centre+d0 -> centre+d1.
+
+    d0, d1 are (dx, dy) in px.  Positions are measured along the line from the foot
+    of the perpendicular dropped from `centre`, so 0 is level with the lit finger.
+    """
+    p0 = np.array([centre[0] + d0[1], centre[1] + d0[0]], float)       # (y, x)
+    p1 = np.array([centre[0] + d1[1], centre[1] + d1[0]], float)
+    L = float(np.hypot(*(p1 - p0)))
+    u = (p1 - p0) / L
+    nrm = np.array([u[1], -u[0]])
+    t = np.arange(0.0, L + 1e-9, step)
+    acc = 0.0
+    for w in range(-half, half + 1):
+        acc = acc + bilinear(img, p0[0] + t * u[0] + w * nrm[0], p0[1] + t * u[1] + w * nrm[1])
+    foot = -float(np.dot(np.array([d0[1], d0[0]], float), u))
+    return t - foot, acc / (2 * half + 1)
+
+
 def shifted(mask, off):
     return np.roll(np.roll(mask, off[0], 0), off[1], 1)
 
@@ -164,6 +194,12 @@ def main(argv=None):
                     help='"label=t*ISO/N^2" when the file has no EXIF')
     ap.add_argument("--crop", type=int, default=150,
                     help="half-size (px) of the region shown in the figure")
+    ap.add_argument("--line", default=None,
+                    help='"dx0,dy0,dx1,dy1": a profile line in px relative to the lit '
+                         'finger of the reference; every photo is sampled along the same '
+                         'physical line')
+    ap.add_argument("--line-half", type=int, default=2,
+                    help="half-width (px) of the band averaged across the line")
     ap.add_argument("--out", default="backside_grayscale", help="output prefix")
     a = ap.parse_args(argv)
 
@@ -216,6 +252,19 @@ def main(argv=None):
         notes.append(("warn", "no exposure data (no EXIF, no --exposure): ratios assume "
                       "identical camera settings"))
 
+    # ------------------------------------------------------------ line profile
+    line = None
+    if a.line:
+        v = [float(t) for t in a.line.split(",")]
+        line = ((v[0], v[1]), (v[2], v[3]))
+        for r in res:
+            r["line_pos"], r["line_Y"] = sample_line(r["Y"], r["centre"], *line, a.line_half)
+            _, r["line_gray8"] = sample_line(r["gray8"], r["centre"], *line, a.line_half)
+        top = float(ref["line_Y"].max())
+        for r in res:
+            r["line_rel"] = r["line_Y"] / top
+            r["line_peak_rel"] = float(r["line_Y"].max()) / top
+
     # ------------------------------------------------------------ crops
     h = a.crop
     for r in res:
@@ -237,6 +286,8 @@ def main(argv=None):
         im = ax.imshow(np.clip(r["crop"], LOG_MIN, None), cmap="gray", norm=norm,
                        interpolation="nearest")
         ax.contour(r["crop_roi"], levels=[0.5], colors=["#e64b35"], linewidths=0.6)
+        if line:
+            draw_line(ax, line, h, lw=0.9)
         ax.set_title("%s\nfinger: %s of reference" % (r["label"], pct(r["rel_finger"])),
                      fontsize=8.5)
         ax.set_xticks([]); ax.set_yticks([])
@@ -296,6 +347,8 @@ def main(argv=None):
         ax = fig.add_subplot(gs[0, i])
         im = ax.imshow(np.clip(r["crop"], LOG_MIN, None), cmap="gray", norm=norm,
                        interpolation="bilinear")
+        if line:
+            draw_line(ax, line, h, lw=0.8)
         ax.set_title(r["label"], fontsize=7, pad=3)
         ax.set_xticks([]); ax.set_yticks([])
         for s in ax.spines.values():
@@ -307,6 +360,35 @@ def main(argv=None):
     fig.subplots_adjust(left=0.02, right=0.86, top=0.86, bottom=0.04)
     fig.savefig(a.out + "_panel.png"); fig.savefig(a.out + "_panel.svg")
     plt.close(fig)
+    if line:
+        fig, ax = plt.subplots(figsize=(2.6, 1.85), dpi=300)
+        for r, col in zip(res, LINE_COLOURS):
+            ax.plot(r["line_pos"], np.clip(r["line_rel"], LOG_MIN / 10, None), lw=1.0,
+                    color=col, label=r["label"])
+        ax.set_yscale("log")
+        ax.set_ylim(LOG_MIN, 2.0)
+        ax.set_xlim(r["line_pos"][0], r["line_pos"][-1])
+        ax.set_xlabel("Position along the line (px)", fontsize=7, labelpad=2)
+        ax.set_ylabel("Relative luminance", fontsize=7, labelpad=2)
+        ax.tick_params(labelsize=6.5, length=2.5, width=0.6, pad=2, direction="in",
+                       which="both", top=True, right=True)
+        for sp in ax.spines.values():
+            sp.set_linewidth(0.7)
+        ax.legend(fontsize=6.5, frameon=False, loc="upper right", handlelength=1.4)
+        fig.subplots_adjust(left=0.2, right=0.96, top=0.95, bottom=0.2)
+        fig.savefig(a.out + "_line.png"); fig.savefig(a.out + "_line.svg")
+        plt.close(fig)
+        with open(a.out + "_line.csv", "w") as fh:
+            cols = ["position_px"]
+            for r in res:
+                cols += ["%s rel. luminance" % r["label"], "%s gray (0-255)" % r["label"]]
+            fh.write(",".join('"%s"' % c for c in cols) + "\n")
+            for i in range(ref["line_pos"].size):
+                row = ["%.2f" % ref["line_pos"][i]]
+                for r in res:
+                    row += ["%.6g" % r["line_rel"][i], "%.2f" % r["line_gray8"][i]]
+                fh.write(",".join(row) + "\n")
+
     for r in res:
         v = np.log10(np.clip(r["crop"], LOG_MIN, 1.0))
         g = ((v - np.log10(LOG_MIN)) / -np.log10(LOG_MIN) * 255).round().astype("uint8")
@@ -314,17 +396,29 @@ def main(argv=None):
 
     keep = ("label", "path", "exposure", "exposure_source", "argmax", "centre", "offset",
             "ncc", "finger", "rel_finger", "rel_windows", "finger_code_max", "clipped",
-            "meter_ratio")
+            "meter_ratio", "line_peak_rel")
     with open(a.out + ".json", "w") as fh:
         json.dump({"finger_px": int(roi.sum()), "windows_px": [2 * w + 1 for w in WINDOWS],
+                   "line": line, "line_half_px": a.line_half if line else None,
                    "photos": [{k: r[k] for k in keep if k in r} for r in res],
                    "notes": [s for _, s in notes]}, fh, indent=1, default=float)
     for r in res:
         print("%-20s offset %-12s NCC %.2f  finger %-7s whole-device %-7s" %
               (r["label"], tuple(int(v) for v in r["offset"]), r["ncc"],
                pct(r["rel_finger"]), pct(r["rel_windows"][-1])))
+    if line:
+        for r in res:
+            print("%-20s line maximum %s of reference" % (r["label"], pct(r["line_peak_rel"])))
     for kind, s in notes:
         print("[%s] %s" % (kind, s))
+
+
+def draw_line(ax, line, h, lw):
+    """The profile line on a crop centred on the lit finger, as an arrow like the sketch."""
+    (dx0, dy0), (dx1, dy1) = line
+    ax.annotate("", xy=(h + dx1, h + dy1), xytext=(h + dx0, h + dy0),
+                arrowprops=dict(arrowstyle="-|>", color=LINE_MARK, lw=lw,
+                                mutation_scale=6, shrinkA=0, shrinkB=0))
 
 
 def pct(v):
