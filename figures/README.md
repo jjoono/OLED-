@@ -539,3 +539,35 @@ python3 figures/denoise_renders.py figures/emitting_area_render*.png
 
 2D 스크립트들은 파이썬 표준 라이브러리만 사용합니다
 (PPTX 빌더는 `python-pptx`, Blender 빌더는 Blender 4.0 내장 파이썬, 디노이저는 `oidn`+`OpenEXR`).
+
+## `figure1_layout.pptx` — the proposed Fig. 1 layout
+
+Built by `make_full_figure_pptx.py`. A mock-up of the layout argued for in review:
+panel (a) across the full width, (b) and (c) side by side underneath. One slide,
+267 shapes, nothing grouped; only the two 3D renders are pictures.
+
+Three things differ from the draft it is answering, and they are the point of it:
+
+* **The cross-section's fills come from the render.** The band colours were
+  sampled off `emitting_area_render_*.png` at each label's anchor
+  (`film #D3D6D8`, `glass #B5BEC3`, `TCO #A2CCD5`, `organic #DBC599`,
+  `metal #8E97A4` conventional / `#A5A198` low loss) and lightened by a fixed
+  fraction so rays and absorption stars still read on top. The metal is therefore
+  per device, as it is in the render. Outlines are each fill darkened by 0.62.
+  With the colours keyed this way the legend no longer needs swatches.
+* **Three text sizes in the whole figure**: 25 units for every label and axis
+  title, 22 for tick numbers and the layer names inside the renders, 31 bold for
+  the panel letters. At 180 mm wide that is 7.1 / 6.2 / 8.8 pt.
+* **Each layer is named once.** The electrode is named in the cross-section,
+  where there is room, so the render carries only the four layers above it — and
+  the render then fits at 480 units square with its slab bottom on the
+  cross-section's baseline, which is what makes a row read as one scene.
+
+(b) and (c) are computed from the same round-trip model as (a):
+escaped on pass *n* = `p·[(1−p)(1−A′)]ⁿ`, cumulative `p(1−rⁿ⁺¹)/(1−r)`, and
+`η_sta(R) = p/[1−(1−p)R]`. The two markers in (c) are the same two devices as in
+(a), at the `A′` values (b) actually plots.
+
+Note: the device notes in (c) are shortened to `Conventional` / `Low loss`
+because a full name set vertically is taller than the plot. (a) carries the full
+names directly above, so nothing is lost — but if the panel grows, restore them.
