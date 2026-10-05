@@ -33,7 +33,7 @@ from pptx.enum.dml import MSO_LINE_DASH_STYLE as DASH
 from pptx.oxml.ns import qn
 
 # ------------------------------------------------------------------ canvas
-W, H = 1800.0, 1560.0                  # figure units; 1800 across = 180 mm printed
+W, H = 1800.0, 1500.0                  # figure units; 1800 across = 180 mm printed
 SLIDE_W = Inches(10.0)
 SLIDE_H = Inches(10.0 * H / W)
 SCALE = SLIDE_W / W                    # EMU per figure unit
@@ -45,6 +45,7 @@ def PTS(u): return Pt(u * SCALE / 12700.0)
 
 # text: three sizes in the whole figure and no more
 T_LAB, T_TICK, T_LETTER = 25.0, 22.0, 31.0
+T_3D = 20.0                            # inside the renders: bounded by the band width
 
 # ------------------------------------------------------------------ palette
 def C(h): return RGBColor.from_string(h.lstrip("#").upper())
@@ -75,15 +76,28 @@ BAR = tuple(mix(c, 0.52) for c in (BLU, GRN, RED))
 GREY = "8A8A8A"
 
 # ------------------------------------------------------------------ layout
-SX = 1.30                                    # cross-section scale, F units -> figure
-CROSS_X = 600.0
-PW_S = F.PW * SX                             # 1170 -> right edge 1770
-RW = 480.0                                   # 3D render, square
-RX = 45.0
-YB = (470.0, 935.0)                          # slab bottom of each row
-LEG_Y = 1020.0
-BX, BY, BW_, BH_ = 180.0, 1148.0, 595.0, 300.0        # panel b plot box
-CX_, CY_, CW_, CH_ = 1170.0, 1148.0, 585.0, 300.0     # panel c plot box
+# One more round trip across a wider, shallower cross-section: the extra pass is
+# what the panel is about, and spending the width on it instead of on scale is
+# what lets (a) shrink.  Lens centres are PITCH*k + LENS_R and the zig-zag period
+# is twice the glass-to-metal drop, so the hit lists stay on lens centres.
+PW_F = 1200.0                                # 20 lenses, 5 lens hits, 4 bounces
+HIT_TOP = [150.0, 390.0, 630.0, 870.0, 1110.0]
+HIT_METAL = [270.0, 510.0, 750.0, 990.0]
+NP = len(HIT_TOP)
+X_EMIT = HIT_TOP[0] - (F.Y_EMIT - F.Y_TOP) * F.TAN
+
+SX = 1.025                                   # cross-section scale, F units -> figure
+CROSS_X = 530.0                              # 1230 wide -> right edge 1760
+RW = 430.0                                   # 3D render, square
+RX = 40.0
+YB = (430.0, 800.0)                          # slab bottom of each row.  The pitch is
+                                             # less than RW on purpose: a render's top
+                                             # strip is glow below 8% alpha, so two may
+                                             # overlap there and a row need not be as
+                                             # tall as a square render
+LEG_Y = 865.0
+BX, BY, BW_, BH_ = 180.0, 988.0, 595.0, 380.0         # panel b plot box
+CX_, CY_, CW_, CH_ = 1170.0, 988.0, 585.0, 380.0      # panel c plot box
 
 P_ESC = 0.40                                 # escape probability per pass
 A_SET = (0.02, 0.10, 0.15)                   # round-trip absorption, panel b
@@ -213,57 +227,57 @@ def text(cx, cy, runs, size, color, align=PP_ALIGN.CENTER, bold=False,
     return tb
 
 # ================================================================== panel a
-def row(i, eta, r_met, t_tco, metal_name, tag):
+def row(i, eta, r_met, t_tco, tag):
     yb, met = YB[i], MET_F[i]
     def fx(u): return CROSS_X + u * SX
     def fy(v): return yb + (v - F.Y_BOT) * SX
     def fd(d): return d * SX
 
     # --- micro-lens domes, then the slab over their lower halves
-    for k in range(int(F.PW / F.PITCH)):
+    for k in range(int(PW_F / F.PITCH)):
         cx = F.PITCH * k + F.LENS_R
         oval(fx(cx - F.LENS_R), fy(F.Y_TOP - F.LENS_R), fd(2 * F.LENS_R),
              fd(2 * F.LENS_R), LENS_F, shade(LENS_F, LINE_K), 1.1,
              "%s lens %02d" % (tag, k + 1))
-    rect(fx(0), fy(F.Y_TOP), fd(F.PW), fd(F.Y_TCO - F.Y_TOP), GLASS_F,
+    rect(fx(0), fy(F.Y_TOP), fd(PW_F), fd(F.Y_TCO - F.Y_TOP), GLASS_F,
          shade(GLASS_F, LINE_K), 1.3, name="%s glass" % tag)
     for y1, y2, fl, nm in ((F.Y_TCO, F.Y_ORG, TCO_F, "TCO"),
                            (F.Y_ORG, F.Y_MET, ORG_F, "organic"),
                            (F.Y_MET, F.Y_BOT, met, "metal")):
-        rect(fx(0), fy(y1), fd(F.PW), fd(y2 - y1), fl, shade(fl, LINE_K), 1.1,
+        rect(fx(0), fy(y1), fd(PW_F), fd(y2 - y1), fl, shade(fl, LINE_K), 1.1,
              name="%s %s" % (tag, nm))
 
     # --- radiometry (same formulas as the SVG)
     I, sg, esc, loss = 1.0, [], [], []
-    for k in range(4):
+    for k in range(NP):
         sg.append(I); esc.append(I * eta); I *= (1 - eta)
-        if k < 3:
+        if k < NP - 1:
             I *= t_tco; loss.append(I * (1 - r_met)); I *= r_met; I *= t_tco
     wid = [F.W_RAY * v ** 0.75 * SX for v in sg]
     kept = (1 - eta) ** 0.75
 
     tl = 1.0 - t_tco
     tw, ta = 10.0 + 180.0 * tl, 1.0 + 22.0 * tl
-    for n, xm in enumerate(F.HIT_METAL):
+    for n, xm in enumerate(HIT_METAL):
         for j, sgn in enumerate((-1, 1)):
             wave(fx(xm + sgn * 24 - tw / 2), fy(F.Y_TCO + 8), fd(tw), fd(ta), 2,
                  LOSS, (0.9 + 9.0 * tl) * SX, min(1.0, 0.25 + 6.5 * tl),
                  name="%s TCO loss %d%s" % (tag, n + 1, "LR"[j]))
 
-    seg((fx(F.X_EMIT + 7.1), fy(F.Y_EMIT - 7.1)), (fx(F.HIT_TOP[0]), fy(F.Y_TOP)),
+    seg((fx(X_EMIT + 7.1), fy(F.Y_EMIT - 7.1)), (fx(HIT_TOP[0]), fy(F.Y_TOP)),
         RAY, wid[0], True, name="%s ray emit" % tag)
-    for k in range(3):
-        seg((fx(F.HIT_TOP[k] + 9.2), fy(F.Y_TOP + 9.2)),
-            (fx(F.HIT_METAL[k] - 6.4), fy(F.Y_MET - 6.4)), RAY, wid[k] * kept, True,
+    for k in range(NP - 1):
+        seg((fx(HIT_TOP[k] + 9.2), fy(F.Y_TOP + 9.2)),
+            (fx(HIT_METAL[k] - 6.4), fy(F.Y_MET - 6.4)), RAY, wid[k] * kept, True,
             name="%s ray down %d" % (tag, k + 1))
-        seg((fx(F.HIT_METAL[k] + 6.4), fy(F.Y_MET - 6.4)),
-            (fx(F.HIT_TOP[k + 1]), fy(F.Y_TOP)), RAY, wid[k + 1], True,
+        seg((fx(HIT_METAL[k] + 6.4), fy(F.Y_MET - 6.4)),
+            (fx(HIT_TOP[k + 1]), fy(F.Y_TOP)), RAY, wid[k + 1], True,
             name="%s ray up %d" % (tag, k + 1))
-    seg((fx(F.HIT_TOP[3] + 9), fy(F.Y_TOP + 9)),
-        (fx(F.PW), fy(F.Y_TOP + F.PW - F.HIT_TOP[3])), RAY, wid[3] * kept,
+    seg((fx(HIT_TOP[-1] + 9), fy(F.Y_TOP + 9)),
+        (fx(PW_F), fy(F.Y_TOP + PW_F - HIT_TOP[-1])), RAY, wid[-1] * kept,
         False, 0.45, name="%s ray continues" % tag)
 
-    for k, xl in enumerate(F.HIT_TOP):
+    for k, xl in enumerate(HIT_TOP):
         fw = max(1.0, 0.55 * wid[k])
         for j, (phi, ln_) in enumerate(((-30, 68), (-5, 79), (22, 70))):
             a, b = math.radians(phi), math.radians(phi * 1.45)
@@ -272,7 +286,7 @@ def row(i, eta, r_met, t_tco, metal_name, tag):
                 (fx(o[0] + ln_ * math.sin(b)), fy(o[1] - ln_ * math.cos(b))),
                 RAY, fw, True, name="%s escaping %d-%d" % (tag, k + 1, j + 1))
 
-    for k, xm in enumerate(F.HIT_METAL):
+    for k, xm in enumerate(HIT_METAL):
         v = loss[k]
         r = 3.0 + 30.0 * v ** 0.6
         op = 0.5 + 0.5 * min(1.0, v / 0.18)
@@ -282,14 +296,10 @@ def row(i, eta, r_met, t_tco, metal_name, tag):
                  "%s ohmic loss %d%s" % (tag, k + 1, "LR"[j]))
         star(fx(xm), fy(F.Y_MET), fd(r), MSO_SHAPE.STAR_10_POINT, BURST, LOSS, op,
              1.0, "%s absorption %d" % (tag, k + 1))
-    star(fx(F.X_EMIT), fy(F.Y_EMIT), fd(8.5), MSO_SHAPE.STAR_8_POINT, EMIT,
+    star(fx(X_EMIT), fy(F.Y_EMIT), fd(8.5), MSO_SHAPE.STAR_8_POINT, EMIT,
          EMIT_EDGE, None, 1.0, "%s emitter" % tag)
-    oval(fx(F.X_EMIT) - D(2.4 * SX) / SCALE, fy(F.Y_EMIT) - D(2.4 * SX) / SCALE,
+    oval(fx(X_EMIT) - D(2.4 * SX) / SCALE, fy(F.Y_EMIT) - D(2.4 * SX) / SCALE,
          fd(4.8), fd(4.8), "FFF8E6", None, name="%s emitter core" % tag)
-
-    # --- the electrode is named once per row, here, where there is room
-    text(fx(F.PW * 0.63), fy((F.Y_MET + F.Y_BOT) / 2.0), metal_name, T_LAB,
-         "15191D", w=760.0, name="%s metal name" % tag)
 
     # --- the 3D render, bottom edge on the cross-section's baseline
     crop = F.render_crop(tag)
@@ -300,11 +310,10 @@ def row(i, eta, r_met, t_tco, metal_name, tag):
         (bx, by, side), src_w = F._CROP[tag]
         k = RW / side
         for lab in F.render_labels_raw(tag):
-            if "electrode" in lab["text"]:
-                continue                      # already named in the cross-section
             lx = RX + (lab["x"] * src_w - bx) * k
             ly = ry + 0.015 * RW + (lab["y"] * src_w - by) * k
-            text(lx + 330.0, ly, lab["text"], T_TICK, INK, PP_ALIGN.LEFT,
+            text(lx + 330.0, ly, lab["text"], T_3D,
+                 "F2F5F8" if lab["light"] else INK, PP_ALIGN.LEFT,
                  w=660.0, name="%s: %s" % (tag, lab["text"]))
     return sum(esc)
 
@@ -316,11 +325,11 @@ def _raw(tag):
     return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else []
 F.render_labels_raw = _raw
 
-e1 = row(0, .30, .72, .90, "Conventional metal electrode", "conventional")
-e2 = row(1, .30, .98, .995, "Low loss metal electrode", "designrule")
+e1 = row(0, .30, .72, .90, "conventional")
+e2 = row(1, .30, .98, .995, "designrule")
 
 # ------------------------------------------------------------------ legend
-style(SH.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, X(RX), Y(LEG_Y - 36), D(1770 - RX),
+style(SH.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, X(RX), Y(LEG_Y - 36), D(1760 - RX),
                    D(72)), "FFFFFF", "C9CED3", 1.0, None, "legend frame")
 seg((RX + 55, LEG_Y), (RX + 130, LEG_Y), RAY, 7.0, True, name="legend ray")
 text(RX + 148 + 150, LEG_Y, "Light ray", T_LAB, MUTED, PP_ALIGN.LEFT, w=300.0,
@@ -452,7 +461,7 @@ panel_b()
 panel_c()
 
 # ------------------------------------------------------------------ letters
-for lx, ly, s in ((28, 34, "a"), (28, 1108, "b"), (930, 1108, "c")):
+for lx, ly, s in ((28, 30, "a"), (28, 948, "b"), (930, 948, "c")):
     text(lx + 30, ly, s, T_LETTER, INK, bold=True, w=90.0, name="panel %s" % s)
 
 dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figure1_layout.pptx")

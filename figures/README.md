@@ -544,7 +544,7 @@ python3 figures/denoise_renders.py figures/emitting_area_render*.png
 
 Built by `make_full_figure_pptx.py`. A mock-up of the layout argued for in review:
 panel (a) across the full width, (b) and (c) side by side underneath. One slide,
-267 shapes, nothing grouped; only the two 3D renders are pictures.
+297 shapes, nothing grouped; only the two 3D renders are pictures.
 
 Three things differ from the draft it is answering, and they are the point of it:
 
@@ -558,10 +558,19 @@ Three things differ from the draft it is answering, and they are the point of it
 * **Three text sizes in the whole figure**: 25 units for every label and axis
   title, 22 for tick numbers and the layer names inside the renders, 31 bold for
   the panel letters. At 180 mm wide that is 7.1 / 6.2 / 8.8 pt.
-* **Each layer is named once.** The electrode is named in the cross-section,
-  where there is room, so the render carries only the four layers above it — and
-  the render then fits at 480 units square with its slab bottom on the
-  cross-section's baseline, which is what makes a row read as one scene.
+* **Each layer is named once, in the render.** Leaving the metal band blank in a
+  stack diagram reads as an omission, which is worse than the repetition it
+  avoids, so all five names are in the render and the cross-section carries none.
+  The render sits with its slab bottom on the cross-section's baseline, which is
+  what makes a row read as one scene.
+
+Panel (a) is deliberately not scaled up to fill the height it is given. The
+cross-section runs 1200 units wide at a scale of 1.025 — five lens hits and four
+metal bounces instead of four and three — so the extra width buys another round
+trip rather than bigger domes and fatter arrows. The two rows sit 370 apart
+although each render is 430 square: a render's top strip is glow below 8% alpha,
+so the renders may overlap there and a row need not be as tall as a square
+picture. Together that puts (a) at 58% of the figure's height instead of 68%.
 
 (b) and (c) are computed from the same round-trip model as (a):
 escaped on pass *n* = `p·[(1−p)(1−A′)]ⁿ`, cumulative `p(1−rⁿ⁺¹)/(1−r)`, and
