@@ -606,23 +606,33 @@ names directly above, so nothing is lost — but if the panel grows, restore the
 Converts each photo to linear luminance (sRGB decode, Rec. 709 weights — the
 photopic weighting a luminance meter uses) and shows all of them on **one shared
 logarithmic grey scale**, so a backside glow too faint to see in the original
-photo becomes visible without any photo getting its own gain. The lit finger's
-peak surface brightness is measured in each photo and reported relative to the
-first one; a line profile through the finger shows lit vs. unlit fingers.
+photo becomes visible without any photo getting its own gain.
 
     python3 figures/backside_grayscale.py "w/o reflector=wo.jpg" "w/ DBR=dbr.jpg" \
         --meter "w/o reflector=998" --meter "w/ DBR=52" --out figures/backside
 
-Outputs `<out>.png/.svg` (images + profile + checks), `<out>.json` (numbers),
-and one greyscale PNG per photo on the shared scale for placing in a figure.
+Outputs: `<out>_panel.png/.svg` (the greyscale crops with one colour bar — for
+the paper), `<out>.png/.svg` (analysis: crops with the measured region, ratio vs.
+averaging window, line profile across the fingers, checks), `<out>.json`, and one
+greyscale PNG per photo.
 
-The photo ratios are only physical at identical exposure. EXIF exposure
-(t·ISO/N²) is applied automatically when present. `--meter` cross-checks each
-photo ratio against the meter's L_back ratio and prints any mismatch beyond 1.5×
-in red on the figure. Photos whose lit finger spans < 32 code values are flagged
-as too dark or quantised.
+**Method.** The photos are of different substrates on one holder, so they are
+aligned on the device itself (normalised cross-correlation of log-luminance
+around the lit finger), and every photo is measured in the *same physical
+region* as the reference: the lit finger (reference ≥ ½ its peak), then square
+windows of growing size. A luminance meter averages over its spot, so its L_back
+ratio has to fall on that curve, between the finger-only and whole-device values;
+if it falls outside by more than 1.5×, the photos were taken at different
+exposures and the figure says so in red. EXIF exposure (t·ISO/N²) is divided out
+when present — uploads and slide exports strip it, so keep the camera originals.
 
-First run (slide copies of the 5 V backside photos, no EXIF): the log scale
-shows the 4.5-stack DBR finger clearly, but the ratios fail the meter check in
-both directions — 2.5 stacks 0.76 vs 0.25, 4.5 stacks 0.009 vs 0.052 — so those
-photos were taken at different exposures and their numbers must not be quoted.
+**Result (5 V, original photos, w/o reflector vs. DBR 4.5 stacks).** At the lit
+finger the DBR device is **~1%** as bright as the w/o-reflector device from
+behind; averaged over the whole device it is **~7.5%**, because the residual
+leakage comes out spread over the substrate rather than at the pixel. The meter's
+52/998 = **5.2%** falls inside that range (window ≈ 130 px), so the photos are
+consistent with the meter. The DBR finger reaches only code 18 of 255, so its
+value is a mean over ~400 px and good to roughly ±20%.
+
+Slide copies of the same photos do *not* pass the check (2.5 stacks 0.76 vs.
+0.25; 4.5 stacks 0.009 vs. 0.052): use the originals.
