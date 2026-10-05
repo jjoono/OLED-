@@ -94,7 +94,7 @@ LENS_SEGS, LENS_RINGS = 28, 9
 LAYERS = [
     ("Metal",   0.18, (0.26, 0.28, 0.31), 1.00, 0.28, 1.0, "Conventional metal electrode"),
     ("Organic", 0.29, (0.97, 0.74, 0.33), 0.96, 0.45, 0.0, "Organic layer"),
-    ("ITO",     0.16, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "Transparent electrode"),
+    ("ITO",     0.16, (0.32, 0.78, 0.90), 0.90, 0.22, 0.0, "Transparent conductive oxide (TCO)"),
     ("Glass",   0.26, (0.78, 0.90, 0.97), 0.42, 0.05, 0.0, "Glass"),
     ("Film",    0.16, (0.92, 0.96, 1.00), 0.78, 0.14, 0.0, "Outcoupling structure"),
 ]
@@ -476,10 +476,11 @@ def no_bounce(o):
     o.visible_shadow = False
 
 
-def device(cx, tag, lam, amp, brightness, mirror=None, label=True):
-    """`mirror` overrides the back electrode's caption and colour.  It is the one
-    layer the two devices do not share: Al on the lossy one, Ag on the good one,
-    which is exactly the r_met the loss model is given."""
+def device(cx, tag, lam, amp, brightness, mirror=None, tco=None, label=True):
+    """`mirror` and `tco` override a layer's caption (and the mirror's colour).
+    They are the two layers the devices do not share -- the back reflector and the
+    transparent electrode -- which is exactly where the loss model differs too,
+    r_met and t_tco."""
     c = coll("Device " + tag)
     ink = flat_material("Label ink %s" % tag, (0.045, 0.05, 0.055))
     ink_light = flat_material("Label ink light %s" % tag, (0.88, 0.90, 0.93))
@@ -487,6 +488,8 @@ def device(cx, tag, lam, amp, brightness, mirror=None, label=True):
         z0, z1 = BAND[name]
         if name == "Metal" and mirror:
             cap, col = mirror
+        elif name == "ITO" and tco:
+            cap = tco
         box("%s (%s)" % (name, tag), PANEL_W, PANEL_D, t, cx, 0.0, z0,
             principled("%s %s" % (name, tag), base=col, metallic=met, rough=rough, alpha=al), c)
         if label:
@@ -762,9 +765,11 @@ def dump_labels(cam, only, path):
 clear()
 studio()
 device(-SEP, "conventional", LAM_REF / SPREAD, EMIT_STRENGTH / BRIGHT,
-       brightness=1.0 / BRIGHT, mirror=("Conventional metal electrode", (0.25, 0.27, 0.32)))
+       brightness=1.0 / BRIGHT, mirror=("Conventional metal electrode", (0.25, 0.27, 0.32)),
+       tco="Transparent conductive oxide (TCO)")
 device(+SEP, "design rule", LAM_REF, EMIT_STRENGTH,
-       brightness=1.0, mirror=("Lossless metal electrode", (0.34, 0.32, 0.28)))
+       brightness=1.0, mirror=("Low loss metal electrode", (0.34, 0.32, 0.28)),
+       tco="Low loss TCO")
 cams = cameras()
 render_settings(QUALITY)
 if BG == "transparent":
@@ -783,11 +788,14 @@ print("spreading %.2fx  ->  lam %.3f vs %.3f   |   light %.2fx  ->  strength %.1
 # live with -- and the combined frame cannot be re-spaced without a re-render.
 JOBS = [("Cam conventional", 1400, 1400, "emitting_area_render_conventional.png", "conventional"),
         ("Cam design rule", 1400, 1400, "emitting_area_render_designrule.png", "design rule")]
-if DO_RENDER:
-    for cam_name, w, h, fn, only in JOBS:
-        if ONLY_CAM and ONLY_CAM.lower() not in cam_name.lower():
-            continue
-        solo(only)
+for cam_name, w, h, fn, only in JOBS:
+    if ONLY_CAM and ONLY_CAM.lower() not in cam_name.lower():
+        continue
+    solo(only)
+    # set even when not rendering: world_to_camera_view reads the frame's aspect
+    bpy.context.scene.render.resolution_x = w
+    bpy.context.scene.render.resolution_y = h
+    if DO_RENDER:
         render(cams[cam_name], w, h, os.path.join(OUT, fn))
-        dump_labels(cams[cam_name], only, os.path.join(OUT, os.path.splitext(fn)[0] + "_labels.json"))
-    solo(None)
+    dump_labels(cams[cam_name], only, os.path.join(OUT, os.path.splitext(fn)[0] + "_labels.json"))
+solo(None)

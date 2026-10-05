@@ -197,6 +197,31 @@ python3 figures/make_emitting_area_figure.py
 팔레트는 `make_roundtrip_figure.py` 에서 import 하므로 Fig.1(a)와 색이 어긋나지
 않습니다.
 
+## 리뷰 반영 (Fig.1a)
+
+받은 코멘트 세 가지를 반영했습니다.
+
+1. **3D와 단면도를 한 그림으로.** 3D는 층 이름 말고는 보여주는 게 없다는 지적이
+   맞습니다 — 단면도가 이미 같은 이름을 달고 있었습니다. 그래서 단면도를 **세로로
+   쌓아 한 그림**으로 만들고(`outcoupling_roundtrip.svg` / `.pptx`, 1500×790),
+   층 이름을 **패널마다** 붙였습니다. 3D 패널은 뺐습니다.
+2. **lossless → low loss.**
+3. **전극 이름**: 일반 소자는 `Transparent conductive oxide (TCO)`,
+   저손실 소자는 `Low loss TCO`. 반사막도 `Conventional metal electrode` /
+   `Low loss metal electrode`.
+
+두 소자가 다른 층은 **반사막과 투명전극 둘뿐**이고, 손실 모델이 다르게 받는 값도
+정확히 그 둘(`r_met`, `t_tco`)입니다. 그래서 `TITLES` / `LAYER_KEYS` 도 패널별로
+둡니다.
+
+**3D 렌더는 다시 굽지 않았습니다.** 렌더에 글자가 구워져 있지 않고 라벨이 PPT
+텍스트 박스로 올라가므로, 층 이름만 바꾸는 데는 JSON 재생성(수 초)이면 됩니다:
+
+```bash
+blender -b -P figures/build_emitting_area_blend.py -- --out figures --no-labels --no-render
+python3 figures/make_render_pptx.py
+```
+
 ## 소자 적층 구조 — `device_stacks*.pptx`, `device_stack_electrode*.pptx`
 
 `make_stack_pptx.py` 가 만듭니다. 두 소자의 층 구성을 아이소메트릭 블록으로 쌓은

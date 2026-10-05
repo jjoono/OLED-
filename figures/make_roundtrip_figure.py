@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """Fig.1(a): light recycling in an OLED with an external outcoupling structure.
-Left  - conventional device: strong ohmic / TCO absorption, beam dies out.
-Right - device from the proposed design rule: absorption suppressed, beam survives.
+Top    - conventional device: strong ohmic / TCO absorption, beam dies out.
+Bottom - low-loss device: absorption suppressed, beam survives many round trips.
+
+One figure, stacked.  A 3D view of the same stack alongside this one showed
+nothing the cross-section does not, except the layer names -- so the layer names
+live here, per panel, and the 3D panel is gone.
 """
 import math, os
 
-W, H = 2120, 442
+W, H = 1500, 790
 FONT = "Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif"
 
 # ---------------------------------------------------------------- stack (y)
@@ -14,7 +18,23 @@ Y_TCO, Y_ORG, Y_MET, Y_BOT = 261.0, 277.0, 295.0, 335.0
 Y_EMIT = 286.0                     # emitting plane, middle of the organic stack
 LENS_R, PITCH = 30.0, 60.0
 PW = 900.0                         # panel width = 15 lenses
-PANEL_X = (200.0, 1160.0)
+PANEL_X = 430.0                    # both panels share a left edge; they stack
+PANEL_DY = (0.0, 365.0)            # and are offset vertically instead.  A panel is
+                                   # 335 tall: the escaping rays reach ~85 above the lens
+                                   # crests, so the title has to sit clear of them
+
+# Per panel, because the two devices differ exactly in these two layers.
+TITLES = (("Conventional metal reflector",
+           "large absorption per round trip \u2014 the beam dies out within a few passes"),
+          ("Low loss reflector",
+           "absorption suppressed \u2014 intensity survives many round trips"))
+LAYER_Y = ((150, 152), (222, 218), (263, 269), (292, 286), (318, 315))
+LAYER_KEYS = (("Outcoupling structure", "Glass substrate",
+               "Transparent conductive oxide (TCO)", "Organic layers",
+               "Conventional metal electrode"),
+              ("Outcoupling structure", "Glass substrate",
+               "Low loss TCO", "Organic layers",
+               "Low loss metal electrode"))
 
 # ---------------------------------------------------------------- ray path
 TAN = 1.0                          # 45 deg in the glass  (critical angle 41.8 deg)
@@ -191,30 +211,28 @@ A('<rect width="%d" height="%d" fill="#ffffff"/>' % (W, H))
 A('<title>Repeated outcoupling attempts in a conventional OLED versus one designed '
   'with the proposed design rule</title>')
 
-p1, e1 = panel(PANEL_X[0], .30, .72, .90, "Conventional OLED + outcoupling structure",
-               "large absorption per round trip — the beam dies out within a few passes")
-p2, e2 = panel(PANEL_X[1], .30, .98, .995, "Designed by the proposed design rule",
-               "absorption suppressed — intensity survives many round trips")
-A(p1); A(p2)
-
-# ---------------------------------------------------------------- layer keys
-for y_lab, y_tip, s in ((150, 152, "Outcoupling structure"),
-                        (222, 218, "Glass substrate"),
-                        (263, 269, "TCO anode"),
-                        (292, 286, "Organic layers"),
-                        (318, 315, "Metal cathode")):
-    A(txt(181, y_lab + 5, s, 14, MUTED, "end"))
-    A('<path d="M 187,%s L 195,%s" stroke="%s" stroke-width="0.9" fill="none"/>'
-      % (LEADER, f(y_lab), f(y_tip)))
+esc = []
+for i, (dy, (title, sub), keys, loss) in enumerate(
+        zip(PANEL_DY, TITLES, LAYER_KEYS, ((.72, .90), (.98, .995)))):
+    body, e = panel(PANEL_X, .30, loss[0], loss[1], title, sub)
+    esc.append(e)
+    A('<g transform="translate(0,%s)">' % f(dy))
+    A(body)
+    for (y_lab, y_tip), s_lab in zip(LAYER_Y, keys):
+        A(txt(PANEL_X - 19, y_lab + 5, s_lab, 14, MUTED, "end"))
+        A('<path d="M %s,%s L %s,%s" stroke="%s" stroke-width="0.9" fill="none"/>'
+          % (f(PANEL_X - 13), f(y_lab), f(PANEL_X - 5), f(y_tip), LEADER))
+    A('</g>')
+e1, e2 = esc
 
 # ---------------------------------------------------------------- legend
-LG = 412.0
-A(ray((642, LG), (706, LG), 6.2))
-A(txt(720, LG + 5, "Light ray  (line width ∝ optical power)", 16, MUTED))
-A(star(1070, LG - 2, 8.5, EMIT, EMIT_EDGE, n=9, inner=0.42, sw=LW_STAR))
-A(txt(1088, LG + 5, "Exciton emission", 15, MUTED))
-A(wave(1300, LG - 2, 56, 3.4, 2.5, LOSS, 2.2, 0.95))
-A(txt(1376, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED))
+LG = 745.0
+A(ray((280, LG), (344, LG), 6.2))
+A(txt(358, LG + 5, "Light ray  (line width \u221d optical power)", 16, MUTED))
+A(star(720, LG - 2, 8.5, EMIT, EMIT_EDGE, n=9, inner=0.42, sw=LW_STAR))
+A(txt(738, LG + 5, "Exciton emission", 15, MUTED))
+A(wave(920, LG - 2, 56, 3.4, 2.5, LOSS, 2.2, 0.95))
+A(txt(996, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED))
 A('</svg>')
 
 dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcoupling_roundtrip.svg")

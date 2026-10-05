@@ -19,7 +19,7 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 from pptx.oxml.ns import qn
 
 # ------------------------------------------------------------------ canvas
-SLIDE_W, SLIDE_H = Inches(13.333), Inches(2.90)
+SLIDE_W, SLIDE_H = Inches(13.333), Inches(7.5)
 FIG_W = Inches(13.0)
 SCALE = FIG_W / float(F.W)                       # EMU per SVG user unit
 FIG_H = F.H * SCALE
@@ -27,7 +27,9 @@ OX = (SLIDE_W - FIG_W) / 2.0
 OY = (SLIDE_H - FIG_H) / 2.0
 
 def X(u): return int(round(OX + u * SCALE))
-def Y(u): return int(round(OY + u * SCALE))
+DY = 0.0                                         # vertical offset of the panel
+                                                 # being drawn; the two panels stack
+def Y(u): return int(round(OY + (u + DY) * SCALE))
 def D(u): return int(round(u * SCALE))
 def PTS(u): return Pt(u * SCALE / 12700.0)
 
@@ -203,37 +205,32 @@ def panel(x0, eta, r_met, t_tco, tag):
                        D(4.8), D(4.8)), C("FFF8E6"), None, name="%s emitter core" % tag)
     return sum(esc)
 
-e1 = panel(F.PANEL_X[0], .30, .72, .90, "L")
-e2 = panel(F.PANEL_X[1], .30, .98, .995, "R")
+esc = []
+for i, (dy, (title, sub), keys, loss) in enumerate(
+        zip(F.PANEL_DY, F.TITLES, F.LAYER_KEYS, ((.72, .90), (.98, .995)))):
+    DY = dy                                      # every Y() below lands in this panel
+    esc.append(panel(F.PANEL_X, .30, loss[0], loss[1], "LR"[i]))
+    text(F.PANEL_X + F.PW / 2, 28, title, 21, INK, bold=True, box_w=700.0,
+         name="title %d" % (i + 1))
+    text(F.PANEL_X + F.PW / 2, 52, sub, 16, MUTED, name="subtitle %d" % (i + 1))
+    for (y_lab, y_tip), s_lab in zip(F.LAYER_Y, keys):
+        text(F.PANEL_X - 19, y_lab + 5, s_lab, 14, MUTED, PP_ALIGN.RIGHT,
+             box_w=260.0, name="key %d: %s" % (i + 1, s_lab))
+        arrow((F.PANEL_X - 13, y_lab), (F.PANEL_X - 5, y_tip), 0.9, LEADER,
+              head=False, name="key leader %d: %s" % (i + 1, s_lab))
+e1, e2 = esc
+DY = 0.0
 
-text(F.PANEL_X[0] + F.PW / 2, 28, "Conventional OLED + outcoupling structure", 21,
-     INK, bold=True, box_w=700.0, name="title left")
-text(F.PANEL_X[0] + F.PW / 2, 52,
-     "large absorption per round trip — the beam dies out within a few passes",
-     16, MUTED, name="subtitle left")
-text(F.PANEL_X[1] + F.PW / 2, 28, "Designed by the proposed design rule", 21,
-     INK, bold=True, box_w=700.0, name="title right")
-text(F.PANEL_X[1] + F.PW / 2, 52,
-     "absorption suppressed — intensity survives many round trips",
-     16, MUTED, name="subtitle right")
-
-for y_lab, y_tip, s in ((150, 152, "Outcoupling structure"), (222, 218, "Glass substrate"),
-                        (263, 269, "TCO anode"), (292, 286, "Organic layers"),
-                        (318, 315, "Metal cathode")):
-    text(181, y_lab + 5, s, 14, MUTED, PP_ALIGN.RIGHT, box_w=220.0, name="key: " + s)
-    c = arrow((187, y_lab), (195, y_tip), 0.9, LEADER, head=False,
-              name="key leader: " + s)
-
-LG = 412.0
-arrow((642, LG), (706, LG), 6.2, name="legend ray")
-text(720, LG + 5, "Light ray  (line width ∝ optical power)", 15, MUTED,
+LG = 745.0
+arrow((280, LG), (344, LG), 6.2, name="legend ray")
+text(358, LG + 5, "Light ray  (line width \u221d optical power)", 15, MUTED,
      PP_ALIGN.LEFT, box_w=400.0, name="legend ray text")
-star(1070, LG - 2, 8.5, MSO_SHAPE.STAR_8_POINT, AMBER, C(F.EMIT_EDGE), None, F.LW_STAR,
+star(720, LG - 2, 8.5, MSO_SHAPE.STAR_8_POINT, AMBER, C(F.EMIT_EDGE), None, F.LW_STAR,
      "legend emitter")
-text(1088, LG + 5, "Exciton emission", 15, MUTED, PP_ALIGN.LEFT, box_w=300.0,
+text(738, LG + 5, "Exciton emission", 15, MUTED, PP_ALIGN.LEFT, box_w=300.0,
      name="legend emission text")
-freewave(1300, LG - 2, 56, 3.4, 2.5, BLUE, 2.2, 0.95, name="legend loss", head=True)
-text(1376, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED,
+freewave(920, LG - 2, 56, 3.4, 2.5, BLUE, 2.2, 0.95, name="legend loss", head=True)
+text(996, LG + 5, "Absorption loss  (ohmic at the metal, TCO)", 15, MUTED,
      PP_ALIGN.LEFT, box_w=460.0, name="legend loss text")
 
 dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outcoupling_roundtrip.pptx")
