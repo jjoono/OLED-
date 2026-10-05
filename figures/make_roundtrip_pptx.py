@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Build Fig.1(a) as a PowerPoint slide made of native, individually editable shapes.
+"""Build Fig.1(a) as a PowerPoint slide: native editable shapes, plus the two 3D
+renders as pictures.
 
 Nothing is grouped and nothing is a picture: every lens is an Oval, every ray is a
 straight arrow connector, every star is a PowerPoint star, every squiggle is a
@@ -209,6 +210,12 @@ esc = []
 for i, (dy, (title, sub), keys, loss) in enumerate(
         zip(F.PANEL_DY, F.TITLES, F.LAYER_KEYS, ((.72, .90), (.98, .995)))):
     DY = dy                                      # every Y() below lands in this panel
+    tag = ("conventional", "designrule")[i]
+    crop = F.render_crop(tag)                    # the 3D render, cropped to its content
+    if crop:
+        pic = SH.add_picture(crop, X(F.RENDER_X), Y(F.RENDER_Y),
+                             D(F.RENDER_W), D(F.RENDER_W))
+        pic.name = "%s render" % tag
     esc.append(panel(F.PANEL_X, .30, loss[0], loss[1], "LR"[i]))
     text(F.PANEL_X + F.PW / 2, 28, title, 21, INK, bold=True, box_w=700.0,
          name="title %d" % (i + 1))

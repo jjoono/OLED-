@@ -3,13 +3,14 @@
 Top    - conventional device: strong ohmic / TCO absorption, beam dies out.
 Bottom - low-loss device: absorption suppressed, beam survives many round trips.
 
-One figure, stacked.  A 3D view of the same stack alongside this one showed
-nothing the cross-section does not, except the layer names -- so the layer names
-live here, per panel, and the 3D panel is gone.
+One figure.  Each row pairs the 3D render of a device with its cross-section: the
+render shows how far the light actually spreads, the cross-section shows why.  The
+layer names sit on the cross-section only -- carrying them twice is what made the
+3D panel look like it was adding nothing.
 """
 import math, os
 
-W, H = 1500, 790
+W, H = 1620, 790
 FONT = "Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif"
 
 # ---------------------------------------------------------------- stack (y)
@@ -18,7 +19,8 @@ Y_TCO, Y_ORG, Y_MET, Y_BOT = 261.0, 277.0, 295.0, 335.0
 Y_EMIT = 286.0                     # emitting plane, middle of the organic stack
 LENS_R, PITCH = 30.0, 60.0
 PW = 900.0                         # panel width = 15 lenses
-PANEL_X = 430.0                    # both panels share a left edge; they stack
+RENDER_X, RENDER_Y, RENDER_W = 55.0, 35.0, 300.0   # 3D render slot, square, per panel
+PANEL_X = 640.0                    # both panels share a left edge; they stack
 PANEL_DY = (0.0, 365.0)            # and are offset vertically instead.  A panel is
                                    # 335 tall: the escaping rays reach ~85 above the lens
                                    # crests, so the title has to sit clear of them
@@ -57,6 +59,44 @@ INK, MUTED, LEADER = "#1a1a1a", "#55585c", "#9aa0a6"
 LW_SLAB, LW_LAYER, LW_STAR = 1.3, 1.05, 1.0
 W_RAY = 9.5             # line width of the full-power ray
 GREEN, BLUE, AMBER = RAY, LOSS, EMIT          # kept for backward compatibility
+
+
+def render_crop(tag):
+    """Crop a device render to its own content and cache it beside the original.
+
+    The renders are 1400x1400 with the device in the middle; dropped into a small
+    slot whole, most of the slot is empty.  The box is squared off so the slot's
+    aspect is preserved, and the file is rewritten only when it is missing or older
+    than its source.
+    """
+    import os
+    from PIL import Image
+    here = os.path.dirname(os.path.abspath(__file__))
+    src = os.path.join(here, "emitting_area_render_%s.png" % tag)
+    dst = os.path.join(here, "emitting_area_render_%s_crop.png" % tag)
+    if not os.path.exists(src):
+        return None
+    if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
+        return dst
+    im = Image.open(src).convert("RGBA")
+    # threshold first: the glow fades to alpha 1-2 across almost the whole
+    # frame, so a plain getbbox() on alpha crops nothing
+    bb = im.getchannel("A").point(lambda v: 255 if v > 10 else 0).getbbox()
+    if bb:
+        x0, y0, x1, y1 = bb
+        side = max(x1 - x0, y1 - y0)
+        cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+        pad = side * 0.04
+        side += 2 * pad
+        im = im.crop((int(cx - side / 2), int(cy - side / 2),
+                      int(cx + side / 2), int(cy + side / 2)))
+    # 900 px is ~2x what the slot needs even at a 2400 px export, and it keeps the
+    # base64 copy embedded in the SVG down to a few hundred kB
+    if im.width > 900:
+        im = im.resize((900, max(1, round(900 * im.height / im.width))), Image.LANCZOS)
+    im.save(dst)
+    return dst
+
 
 def f(v):
     s = "%.2f" % v
@@ -202,8 +242,8 @@ def panel(x0, eta, r_met, t_tco, title, sub):
     return "\n".join(g), sum(esc)
 
 # ---------------------------------------------------------------- assemble
-A('<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">'
-  % (W, H, W, H))
+A('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+  'width="%d" height="%d" viewBox="0 0 %d %d">' % (W, H, W, H))
 A('<defs><linearGradient id="fade" x1="0" y1="0" x2="1" y2="1">'
   '<stop offset="0" stop-color="%s" stop-opacity="0.9"/>'
   '<stop offset="1" stop-color="%s" stop-opacity="0"/></linearGradient></defs>' % (GREEN, GREEN))
@@ -217,6 +257,16 @@ for i, (dy, (title, sub), keys, loss) in enumerate(
     body, e = panel(PANEL_X, .30, loss[0], loss[1], title, sub)
     esc.append(e)
     A('<g transform="translate(0,%s)">' % f(dy))
+    crop = render_crop(("conventional", "designrule")[i])
+    if crop:
+        # embedded, not referenced: a relative href breaks the moment the .svg is
+        # moved, and most renderers refuse to load local files from an SVG at all
+        import base64
+        with open(crop, "rb") as fh:
+            b64 = base64.b64encode(fh.read()).decode("ascii")
+        A('<image xlink:href="data:image/png;base64,%s" x="%s" y="%s" '
+          'width="%s" height="%s"/>'
+          % (b64, f(RENDER_X), f(RENDER_Y), f(RENDER_W), f(RENDER_W)))
     A(body)
     for (y_lab, y_tip), s_lab in zip(LAYER_Y, keys):
         A(txt(PANEL_X - 19, y_lab + 5, s_lab, 14, MUTED, "end"))
