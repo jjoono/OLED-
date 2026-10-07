@@ -18,14 +18,16 @@ OUT.mkdir(exist_ok=True)
 
 FIGFILES = {
     '1': 'figures/fig1_platform.pdf',
-    '2': 'figures/fig2_achievable_region.pdf',
-    '3': 'figures/fig3_selectivity_map.pdf',
-    '4': 'figures/fig4_recycling_routes.pdf',
-    '5': 'figures/fig5_families.pdf',
-    'S1': 'figures/figS1_patch_dependence.pdf',
-    'S2': 'figures/figS2_warmstart_control.pdf',
-    'S3': 'figures/figS3_cost_calibration.pdf',
-    'S4': 'figures/figS4_convergence.pdf',
+    '2': 'figures/fig2_hemisphere_benchmark.pdf',
+    '3': 'figures/fig3_efficiency_composition.pdf',
+    '4': 'figures/fig4_families.pdf',
+    'S1': 'figures/figS1_restart_control.pdf',
+    'S2': 'figures/figS2_patch_dependence.pdf',
+    'S3': 'figures/figS3_gain_decomposition.pdf',
+    'S4': 'figures/figS4_selectivity_map.pdf',
+    'S5': 'figures/figS5_convergence.pdf',
+    'S6': 'figures/figS6_cost_calibration.pdf',
+    'S7': 'figures/figS7_recycling_model.pdf',
 }
 
 
@@ -40,6 +42,10 @@ def esc_text(t):
           .replace('×', '\\ensuremath{\\times}')
           .replace('±', '\\ensuremath{\\pm}')
           .replace('μ', '\\ensuremath{\\mu}')
+          .replace('λ', '\\ensuremath{\\lambda}')
+          .replace('Δ', '\\ensuremath{\\Delta}')
+          .replace('≥', '\\ensuremath{\\geq}')
+          .replace('≤', '\\ensuremath{\\leq}')
           .replace('−', '-'))
     t = re.sub(r'(?<![\\\w])~', '\\\\ensuremath{\\\\sim}', t)   # bare tilde
     # `code` -> \texttt{} with escaped underscores
@@ -62,6 +68,7 @@ def esc_text(t):
     t = t.replace('Fig. 3 and Table 2 of ref.', '\x01EXTFIG\x01')   # ref-17's own figure
     t = re.sub(r'(?:Figure|Fig\.)\s?(\d)', r'Fig.~\\ref{fig:\1}', t)
     t = t.replace('\x01EXTFIG\x01', 'Fig.~3 and Table~2 of ref.')
+    t = re.sub(r'(?<![\w|])Table (\d)(?![\d|])', r'Table~\\ref{tab:\1}', t)
     # daggers / arrows (supplement footnotes)
     t = (t.replace('†', '\\ensuremath{\\dagger}')
           .replace('‡', '\\ensuremath{\\ddagger}')
@@ -70,12 +77,49 @@ def esc_text(t):
 
 
 def make_figure(num, caption):
-    wide = '*' if num in ('1', '2', '5') else ''
+    wide = '*' if num in ('1', '2', '3', '4') else ''
     width = '\\textwidth' if wide else '\\linewidth'
     return (f'\\begin{{figure{wide}}}[t]\n\\centering\n'
             f'\\includegraphics[width={width}]{{{FIGFILES[num]}}}\n'
             f'\\caption{{{caption}}}\n\\label{{fig:{num}}}\n\\end{{figure{wide}}}\n')
 
+
+def md_table(block, caption=None, label=None, star=False):
+    rows = [r.strip().strip('|').split('|') for r in block.split('\n') if r.strip().startswith('|')]
+    rows = [[c.strip() for c in r] for r in rows]
+    rows = [r for r in rows if not all(set(c) <= set('-: ') for c in r)]  # drop rule row
+    ncol = max(len(r) for r in rows)
+    colspec = 'l' * ncol
+    env = 'table*' if star else 'table'
+    lines = ['\\begin{' + env + '}[htbp]', '\\centering', '\\footnotesize']
+    if caption:
+        lines.append('\\caption{' + esc_text(caption) + '}')
+        if label:
+            lines.append('\\label{' + label + '}')
+    if star:
+        colspec = '|'.join(['p{%.2f\\textwidth}' % (0.86 / ncol)] * ncol)
+    wrap = (not star) and ncol >= 4
+    if not star and not wrap and max(len(c) for r in rows for c in r) > 45:
+        w = 0.80 / (ncol - 1) if ncol > 1 else 0.9
+        colspec = 'p{0.16\\linewidth}' + ''.join('p{%.2f\\linewidth}' % w for _ in range(ncol - 1))
+    lines += [('\\resizebox{\\linewidth}{!}{' if wrap else '') + '\\begin{tabular}{' + colspec + '}', '\\hline']
+    for i, r in enumerate(rows):
+        r = r + [''] * (ncol - len(r))
+        lines.append(' & '.join(esc_text(c) for c in r) + ' \\\\')
+        if i == 0:
+            lines.append('\\hline')
+    lines += ['\\hline', '\\end{tabular}' + ('}' if wrap else ''), '\\end{' + env + '}']
+    return '\n'.join(lines)
+
+
+
+def md_list(block):
+    items_ = re.split(r'\n(?=- )', block.strip())
+    out_ = ['\\begin{itemize}']
+    for it in items_:
+        out_.append('\\item ' + esc_text(' '.join(it[2:].split())))
+    out_.append('\\end{itemize}')
+    return '\n'.join(out_)
 
 # ---------------- main manuscript ----------------
 src = Path('manuscript_draft.md').read_text(encoding='utf-8')
@@ -113,19 +157,32 @@ out.append('\\begin{abstract*}\n' + esc_text(abstract) + '\n\\end{abstract*}\n')
 
 # ---- body: walk line groups ----
 paras = body.split('\n\n')
+pending_table = []
 for p in paras:
     p = p.strip()
     if not p or p == '---':
         continue
     if p.startswith('## '):                              # \section
-        name = re.sub(r'^## \d+\.\s*', '', p[3:])
+        name = re.sub(r'^\d+\.\s*', '', p[3:])
         out.append('\\section{' + esc_text(name) + '}')
     elif p.startswith('### '):                           # \subsection
-        name = re.sub(r'^### \d+\.\d+\s*', '', p[4:])
+        name = re.sub(r'^\d+\.\d+\s*', '', p[4:])
         out.append('\\subsection{' + esc_text(name) + '}')
     elif p.startswith('$$'):                             # display equation
         eq = p.strip('$ \n')
         out.append('\\begin{equation}\n' + eq + '\n\\end{equation}')
+    elif re.match(r'\*\*Table (\d+) \|', p):           # table caption (+ table)
+        num = re.match(r'\*\*Table (\d+) \|', p).group(1)
+        cap, _, tbl = p.partition('\n\n') if '\n\n' in p else (p, '', '')
+        pending_table[:] = [num, re.sub(r'^\*\*Table \d+ \|\s*(.+?)\*\*$', r'\1', cap.strip())]
+    elif p.startswith('|'):                               # markdown table
+        if pending_table:
+            out.append(md_table(p, pending_table[1], 'tab:' + pending_table[0], star=True))
+            pending_table.clear()
+        else:
+            out.append(md_table(p))
+    elif p.startswith('- '):                              # bullet list
+        out.append(md_list(p))
     elif re.match(r'\*\*Fig\. (\d) \|', p):              # figure caption block
         num = re.match(r'\*\*Fig\. (\d) \|', p).group(1)
         cap = re.sub(r'^\*\*Fig\. \d \|\s*', '**', p)
@@ -216,26 +273,10 @@ print(f'main.tex written ({len(items)} references)')
 # ---------------- supplement ----------------
 ssrc = Path('supplementary.md').read_text(encoding='utf-8')
 
-def md_table(block):
-    rows = [r.strip().strip('|').split('|') for r in block.split('\n') if r.strip().startswith('|')]
-    rows = [[c.strip() for c in r] for r in rows]
-    rows = [r for r in rows if not all(set(c) <= set('-: ') for c in r)]  # drop rule row
-    ncol = max(len(r) for r in rows)
-    colspec = 'l' * ncol
-    lines = ['\\begin{table}[htbp]', '\\centering', '\\footnotesize',
-             '\\begin{tabular}{' + colspec + '}', '\\hline']
-    for i, r in enumerate(rows):
-        r = r + [''] * (ncol - len(r))
-        lines.append(' & '.join(esc_text(c) for c in r) + ' \\\\')
-        if i == 0:
-            lines.append('\\hline')
-    lines += ['\\hline', '\\end{tabular}', '\\end{table}']
-    return '\n'.join(lines)
-
 sout = [r'''% Supplement 1 -- generated from supplementary.md by md2optica.py
 \documentclass[10pt]{article}
 \usepackage[margin=2.5cm]{geometry}
-\usepackage{graphicx,amsmath,url}
+\usepackage{graphicx,amsmath,url,caption}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \title{Supplement 1:\\''' + esc_text(title) + r'''}
@@ -243,29 +284,36 @@ sout = [r'''% Supplement 1 -- generated from supplementary.md by md2optica.py
 \date{}
 \begin{document}
 \maketitle
+\sloppy
 ''']
 
 blocks = ssrc.split('\n\n')
-i = 0
-while i < len(blocks):
-    b = blocks[i].strip()
-    if not b or b == '---':
-        i += 1; continue
-    if b.startswith('# '):
-        i += 1; continue                                  # doc title line
+pend = None                                               # caption waiting for its table
+for b in blocks:
+    b = b.strip()
+    if not b or b == '---' or b.startswith('# '):
+        continue
     if b.startswith('## '):
-        name = b[3:]
-        sout.append('\\section*{' + esc_text(name) + '}')
-        # attach the matching supplementary figure right after its table section
-        m = re.search(r'\(Fig\. (S\d)\)', name)
-        if m:
-            sn = m.group(1)
-            sout.append(f'\\begin{{figure}}[htbp]\n\\centering\n'
-                        f'\\includegraphics[width=\\linewidth]{{{FIGFILES[sn]}}}\n'
-                        f'\\caption{{Fig. {sn}. Graphical form of this section\'s data.}}\n'
-                        f'\\end{{figure}}')
+        sout.append('\\section*{' + esc_text(b[3:]) + '}')
+    elif re.match(r'\*\*Table S?\d+ \|', b):
+        pend = re.sub(r'^\*\*(Table S?\d+) \|\s*(.+?)\*\*$', r'\1. \2', b)
+    elif re.match(r'\*\*Fig\. (S\d) \|', b):
+        sn = re.match(r'\*\*Fig\. (S\d) \|', b).group(1)
+        cap = re.sub(r'\s*\*\(`[^`]+`\)\*\s*$', '', b)
+        cap = re.sub(r'^\*\*Fig\. S\d \|\s*', '**', cap)
+        sout.append(f'\\begin{{figure}}[htbp]\n\\centering\n'
+                    f'\\includegraphics[width=\\linewidth]{{{FIGFILES[sn]}}}\n'
+                    f'\\caption*{{\\textbf{{Fig. {sn}.}} ' + esc_text(cap) + '}\n\\end{figure}')
     elif b.startswith('|'):
-        sout.append(md_table(b))
+        tex = md_table(b)
+        if pend:
+            tex = tex.replace('\\footnotesize', '\\footnotesize\n\\caption*{' + esc_text(pend) + '}', 1)
+            pend = None
+        sout.append(tex)
+    elif b.startswith('$$'):
+        sout.append('\\begin{equation*}\n' + b.strip('$ \n') + '\n\\end{equation*}')
+    elif b.startswith('- '):
+        sout.append(md_list(b))
     elif b.startswith('```'):
         sout.append('\\begin{verbatim}\n' + b.strip('`\n') + '\n\\end{verbatim}')
     elif re.match(r'\d+\.\s', b):                          # numbered list
@@ -276,11 +324,11 @@ while i < len(blocks):
         sout.append('\\end{enumerate}')
     else:
         sout.append(esc_text(b))
-    i += 1
 
 sout.append('\\end{document}')
 stext = '\n\n'.join(sout)
 # 보충 문서에는 본문 그림 label 이 없으므로 \ref 를 일반 텍스트로 되돌린다
 stext = re.sub(r'Fig\.~\\ref\{fig:(\d)\}', r'Fig. \1', stext)
+stext = re.sub(r'Table~\\ref\{tab:(\d)\}', r'Table \1', stext)
 (Path(OUT) / 'supplement.tex').write_text(stext, encoding='utf-8')
 print('supplement.tex written')

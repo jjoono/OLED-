@@ -423,7 +423,7 @@ def fig3():
                 label=f'{BANDS[j]}  $R$={R_full[j]:+.2f}')
     ax.set_xlabel(r'EQE$_{\rm total}$'); ax.set_ylabel(r'selectivity $S_j$')
     ax.set_ylim(0.0, 0.46)
-    ax.set_title('(c) drift without inversion', loc='left')
+    ax.set_title('(c) composition drift', loc='left')
     ax.legend(loc='upper left', fontsize=5.4, framealpha=0.92, ncol=2, handlelength=1.0,
               columnspacing=0.7, borderpad=0.3, labelspacing=0.25)
     ax.grid(alpha=0.25)

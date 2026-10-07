@@ -12,6 +12,7 @@ const fs = require('fs');
 const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, ImageRun,
   BorderStyle, convertInchesToTwip, PageOrientation, TabStopType, ExternalHyperlink,
+  Table, TableRow, TableCell, WidthType, ShadingType,
 } = require('docx');
 
 const LANG = (process.argv[2] || 'en').toLowerCase();
@@ -26,10 +27,9 @@ const CAPTION_GREY = '444444';
 
 const FIGS = {
   '1': 'fig1_platform.png',
-  '2': 'fig2_achievable_region.png',
-  '3': 'fig3_selectivity_map.png',
-  '4': 'fig4_recycling_routes.png',
-  '5': 'fig5_families.png',
+  '2': 'fig2_hemisphere_benchmark.png',
+  '3': 'fig3_efficiency_composition.png',
+  '4': 'fig4_families.png',
 };
 
 // ---------- PNG size from IHDR ----------
@@ -254,6 +254,46 @@ for (; i < lines.length; i++) {
     kids.push(new Paragraph({
       children: mathRuns(eq.join(' ').trim(), { size: 22 }),
       alignment: AlignmentType.CENTER, spacing: { before: 120, after: 160 },
+    }));
+    continue;
+  }
+  if (L.trim().startsWith('|')) {            // markdown table
+    flushPara(buf); buf = [];
+    const rows = [];
+    while (i < lines.length && lines[i].trim().startsWith('|')) {
+      const cells = lines[i].trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+      if (!cells.every((c) => /^[-: ]+$/.test(c))) rows.push(cells);
+      i++;
+    }
+    i--;
+    const ncol = Math.max(...rows.map((r) => r.length));
+    kids.push(new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: rows.map((r, ri) => new TableRow({
+        tableHeader: ri === 0,
+        children: Array.from({ length: ncol }, (_, ci) => new TableCell({
+          shading: ri === 0 ? { type: ShadingType.CLEAR, color: 'auto', fill: 'DCE3EF' } : undefined,
+          margins: { top: 40, bottom: 40, left: 80, right: 80 },
+          children: [new Paragraph({
+            children: inlineRuns(r[ci] || '', { size: 17, bold: ri === 0 }),
+          })],
+        })),
+      })),
+    }));
+    kids.push(new Paragraph({ text: '', spacing: { after: 120 } }));
+    continue;
+  }
+  if (/^- /.test(L.trim())) {                // bullet item
+    flushPara(buf); buf = [];
+    let item = L.trim().slice(2);
+    while (i + 1 < lines.length && lines[i + 1].trim() && !/^- /.test(lines[i + 1].trim())) {
+      item += ' ' + lines[++i].trim();
+    }
+    kids.push(new Paragraph({
+      children: [new TextRun({ text: '•\t', font: BODY_FONT }), ...inlineRuns(item)],
+      spacing: { after: 80, line: 276 }, alignment: AlignmentType.JUSTIFIED,
+      indent: { left: convertInchesToTwip(0.3), hanging: convertInchesToTwip(0.2) },
+      tabStops: [{ type: TabStopType.LEFT, position: convertInchesToTwip(0.3) }],
     }));
     continue;
   }
