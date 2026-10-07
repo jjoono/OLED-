@@ -1,13 +1,13 @@
 """
 make_supp_figures_and_data.py
-  -- supplementary figures (Fig. S1-S4) + raw-data workbooks for EVERY figure
+  -- supplementary figures (Fig. S1-S7) + raw-data workbooks for EVERY figure
 
 Two jobs:
- 1. Plot the data behind Supplementary Tables S3/S4/S6/S7 as figures S1-S4.
- 2. Export the exact arrays drawn in every figure -- main Fig. 1-5 and
-    supplementary Fig. S1-S4 -- as one Excel workbook per figure, named after
-    the figure (fig2_achievable_region.xlsx belongs to
-    fig2_achievable_region.png), one sheet per panel, so the figures can be
+ 1. Plot the supplementary figures S1-S7.
+ 2. Export the exact arrays drawn in every figure -- main Fig. 1-4 and
+    supplementary Fig. S1-S7 -- as one Excel workbook per figure, named after
+    the figure (fig2_hemisphere_benchmark.xlsx belongs to
+    fig2_hemisphere_benchmark.png), one sheet per panel, so the figures can be
     re-plotted or restyled in Excel/Origin without touching the .mat archives.
 
 It imports make_figures, so every exported array is the same object the PNG was
@@ -87,15 +87,7 @@ def export_fig1():
 
 
 def export_fig2():
-    S_win = MF.band_eqe / MF.band_tot
-    E_max_c = float(np.max(MF.Tc))
-    gain_sel = S_win / MF.S_nat
-    gain_tot = MF.band_tot / E_max_c
-    gain_net = MF.band_eqe / (MF.S_nat * E_max_c)
-
-    pf = np.polyfit(MF.Tp, MF.Bp[:, 2], 1)
-    r2 = np.corrcoef(MF.Tp, MF.Bp[:, 2])[0, 1] ** 2
-
+    N = MF.benchmark_numbers()
     th = np.linspace(0, 1, 300)
     hx = np.concatenate(([0.0], MF.HEMI_X, [1.0]))
     hy = np.concatenate(([1.0], MF.HEMI_Y, [0.0]))
@@ -103,77 +95,41 @@ def export_fig2():
     k_ht = int(np.argmax(MF.hemi_tot))
     z_h = PchipInterpolator(hx, hy)(th) * MF.hemi_x[k_ht, 2]
     profs = {f'z_{BANDS[j]}': MF.profile(MF.band_x[j, :])[1] for j in range(4)}
-
-    ws_val = MF.W['ws_val'].ravel()
-    gbest = float(np.asarray(MF.F['gBestEQE']).ravel()[0])
-    ff = np.fmax(np.concatenate((MF.band_eqe, [gbest])), np.nan_to_num(ws_val, nan=-np.inf))
-    hm = MF.hemi_val[:5]
-    base = MF.W['base_val'].ravel(); sdb = MF.W['base_sd'].ravel(); sdw = MF.W['ws_sd'].ravel()
-    se = np.sqrt(sdb**2 + sdw**2) / np.sqrt(3)
-    tval = (ws_val - base) / se
-    rel = 100 * (ws_val - base) / base
-
-    wb_write('fig2_achievable_region', {
-        'a_selectivity': (['band', 'S_dedicated', 'S_natural_median', 'S_natural_p10',
-                           'S_natural_p90', 'S_Lambertian'],
-                          [BANDS, S_win, MF.S_nat, MF.S_lo, MF.S_hi, S_LAMB]),
-        'b_gain_decomposition': (['band', 'selectivity_gain', 'total_EQE_ratio', 'net_band_gain'],
-                                 [BANDS, gain_sel, gain_tot, gain_net]),
-        'c_collapse_points': (['EQE_total', 'EQE_40_60', 'phase (1=random)'],
-                              [MF.Tp, MF.Bp[:, 2], MF.phase_p]),
-        'c_fit_and_optima': (['fit_slope', 'fit_intercept', 'fit_R2',
-                              'pareto_EQE_total', 'pareto_EQE_40_60'],
-                             [[pf[0]], [pf[1]], [r2],
-                              MF.P['pareto_tot'].ravel(), MF.P['pareto_band'].ravel()]),
-        'd_profiles': (['r_over_rlens', 'z_hemisphere_opt'] + list(profs.keys()),
+    lab = BANDS + ['total']
+    wb_write('fig2_hemisphere_benchmark', {
+        'a_profiles': (['r_over_rlens', 'z_hemisphere'] + list(profs.keys()),
                        [th, z_h] + list(profs.values())),
-        'e_Gj': (['objective', 'freeform_best', 'hemisphere', 'G_j'],
-                 [BANDS + ['total'], ff, hm, ff / hm]),
-        'f_warmstart_control': (['arm', 'hemisphere_val', 'hemisphere_sd', 'warmstart_val',
-                                 'warmstart_sd', 'gain_pct', 't_value', 't_threshold'],
-                                [BANDS + ['total'], base, sdb, ws_val, sdw, rel, tval,
-                                 [2.132]*5]),
+        'b_Gj': (['objective', 'freeform_best', 'hemisphere', 'G_j'],
+                 [lab, N['ff'], N['hm'], N['G']]),
+        'c_restart_control': (['arm', 'hemisphere_remeasured', 'hemisphere_sd', 'restart_best',
+                               'restart_sd', 'gain_pct', 't_value', 't_threshold'],
+                              [lab, N['base'], N['sd_b'], N['ws_val'], N['sd_w'],
+                               N['rel'], N['tval'], [2.132] * 5]),
     })
 
 
 def export_fig3():
-    sheets = {}
-    for j in range(4):
-        S = MF.Bp[:, j] / MF.Tp
-        pf = np.polyfit(MF.Tp, S, 1)
-        sheets[f'band_{BANDS[j]}'] = (
-            ['EQE_total', f'S_{BANDS[j]}', 'phase (1=random)'],
-            [MF.Tp, S, MF.phase_p])
-        sheets[f'band_{BANDS[j]}_meta'] = (
-            ['Pearson_R', 'fit_slope', 'fit_intercept', 'S_Lambertian'],
-            [[MF.R_full[j]], [pf[0]], [pf[1]], [S_LAMB[j]]])
-    wb_write('fig3_selectivity_map', sheets)
-
-
-def export_fig4():
-    d1, d3 = MF.d1, MF.d3
-    a_list = np.array([0.0, 0.01, 0.02, 0.05, 0.10, 0.20]) * 100
-    ideal_b = np.array([100.0, 94.2, 89.1, 76.6, 62.1, 45.0])
-    flat_b = np.array([33.8, 33.3, 32.8, 31.3, 29.1, 25.5])
-    WALL = float(d1['wall']) * 100
-    th = d1['th']
-    Ti = np.zeros_like(th)
-    lo, hi = float(d1['th_sub_lo']), float(d1['th_sub_hi'])
-    Ti[(th >= lo) & (th <= hi)] = 1
-    wb_write('fig4_recycling_routes', {
-        'a_loss_dependence': (['loss_a_pct', 'ideal_filter_pct', 'planar_pct', 'single_pass_wall_pct'],
-                              [a_list, ideal_b, flat_b, [WALL]*len(a_list)]),
-        'b_bandwidth': (['dlam_nm', 'band_delivery_pct', 'selectivity_pct', 'single_pass_wall_pct'],
-                        [d3['dlam'], d3['band']*100, d3['sel']*100, [WALL]*len(d3['dlam'])]),
-        'c_angular_response': (['theta_substrate_deg', 'T_planar', 'T_DBR_8pair', 'T_ideal',
-                                'window_lo_deg', 'window_hi_deg'],
-                               [th, d1['T_flat'], d1['T_dbr'], Ti, [lo], [hi]]),
-        'readme': (['note'], [['Panel (d) is a schematic with no plotted data.',
-                               'Source: angular_recycling_result.npz, angular_recycling_bandwidth.npz']]),
+    C3 = MF.composition_numbers()
+    pf = np.polyfit(MF.Tp, MF.Bp[:, 2], 1)
+    r2 = np.corrcoef(MF.Tp, MF.Bp[:, 2])[0, 1] ** 2
+    S = MF.Bp / MF.Tp[:, None]
+    fits = [np.polyfit(MF.Tp, S[:, j], 1) for j in range(4)]
+    wb_write('fig3_efficiency_composition', {
+        'a_collapse_points': (['EQE_total', 'EQE_40_60', 'phase (1=random)'],
+                              [MF.Tp, MF.Bp[:, 2], MF.phase_p]),
+        'a_fit': (['slope', 'intercept', 'R2', 'n'], [[pf[0]], [pf[1]], [r2], [MF.Tp.size]]),
+        'b_dedicated_vs_natural': (['band', 'S_dedicated', 'S_natural_median', 'S_natural_p10',
+                                    'S_natural_p90', 'S_Lambertian', 'net_band_gain'],
+                                   [BANDS, C3['S_win'], MF.S_nat, MF.S_lo, MF.S_hi, S_LAMB,
+                                    C3['gain_net']]),
+        'c_selectivity_points': (['EQE_total'] + [f'S_{b}' for b in BANDS],
+                                 [MF.Tp] + [S[:, j] for j in range(4)]),
+        'c_fits': (['band', 'Pearson_R', 'fit_slope', 'fit_intercept'],
+                   [BANDS, MF.R_full, [f[0] for f in fits], [f[1] for f in fits]]),
     })
 
 
-def export_fig5():
+def export_fig4():
     fams = [(MF.C, 'convex'), (MF.I, 'inverted'), (MF.Rn, 'random')]
     S_conv, _, _ = MF.natural_composition(*MF.clean_log(MF.C['EVAL_LOG']))
     R_conv = MF.band_corr(*MF.clean_log(MF.C['EVAL_LOG']))
@@ -192,12 +148,107 @@ def export_fig5():
             [BANDS, Snat, Smean, S_conv, S_LAMB])
         sheets[f'{name}_3_drift'] = (['band', 'R_this_family', 'R_convex_ref'],
                                      [BANDS, Rsel, R_conv])
-    wb_write('fig5_families', sheets)
+    wb_write('fig4_families', sheets)
 
 
 # ============================================================
-#  Supplementary figures
+#  New supplementary figures (moved out of the main text)
 # ============================================================
+def figS3_gain_decomposition():
+    C3 = MF.composition_numbers()
+    xx = np.arange(1, 5); w = 0.26
+    fig, ax = plt.subplots(figsize=(4.6, 3.0))
+    ax.bar(xx - w, C3['gain_sel'], w, color='#3B6EA5', ec='k', lw=0.4, label='selectivity gain')
+    ax.bar(xx, C3['gain_tot'], w, color='#9AA7B5', ec='k', lw=0.4, label='total-EQE ratio')
+    ax.bar(xx + w, C3['gain_net'], w, color='#C6512F', ec='k', lw=0.4, label='net band gain')
+    ax.axhline(1, color='k', lw=0.9)
+    for j in range(4):
+        ax.text(xx[j] + w, C3['gain_net'][j] + 0.012, f'{C3["gain_net"][j]:.2f}', ha='center', fontsize=6.2)
+    ax.set_xticks(xx); ax.set_xticklabels(BANDS)
+    ax.set_ylim(0.82, 1.45); ax.set_ylabel('ratio')
+    ax.set_title('band-dedicated optima: selectivity gain x total ratio = net gain', loc='left', fontsize=8)
+    ax.legend(loc='upper right', fontsize=6.4, framealpha=0.95)
+    ax.grid(alpha=0.25, axis='y')
+    fig.tight_layout()
+    MF.save(fig, 'figS3_gain_decomposition')
+    wb_write('figS3_gain_decomposition', {
+        'gain_decomposition': (['band', 'S_dedicated', 'S_natural', 'selectivity_gain',
+                                'total_EQE_ratio', 'net_band_gain', 'E_max_campaign'],
+                               [BANDS, C3['S_win'], MF.S_nat, C3['gain_sel'], C3['gain_tot'],
+                                C3['gain_net'], [C3['E_max_c']]]),
+    })
+
+
+def figS4_selectivity_map():
+    T, B = MF.Tp, MF.Bp
+    rnd = MF.phase_p == 1
+    fig, axs = plt.subplots(2, 2, figsize=(7.2, 5.0), sharex=True)
+    sheets = {}
+    for j, ax in enumerate(axs.ravel()):
+        S = B[:, j] / T
+        ax.scatter(T[rnd], S[rnd], s=8, c='0.68', alpha=0.55, lw=0, label='random feasible')
+        ax.scatter(T[~rnd], S[~rnd], s=8, c=MF.CB[j], alpha=0.55, lw=0, label='optimizer-visited')
+        pf = np.polyfit(T, S, 1)
+        xs = np.linspace(T.min(), T.max(), 50)
+        ax.plot(xs, np.polyval(pf, xs), 'k-', lw=1.2)
+        ax.axhline(S_LAMB[j], color='r', ls='--', lw=1.0, label=f'Lambertian {S_LAMB[j]:.3f}')
+        ax.set_title(f'{MF.BAND_TEX[j]}   $R$ = {MF.R_full[j]:+.2f}', loc='left')
+        ax.set_ylabel(r'$S_j$')
+        if j >= 2:
+            ax.set_xlabel(r'EQE$_{\rm total}$')
+        ax.grid(alpha=0.25)
+        if j == 0:
+            ax.legend(loc='upper left', framealpha=0.92, fontsize=6.4)
+        sheets[f'band_{BANDS[j]}'] = (['EQE_total', f'S_{BANDS[j]}', 'phase (1=random)'],
+                                      [T, S, MF.phase_p])
+    fig.tight_layout()
+    MF.save(fig, 'figS4_selectivity_map')
+    wb_write('figS4_selectivity_map', sheets)
+
+
+def figS7_recycling():
+    d1, d3 = MF.d1, MF.d3
+    WALL = float(d1['wall']) * 100
+    fig, axs = plt.subplots(1, 3, figsize=(7.4, 2.7), gridspec_kw=dict(wspace=0.40))
+    a_list = np.array([0.0, 0.01, 0.02, 0.05, 0.10, 0.20]) * 100
+    ideal_b = np.array([100.0, 94.2, 89.1, 76.6, 62.1, 45.0])
+    flat_b = np.array([33.8, 33.3, 32.8, 31.3, 29.1, 25.5])
+    ax = axs[0]
+    ax.plot(a_list, ideal_b, 'o-', lw=1.6, color='#3B6EA5', ms=4, label='ideal angular filter')
+    ax.plot(a_list, flat_b, 's-', lw=1.6, color='#9AA7B5', ms=4, label='planar, non-selective')
+    ax.axhline(WALL, color='#C6512F', ls='--', lw=1.1, label=f'single-pass wall {WALL:.1f}%')
+    ax.set_xlabel('round-trip loss $a$ (%)'); ax.set_ylabel('into 40-60$^\\circ$ (% of generated)')
+    ax.set_title('(a) loss sets the ceiling', loc='left')
+    ax.set_ylim(5, 108); ax.legend(fontsize=5.8, loc='upper right'); ax.grid(alpha=0.25)
+    ax = axs[1]
+    dl, bd = d3['dlam'], d3['band'] * 100
+    ax.plot(dl, bd, 'o-', lw=1.6, color='#8A5FA8', ms=4, label='8-pair DBR')
+    ax.axhline(WALL, color='#C6512F', ls='--', lw=1.1, label='single-pass wall')
+    ax.set_xlabel(r'source bandwidth $\Delta\lambda$ (nm)'); ax.set_ylabel('into band (%)')
+    ax.set_title('(b) bandwidth limits a real filter', loc='left')
+    ax.set_ylim(0, 60); ax.legend(fontsize=5.8); ax.grid(alpha=0.25)
+    ax = axs[2]
+    th = d1['th']; lo, hi = float(d1['th_sub_lo']), float(d1['th_sub_hi'])
+    Ti = np.zeros_like(th); Ti[(th >= lo) & (th <= hi)] = 1
+    ax.axvspan(lo, hi, color='0.88')
+    ax.plot(th, d1['T_flat'], lw=1.5, color='#9AA7B5', label='planar')
+    ax.plot(th, d1['T_dbr'], lw=1.5, color='#8A5FA8', label='8-pair DBR')
+    ax.plot(th, Ti, 'k--', lw=1.0, label='ideal filter')
+    ax.set_xlim(0, 50); ax.set_ylim(0, 1.06)
+    ax.set_xlabel(r'$\theta$ in substrate (deg)'); ax.set_ylabel('transmittance')
+    ax.set_title('(c) single-pass response', loc='left')
+    ax.legend(fontsize=5.8, loc='center left'); ax.grid(alpha=0.25)
+    MF.save(fig, 'figS7_recycling_model')
+    wb_write('figS7_recycling_model', {
+        'a_loss_dependence': (['loss_a_pct', 'ideal_filter_pct', 'planar_pct', 'wall_pct'],
+                              [a_list, ideal_b, flat_b, [WALL] * len(a_list)]),
+        'b_bandwidth': (['dlam_nm', 'band_delivery_pct', 'selectivity_pct'],
+                        [dl, bd, d3['sel'] * 100]),
+        'c_angular_response': (['theta_substrate_deg', 'T_planar', 'T_DBR', 'T_ideal'],
+                               [th, d1['T_flat'], d1['T_dbr'], Ti]),
+    })
+
+
 def figS1_patch():
     """Table S7 as a figure: total EQE vs patch + selectivity vs patch."""
     Pz = list(P25['PATCHES'].ravel()) + list(P100['PATCHES'].ravel())
@@ -229,12 +280,12 @@ def figS1_patch():
     ax.legend(fontsize=6.2, ncol=4, loc='upper center', columnspacing=0.9)
     ax.grid(alpha=0.25)
     fig.tight_layout()
-    MF.save(fig, 'figS1_patch_dependence')
+    MF.save(fig, 'figS2_patch_dependence')
 
     reps = np.full((4, 3), np.nan)
     for i, e in enumerate(Et):
         v = np.asarray(e).ravel(); reps[i, :len(v)] = v[:3]
-    wb_write('figS1_patch_dependence', {
+    wb_write('figS2_patch_dependence', {
         'a_total_EQE': (['patch_mm', 'rep1', 'rep2', 'rep3', 'mean', 'sd',
                          'hemisphere_ref_25mm'],
                         [Pz, reps[:, 0], reps[:, 1], reps[:, 2], m, sd, [0.54679]]),
@@ -273,7 +324,7 @@ def figS2_warmstart():
     ax.plot(np.full(vW.size, 1), vW, 'o', ms=6, color='#C6512F', alpha=0.75)
     for m_, x in [(vH.mean(), 0), (vW.mean(), 1)]:
         ax.plot([x-0.18, x+0.18], [m_, m_], 'k-', lw=1.4)
-    ax.set_xticks([0, 1]); ax.set_xticklabels(['hemisphere', 'warm start'], fontsize=7)
+    ax.set_xticks([0, 1]); ax.set_xticklabels(['hemisphere', 'restarted'], fontsize=7)
     ax.set_xlim(-0.6, 1.6)
     ax.set_ylabel(r'EQE$_{20-40^\circ}$')
     tc = float(CFM['tval'].ravel()[0])
@@ -281,9 +332,9 @@ def figS2_warmstart():
                  loc='left')
     ax.grid(alpha=0.25, axis='y')
     fig.tight_layout()
-    MF.save(fig, 'figS2_warmstart_control')
+    MF.save(fig, 'figS1_restart_control')
 
-    wb_write('figS2_warmstart_control', {
+    wb_write('figS1_restart_control', {
         'a_all_arms': (['arm', 'hemisphere_val', 'hemisphere_sd', 'warmstart_val',
                         'warmstart_sd', 'gain_pct', 't_value'],
                        [labels, base, sdb, ws, sdw, 100*(ws-base)/base, tval]),
@@ -318,9 +369,9 @@ def figS3_calibration():
     ax2.tick_params(axis='y', labelcolor='#C6512F'); ax2.set_ylim(0, 1.0)
     ax.set_title('supercell cost calibration: 4.3x faster at 0.39 pp deviation', loc='left')
     fig.tight_layout()
-    MF.save(fig, 'figS3_cost_calibration')
+    MF.save(fig, 'figS6_cost_calibration')
 
-    wb_write('figS3_cost_calibration', {
+    wb_write('figS6_cost_calibration', {
         'calibration': (['setting', 'lenslets', 'grid', 'rays', 'lambda_step_nm',
                          'time_s', 'speedup', 'EQE_total', 'max_dSel_pp'],
                         [names, [8, 8, 8, 8, 6, 6], [201, 201, 201, 141, 201, 141],
@@ -345,9 +396,9 @@ def figS4_convergence():
     ax.set_title('drift correlations are stable under stricter evaluation', loc='left')
     ax.legend(fontsize=6.4, loc='lower left'); ax.grid(alpha=0.25, axis='y')
     fig.tight_layout()
-    MF.save(fig, 'figS4_convergence')
+    MF.save(fig, 'figS5_convergence')
 
-    wb_write('figS4_convergence', {
+    wb_write('figS5_convergence', {
         'R_by_condition': (['band', 'R_baseline', 'R_20x_rays', 'R_broadband'],
                            [BANDS, R0, R1, R2]),
     })
@@ -355,7 +406,13 @@ def figS4_convergence():
 
 if __name__ == '__main__':
     print('\n[main-figure data]')
-    export_fig1(); export_fig2(); export_fig3(); export_fig4(); export_fig5()
+    export_fig1(); export_fig2(); export_fig3(); export_fig4()
     print('\n[supplementary figures + data]')
-    figS1_patch(); figS2_warmstart(); figS3_calibration(); figS4_convergence()
+    figS2_warmstart()        # -> figS1_restart_control
+    figS1_patch()            # -> figS2_patch_dependence
+    figS3_gain_decomposition()
+    figS4_selectivity_map()
+    figS4_convergence()      # -> figS5_convergence
+    figS3_calibration()      # -> figS6_cost_calibration
+    figS7_recycling()
     print('\nall workbooks and supplementary figures written.')
