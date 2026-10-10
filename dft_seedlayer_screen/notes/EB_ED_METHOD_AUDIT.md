@@ -2224,14 +2224,16 @@ and the natural 5s occupation (script 138, `runs/charge_robustness_local.json`):
 | Ag 5s occupation | n=1 | n=2 | n=3 | n=4 |
 |---|---|---|---|---|
 | benzene | 1.00 | 1.02 | 0.99 | 0.99 |
-| HATCN | 0.17 | **0.82** | 0.73 | see below |
+| HATCN | 0.17 | **0.82** | 0.73 | 0.73 |
 | F4TCNQ | 0.30 | **0.88** | 0.71 | 0.79 |
 | Mo3O9 | 0.17 | **0.54** | 0.71 | 0.60 |
 
 Two things follow, and the second changes how the criterion must be written.
 
 - **At even n the oxide is separated in every scheme**: at Ag₂, HATCN/F4TCNQ are
-  +0.05…+0.18 per atom and Mo3O9 +0.29…+0.45; 5s 0.82–0.88 against 0.54.
+  +0.05…+0.18 per atom and Mo3O9 +0.29…+0.45; 5s 0.82–0.88 against 0.54. At
+  Ag₄, HATCN +0.09…+0.26 against Mo3O9 +0.22…+0.39, lower in every scheme
+  (5s 0.73 against 0.60).
 - **At odd n it is not.** At Ag₃ F4TCNQ (+0.19…+0.29) sits on top of Mo3O9
   (+0.19…+0.29) and is higher in Hirshfeld. An odd cluster carries one unpaired
   electron in a high 5s-derived orbital, and any strong acceptor takes it
