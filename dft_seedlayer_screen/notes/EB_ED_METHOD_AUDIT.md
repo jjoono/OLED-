@@ -2201,3 +2201,115 @@ natural occupation on all 16 package-G geometries, plus def2-TZVP for HATCN and
 Mo3O9 at n = 1, 2. The claim survives if every scheme gives the same substrate
 order at every n; it does not need the absolute values to agree. Geometries are
 now durable in `structures/clusters/`.
+
+## Local supplements, no Gaussian (2026-10-10)
+
+Everything below ran in this repository's environment: PySCF for PBE0-D3(BJ)/
+def2 (scripts/qclocal.py) and GFN2-xTB through tblite. Neither is used without a
+check against something the project already trusted.
+
+**Validation.** PySCF on the Gaussian geometry of Mo3O9-Ag1 gives Mulliken
+q(Ag) = +0.722 (Gaussian +0.722) and a total energy with s-dftd3 added 5 meV
+from Gaussian's — same state, same basis, the residue being grid and density
+fitting. GFN2-xTB on all sixteen package-G geometries reproduces the PBE0 charge
+order benzene < HATCN ≈ F4TCNQ < Mo3O9 at every n, HATCN's hand-back (+0.31 →
++0.06) and Mo3O9's values to 0.03–0.09 e. It overbinds N-chelates about 2× in
+E_b, so GFN2 energies are used only to *find* sites, never to rank them.
+
+### 1. The charge holds in every scheme — and the right form of the criterion
+
+Per-atom Ag charge in five schemes (Mulliken / Löwdin / IAO / NPA / Hirshfeld)
+and the natural 5s occupation (script 138, `runs/charge_robustness_local.json`):
+
+| Ag 5s occupation | n=1 | n=2 | n=3 | n=4 |
+|---|---|---|---|---|
+| benzene | 1.00 | 1.02 | 0.99 | 0.99 |
+| HATCN | 0.17 | **0.82** | 0.73 | see below |
+| F4TCNQ | 0.30 | **0.88** | 0.71 | 0.79 |
+| Mo3O9 | 0.17 | **0.54** | 0.71 | 0.60 |
+
+Two things follow, and the second changes how the criterion must be written.
+
+- **At even n the oxide is separated in every scheme**: at Ag₂, HATCN/F4TCNQ are
+  +0.05…+0.18 per atom and Mo3O9 +0.29…+0.45; 5s 0.82–0.88 against 0.54.
+- **At odd n it is not.** At Ag₃ F4TCNQ (+0.19…+0.29) sits on top of Mo3O9
+  (+0.19…+0.29) and is higher in Hirshfeld. An odd cluster carries one unpaired
+  electron in a high 5s-derived orbital, and any strong acceptor takes it
+  (Ag₃ → closed-shell Ag₃⁺). So "less charge per atom" is not a clean ordering.
+
+The form that survives every n is about **totals**: an organic acceptor takes at
+most about one cluster's odd electron, the oxide also oxidises closed-shell
+clusters, so its transfer is *extensive*:
+
+| total Ag charge | Ag₁ | Ag₂ | Ag₃ | Ag₄ |
+|---|---|---|---|---|
+| benzene (PBE0) | −0.06 | −0.13 | −0.16 | −0.17 |
+| HATCN (PBE0) | +0.57 | +0.20 | +0.49 | +0.63 |
+| F4TCNQ (PBE0) | +0.55 | +0.16 | +0.65 | +0.59 |
+| Mo3O9 (PBE0) | +0.72 | +0.82 | +0.74 | +1.22 |
+| MoO₃(010) slab (GFN2) | +0.79 | +1.25 | +1.74 | +2.33 |
+| MoO₃₋ₓ(010) slab (GFN2) | +0.65 | +1.12 | +1.51 | — |
+
+Organics stay bounded at ≤ 0.65 e; the oxide grows with the cluster. **That is
+the statement to publish**, not a per-atom ranking.
+
+### 2. The cluster objection, answered both ways
+
+- **Oxide** (script 137): a 3×3 α-MoO₃(010) bilayer from Kihlborg's structure
+  (COD 9014282; Mo octahedra 1.67/1.73/1.95×2/2.25/2.33 Å as in the crystal),
+  72 atoms, periodic. Ag stays ionised at every size, +0.58 per atom at Ag₄, more
+  than on Mo3O9 at the same level. The substoichiometric slab (one terminal O
+  removed) takes a little less (+0.50 at Ag₃) — still the oxide pattern. The
+  cluster understated the effect.
+- **Organic** (script 145): three coplanar HATCN discs at N···N contact. The
+  deepest Ag₁ site is the intermolecular hollow, and at Ag₂ the charge is handed
+  back completely (+0.005 per atom). The film environment makes the organic
+  pattern cleaner.
+
+### 3. Every candidate re-surveyed (script 142)
+
+GFN2-xTB multi-site survey of all 25 candidates, atop/bridge/hollow plus
+heteroatom pockets (the chelate script 131 missed on Bphen). Site-finding was
+validated on the PBE0 surveys: it finds HATCN's aza pocket, Bphen's N chelate,
+F4TCNQ's nitrile and benzene's face — but *not* Mo3O9's edge sites, so it is
+trusted on organics only.
+
+- 14 single-site rows: the stage-1 site was already the deepest → upgraded from
+  "lower bound" to "site confirmed".
+- 4 rows have a deeper hidden site (DMABN, Liq, Al4O6, Cu4I4) → checked at PBE0
+  by script 144.
+- Ag₂ per-atom charge at each deepest site splits the table by class: every
+  metal oxide keeps silver ionised (Mo3O9 +0.39, Mo3O8 +0.41, Al4O6 +0.27);
+  every organic, Cs₂CO₃, Liq and Cu₄I₄ hands it back (≤ +0.08).
+
+`scripts/141_screening_status.py` writes the table with a status column saying
+what each row is.
+
+### 4. What the XPS should see (script 139)
+
+The substrate-side test: each electron to MoO₃ makes a Mo⁵⁺. IMFP from TPP-2M
+(Mo 3d in MoO₃ 24 Å, N 1s in HATCN 30 Å). **Trap to avoid:** at equal Ag
+coverage HATCN shows the *larger* reduced fraction (N 1s anion) even though each
+silver gives it less, because HATCN has 0.93 acceptor molecules/nm² against
+6.83 Mo per plane. Raw fractions must never be compared between substrates;
+`electrons_per_ag()` inverts a fitted fraction at a measured coverage into
+electrons per Ag, which is the comparable number. Predicted added Mo⁵⁺ at 0.3 ML
+Ag: 3–8 % at normal emission, 5–13 % at 60°; at 1 ML 10–27 % / 16–40 %.
+Measure the pristine film's Mo⁵⁺ first — the observable is the change.
+
+### 5. How big the derivative experiment must be (script 140)
+
+Monte Carlo of the derivative series with a quadratic-vertex test (one-sided
+p < 0.05, vertex strictly interior). False positives under a monotone truth stay
+at 2–5 % — the test is calibrated. Power to detect an interior optimum:
+
+| members × films | σ = 0.2 nm in-situ | σ = 0.3 nm | σ = 0.5 nm |
+|---|---|---|---|
+| 5 × 2, Δ = 0.5 nm | 0.55 | 0.35 | 0.20 |
+| 6 × 3, Δ = 0.5 nm | **0.85** | 0.55 | 0.28 |
+| 5 × 2, Δ = 1.0 nm | **0.94** | 0.75 | 0.43 |
+| 6 × 2, Δ = 1.0 nm | **1.00** | **0.89** | 0.54 |
+
+Four members are never enough (≤ 0.67). σ ≤ 0.3 nm is the requirement, which
+in practice means in-situ resistance during deposition; stepped ex-situ series
+cost 5–15 points of power at σ = 0.2.

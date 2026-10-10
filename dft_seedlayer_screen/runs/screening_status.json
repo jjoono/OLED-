@@ -208,7 +208,10 @@
   "E_b_deepest": 0.3039,
   "q_Ag1": null,
   "q_Ag4_per_atom": null,
-  "status": "single site: lower bound only"
+  "xtb_sites": 76,
+  "q_Ag2_per_atom_xtb": -0.1571,
+  "xtb_hidden_deeper": false,
+  "status": "PBE0 single site, confirmed deepest by xTB survey"
  },
  {
   "candidate": "PhCz",

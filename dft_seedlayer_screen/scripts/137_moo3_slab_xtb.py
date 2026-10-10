@@ -179,14 +179,15 @@ def grow(s, tag):
                  for x in ag]
         dd = sorted(float(np.linalg.norm(ag[i] - ag[j]))
                     for i in range(n) for j in range(i + 1, n))
-        res[n] = {"E_bind_total_eV": round(e_sub + n * e_ag - e, 4),
-                  "q_total": round(float(qa.sum()), 4),
+        # no binding energy: the isolated-atom reference and the periodic slab
+        # do not share an energy zero in tblite, so the difference is not an
+        # adsorption energy (it came out at 8-40 eV)
+        res[n] = {"q_total": round(float(qa.sum()), 4),
                   "q_per_atom": round(float(qa.mean()), 4),
                   "Ag_sub_min_A": [round(x, 3) for x in d_sub],
                   "Ag_Ag_A": [round(x, 3) for x in dd[:max(n - 1, 0)]]}
         write(os.path.join(OUT, f"{tag}_Ag{n}.xyz"), a)
         print(f"  {tag:<10} Ag{n}: q/atom {qa.mean():+.3f}  total {qa.sum():+.3f}  "
-              f"E_bind {res[n]['E_bind_total_eV']:.3f} eV  "
               f"Ag-sub {min(d_sub):.2f} A", flush=True)
         _save(tag, res)
     return res

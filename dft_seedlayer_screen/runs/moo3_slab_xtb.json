@@ -1,7 +1,6 @@
 {
  "MoO3_010": {
   "1": {
-   "E_bind_total_eV": 7.8777,
    "q_total": 0.7941,
    "q_per_atom": 0.7941,
    "Ag_sub_min_A": [
@@ -10,7 +9,6 @@
    "Ag_Ag_A": []
   },
   "2": {
-   "E_bind_total_eV": 19.6076,
    "q_total": 1.2501,
    "q_per_atom": 0.6251,
    "Ag_sub_min_A": [
@@ -22,7 +20,6 @@
    ]
   },
   "3": {
-   "E_bind_total_eV": 26.8411,
    "q_total": 1.7438,
    "q_per_atom": 0.5813,
    "Ag_sub_min_A": [
@@ -36,7 +33,6 @@
    ]
   },
   "4": {
-   "E_bind_total_eV": 39.5098,
    "q_total": 2.3267,
    "q_per_atom": 0.5817,
    "Ag_sub_min_A": [
@@ -54,13 +50,37 @@
  },
  "MoO3-x_010": {
   "1": {
-   "E_bind_total_eV": 9.348,
    "q_total": 0.6517,
    "q_per_atom": 0.6517,
    "Ag_sub_min_A": [
     2.496
    ],
    "Ag_Ag_A": []
+  },
+  "2": {
+   "q_total": 1.1227,
+   "q_per_atom": 0.5614,
+   "Ag_sub_min_A": [
+    2.461,
+    3.356
+   ],
+   "Ag_Ag_A": [
+    2.603
+   ]
+  },
+  "3": {
+   "q_total": 1.5053,
+   "q_per_atom": 0.5018,
+   "Ag_sub_min_A": [
+    2.37,
+    3.212,
+    2.237
+   ],
+   "Ag_Ag_A": [
+    2.677,
+    3.007
+   ]
   }
- }
+ },
+ "_note": "GFN2-xTB, 3x3 alpha-MoO3(010) bilayer (COD 9014282), substrate frozen, Ag relaxed, 1000 K smearing. Binding energies are omitted: the isolated-atom reference (non-periodic, 300 K) and the periodic slab energies do not share a zero, so their difference is not an adsorption energy. Charges are GFN2 Mulliken-type. MoO3-x Ag4 did not converge at 1000 or 3000 K and is absent."
 }
