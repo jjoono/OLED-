@@ -2315,3 +2315,20 @@ at 2–5 % — the test is calibrated. Power to detect an interior optimum:
 Four members are never enough (≤ 0.67). σ ≤ 0.3 nm is the requirement, which
 in practice means in-situ resistance during deposition; stepped ex-situ series
 cost 5–15 points of power at σ = 0.2.
+
+### 1b. Larger basis (def2-TZVP)
+
+The hand-back is not a def2-SVP artefact:
+
+| | IAO SVP → TZVP | Hirshfeld SVP → TZVP | Ag 5s SVP → TZVP |
+|---|---|---|---|
+| Mo3O9 Ag₁ | +0.657 → +0.655 | +0.574 → +0.584 | 0.165 → 0.134 |
+| Mo3O9 Ag₂ (per atom) | +0.384 → +0.378 | +0.294 → +0.285 | 0.544 → 0.534 |
+| HATCN Ag₁ | +0.536 → +0.537 | +0.400 → +0.435 | 0.166 → 0.138 |
+| HATCN Ag₂ (per atom) | +0.157 → +0.157 | +0.054 → +0.066 | 0.823 → 0.810 |
+
+At Ag₂ the 5s occupation is 0.81 on HATCN against 0.53 on Mo3O9 in the larger
+basis. The script's blanket test ("Mo3O9 most positive in every scheme at every
+n") reports NO, and the reason is the one given above: at n = 3 F4TCNQ's odd
+electron goes to the acceptor and F4TCNQ ties or passes Mo3O9. The even-n and
+total-charge statements stand.
