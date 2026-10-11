@@ -12,5 +12,19 @@
    "converged": true
   },
   "delta_deep_minus_stage1": -0.0246
+ },
+ "Liq": {
+  "deepest_xtb": "atop1",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.3951,
+   "q_mulliken": -0.1039,
+   "converged": true
+  },
+  "atop1": {
+   "E_b_pbe0_at_xtb_geom": 0.2835,
+   "q_mulliken": -0.0438,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": -0.1116
  }
 }
