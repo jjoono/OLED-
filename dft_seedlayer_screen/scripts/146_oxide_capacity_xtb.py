@@ -73,11 +73,36 @@ def build(tag):
     return s
 
 
+LAST_ETEMP = {}
+
+
 def relax(atoms, n_sub, n_ag):
-    return s137.relax(atoms, n_sub, n_ag)
+    """Script 137's relaxation, with two further fallbacks.
+
+    ZnO lost every Ag2 start at 1000 K and 3000 K: the SCF oscillates once two
+    silver atoms sit over the Zn-O dimer rows. Heavier damping and 5000 K
+    smearing are tried before a start is given up; the temperature that
+    converged is recorded, because 5000 K moves charges by more than 1000 K.
+    """
+    from ase.constraints import FixAtoms
+    from ase.optimize import BFGS
+    from tblite.ase import TBLite
+    for etemp, damp in ((1000.0, 0.05), (3000.0, 0.05), (3000.0, 0.02), (5000.0, 0.02)):
+        a = atoms.copy()
+        a.set_constraint(FixAtoms(indices=list(range(n_sub))))
+        a.calc = TBLite(method="GFN2-xTB", verbosity=0, multiplicity=1 + (n_ag % 2),
+                        max_iterations=800, mixer_damping=damp,
+                        electronic_temperature=etemp)
+        try:
+            BFGS(a, logfile=None, maxstep=0.2).run(fmax=s137.FMAX, steps=250)
+            LAST_ETEMP[n_ag] = etemp
+            return a, a.get_potential_energy(), a.get_charges()
+        except Exception:
+            continue
+    return None
 
 
-def grow(s, tag):
+def grow(s, tag, resume_n=0):
     n_sub = len(s)
     z = s.positions[:, 2]
     ztop = z.max()
@@ -88,6 +113,13 @@ def grow(s, tag):
     hol = s.positions[near].mean(axis=0)
     starts.append([hol[0], hol[1], ztop + 2.3])
     best = None
+    if resume_n:
+        # restart from a saved, already relaxed Ag_n on this slab
+        a = read(os.path.join(OUT, f"{tag}_Ag{resume_n}.xyz"))
+        d = json.load(open(RES)).get(tag, {}) if os.path.exists(RES) else {}
+        res = {int(k): v for k, v in d.items() if int(k) <= resume_n}
+        cur = (a, None, None)
+        return _grow_from(s, tag, n_sub, res, cur, resume_n + 1)
     for p in starts:
         r = relax(s + Atoms("Ag", positions=[p]), n_sub, 1)
         if r is not None and (best is None or r[1] < best[1]):
@@ -95,8 +127,11 @@ def grow(s, tag):
     if best is None:
         print(f"  {tag}: every Ag1 start failed", flush=True)
         return {}
-    res, cur = {}, best
-    for n in range(1, 5):
+    return _grow_from(s, tag, n_sub, {}, best, 1)
+
+
+def _grow_from(s, tag, n_sub, res, cur, n0):
+    for n in range(n0, 5):
         if n > 1:
             prev = cur[0]
             ag = prev.positions[n_sub:]
@@ -126,7 +161,8 @@ def grow(s, tag):
         qa = q[n_sub:]
         ag = a.positions[n_sub:]
         dmin = min(float(np.min(np.linalg.norm(a.positions[:n_sub] - x, axis=1))) for x in ag)
-        res[n] = {"q_total": round(float(qa.sum()), 4),
+        res[n] = {"etemp_K": LAST_ETEMP.get(n),
+                  "q_total": round(float(qa.sum()), 4),
                   "q_per_atom": round(float(qa.mean()), 4),
                   "Ag_sub_min_A": round(dmin, 3)}
         write(os.path.join(OUT, f"{tag}_Ag{n}.xyz"), a)
@@ -140,13 +176,18 @@ def grow(s, tag):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    tags = sys.argv[1:] or ["ZnO", "TiO2", "Cu2O", "V2O5"]
+    args = sys.argv[1:]
+    resume = 0
+    if "--resume" in args:
+        resume = int(args[args.index("--resume") + 1])
+        args = [a for a in args if a not in ("--resume", str(resume))]
+    tags = args or ["ZnO", "TiO2", "Cu2O", "V2O5"]
     for t in tags:
         s = build(t)
         write(os.path.join(OUT, f"{t}_substrate.xyz"), s)
         print(f"{t}: {len(s)} atoms {s.get_chemical_formula()}, cell "
               + " x ".join(f"{x:.2f}" for x in s.cell.lengths()), flush=True)
-        grow(s, t)
+        grow(s, t, resume)
 
 
 if __name__ == "__main__":
