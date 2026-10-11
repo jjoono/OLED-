@@ -159,7 +159,8 @@ literature seed, could not be computed**: GFN2 cannot place the empty states of
 an antiferromagnetic Cu(II) Mott insulator, so Cu₂O (closed shell, the main
 product of oxidising a Cu seed) stands in. Every value below was re-checked by
 a fresh SCF from the saved geometry; all reproduce to the third decimal except
-ZnO Ag₂ (below) and MoO₃ Ag₁ (0.06 e).
+ZnO Ag₂ (below) and MoO₃ Ag₁ (0.06 e). TiO₂ Ag₂ needed the relaxation's own
+damping (0.05) to converge from scratch and then gave +2.358 against +2.357.
 
 Total Ag charge (e), and the change when the second atom arrives:
 
