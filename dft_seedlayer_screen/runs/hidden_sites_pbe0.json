@@ -40,5 +40,19 @@
    "converged": true
   },
   "delta_deep_minus_stage1": 0.5777
+ },
+ "Al4O6": {
+  "deepest_xtb": "pocketO5O6",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.4046,
+   "q_mulliken": 0.0419,
+   "converged": true
+  },
+  "pocketO5O6": {
+   "E_b_pbe0_at_xtb_geom": 0.6962,
+   "q_mulliken": 0.1133,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": 0.2916
  }
 }
