@@ -170,7 +170,7 @@ Total Ag charge (e), and the change when the second atom arrives:
 | ZnO(10-10) | +0.70 | +0.58 *or* +1.00 | — | **−0.12 / +0.30** | industry-standard seed; continuous 8 nm where a-TiO₂ is not |
 | MoO₃(010) | +0.79 | +1.25 | +1.74 | **+0.46** | percolates at 7 nm but porous (literature and this lab) |
 | V₂O₅(001) | +0.94 | +1.79 | +2.05 | **+0.85** | not tested as a seed — prediction: MoO₃-like |
-| TiO₂(110) | +1.17 | +2.36 | (running) | **+1.19** | 8 nm Ag discontinuous on a-TiO₂ (vs ZnO continuous) |
+| TiO₂(110) | +1.17 | +2.36 | — | **+1.19** | 8 nm Ag discontinuous on a-TiO₂ (vs ZnO continuous) |
 | HATCN, single molecule (cluster) | +0.31 | +0.11 | — | **−0.20** | this lab: continuous at 7 nm |
 | HATCN, 3-molecule raft | +0.24 | +0.01 | — | **−0.23** | — |
 
@@ -196,6 +196,8 @@ not — reducibility and site density, not band position, decide.
 - Crystalline facets, not the amorphous evaporated films the literature and
   the lab use. The literature TiO₂ case is amorphous TiO₂; the MoO₃ one is
   thermally evaporated MoOₓ.
+- TiO₂ Ag₃ was stopped after more than six hours without converging; the
+  verdict rests on Ag₁→Ag₂, as for every other oxide.
 - V₂O₅ Ag₄ relaxed into Ag–O contacts of 1.69–1.97 Å (shorter than in Ag₂O)
   and is rejected.
 
