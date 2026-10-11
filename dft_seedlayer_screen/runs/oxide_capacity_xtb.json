@@ -6,10 +6,16 @@
    "Ag_sub_min_A": 2.475
   },
   "2": {
-   "etemp_K": 5000.0,
-   "q_total": 0.5837,
-   "q_per_atom": 0.2918,
-   "Ag_sub_min_A": 2.255
+   "q_total_solutions": [
+    0.5837,
+    1.002
+   ],
+   "q_per_atom_solutions": [
+    0.2918,
+    0.501
+   ],
+   "Ag_sub_min_A": 2.255,
+   "note": "Bistable at GFN2: the 5000 K relaxation ended on a +0.584 e solution; a fresh SCF on the same geometry gives +1.00 e at 1000 K (+0.96 at 5000 K). A 1000 K re-relaxation lost SCF convergence. Both are reported; Ag3/Ag4 not computed."
   }
  },
  "V2O5": {
@@ -31,7 +37,8 @@
   "4": {
    "q_total": 0.4759,
    "q_per_atom": 0.119,
-   "Ag_sub_min_A": 1.692
+   "Ag_sub_min_A": 1.692,
+   "rejected": "unphysical Ag-O contacts 1.69/1.88/1.97 A; geometry not used"
   }
  },
  "Cu2O": {
