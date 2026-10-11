@@ -2332,3 +2332,89 @@ basis. The script's blanket test ("Mo3O9 most positive in every scheme at every
 n") reports NO, and the reason is the one given above: at n = 3 F4TCNQ's odd
 electron goes to the acceptor and F4TCNQ ties or passes Mo3O9. The even-n and
 total-charge statements stand.
+
+### 6. E_b: counterpoise and def2-TZVP (script 143)
+
+PySCF reproduces every published def2-SVP E_b exactly (benzene 0.205, F4TCNQ
+1.208, HATCN 1.631, Mo3O9 2.164). Corrections:
+
+| | SVP | SVP + CP | TZVP | TZVP + CP | BSSE (SVP / TZVP) |
+|---|---|---|---|---|---|
+| benzene | 0.205 | 0.166 | — | — | 0.039 / — |
+| F4TCNQ | 1.208 | 1.130 | — | — | 0.078 / — |
+| HATCN | 1.631 | 1.516 | 1.521 | **1.496** | 0.115 / 0.025 |
+| Mo3O9 | 2.164 | 2.090 | 1.984 | **1.944** | 0.074 / 0.040 |
+| gap Mo3O9 − HATCN | 0.533 | 0.574 | 0.462 | **0.448** | |
+
+The gap shrinks from 0.53 to 0.45 eV and does not close. E_b genuinely ranks the
+oxide above HATCN; its disagreement with the experiment is physics, not a
+basis-set error — which is exactly why a second axis is needed.
+
+### 7. The four hidden sites at PBE0 (script 144)
+
+PBE0 single points at the GFN2-relaxed silver positions, both sites:
+
+| | stage-1 site | xTB's deeper site | Δ (PBE0) | verdict |
+|---|---|---|---|---|
+| DMABN | 0.225 | 0.200 | −0.025 | stage-1 site stands |
+| Liq | 0.395 | 0.283 | −0.112 | stage-1 site stands |
+| Cu4I4 | 0.160 | 0.738 | **+0.578** | stage-1 row was a lower bound |
+| Al4O6 | 0.405 | 0.696 | **+0.292** | stage-1 row was a lower bound |
+
+GFN2 overbinds nitrogen and lithium sites (DMABN, Liq) and is right about the
+metal sites of the two inorganic clusters. Final table status: 6 multi-site
+PBE0, 15 single-site confirmed by the survey, 2 stage-1 sites that survived a
+challenge, 2 corrected upward (Cu4I4, Al4O6; both now PBE0 single points at
+GFN2 positions, themselves lower bounds).
+
+### 8. XPS prediction, refined
+
+With all five schemes in, the clustered-regime electrons per Ag *overlap*
+between substrates (Mo3O9 +0.22…+0.39, HATCN +0.09…+0.26), so an absolute e/Ag
+from XPS cannot discriminate by itself. Two within-scheme quantities do, in
+every scheme:
+
+| scheme | Mo3O9 / HATCN at Ag₄ | fall Ag₁→Ag₄, HATCN | fall Ag₁→Ag₄, Mo3O9 |
+|---|---|---|---|
+| Mulliken | 1.92 | 3.62 | 2.38 |
+| Löwdin | 2.34 | 4.10 | 2.59 |
+| IAO | 1.57 | 2.22 | 1.74 |
+| NPA | 1.52 | 3.22 | 2.20 |
+| Hirshfeld | 2.02 | 3.34 | 2.37 |
+| GFN2, periodic slab vs HATCN | — | 4.89 | **1.37** |
+
+The experimental observable that inherits this is self-normalised: electrons
+per Ag at ~1 ML divided by electrons per Ag at the lowest coverage measured, on
+the same substrate. Predicted: it falls 2–4× on HATCN and less on MoOx —
+≤2.6× on the cluster, ~1.4× on the extended surface. Coverage-dependence, not
+the absolute number, is the test.
+
+## Final position after the local supplements
+
+**Robust (survives every check run):**
+1. HATCN's deepest Ag site is the aza pocket (1.631 eV PBE0/SVP; 1.496 at
+   TZVP+CP); on a three-molecule raft the intermolecular hollow competes.
+2. E_b ranks Mo3O9 above HATCN by 0.45 eV even at TZVP with counterpoise.
+   E_b alone cannot explain the experiment, and that is not a numerical error.
+3. A lone adatom is equally ionised on HATCN and Mo3O9 (5s 0.17 on both).
+   From the second atom on, HATCN hands the charge back (5s 0.81–0.82 at Ag₂ in
+   SVP and TZVP) and Mo3O9 does not (0.53–0.54).
+4. Total transfer is bounded on organic acceptors (≤ 0.65 e through Ag₄) and
+   extensive on the oxide (+1.22 e on Mo3O9, +2.33 e on periodic MoO₃(010)).
+5. Both cluster objections fail: the extended oxide surface is *more* ionising
+   than the cluster, the HATCN raft hands back *more* completely.
+6. Class split at Ag₂ across all 25 candidates (GFN2): metal oxides keep silver
+   ionised, organics and Cs₂CO₃/Liq/Cu₄I₄ do not.
+
+**Not robust, and should not be claimed:**
+- per-atom charge ordering at odd n (an odd cluster's electron goes to any
+  strong acceptor; F4TCNQ ties Mo3O9 at Ag₃);
+- absolute charges, absolute E_b better than ~0.2 eV;
+- anything about why HATCN beats F4TCNQ or the reverse — charge does not
+  separate them;
+- "dominant" mechanism — the experiment has one discriminating comparison.
+
+**The publishable statement:** single-adatom binding ranks seed layers
+incorrectly; the discriminator is whether the substrate keeps oxidising silver
+once small clusters form — bounded on organic acceptors, extensive on MoO₃ —
+and it predicts a coverage-dependent electron transfer that XPS can test.

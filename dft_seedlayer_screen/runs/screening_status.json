@@ -97,6 +97,19 @@
   "status": "PBE0 single site, confirmed deepest by xTB survey"
  },
  {
+  "candidate": "Cu4I4",
+  "E_b_stage1": 0.1609,
+  "E_d_inter": 1.4298,
+  "sites": 2,
+  "E_b_deepest": 0.7378,
+  "q_Ag1": null,
+  "q_Ag4_per_atom": null,
+  "xtb_sites": 10,
+  "q_Ag2_per_atom_xtb": -0.0021,
+  "xtb_hidden_deeper": true,
+  "status": "xTB found deeper site; PBE0 says +0.58 eV -> row is a lower bound; E_d unconverged"
+ },
+ {
   "candidate": "Cs2CO3",
   "E_b_stage1": 0.7006,
   "E_d_inter": 0.2475,
@@ -110,6 +123,19 @@
   "status": "PBE0 single site, confirmed deepest by xTB survey"
  },
  {
+  "candidate": "Al4O6",
+  "E_b_stage1": 0.4166,
+  "E_d_inter": 0.2882,
+  "sites": 2,
+  "E_b_deepest": 0.6962,
+  "q_Ag1": null,
+  "q_Ag4_per_atom": null,
+  "xtb_sites": 22,
+  "q_Ag2_per_atom_xtb": 0.2651,
+  "xtb_hidden_deeper": true,
+  "status": "xTB found deeper site; PBE0 says +0.29 eV -> row is a lower bound"
+ },
+ {
   "candidate": "Me3P=O",
   "E_b_stage1": 0.461,
   "E_d_inter": 0.1958,
@@ -121,19 +147,6 @@
   "q_Ag2_per_atom_xtb": 0.0059,
   "xtb_hidden_deeper": false,
   "status": "PBE0 single site, confirmed deepest by xTB survey"
- },
- {
-  "candidate": "Al4O6",
-  "E_b_stage1": 0.4166,
-  "E_d_inter": 0.2882,
-  "sites": 1,
-  "E_b_deepest": 0.4166,
-  "q_Ag1": null,
-  "q_Ag4_per_atom": null,
-  "xtb_sites": 22,
-  "q_Ag2_per_atom_xtb": 0.2651,
-  "xtb_hidden_deeper": true,
-  "status": "xTB found a deeper site; PBE0 check pending"
  },
  {
   "candidate": "B3PyMPM",
@@ -172,7 +185,7 @@
   "xtb_sites": 27,
   "q_Ag2_per_atom_xtb": 0.0151,
   "xtb_hidden_deeper": true,
-  "status": "xTB found a deeper site; PBE0 check pending"
+  "status": "xTB found deeper site; PBE0 says -0.11 eV -> stage-1 site stands"
  },
  {
   "candidate": "BTD",
@@ -263,7 +276,7 @@
   "xtb_sites": 14,
   "q_Ag2_per_atom_xtb": -0.072,
   "xtb_hidden_deeper": true,
-  "status": "xTB found a deeper site; PBE0 check pending"
+  "status": "xTB found deeper site; PBE0 says -0.02 eV -> stage-1 site stands"
  },
  {
   "candidate": "oDCNB",
@@ -316,18 +329,5 @@
   "q_Ag2_per_atom_xtb": 0.0099,
   "xtb_hidden_deeper": false,
   "status": "PBE0 single site, confirmed deepest by xTB survey"
- },
- {
-  "candidate": "Cu4I4",
-  "E_b_stage1": 0.1609,
-  "E_d_inter": 1.4298,
-  "sites": 1,
-  "E_b_deepest": 0.1609,
-  "q_Ag1": null,
-  "q_Ag4_per_atom": null,
-  "xtb_sites": 10,
-  "q_Ag2_per_atom_xtb": -0.0021,
-  "xtb_hidden_deeper": true,
-  "status": "xTB found a deeper site; PBE0 check pending; E_d unconverged"
  }
 ]

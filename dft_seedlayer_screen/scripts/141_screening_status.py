@@ -62,6 +62,12 @@ def main():
         elif t in xs and r["xtb_hidden_deeper"]:
             if t in hid:
                 d = hid[t]["delta_deep_minus_stage1"]
+                if d > 0.05:
+                    deep = hid[t]["deepest_xtb"]
+                    # a PBE0 single point at the GFN2 position: not relaxed at
+                    # PBE0, so itself a lower bound on that site
+                    r["E_b_deepest"] = hid[t][deep]["E_b_pbe0_at_xtb_geom"]
+                    r["sites"] = 2
                 r["status"] = (f"xTB found deeper site; PBE0 says {d:+.2f} eV -> "
                                + ("row is a lower bound" if d > 0.05 else "stage-1 site stands"))
             else:
