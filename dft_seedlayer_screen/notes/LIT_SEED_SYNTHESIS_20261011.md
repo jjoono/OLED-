@@ -149,3 +149,56 @@ own thesis (lower electrode absorption) is built to win or lose.
 - ACS Appl. Energy Mater. 7, 7140 (2024), PMC11412282 — condensation-coefficient review.
 - Nat. Commun. 10, 866 (2019), PMC6382909 — Ag⁺–Bphen coordination n-doping.
 - Park & Suh, Opt. Express 26, 4979 (2018) — HATCN/Ag 15–25 nm.
+
+## 6. Test of the charge-capacity veto on oxides the literature has ranked (script 146)
+
+Same protocol as the MoO₃(010) slab: periodic slabs from COD structures,
+GFN2-xTB, substrate frozen, Ag relaxed, 1000 K smearing. ZnO(10-10) 96 atoms,
+rutile TiO₂(110) 108, Cu₂O(111) 72, V₂O₅(001) single layer 42. **CuO, the ~1 nm
+literature seed, could not be computed**: GFN2 cannot place the empty states of
+an antiferromagnetic Cu(II) Mott insulator, so Cu₂O (closed shell, the main
+product of oxidising a Cu seed) stands in. Every value below was re-checked by
+a fresh SCF from the saved geometry; all reproduce to the third decimal except
+ZnO Ag₂ (below) and MoO₃ Ag₁ (0.06 e).
+
+Total Ag charge (e), and the change when the second atom arrives:
+
+| oxide | Ag₁ | Ag₂ | Ag₃ | Δ(Ag₁→Ag₂) | literature as an Ag seed |
+|---|---|---|---|---|---|
+| Cu₂O(111) | −0.14 | −0.31 | −0.41 | **−0.17** | oxidised-Cu / CuO seeds percolate at ~1–2 nm |
+| ZnO(10-10) | +0.70 | +0.58 *or* +1.00 | — | **−0.12 / +0.30** | industry-standard seed; continuous 8 nm where a-TiO₂ is not |
+| MoO₃(010) | +0.79 | +1.25 | +1.74 | **+0.46** | percolates at 7 nm but porous (literature and this lab) |
+| V₂O₅(001) | +0.94 | +1.79 | +2.05 | **+0.85** | not tested as a seed — prediction: MoO₃-like |
+| TiO₂(110) | +1.17 | +2.36 | (running) | **+1.19** | 8 nm Ag discontinuous on a-TiO₂ (vs ZnO continuous) |
+| HATCN, single molecule (cluster) | +0.31 | +0.11 | — | **−0.20** | this lab: continuous at 7 nm |
+| HATCN, 3-molecule raft | +0.24 | +0.01 | — | **−0.23** | — |
+
+**The ordering of Δ(Ag₁→Ag₂) matches every oxide the literature has ranked.**
+The two oxides that seed well (copper oxide, ZnO) sit with the organics at or
+below zero — the charge comes back, or never leaves. The two that the
+literature finds poor or porous (MoO₃, TiO₂) are strongly positive — a second
+silver atom is oxidised too. V₂O₅, untested in the literature, lands with them,
+which is a prediction.
+
+The surprise is TiO₂: by electron affinity (~4.2 eV) it is a weak acceptor like
+ZnO, and an EA proxy would have passed it. The capacity calculation fails it,
+and so does the only direct comparison found (a-TiO₂ vs ZnO). This is the
+second case, after HATCN, where EA misclassifies and the computed capacity does
+not — reducibility and site density, not band position, decide.
+
+**Caveats, none cosmetic.**
+- GFN2 charges exceed formal values on TiO₂ (+1.17 per atom); only the sign and
+  size of Δ are used, never the absolute charge.
+- **ZnO is bistable** at Ag₂: two SCF solutions on one geometry (+0.58 and
+  +1.00 e). Even the higher one gives the smallest positive Δ of the ionising
+  oxides, but ZnO sits at the boundary, not clearly on the good side.
+- Crystalline facets, not the amorphous evaporated films the literature and
+  the lab use. The literature TiO₂ case is amorphous TiO₂; the MoO₃ one is
+  thermally evaporated MoOₓ.
+- V₂O₅ Ag₄ relaxed into Ag–O contacts of 1.69–1.97 Å (shorter than in Ag₂O)
+  and is rejected.
+
+**Operational form of the veto.** Δq(Ag₁→Ag₂) ≥ ~+0.3 e (GFN2, periodic
+surface or validated cluster): the substrate oxidises a second atom, veto.
+Δ ≤ 0: pass. Between: ambiguous, decided by experiment. On this scale ZnO is at
+the boundary, HATCN and Cu₂O pass, MoO₃, V₂O₅ and TiO₂ are vetoed.
