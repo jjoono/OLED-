@@ -26,5 +26,19 @@
    "converged": true
   },
   "delta_deep_minus_stage1": -0.1116
+ },
+ "Cu4I4": {
+  "deepest_xtb": "atop0",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.1601,
+   "q_mulliken": -0.0746,
+   "converged": true
+  },
+  "atop0": {
+   "E_b_pbe0_at_xtb_geom": 0.7378,
+   "q_mulliken": -0.0204,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": 0.5777
  }
 }
