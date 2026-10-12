@@ -1,0 +1,236 @@
+[
+ {
+  "name": "HATCN",
+  "role": "HIL (CGL)",
+  "E_b": 1.631,
+  "site": "aza N",
+  "dq": -0.197,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "F4TCNQ",
+  "role": "p-dopant",
+  "E_b": 1.208,
+  "site": "nitrile N",
+  "dq": -0.268,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "F6-TCNNQ",
+  "role": "p-dopant",
+  "dq": -0.2551,
+  "E_b": 1.202,
+  "site": "lpF14 (near N9)",
+  "source": "pbe0_frag",
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "p-bPPhenB",
+  "role": "ETL (n-host)",
+  "E_b": 0.785,
+  "site": "phen chelate",
+  "dq": -0.314,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "Bphen",
+  "role": "ETL",
+  "E_b": 0.621,
+  "site": "phen chelate",
+  "dq": -0.353,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "NBphen",
+  "role": "ETL",
+  "dq": -0.3165,
+  "E_b": 0.47,
+  "site": "pocketN19N44 (GFN2)",
+  "source": "analog: Bphen chelate, minus the 2,9-substituent penalty seen in BCP",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "BCP",
+  "role": "HBL / ETL",
+  "dq": -0.3655,
+  "E_b": 0.4683,
+  "site": "atop24 (near N27)",
+  "source": "pbe0_frag",
+  "other": {
+   "hollow25": 0.1951
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "B3PyMPM",
+  "role": "ETL",
+  "E_b": 0.416,
+  "site": "pyrimidine/pyridyl N",
+  "dq": -0.238,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TmPyPB",
+  "role": "ETL / HBL",
+  "dq": -0.1123,
+  "E_b": 0.416,
+  "site": "bridge7 (GFN2)",
+  "source": "analog: B3PyMPM 3-pyridyl N",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "3TPYMB",
+  "role": "ETL / HBL",
+  "dq": -0.1313,
+  "E_b": 0.416,
+  "site": "lpN27 (GFN2)",
+  "source": "analog: B3PyMPM 3-pyridyl N",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "DPEPO",
+  "role": "blue host / HBL",
+  "dq": -0.5055,
+  "E_b": 0.408,
+  "site": "lpO20 (GFN2)",
+  "source": "analog: Ph3P=O",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TSPO1",
+  "role": "blue host / HBL",
+  "dq": -0.0169,
+  "E_b": 0.408,
+  "site": "hollow14 (GFN2)",
+  "source": "analog: Ph3P=O",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "PO-T2T",
+  "role": "ETL / exciplex acceptor",
+  "dq": -0.2324,
+  "E_b": 0.408,
+  "site": "lpN21 (GFN2)",
+  "source": "analog: Ph3P=O",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "Liq",
+  "role": "EIL / ETL co-dep",
+  "E_b": 0.398,
+  "site": "Li-O",
+  "dq": -0.07,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "Alq3",
+  "role": "ETL / green host",
+  "dq": -0.2751,
+  "E_b": 0.398,
+  "site": "pocketN15N26 (GFN2)",
+  "source": "analog: Liq (metal quinolinolate O)",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TPBi",
+  "role": "ETL / HBL",
+  "dq": -0.2061,
+  "E_b": 0.373,
+  "site": "lpN22 (GFN2)",
+  "source": "analog: pyridine-type N (benzimidazole N3)",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "CBP",
+  "role": "host",
+  "dq": -0.0012,
+  "E_b": 0.279,
+  "site": "hollow45 (GFN2)",
+  "source": "analog: PhCz",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "mCP",
+  "role": "host / EBL",
+  "dq": 0.0076,
+  "E_b": 0.279,
+  "site": "hollow0 (GFN2)",
+  "source": "analog: PhCz",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TCTA",
+  "role": "HTL / host",
+  "dq": -0.0313,
+  "E_b": 0.279,
+  "site": "hollow86 (GFN2)",
+  "source": "analog: PhCz / TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "T2T",
+  "role": "ETL / host",
+  "dq": -0.2318,
+  "E_b": 0.271,
+  "site": "lpN13 (GFN2)",
+  "source": "analog: triazine N",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TPD",
+  "role": "HTL",
+  "dq": -0.0192,
+  "E_b": 0.259,
+  "site": "hollow46 (GFN2)",
+  "source": "analog: TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "NPB",
+  "role": "HTL",
+  "dq": -0.0175,
+  "E_b": 0.259,
+  "site": "bridge6 (GFN2)",
+  "source": "analog: TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TAPC",
+  "role": "HTL / EBL",
+  "dq": 0.0178,
+  "E_b": 0.259,
+  "site": "hollow31 (GFN2)",
+  "source": "analog: TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ }
+]
