@@ -12,23 +12,19 @@
    "error": 0.0,
    "seconds": 10625,
    "d3_sign_fixed": true
-  }
- },
- "F6-TCNNQ": {
-  "lpF14": {
-   "E_b": 1.202,
-   "elec": 1.1046,
-   "D3": -0.0974,
-   "q_mulliken": 0.6382,
-   "frag_atoms": 26,
-   "caps": 0,
-   "mol_atoms": 26,
-   "seconds": 2375,
-   "near": "N9",
-   "R_cut": 5.0,
-   "d3_sign_fixed": true
   },
-  "_deepest": "lpF14",
-  "_E_b_deepest": 1.202
+  "Bphen chelate": {
+   "E_b": 0.6085,
+   "elec": 0.4748,
+   "D3": -0.1337,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0849,
+   "frag_atoms": 22,
+   "caps": 2,
+   "mol_atoms": 42,
+   "reference_full_pbe0": 0.621,
+   "error": -0.0125,
+   "seconds": 856
+  }
  }
 }
