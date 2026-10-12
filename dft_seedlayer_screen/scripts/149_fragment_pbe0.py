@@ -114,9 +114,13 @@ def eb(S, X, ag, mult_mol=1):
         if not mf.converged:
             raise RuntimeError("SCF not converged")
     elec = (e_fr[1] + e_ag[1] - e_cx[1]) * EV
+    # D3 of the complex minus D3 of the molecule: negative, it stabilises the
+    # complex, so it is SUBTRACTED from E(products) - E(complex). The first
+    # version added it and came out 2 x 0.175 eV low on HATCN.
     d3 = (q.d3bj(S + ["Ag"], np.vstack([X, ag])) - q.d3bj(S, X)) * EV
     qag = float(q.mulliken(e_cx[0])[-1])
-    return {"E_b": round(elec + d3, 4), "elec": round(elec, 4), "D3": round(d3, 4),
+    return {"E_b": round(elec - d3, 4), "elec": round(elec, 4), "D3": round(d3, 4),
+            "d3_sign_fixed": True,
             "q_mulliken": round(qag, 4), "frag_atoms": len(FS), "caps": ncap,
             "mol_atoms": len(S)}
 
@@ -194,7 +198,37 @@ def run(names):
         json.dump(done, open(OUT, "w"), indent=1)
 
 
+def fix_d3_sign():
+    """Re-derive E_b = elec - D3 for every entry written before the fix."""
+    if not os.path.exists(OUT):
+        return
+    d = json.load(open(OUT))
+    n = 0
+    groups = [d.get("_validation", {})] + [v for k, v in d.items() if not k.startswith("_")]
+    for g in groups:
+        for lab, r in g.items():
+            if isinstance(r, dict) and "elec" in r and not r.get("d3_sign_fixed"):
+                r["E_b"] = round(r["elec"] - r["D3"], 4)
+                r["d3_sign_fixed"] = True
+                if "reference_full_pbe0" in r:
+                    r["error"] = round(r["E_b"] - r["reference_full_pbe0"], 4)
+                n += 1
+    for k, row in d.items():
+        if k.startswith("_"):
+            continue
+        good = {lab: v["E_b"] for lab, v in row.items()
+                if isinstance(v, dict) and "E_b" in v}
+        if good:
+            row["_deepest"] = max(good, key=good.get)
+            row["_E_b_deepest"] = good[row["_deepest"]]
+    json.dump(d, open(OUT, "w"), indent=1)
+    print(f"fixed the D3 sign on {n} entries")
+
+
 if __name__ == "__main__":
+    if "--fix-d3" in sys.argv:
+        fix_d3_sign()
+        sys.exit()
     if "--validate" in sys.argv:
         validate()
     else:

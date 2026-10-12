@@ -1,7 +1,7 @@
 {
  "_validation": {
   "HATCN aza": {
-   "E_b": 1.2806,
+   "E_b": 1.631,
    "elec": 1.4558,
    "D3": -0.1752,
    "q_mulliken": 0.5723,
@@ -9,8 +9,9 @@
    "caps": 0,
    "mol_atoms": 30,
    "reference_full_pbe0": 1.631,
-   "error": -0.3504,
-   "seconds": 10625
+   "error": 0.0,
+   "seconds": 10625,
+   "d3_sign_fixed": true
   }
  }
 }
