@@ -958,7 +958,7 @@
  },
  "DPEPO": {
   "n_atoms": 69,
-  "n_sites": 5,
+  "n_sites": 8,
   "sites": {
    "atop0": {
     "E_b": 0.6717,
@@ -1019,17 +1019,54 @@
      -0.1627,
      -3.9136
     ]
+   },
+   "lpO0": {
+    "E_b": 0.4114,
+    "q": 0.0165,
+    "near": "O0",
+    "near_el": "O",
+    "d": 2.492,
+    "pos": [
+     7.4008,
+     -0.5483,
+     -1.1363
+    ]
+   },
+   "lpO20": {
+    "E_b": 0.8506,
+    "q": 0.163,
+    "near": "H50",
+    "near_el": "H",
+    "d": 1.689,
+    "pos": [
+     0.5017,
+     -1.2369,
+     -0.0114
+    ]
+   },
+   "lpO28": {
+    "E_b": 0.6385,
+    "q": 0.0398,
+    "near": "H41",
+    "near_el": "H",
+    "d": 2.353,
+    "pos": [
+     -0.0071,
+     -0.1811,
+     -3.9034
+    ]
    }
   },
   "pbe0_sites": [
+   "lpO20",
    "atop0",
-   "pocketO20O28",
-   "hollow16"
+   "pocketO20O28"
   ],
-  "deepest_site": "atop0",
-  "q_Ag1": 0.0387,
-  "q_Ag2_total": 0.0505,
-  "delta_q_Ag1_Ag2": 0.0118
+  "deepest_site": "lpO20",
+  "q_Ag1": 0.163,
+  "q_Ag2_total": -0.3425,
+  "delta_q_Ag1_Ag2": -0.5055,
+  "lone_pairs_added": true
  },
  "mCP": {
   "n_atoms": 52,
