@@ -28,7 +28,7 @@ s131 = s142.s131
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 COMMON = os.path.join(ROOT, "structures", "common")
 OUT = os.path.join(ROOT, "runs", "common_survey_xtb.json")
-HET = {"N", "O", "P", "S", "F", "Si", "Al"}
+HET = {"N", "O", "P", "S", "F", "Si", "Al", "B"}
 D_AG = 2.60
 
 

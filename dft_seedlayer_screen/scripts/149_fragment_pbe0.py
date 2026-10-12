@@ -37,7 +37,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 OUT = os.path.join(ROOT, "runs", "common_pbe0_fragment.json")
 EV = 27.211386
 R_CUT = float(os.environ.get("FRAG_RCUT", "7.0"))
-CAP = {"C": 1.09, "N": 1.01, "O": 0.97, "P": 1.42, "Si": 1.48, "Al": 1.58}
+CAP = {"C": 1.09, "N": 1.01, "O": 0.97, "P": 1.42, "Si": 1.48, "Al": 1.58, "B": 1.19}
 q.Z.update({"Si": 14, "Al": 13})
 
 

@@ -13,7 +13,7 @@ from pyscf import gto, dft, lib
 from pyscf.lo import nao as _nao, orth
 
 BOHR = 0.52917721092
-Z = {"H": 1, "C": 6, "N": 7, "O": 8, "F": 9, "Mo": 42, "Ag": 47, "Li": 3,
+Z = {"B": 5, "H": 1, "C": 6, "N": 7, "O": 8, "F": 9, "Mo": 42, "Ag": 47, "Li": 3,
      "Al": 13, "P": 15, "S": 16, "Cu": 29, "I": 53, "Cs": 55}
 
 

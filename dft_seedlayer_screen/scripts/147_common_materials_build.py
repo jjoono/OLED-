@@ -30,6 +30,7 @@ MATERIALS = {
     "BCP":    ("ETL/HBL", "Cc1cc(-c2ccccc2)c2ccc3c(-c4ccccc4)cc(C)nc3c2n1"),
     "NBphen": ("ETL", "c1ccc(cc1)-c1cc(-c2ccc3ccccc3c2)nc2c1ccc1c(-c3ccccc3)cc(-c3ccc4ccccc4c3)nc12"),
     "TmPyPB": ("ETL", "c1cc(-c2cccnc2)cc(c1)-c1cc(cc(c1)-c1cccc(c1)-c1cccnc1)-c1cccc(c1)-c1cccnc1"),
+    "3TPYMB": ("ETL", "B(c1c(C)cc(C)c(-c2cccnc2)c1C)(c1c(C)cc(C)c(-c2cccnc2)c1C)c1c(C)cc(C)c(-c2cccnc2)c1C"),
     "T2T":    ("ETL/host", "c1ccc(cc1)-c1cccc(c1)-c1nc(nc(n1)-c1cccc(c1)-c1ccccc1)-c1cccc(c1)-c1ccccc1"),
     "PO-T2T": ("ETL", "O=P(c1ccccc1)(c1ccccc1)c1cccc(c1)-c1nc(nc(n1)-c1cccc(c1)P(=O)(c1ccccc1)c1ccccc1)-c1cccc(c1)P(=O)(c1ccccc1)c1ccccc1"),
     "DPEPO":  ("host/HBL", "O=P(c1ccccc1)(c1ccccc1)c1ccccc1Oc1ccccc1P(=O)(c1ccccc1)c1ccccc1"),
