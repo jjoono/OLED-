@@ -193,5 +193,35 @@
   },
   "_deepest": "lpN13",
   "_E_b_deepest": 0.0744
+ },
+ "TSPO1": {
+  "hollow14": {
+   "E_b": 0.2742,
+   "elec": 0.0334,
+   "D3": -0.2408,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.107,
+   "frag_atoms": 48,
+   "caps": 2,
+   "mol_atoms": 68,
+   "seconds": 4388,
+   "near": "H43",
+   "R_cut": 5.0
+  },
+  "atop0": {
+   "E_b": 0.3805,
+   "elec": 0.2682,
+   "D3": -0.1123,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1055,
+   "frag_atoms": 28,
+   "caps": 4,
+   "mol_atoms": 68,
+   "seconds": 1447,
+   "near": "O0",
+   "R_cut": 5.0
+  },
+  "_deepest": "atop0",
+  "_E_b_deepest": 0.3805
  }
 }
