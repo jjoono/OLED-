@@ -25,6 +25,19 @@
    "reference_full_pbe0": 0.621,
    "error": -0.0125,
    "seconds": 856
+  },
+  "B3PyMPM": {
+   "E_b": 0.416,
+   "elec": 0.1947,
+   "D3": -0.2213,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0714,
+   "frag_atoms": 32,
+   "caps": 2,
+   "mol_atoms": 69,
+   "reference_full_pbe0": 0.416,
+   "error": 0.0,
+   "seconds": 1439
   }
  }
 }
