@@ -99,5 +99,22 @@
   },
   "_deepest": "lpF14",
   "_E_b_deepest": 1.202
+ },
+ "3TPYMB": {
+  "lpN27": {
+   "E_b": 0.3738,
+   "elec": 0.2806,
+   "D3": -0.0932,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1149,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 88,
+   "seconds": 153,
+   "near": "N27",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN27",
+  "_E_b_deepest": 0.3738
  }
 }
