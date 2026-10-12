@@ -162,7 +162,16 @@ def run(names):
         S, X = read_xyz(os.path.join(ROOT, "structures", "common", f"{name}.xyz"))
         X = np.asarray(X, float)
         row = {}
-        for lab in sv[name]["pbe0_sites"]:
+        # the GFN2-deepest site, plus the next one only if it binds a different
+        # element: GFN2's overbinding depends on the element (nitrile N 4-5x,
+        # carbon 1.2x), so its order is trusted within an element, not across
+        picks = sv[name]["pbe0_sites"][:1]
+        first_el = sv[name]["sites"][picks[0]]["near_el"]
+        for lab in sv[name]["pbe0_sites"][1:]:
+            if sv[name]["sites"][lab]["near_el"] != first_el:
+                picks.append(lab)
+                break
+        for lab in picks:
             ag = np.array(sv[name]["sites"][lab]["pos"])
             t0 = time.time()
             try:
@@ -171,6 +180,7 @@ def run(names):
                 r = {"error": repr(ex)[:200]}
             r["seconds"] = round(time.time() - t0)
             r["near"] = sv[name]["sites"][lab]["near"]
+            r["R_cut"] = R_CUT
             row[lab] = r
             print(f"{name:<9} {lab:<22} near {r['near']:<5} E_b "
                   f"{r.get('E_b', float('nan')):.3f}  frag {r.get('frag_atoms')}  {r['seconds']}s",
@@ -189,6 +199,7 @@ if __name__ == "__main__":
         validate()
     else:
         names = [a for a in sys.argv[1:] if not a.startswith("--")]
+        row_rcut = R_CUT
         if not names:
             names = sorted(json.load(open(os.path.join(ROOT, "runs", "common_survey_xtb.json"))))
         run(names)
