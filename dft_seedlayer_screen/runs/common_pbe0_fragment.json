@@ -148,7 +148,33 @@
    "near": "N7",
    "R_cut": 5.0
   },
-  "_deepest": "bridge7",
-  "_E_b_deepest": 0.3121
+  "_deepest": "lpN40",
+  "_E_b_deepest": 0.3712,
+  "lpN40": {
+   "E_b": 0.3712,
+   "elec": 0.2826,
+   "D3": -0.0886,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1162,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 69,
+   "seconds": 224,
+   "near": "N40",
+   "R_cut": 5.0
+  },
+  "lpN7": {
+   "E_b": 0.3705,
+   "elec": 0.2821,
+   "D3": -0.0884,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1159,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 69,
+   "seconds": 222,
+   "near": "N7",
+   "R_cut": 5.0
+  }
  }
 }
