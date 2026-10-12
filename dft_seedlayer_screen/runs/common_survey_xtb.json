@@ -1306,5 +1306,57 @@
   "q_Ag2_total": -0.0637,
   "delta_q_Ag1_Ag2": -0.0175,
   "lone_pairs_added": true
+ },
+ "TAPC": {
+  "n_atoms": 94,
+  "n_sites": 3,
+  "sites": {
+   "hollow31": {
+    "E_b": 0.4475,
+    "q": -0.1111,
+    "near": "H69",
+    "near_el": "H",
+    "d": 2.465,
+    "pos": [
+     -3.8168,
+     3.6502,
+     -1.3523
+    ]
+   },
+   "hollow10": {
+    "E_b": 0.3538,
+    "q": -0.0922,
+    "near": "H52",
+    "near_el": "H",
+    "d": 2.666,
+    "pos": [
+     5.6757,
+     -4.7317,
+     -1.6869
+    ]
+   },
+   "hollow73": {
+    "E_b": 0.2004,
+    "q": -0.0612,
+    "near": "H73",
+    "near_el": "H",
+    "d": 3.029,
+    "pos": [
+     2.3002,
+     6.5228,
+     3.3334
+    ]
+   }
+  },
+  "pbe0_sites": [
+   "hollow31",
+   "hollow10",
+   "hollow73"
+  ],
+  "deepest_site": "hollow31",
+  "q_Ag1": -0.1111,
+  "q_Ag2_total": -0.0933,
+  "delta_q_Ag1_Ag2": 0.0178,
+  "lone_pairs_added": true
  }
 }
