@@ -3,7 +3,8 @@
 Ranking variable: PBE0 E_b of a lone Ag atom at the deepest site (multi-site).
 Gates:  condensation E_b >= 0.5 eV (below it the first atoms re-evaporate or
         diffuse to aggregate, see notes/LIT_SEED_SYNTHESIS_20261011.md section 3);
-        charge-capacity veto dq(Ag1->Ag2) >= +0.3 e.
+        charge-capacity veto dq(Ag1->Ag2) >= +0.3 e; |dq| < 0.1 e on a weak binder means no
+        charge moves at all (GFN2 noise ~0.03 e), so it passes.
 
 Sources, in order of trust:
   pbe0       full-molecule PBE0/def2-SVP + D3BJ, multi-site (binding_energies_pbe0 etc.)
