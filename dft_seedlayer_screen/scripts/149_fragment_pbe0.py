@@ -163,6 +163,12 @@ def run(names):
         done = json.load(open(OUT)) if os.path.exists(OUT) else {}
         if name in done or name not in sv:
             continue
+        # two runners share one list: the first to claim a molecule takes it
+        lock = OUT + f".{name}.lock"
+        try:
+            os.close(os.open(lock, os.O_CREAT | os.O_EXCL))
+        except FileExistsError:
+            continue
         S, X = read_xyz(os.path.join(ROOT, "structures", "common", f"{name}.xyz"))
         X = np.asarray(X, float)
         row = {}
@@ -196,6 +202,7 @@ def run(names):
         done = json.load(open(OUT)) if os.path.exists(OUT) else {}
         done[name] = row
         json.dump(done, open(OUT, "w"), indent=1)
+        os.remove(lock)
 
 
 def fix_d3_sign():
