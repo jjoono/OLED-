@@ -1145,7 +1145,7 @@
  },
  "TSPO1": {
   "n_atoms": 68,
-  "n_sites": 5,
+  "n_sites": 6,
   "sites": {
    "atop0": {
     "E_b": 0.383,
@@ -1206,6 +1206,18 @@
      -0.1488,
      2.7491
     ]
+   },
+   "lpO0": {
+    "E_b": 0.3818,
+    "q": 0.0106,
+    "near": "O0",
+    "near_el": "O",
+    "d": 2.495,
+    "pos": [
+     4.2704,
+     -1.8885,
+     4.9613
+    ]
    }
   },
   "pbe0_sites": [
@@ -1216,7 +1228,8 @@
   "deepest_site": "hollow14",
   "q_Ag1": 0.0538,
   "q_Ag2_total": 0.0369,
-  "delta_q_Ag1_Ag2": -0.0169
+  "delta_q_Ag1_Ag2": -0.0169,
+  "lone_pairs_added": true
  },
  "NPB": {
   "n_atoms": 78,
