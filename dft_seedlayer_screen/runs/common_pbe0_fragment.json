@@ -133,5 +133,22 @@
   },
   "_deepest": "lpN22",
   "_E_b_deepest": 0.461
+ },
+ "TmPyPB": {
+  "bridge7": {
+   "E_b": 0.3121,
+   "elec": 0.2191,
+   "D3": -0.0931,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1142,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 69,
+   "seconds": 216,
+   "near": "N7",
+   "R_cut": 5.0
+  },
+  "_deepest": "bridge7",
+  "_E_b_deepest": 0.3121
  }
 }
