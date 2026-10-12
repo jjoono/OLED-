@@ -116,5 +116,22 @@
   },
   "_deepest": "lpN27",
   "_E_b_deepest": 0.3738
+ },
+ "TPBi": {
+  "lpN22": {
+   "E_b": 0.461,
+   "elec": 0.2185,
+   "D3": -0.2425,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1145,
+   "frag_atoms": 60,
+   "caps": 3,
+   "mol_atoms": 81,
+   "seconds": 7968,
+   "near": "N22",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN22",
+  "_E_b_deepest": 0.461
  }
 }
