@@ -32,8 +32,35 @@ HET = {"N", "O", "P", "S", "F", "Si", "Al", "B"}
 D_AG = 2.60
 
 
-def sites(S, X):
+def lone_pair_sites(S, X):
+    """A start along the lone pair of every N, O and F, 2.3 A out.
+
+    The atop starts of script 131 aim along the radial direction from the
+    molecular centroid, which on a twisted molecule need not be where a
+    pyridyl nitrogen's lone pair points: on 3TPYMB every atop start relaxed
+    into the methyl hydrogens and the survey missed the N site entirely (GFN2
+    0.414 against 0.467 at the nitrogen). The lone pair is the opposite of the
+    sum of the bond directions.
+    """
+    from pathgeom import _bonded
+    B = _bonded(S, X)
     out = []
+    for i, s in enumerate(S):
+        if s not in ("N", "O", "F"):
+            continue
+        nb = [j for j in range(len(S)) if B[i][j]]
+        if not nb or (s == "N" and len(nb) >= 3):
+            continue
+        u = -sum((X[j] - X[i]) / np.linalg.norm(X[j] - X[i]) for j in nb)
+        if np.linalg.norm(u) < 1e-6:
+            continue
+        u /= np.linalg.norm(u)
+        out.append((f"lp{s}{i}", X[i] + 2.3 * u))
+    return out
+
+
+def sites(S, X):
+    out = lone_pair_sites(S, X)
     for kind, i, pos, clear in s131.unique_sites(S, X):
         if kind == "hollow" or S[i] in HET:
             out.append((f"{kind}{i}", pos))
@@ -41,14 +68,17 @@ def sites(S, X):
     return out
 
 
-def survey(name):
+def survey(name, previous=None):
     S, X = read_xyz(os.path.join(COMMON, f"{name}.xyz"))
     X = np.asarray(X, float)
     n = len(S)
     e_mol, _ = s142.energy(S, X, 0)
     e_ag, _ = s142.energy(["Ag"], [[0, 0, 0]], 1)
-    res = {}
-    for lab, pos in sites(S, X):
+    res = dict(previous["sites"]) if previous else {}
+    todo = lone_pair_sites(S, X) if previous else sites(S, X)
+    for lab, pos in todo:
+        if lab in res:
+            continue
         r = s142.relax(S + ["Ag"], np.vstack([X, pos]), n, 1)
         if r is None:
             continue
@@ -94,13 +124,21 @@ def survey(name):
 
 
 def main():
-    names = sys.argv[1:] or sorted(f[:-4] for f in os.listdir(COMMON) if f.endswith(".xyz"))
+    args = sys.argv[1:]
+    supplement = "--lone-pairs" in args
+    args = [a for a in args if not a.startswith("--")]
+    names = args or sorted(f[:-4] for f in os.listdir(COMMON) if f.endswith(".xyz"))
     for name in names:
         done = json.load(open(OUT)) if os.path.exists(OUT) else {}
-        if name in done:
+        prev = done.get(name)
+        if supplement:
+            if prev is None or prev.get("lone_pairs_added"):
+                continue
+        elif prev is not None:
             continue
         try:
-            r = survey(name)
+            r = survey(name, prev if supplement else None)
+            r["lone_pairs_added"] = True
         except Exception as ex:
             print(f"{name}: FAILED {ex!r}", flush=True)
             continue
