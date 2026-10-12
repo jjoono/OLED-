@@ -9,19 +9,21 @@
 
 ## 초록
 
-자유형(freeform) 마이크로렌즈 어레이(MLA)는 유기발광다이오드(OLED)의 광추출 효율과 배광을 함께 제어할 수단으로 널리 기대되어 왔다. 본 연구는 확장 발광체 위에 타일링된 MLA에 대해 이 기대를 검증한다. 실험적으로 검증된 dipole-microcavity 광원 모델을 3차원 광선추적과 결합하고, 동일한 제약 아래에서 축대칭 freeform MLA와 똑같이 최적화한 반구형 MLA를 비교한다. 총 외부양자효율(EQE)과 네 개의 polar band를 각각 별도의 목적함수로 최적화한다. Freeform 최적해가 반구를 앞서는 폭은 어느 band에서도 최대 7%이고, 총 EQE에서는 1.3%다. 모든 탐색을 반구 최적해에서 재출발시키는 대조 실험은 이 작은 차이가 탐색의 약점이 아니라 설계 공간 자체에서 온다는 것을 보여 준다. 표본 전체는 band power와 총 EQE를 잇는 하나의 직선 위로 붕괴한다. 효율이 높은 설계들의 배광 구성은 좁은 창 안에 머문다. 이는 볼록, 오목, 무작위 조립 배열 모두에서 똑같이 성립한다. 포화의 원인은 세 가지다. 공면적(coextensive) 배열은 출력/광원 면적비가 고정되어 있고, 두꺼운 기판이 빛을 횡방향으로 섞으며, 수동 필름은 radiance를 높일 수 없다. 끝으로 여전히 유효한 설계 경로를 정리한다.
+자유형(freeform) 마이크로렌즈 어레이(MLA)는 유기발광다이오드(OLED)의 광추출 효율과 배광을 함께 제어할 수단으로 널리 기대되어 왔다. 본 연구는 확장 발광체 위에 타일링된 MLA에 대해 이 기대를 검증한다. 실험적으로 검증된 dipole-microcavity 광원 모델을 3차원 광선추적과 결합하고, 동일한 제약 아래에서 축대칭 freeform MLA와 똑같이 최적화한 반구형 MLA를 비교한다. 총 외부양자효율(EQE)과 네 개의 polar band를 각각 별도의 목적함수로 최적화한다. Freeform 최적해가 반구를 앞서는 폭은 어느 band에서도 최대 7%이고, 총 EQE에서는 1.3%다. 모든 탐색을 반구 최적해에서 재출발시키는 대조 실험은 이 작은 차이가 탐색의 약점이 아니라 설계 공간 자체에서 온다는 것을 보여 준다. 표본 전체는 band power와 총 EQE를 잇는 하나의 직선 위로 붕괴한다. 효율이 높은 설계들의 배광 구성은 좁은 창 안에 머문다. 이는 볼록, 오목, 무작위 조립 배열 모두에서 똑같이 성립한다. 포화의 원인은 세 가지다. 공면적(coextensive) 배열은 출력/광원 면적비가 고정되어 있고, 두꺼운 기판이 빛을 횡방향으로 섞으며, 수동 필름은 radiance를 높일 수 없다. 본 플랫폼은 손실이 큰 Al 음극을 사용하는데, 이는 렌즈 형상의 영향력이 가장 큰 조건이므로 손실이 낮은 소자에서는 포화가 더 강할 것으로 예상된다. 끝으로 왕복 손실 저감을 필두로 여전히 유효한 설계 경로를 정리한다.
 
 ---
 
 ## 1. 서론
 
-평면 OLED는 생성된 빛의 상당 부분을 잃는다. 유기층의 도파 모드, 금속 전극에서의 손실, 기판/공기 계면의 전반사(TIR)가 모두 광자를 가둔다 [1,2]. 외부 MLA는 전기적 소자 구조를 건드리지 않고 기판 모드를 추출하므로 대면적·유연 OLED에서 매력적이다 [3–5]. 반구형 또는 준반구형 MLA는 이미 높은 효율을 낸다 [4,5]. 외부 산란층과 수평 배향 발광체를 결합하여 렌즈 없이 높은 총 추출을 달성한 사례도 있다 [12].
+평면 OLED는 생성된 빛의 상당 부분을 잃는다. 유기층의 도파 모드, 금속 전극에서의 손실, 기판/공기 계면의 전반사(TIR)가 모두 광자를 가둔다 [1,2]. 외부 MLA는 전기적 소자 구조를 건드리지 않고 기판 모드를 추출하므로 대면적·유연 OLED에서 매력적이다 [3–5]. 반구형 또는 준반구형 MLA는 이미 높은 효율을 낸다 [4,5]. 그러나 외부 광추출 구조를 쓴 OLED의 EQE는 대체로 55–60% 근처에서 정체되어 왔다. 최근 이 한계는 광추출 구조가 되돌려 보낸 빛이 소자를 한 번 왕복할 때마다 겪는 손실 때문인 것으로 밝혀졌다 [6]. 외부 산란층과 수평 배향 발광체를 결합하여 렌즈 없이 높은 총 추출을 달성한 사례도 있다 [7].
 
-그럼에도 더 복잡한 렌즈 형상이 더 나으리라는 기대는 계속된다. 자유형 조명 광학과 역설계는 원하는 세기 분포를 만드는 강력한 도구이며, 최근 micro-LED와 OLED 패키징에도 적용되었다 [6,7]. 렌즈릿의 곡률, 높이, 비대칭성과 마이크로캐비티를 함께 조절하면 원리적으로는 총 추출과 특정 방향 방출을 더 세밀하게 제어할 수 있을 것처럼 보인다.
+그럼에도 더 복잡한 렌즈 형상이 더 나으리라는 기대는 계속된다. 자유형 조명 광학과 역설계는 원하는 세기 분포를 만드는 강력한 도구이며, 최근 micro-LED와 OLED 패키징에도 적용되었다 [8,9]. 렌즈릿의 곡률, 높이, 비대칭성과 마이크로캐비티를 함께 조절하면 원리적으로는 총 추출과 특정 방향 방출을 더 세밀하게 제어할 수 있을 것처럼 보인다.
 
-이 기대는 점광원을 전제한 광학에서 나온 것이며, OLED에 그대로 옮겨지지 않을 수 있다. 자유형 설계 기법은 étendue가 거의 0인 광원을 위해 발전했다. 박막 OLED는 확장 광원이고, 그 빛은 밀리미터 두께의 기판 안을 진행하며 일부는 재순환한 뒤에야 배열에 닿는다. 따라서 이 영역에서 형상 자유도가 효과를 내는지는 열린 질문이며, 그 답에는 실질적 비용이 걸려 있다. 자유형 성형은 제작과 계측 부담을 키운다. 반구 대비 얻는 것이 적다면, 다음 설계 단계는 더 복잡한 표면이 아니라 광원, 개구, 재순환 경로의 변경이어야 한다.
+이 기대는 점광원을 전제한 광학에서 나온 것이며, OLED에 그대로 옮겨지지 않을 수 있다. 자유형 설계 기법은 étendue가 거의 0인 광원을 위해 발전했다. 박막 OLED는 확장 광원이고, 그 빛은 밀리미터 두께의 기판 안을, 흔히 여러 번 왕복하며 진행한 뒤에야 배열에 닿는다. 따라서 이 영역에서 형상 자유도가 효과를 내는지는 열린 질문이며, 그 답에는 실질적 비용이 걸려 있다. 자유형 성형은 제작과 계측 부담을 키운다. 반구 대비 얻는 것이 적다면, 다음 설계 단계는 더 복잡한 표면이 아니라 손실, 광원, 개구의 변경이어야 한다.
 
-따라서 본 연구의 질문은 다음과 같다. **확장 OLED 위에 타일링된 굴절형 MLA에서 렌즈 형상 자유도는 얼마의 가치가 있는가?** 이를 통제된 수치 benchmark로 답한다. 제작 소자로 검증된 하나의 광원 모델 [15,16]과 하나의 제조 가능한 제약 집합을 사용한다. 이 조건에서 반구형 MLA와 축대칭 freeform MLA를 비교하며, 각각을 총 EQE와 네 polar band에 대해 최적화한다. 재출발 대조 실험은 탐색의 한계와 물리의 한계를 분리한다. 추가로 두 외부 필름 family, 즉 inverted(오목) 배열과 무작위 조립 배열로 결과가 배열 구성 방식에 좌우되는지를 시험한다. 결과는 불가능성 정리가 아니라 이 플랫폼에 대한 재현 가능한 수치적 관측, 즉 탐색된 설계 공간의 *실용적 포화*다. 그 원인을 설명하고, 그 너머에서 유효한 레버를 정리한다.
+참고문헌 [6]의 왕복 손실 분석은 이미, 손실이 낮은 소자에서는 EQE가 반구형 마이크로렌즈의 종횡비에 둔감해진다는 것을 보였다. 그 분석은 총 효율과 변수 하나짜리 렌즈 family를 다루었다. 자유 형상 프로파일이 선택한 polar band로 출력을 보낼 수 있는지, 그리고 출력의 배광 구성 자체를 움직일 수 있는지는 묻지 않았다.
+
+따라서 본 연구의 질문은 다음과 같다. **확장 OLED 위에 타일링된 굴절형 MLA에서 렌즈 형상 자유도는 얼마의 가치가 있는가?** 이를 통제된 수치 benchmark로 답한다. 제작 소자로 검증된 하나의 광원 모델 [10,11]과 하나의 제조 가능한 제약 집합을 사용한다. 이 조건에서 반구형 MLA와 축대칭 freeform MLA를 비교하며, 각각을 총 EQE와 네 polar band에 대해 최적화한다. 재출발 대조 실험은 탐색의 한계와 물리의 한계를 분리한다. 추가로 두 외부 필름 family, 즉 inverted(오목) 배열과 무작위 조립 배열로 결과가 배열 구성 방식에 좌우되는지를 시험한다. 결과는 불가능성 정리가 아니라 이 플랫폼에 대한 재현 가능한 수치적 관측, 즉 탐색된 설계 공간의 *실용적 포화*다. 그 원인을 설명하고, 그 너머에서 유효한 레버를 정리한다.
 
 ---
 
@@ -29,9 +31,9 @@
 
 ### 2.1 광원 모델과 실험 검증
 
-OLED 마이크로캐비티 내 쌍극자 방출은 Chance–Prock–Silbey(CPS) 형식으로 계산한다. 그 결과인 기판측 각도–스펙트럼 세기 $I_{\mathrm{sub}}(\theta,\lambda)$를 광원으로 하여, MATLAB에서 COM 인터페이스로 구동하는 LightTools 3차원 광선추적을 수행한다(Fig. 1). 적층은 Al / ETL / EML / HTL / ITO / glass다. 발광 영역은 반경 1 mm 원판이고, 유리 기판은 두께 $d_{\mathrm{sub}} = 1.295$ mm, $n = 1.51$이다. 모든 CPS 입력값은 Supplement 1의 Note S1(Table S1)에 정리했다.
+OLED 마이크로캐비티 내 쌍극자 방출은 Chance–Prock–Silbey(CPS) 형식으로 계산한다. 그 결과인 기판측 각도–스펙트럼 세기 $I_{\mathrm{sub}}(\theta,\lambda)$를 광원으로 하여, MATLAB에서 COM 인터페이스로 구동하는 LightTools 3차원 광선추적을 수행한다(Fig. 1). 적층은 Al / ETL / EML / HTL / ITO / glass다. Al 음극에서는 소자로 되돌아간 빛이 왕복할 때마다 약 13–16%를 잃으므로 [6], 이 플랫폼은 외부 구조의 EQE가 55–60% 근처에 머무는 손실 제한 영역에 있다. 이것이 결과에 갖는 의미는 4.3절에서 논의한다. 발광 영역은 반경 1 mm 원판이고, 유리 기판은 두께 $d_{\mathrm{sub}} = 1.295$ mm, $n = 1.51$이다. 모든 CPS 입력값은 Supplement 1의 Note S1(Table S1)에 정리했다.
 
-같은 파이프라인은 거의 같은 기하의 제작 소자로 검증되었다. 참고문헌 [16]에서는 발광 개구 반경 1 mm, 두께 1.4 mm, $n_{\mathrm{sub}} = 1.51$ 기판의 OLED를 bare, MLA 부착, 구조화 outcoupler의 세 구성으로 제작했다. 측정된 각도 프로파일과 전류효율은 세 경우 모두 시뮬레이션과 일치했고, 측정 최대 EQE는 35.6%, 35.4%, 48.0%였다(참고문헌 [16]의 Fig. 3과 Table 2). 참고문헌 [15]에서는 이 파이프라인이 inverted MLA 소자의 방출 패턴과 준-Lambertian 각도 전계발광을 재현했다. 그 소자의 EQE는 58.0%로, 평면 대조군의 30.5%와 대비된다. 따라서 검증은 광원 모델, 미세 텍스처 출사면의 광선광학 처리, 부착형과 inverted 렌즈를 모두 포함하며, 본 연구와 같은 발광 플랫폼과 기판 기하에서 이루어졌다.
+같은 파이프라인은 거의 같은 기하의 제작 소자로 검증되었다. 참고문헌 [11]에서는 발광 개구 반경 1 mm, 두께 1.4 mm, $n_{\mathrm{sub}} = 1.51$ 기판의 OLED를 bare, MLA 부착, 구조화 outcoupler의 세 구성으로 제작했다. 측정된 각도 프로파일과 전류효율은 세 경우 모두 시뮬레이션과 일치했고, 측정 최대 EQE는 35.6%, 35.4%, 48.0%였다(참고문헌 [11]의 Fig. 3과 Table 2). 참고문헌 [10]에서는 이 파이프라인이 inverted MLA 소자의 방출 패턴과 준-Lambertian 각도 전계발광을 재현했다. 그 소자의 EQE는 58.0%로, 평면 대조군의 30.5%와 대비된다. 따라서 검증은 광원 모델, 미세 텍스처 출사면의 광선광학 처리, 부착형과 inverted 렌즈를 모두 포함하며, 본 연구와 같은 발광 플랫폼과 기판 기하에서 이루어졌다.
 
 ### 2.2 렌즈 클래스와 제약
 
@@ -78,7 +80,7 @@ $$
 
 결과가 배열 구성에 좌우되는지 시험하기 위해 제조 가능한 두 family를 추가했다.
 
-- **Inverted(오목) MLA.** 같은 프로파일 클래스의 오목 짝으로, 초박형 기판의 딤플로 구현된다 [15]. 볼록 benchmark와 같은 band별 프로토콜을 쓴다: band별 최적화 4개, 각각 대리모델 평가 60회와 다듬기 15단계.
+- **Inverted(오목) MLA.** 같은 프로파일 클래스의 오목 짝으로, 초박형 기판의 딤플로 구현된다 [10]. 볼록 benchmark와 같은 band별 프로토콜을 쓴다: band별 최적화 4개, 각각 대리모델 평가 60회와 다듬기 15단계.
 - **무작위 조립 MLA.** 6 × 6 렌즈릿의 의사난수 supercell을 패치 전체에 타일링한다. 렌즈릿 위치는 육방 격자에서 흔들리고, 각 렌즈릿은 같은 클래스에서 독립적으로 뽑은 프로파일을 갖는다. 렌즈 형상 대신 여섯 개의 조립 통계량이 설계 변수다: fill factor, 반경 흔들림, 위치 흔들림, 평균 종횡비, 종횡비 흔들림, 반구–무작위 프로파일 혼합비. 캠페인은 무작위 실현 50개를 표본한 뒤 이 통계량을 최적화한다. 무질서의 상관 길이가 한 피치, 즉 supercell의 1/6이므로 supercell은 완전 무작위 배열과 통계적으로 동등하다.
 
 Supercell 추적은 비용이 크므로 무작위 family는 축소 표본(탐색 시 광선 5,000개, 파장 16개)을 쓴다. 보정 결과 이 축소로 인한 band 선택도 변화는 최대 0.39 퍼센트포인트(pp)로, Monte-Carlo 산포와 비슷하다(Note S6).
@@ -139,13 +141,15 @@ Family들은 구성을 얼마나 움직일 수 있는지의 한계도 정한다.
 
 ### 4.1 설계 공간이 포화하는 이유
 
-세 가지 요인이 포화를 설명한다.
+세 가지 요인이 포화를 설명하고, 네 번째 요인이 고정된 배광 구성을 설명할 수 있다.
 
 **면적 지렛대의 부재.** 각도 압축에는 광원보다 큰 출력 개구가 필요하다. 큰 렌즈 아래의 작은 광원은 렌즈가 추가 출력 면적을 제공하므로 방출 원뿔을 좁힐 수 있다. 대면적 OLED 위의 타일링 MLA에서는 각 렌즈릿의 개구와 그것이 담당하는 광원 면적이 함께 커진다. 출력/광원 면적비는 렌즈릿 크기와 무관하게 1 근처에 고정되므로, 렌즈릿을 키워도 점광원의 시준 이득은 돌아오지 않는다. 같은 관계가 굴절률 정합 반구형 macroextractor가 작은 발광체에서는 잘 작동하지만 대면적으로 타일링될 수 없는 이유도 설명한다.
 
-**기판 내 횡방향 혼합.** 임계각 광선은 기판을 한 번 지날 때 $d_{\mathrm{sub}}\tan\theta_c = 1.16$ mm, 재순환 왕복 한 번에 2.32 mm 옆으로 이동한다. 이는 렌즈릿 반경의 약 100배와 200배다. 따라서 각 렌즈릿은 자신보다 두 자릿수 넓은 기판 영역에서 출발한 빛을 받는다. 렌즈 표면에 닿는 빛은 렌즈 형상이 작용하기 전에 이미 공간적으로 평균되어 있다. 패치 크기 계열이 이 혼합을 직접 측정한다(Note S3). 한 고정 설계의 총 EQE는 패치 15, 25, 35, 100 mm에서 0.517, 0.543, 0.551, 0.564다. 총 EQE가 100 mm까지 천천히 계속 오르므로, 빛은 탈출 전에 여러 왕복에 걸쳐 옆으로 이동한다. 따라서 25 mm 값은 하한이다. 같은 범위에서 각도 구성은 최대 0.24 pp만 변하므로 모든 비율, 상관, 클래스 비교는 영향을 받지 않는다. 참고문헌 [16]은 같은 손실 경로를 실험으로 보여 준다. 1 mm 발광체 위의 반경 2 mm짜리 MLA 필름은 EQE 이득이 없었는데(35.4% 대 bare 35.6%), 빛이 추출되기 전에 필름 가장자리 밖으로 빠져나갔기 때문이다.
+**기판 내 횡방향 혼합.** 임계각 광선은 기판을 한 번 지날 때 $d_{\mathrm{sub}}\tan\theta_c = 1.16$ mm, 왕복 한 번에 2.32 mm 옆으로 이동한다. 이는 렌즈릿 반경의 약 100배와 200배다. 따라서 각 렌즈릿은 자신보다 두 자릿수 넓은 기판 영역에서 출발한 빛을 받는다. 렌즈 표면에 닿는 빛은 렌즈 형상이 작용하기 전에 이미 공간적으로 평균되어 있다. 패치 크기 계열이 이 혼합을 직접 측정한다(Note S3). 한 고정 설계의 총 EQE는 패치 15, 25, 35, 100 mm에서 0.517, 0.543, 0.551, 0.564다. 총 EQE가 100 mm까지 천천히 계속 오르므로, 빛은 탈출 전에 여러 왕복에 걸쳐 옆으로 이동한다. 따라서 25 mm 값은 하한이다. 같은 범위에서 각도 구성은 최대 0.24 pp만 변하므로 모든 비율, 상관, 클래스 비교는 영향을 받지 않는다. 참고문헌 [11]은 같은 손실 경로를 실험으로 보여 준다. 1 mm 발광체 위의 반경 2 mm짜리 MLA 필름은 EQE 이득이 없었는데(35.4% 대 bare 35.6%), 빛이 추출되기 전에 필름 가장자리 밖으로 빠져나갔기 때문이다. 같은 이유로, 작은 발광체에서 왕복 손실을 다루는 실험에는 활성 영역보다 훨씬 큰 후면 반사판이 필요하다 [6].
 
-**수동 필름의 radiance 한계.** 주어진 광원 radiance와 출사 면적에서 수동 외부층이 선택한 입체각으로 보낼 수 있는 출력은 제한된다 [10]. 이 한계를 불가능성 증명이 아니라 기준으로 사용한다. 반구가 이 한계 근처에서 작동하면, 더 복잡한 프로파일은 적은 양의 출력을 재배치할 수 있을 뿐 radiance를 만들어 내지 못한다.
+**수동 필름의 radiance 한계.** 주어진 광원 radiance와 출사 면적에서 수동 외부층이 선택한 입체각으로 보낼 수 있는 출력은 제한된다 [12]. 이 한계를 불가능성 증명이 아니라 기준으로 사용한다. 반구가 이 한계 근처에서 작동하면, 더 복잡한 프로파일은 적은 양의 출력을 재배치할 수 있을 뿐 radiance를 만들어 내지 못한다.
+
+**여러 번 통과하며 걸리는 각도 필터.** 네 번째 요인은 효율뿐 아니라 배광 구성까지 고정되는 이유를 설명할 수 있다. 반구형 MLA는 추출하지 못한 빛을 각도를 섞지 않고 대체로 입사 각도 그대로 되돌려 보낸다. 그 투과율은 기판 내 입사각 약 60° 이하에서 높고, 50–57° 부근에서 최대이며, 약 72° 이상에서는 0.1 아래로 떨어진다 [6]. 여러 번 통과한 뒤 탈출하는 빛은 매번 같은 각도 투과 특성으로 걸러진 셈이다. 그렇다면 출력 구성은 광원 분포나 렌즈 프로파일의 세부가 아니라 배열과 기판의 투과 함수에 묶이게 된다. 이는 그럴듯한 메커니즘으로 제시하는 것이며, 참고문헌 [6]의 각도 분해 다중 통과 모델을 이용한 정량 검증은 후속 과제로 남긴다.
 
 ### 4.2 렌즈 형상 너머의 설계 경로
 
@@ -156,20 +160,25 @@ Family들은 구성을 얼마나 움직일 수 있는지의 한계도 정한다.
 | 목표 성능 지표 | 유효한 레버 | 근거 | 실질적 제약 |
 |---|---|---|---|
 | 기판 모드로부터의 총 EQE | 최적 반구형 MLA; freeform 형상의 추가 이득 ≤ 1.3% | 3.1절, Fig. 2 | 성형 공차뿐 |
-| 외부 필름을 넘는 총 EQE | 광원/캐비티 공학: 쌍극자 배향, 캐비티 설계, 내부 추출 [11,12] | 모든 캠페인에서 캐비티 동시 최적화 | 발광 적층 변경 필요 |
+| 반구 benchmark를 넘는 총 EQE | 왕복 손실 저감: 저손실 후면 반사체(Ag 또는 유전체), 얇고 흡수가 적은 투명전극 [6] | 저손실 보조 반사체만으로 MLA 소자 EQE 51% → 77% [6] | 반사체를 전류 경로 밖에 두거나 적층에 통합 |
+| 기판으로 전달되는 빛과 그 각도 분포 | 광원/캐비티 공학: 쌍극자 배향, 캐비티 설계, 기판 굴절률 [7,13] | 모든 캠페인에서 캐비티 동시 최적화 | 왕복 손실이 작아지면 EQE에 대한 효과가 줄어듦 [6] |
 | 특정 polar band의 출력 | 총 EQE를 따라감; band 전용 형상의 순 이득 ≤ 1.22 | 3.2절, Fig. 3 | 선택도의 대가는 총 EQE |
 | 각도 압축(시준) | 개구 확장: 출력/광원 면적비 > 1 (macroextractor, 픽셀 수준 광학) | 공면적 필름에서 구성 창 고정, Fig. 4 | 평면 타일링 상실 |
-| 단일 통과 한계를 넘는 선택도 | 각도 선택적 광 재순환: 필터와 반사 전극 [8,13,14] | 손실 10%에서 이상 필터 62.1% 대 평면 29.1%; DBR 48.2% → 100 nm 대역에서 32.5% (Note S7) | 왕복 손실과 광원 대역폭 |
+| 단일 통과 한계를 넘는 선택도 | 각도 선택적 다중 통과 추출: 출사면 각도 필터와 저손실 후면 반사체 [6,14–16] | 손실 10%에서 이상 필터 62.1% 대 평면 29.1%; DBR 48.2% → 100 nm 대역에서 32.5% (Note S7) | 왕복 손실과 광원 대역폭 |
 
-**광원과 캐비티 공학**은 캐비티 두께, 쌍극자 배향, 공진 구조를 통해 기판측 광원 분포 자체를 바꾼다. 이는 OLED 배광 제어의 확립된 레버이며 [11,12], MLA가 포화된 뒤 가장 먼저 살펴볼 대상이다.
+**왕복 손실 저감**은 렌즈 형상이 포화된 뒤 총 EQE를 높이는 주된 레버다. 필름이 추출하지 못한 빛은 소자로 돌아가 왕복할 때마다 일부가 흡수된다. 이때 기판→공기 추출 효율은 $\eta_{\mathrm{sta}} = p/[p+(1-p)A']$이며, $p$는 필름과 한 번 만날 때의 탈출 확률, $A'$은 왕복당 손실이다 [6]. Al 음극에서는 $A' \approx 0.13$–0.16이 EQE를 60% 근처로 묶는다. 저손실 보조 반사체는 OLED 적층과 광추출 구조를 전혀 바꾸지 않고 MLA 소자의 EQE를 51%에서 77%로 높였다 [6]. 각도 무작위화 근사에서 렌즈 형상은 $p$를 통해서만 작용하고, $A'$이 작아질수록 $p$의 중요성은 줄어든다. 따라서 이 레버와 본 연구의 포화 결과는 같은 방향을 가리킨다.
+
+**광원과 캐비티 공학**은 캐비티 두께, 쌍극자 배향, 기판 굴절률, 공진 구조를 통해 기판에 도달하는 빛의 양과 각도를 정한다 [7,13]. 손실이 큰 소자에서는 EQE도 크게 바꾼다. 그러나 왕복 손실이 작아지면 EQE에 대한 그 효과는 줄어든다 [6].
 
 **개구 확장**은 시준이 주된 요구일 때 필요하다. 공면적 기하 안에서 우리가 바꾼 모든 것은 자연 구성을 어느 band에서도 최대 0.02만 움직였다. 형상 자유도, 볼록 대 오목 렌즈릿, 위치와 형상의 무질서가 모두 그렇다. 따라서 각도 압축에는 출력/광원 면적비를 바꾸어야 하며, 이는 공면적 기하를 벗어나는 것을 뜻한다. 작은 발광체와 픽셀 수준 광학은 평면 확장성을 대가로 이를 허용한다.
 
-**각도 선택적 광 재순환(light recycling)**은 비선택적 굴절 필름이 줄 수 없는 선택도를 제공할 수 있다. 여기서 필터는 대역 밖의 빛을 반사 전극 쪽으로 되돌려 다시 탈출을 시도하게 한다. 단일 통과에서 비선택적 층은 탈출광의 33.7%를 40–60° band로 보낸다. 이상적 각도 필터와 왕복 손실 10%를 가정한 Markov 재순환 모델에서는 이 band로의 전달이 생성 출력의 62.1%까지 오르며, 평면 비선택 기준은 29.1%다. 실현 가능한 8쌍 유전체 다층막은 단색 광원에서 48.2%를 주지만 100 nm 대역폭에서는 32.5%에 그친다(Note S7, Fig. S7). 따라서 왕복 손실과 광원 대역폭이 이 경로의 실질적 한계다. 이는 소자 제안이 아니라, 선택적 재순환이 왜 자연스러운 다음 레버인지 보여 주는 기준 계산이다.
+**각도 선택적 다중 통과 추출**은 비선택적 굴절 필름이 줄 수 없는 선택도를 제공할 수 있다. 여기서 출사면 필터는 대역 밖의 빛을 소자 쪽으로 되돌려 다시 탈출을 시도하게 한다. 다중 통과 틀과 왕복 손실의 핵심적 역할은 참고문헌 [6]의 것이며, 본 연구는 출사면의 각도 선택성만 더한다. 이 필터는 참고문헌 [6]의 저손실 보조 반사체와 다르다. 그 반사체는 소자 뒤에 놓여 각도 선택 없이 빛을 되돌린다. 둘은 상보적이다. 필터는 각도를 고르고, 낮은 왕복 손실은 거부된 빛이 방향을 바꿀 만큼 여러 번 통과하도록 살려 둔다. 단일 통과에서 비선택적 층은 탈출광의 33.7%를 40–60° band로 보낸다. 이상적 각도 필터와 왕복 손실 10%를 가정한 Markov 다중 통과 모델에서는 이 band로의 전달이 생성 출력의 62.1%까지 오르며, 평면 비선택 기준은 29.1%다. 실현 가능한 8쌍 유전체 다층막은 단색 광원에서 48.2%를 주지만 100 nm 대역폭에서는 32.5%에 그친다(Note S7, Fig. S7). 따라서 왕복 손실과 광원 대역폭이 이 경로의 실질적 한계다. 이는 소자 제안이 아니라, 각도 선택이 왜 낮은 왕복 손실과 짝을 이루어야 하는지 보여 주는 기준 계산이다.
 
 ### 4.3 범위와 한계
 
-포화 명제는 기판과 굴절률이 정합된 세 제조 가능 외부 필름 family에 해당한다. 내부 배열, 산란층, 고굴절률 필름은 포함하지 않는다. 3차원 비대칭 렌즈릿을 사용한 별도의, 제약이 다른 탐색도 이 결과와 부합한다. 그 탐색은 Ag 전극, 비등방 발광 셀, 52개 형상 변수를 사용했다. 비대칭 형상은 원거리장 중심을 옮겼으나 목표 $(\theta,\phi)$ 창의 절대 출력을 반구보다 안정적으로 높이지는 못했다. 적층과 제약이 다르므로 정성적으로만 보고한다(Note S8). 공진 구조, metasurface, 비대칭 프리즘 같은 다른 소자로는 방향성 방출이 가능하며 [8,9], 여기의 결과는 굴절형 렌즈릿에만 해당한다. 25 mm 패치의 절대 EQE는 하한이지만(4.1절), 비율과 비교는 영향을 받지 않는다. 마지막으로, 시뮬레이션의 표면은 이상적이다. 형상 오차, 정렬 오차, 렌즈 간 편차가 없다. 제작 불완전성은 freeform 프로파일이 반구에 대해 갖는 우위를 줄일 수만 있으므로, 거의 무효에 가까운 이 결과는 보수적이다.
+**왕복 손실 영역.** 본 플랫폼은 Al 음극을 쓰므로 절대 EQE는 참고문헌 [6]이 밝힌 손실 제한 영역에 있다. 그렇다면 포화가 단지 이 천장 때문이 아니냐고 물을 수 있다. 그렇지 않다. 비교는 상대적이다. 두 렌즈 클래스는 같은 적층을 공유하며, 반구 0.547 대 freeform 0.554다. 다중 통과 관점은 오히려 손실이 큰 영역이 형상 자유도에 유리함을 보여 준다. 되돌아온 빛의 각도가 매 통과마다 무작위화된다고 가정하는 $\eta_{\mathrm{sta}} = p/[p+(1-p)A']$에서 렌즈 형상은 $p$를 통해서만 작용한다. $p$를 0.40에서 0.44로 10% 높이면 $\eta_{\mathrm{sta}}$는 $A' = 0.15$(Al)에서 2.9% 오르지만, $A' = 0.045$(Ag)에서는 1.0%, $A' = 0.02$에서는 0.4%만 오른다. 따라서 Al 플랫폼은 렌즈 형상의 영향력이 가장 큰 경우다. 손실이 낮은 소자에서는 포화가 약해지는 것이 아니라 더 강해질 것이다. 본 논문의 절대 EQE 값은 저손실 소자의 값과 직접 비교해서는 안 된다.
+
+포화 명제는 기판과 굴절률이 정합된 세 제조 가능 외부 필름 family에 해당한다. 내부 배열, 산란층, 고굴절률 필름은 포함하지 않는다. 3차원 비대칭 렌즈릿을 사용한 별도의, 제약이 다른 탐색도 이 결과와 부합한다. 그 탐색은 Ag 전극, 비등방 발광 셀, 52개 형상 변수를 사용했다. 비대칭 형상은 원거리장 중심을 옮겼으나 목표 $(\theta,\phi)$ 창의 절대 출력을 반구보다 안정적으로 높이지는 못했다. 적층과 제약이 다르므로 정성적으로만 보고한다(Note S8). 공진 구조, metasurface, 비대칭 프리즘 같은 다른 소자로는 방향성 방출이 가능하며 [14,17], 여기의 결과는 굴절형 렌즈릿에만 해당한다. 25 mm 패치의 절대 EQE는 하한이지만(4.1절), 비율과 비교는 영향을 받지 않는다. 마지막으로, 시뮬레이션의 표면은 이상적이다. 형상 오차, 정렬 오차, 렌즈 간 편차가 없다. 제작 불완전성은 freeform 프로파일이 반구에 대해 갖는 우위를 줄일 수만 있으므로, 거의 무효에 가까운 이 결과는 보수적이다.
 
 ---
 
@@ -177,7 +186,7 @@ Family들은 구성을 얼마나 움직일 수 있는지의 한계도 정한다.
 
 확장 OLED 위에 타일링된 제조 가능한 굴절형 MLA에서 렌즈 형상 자유도의 실질적 가치를 시험했다. 동일하게 최적화한 반구에 대해 freeform 최적해의 이득은 어느 polar band에서도 최대 7%, 총 EQE에서 1.3%다. 재출발 대조 실험은 이것이 탐색이 아니라 설계 공간의 성질임을 확인한다. 모든 설계는 band power와 총 EQE를 잇는 하나의 직선 위로 붕괴한다. 효율 높은 설계들의 배광 구성은 어떤 목적함수로 찾았든 몇 퍼센트포인트 이내로 고정된다. 한 band를 위해 최적화하면 그 선택도는 최대 27% 오르지만 총 EQE를 최대 11% 잃어, 순 band power 이득은 최대 1.22에 그친다.
 
-볼록, 오목, 무작위 조립 필름은 모두 구성을 하나의 좁은 창 안에 둔다. 따라서 그 창은 확장 광원, 두꺼운 기판, 공면적 외부 필름이라는 플랫폼의 성질이다. 이 결과는 반구가 모든 광학계에서 최적이라는 주장이 아니다. 하나의 판단 기준을 제공한다. 반구 benchmark로 포화가 확인되면, 추가 개선은 더 많은 렌즈 형상 자유도가 아니라 광원과 캐비티, 개구 확장, 각도 선택적 광 재순환에서 찾아야 한다. 같은 논리는 페로브스카이트 LED, 양자점 LED 같은 다른 확장 박막 발광체에도 적용된다.
+볼록, 오목, 무작위 조립 필름은 모두 구성을 하나의 좁은 창 안에 둔다. 따라서 그 창은 확장 광원, 두꺼운 기판, 공면적 외부 필름이라는 플랫폼의 성질이다. 이 결과는 반구가 모든 광학계에서 최적이라는 주장이 아니다. 하나의 판단 기준을 제공한다. 반구 benchmark로 포화가 확인되면, 추가 개선은 더 많은 렌즈 형상 자유도가 아니라 왕복 손실 저감, 광원과 캐비티, 개구 확장, 각도 선택적 다중 통과 추출에서 찾아야 한다. 본 플랫폼은 렌즈 형상의 영향력이 가장 큰, 손실이 큰 Al 음극을 쓰므로 저손실 소자에서는 포화가 더욱 강할 것으로 예상된다. 같은 논리는 페로브스카이트 LED, 양자점 LED 같은 다른 확장 박막 발광체에도 적용된다.
 
 ---
 
@@ -195,7 +204,7 @@ Family들은 구성을 얼마나 움직일 수 있는지의 한계도 정한다.
 
 ## Data availability
 
-모든 그림과 표의 기반이 되는 결과 아카이브는 합리적 요청 시 교신저자로부터 제공받을 수 있다. 여기에는 각 최적화 캠페인의 평가 로그와 최적해, 재순환 모델 출력이 포함되며, 목록은 Supplement 1에 있다. 아카이브는 이를 생성한 스크립트와 함께 제공된다. `make_figures.py`와 `make_supp_figures_and_data.py`는 모든 그림을, 그려진 데이터의 Excel 통합문서와 함께 재생성한다. 제약이 다른 비대칭 탐색의 데이터도 요청 시 제공된다. CPS 광원 모델과 LightTools 프로젝트 파일의 실행에는 LightTools 라이선스가 필요하다.
+모든 그림과 표의 기반이 되는 결과 아카이브는 합리적 요청 시 교신저자로부터 제공받을 수 있다. 여기에는 각 최적화 캠페인의 평가 로그와 최적해, 다중 통과 모델 출력이 포함되며, 목록은 Supplement 1에 있다. 아카이브는 이를 생성한 스크립트와 함께 제공된다. `make_figures.py`와 `make_supp_figures_and_data.py`는 모든 그림을, 그려진 데이터의 Excel 통합문서와 함께 재생성한다. 제약이 다른 비대칭 탐색의 데이터도 요청 시 제공된다. CPS 광원 모델과 LightTools 프로젝트 파일의 실행에는 LightTools 라이선스가 필요하다.
 
 ---
 
@@ -211,24 +220,26 @@ Family들은 구성을 얼마나 움직일 수 있는지의 한계도 정한다.
 
 5. Qu, Y.; Kim, J.; Coburn, C.; Forrest, S. R. **Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays.** *ACS Photonics* **2018**, *5*, 2453–2458. https://doi.org/10.1021/acsphotonics.8b00255.
 
-6. Kim, S.; Shin, J. M.; Lee, J.; Park, C.; Lee, S.; Park, J.; Seo, D.; Park, S.; Park, C. Y.; Jang, M. S. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*, 4533–4541. https://doi.org/10.1515/nanoph-2021-0434.
+6. Kim, J.; Lee, S.; Yoo, S.; Gather, M. C. **Minimizing Round-Trip Loss for Near-Unity Quantum Efficiency in Organic Light-Emitting Diodes.** *Preprint* **2026**.
 
-7. Ni, Y.; Feng, D.; Ma, D. **Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging.** *Appl. Opt.* **2025**, *64*, 7875–7884. https://opg.optica.org/ao/abstract.cfm?uri=ao-64-27-7875.
+7. Song, J.; et al. **Lensfree OLEDs with over 50% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters.** *Nat. Commun.* **2018**, *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x.
 
-8. Buhl, M.; et al. **Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes.** *Adv. Photonics Res.* **2023**, *4*, 2200143. https://doi.org/10.1002/adpr.202200143.
+8. Kim, S.; Shin, J. M.; Lee, J.; Park, C.; Lee, S.; Park, J.; Seo, D.; Park, S.; Park, C. Y.; Jang, M. S. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*, 4533–4541. https://doi.org/10.1515/nanoph-2021-0434.
 
-9. Abdelkhalik, M. S.; Garcia-Santiago, X.; van Raaij, T.-J.; López, T.; Berghuis, A. M.; de Jong, L. M. A.; Gómez Rivas, J. **Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces.** *Commun. Eng.* **2025**, *4*, 63. https://doi.org/10.1038/s44172-025-00401-w.
+9. Ni, Y.; Feng, D.; Ma, D. **Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging.** *Appl. Opt.* **2025**, *64*, 7875–7884. https://opg.optica.org/ao/abstract.cfm?uri=ao-64-27-7875.
 
-10. Winston, R.; Jiang, L.; Ricketts, M. **Nonimaging Optics: A Tutorial.** *Adv. Opt. Photon.* **2018**, *10*, 484–511.
+10. Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. **Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays.** *ACS Photonics* **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017.
 
-11. Xiang, C.; Koo, W.; So, F.; Sasabe, H.; Kido, J. **A Systematic Study on Efficiency Enhancements in Phosphorescent Green, Red and Blue Microcavity Organic Light-Emitting Devices.** *Light: Sci. Appl.* **2013**, *2*, e74. https://doi.org/10.1038/lsa.2013.30.
+11. Kim, M.; Kim, J.; Yoo, S. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**, *16*, 11606. https://doi.org/10.1038/s41467-025-66538-6.
 
-12. Song, J.; et al. **Lensfree OLEDs with over 50% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters.** *Nat. Commun.* **2018**, *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x.
+12. Winston, R.; Jiang, L.; Ricketts, M. **Nonimaging Optics: A Tutorial.** *Adv. Opt. Photon.* **2018**, *10*, 484–511.
 
-13. Liao, P.-H.; Lee, W.-K.; Lee, C.-C.; Huang, C.-W.; Wen, S.-W.; Chen, Y.-T.; Chen, C.-C.; Lin, W.-Y.; Kwak, B. L.; Visser, R. J.; Wu, C.-C. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** *Opt. Express* **2022**, *30*, 46435–46449. https://doi.org/10.1364/OE.477797.
+13. Xiang, C.; Koo, W.; So, F.; Sasabe, H.; Kido, J. **A Systematic Study on Efficiency Enhancements in Phosphorescent Green, Red and Blue Microcavity Organic Light-Emitting Devices.** *Light: Sci. Appl.* **2013**, *2*, e74. https://doi.org/10.1038/lsa.2013.30.
 
-14. Kim, H.-J.; et al. **High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling.** *Sci. Rep.* **2017**, *7*, 43063. https://doi.org/10.1038/srep43063.
+14. Buhl, M.; et al. **Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes.** *Adv. Photonics Res.* **2023**, *4*, 2200143. https://doi.org/10.1002/adpr.202200143.
 
-15. Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. **Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays.** *ACS Photonics* **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017.
+15. Liao, P.-H.; Lee, W.-K.; Lee, C.-C.; Huang, C.-W.; Wen, S.-W.; Chen, Y.-T.; Chen, C.-C.; Lin, W.-Y.; Kwak, B. L.; Visser, R. J.; Wu, C.-C. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** *Opt. Express* **2022**, *30*, 46435–46449. https://doi.org/10.1364/OE.477797.
 
-16. Kim, M.; Kim, J.; Yoo, S. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**, *16*, 11606. https://doi.org/10.1038/s41467-025-66538-6.
+16. Kim, H.-J.; et al. **High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling.** *Sci. Rep.* **2017**, *7*, 43063. https://doi.org/10.1038/srep43063.
+
+17. Abdelkhalik, M. S.; Garcia-Santiago, X.; van Raaij, T.-J.; López, T.; Berghuis, A. M.; de Jong, L. M. A.; Gómez Rivas, J. **Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces.** *Commun. Eng.* **2025**, *4*, 63. https://doi.org/10.1038/s44172-025-00401-w.
