@@ -189,7 +189,7 @@
  },
  "TPBi": {
   "n_atoms": 81,
-  "n_sites": 6,
+  "n_sites": 9,
   "sites": {
    "bridge8": {
     "E_b": 1.0236,
@@ -262,17 +262,54 @@
      3.3238,
      -1.7289
     ]
+   },
+   "lpN8": {
+    "E_b": 1.0197,
+    "q": 0.0694,
+    "near": "H62",
+    "near_el": "H",
+    "d": 2.529,
+    "pos": [
+     2.0912,
+     3.3719,
+     -1.6562
+    ]
+   },
+   "lpN22": {
+    "E_b": 1.037,
+    "q": 0.0543,
+    "near": "N22",
+    "near_el": "N",
+    "d": 2.547,
+    "pos": [
+     1.8247,
+     1.1612,
+     2.984
+    ]
+   },
+   "lpN37": {
+    "E_b": 0.9803,
+    "q": 0.1377,
+    "near": "N37",
+    "near_el": "N",
+    "d": 2.384,
+    "pos": [
+     0.2079,
+     -0.3908,
+     -3.699
+    ]
    }
   },
   "pbe0_sites": [
+   "lpN22",
    "bridge8",
-   "hollow16",
-   "hollow33"
+   "lpN37"
   ],
-  "deepest_site": "bridge8",
-  "q_Ag1": 0.0713,
-  "q_Ag2_total": -0.0754,
-  "delta_q_Ag1_Ag2": -0.1467
+  "deepest_site": "lpN22",
+  "q_Ag1": 0.0543,
+  "q_Ag2_total": -0.1518,
+  "delta_q_Ag1_Ag2": -0.2061,
+  "lone_pairs_added": true
  },
  "T2T": {
   "n_atoms": 69,
