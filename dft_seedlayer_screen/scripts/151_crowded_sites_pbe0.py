@@ -65,20 +65,25 @@ def relax_ag(S, X, ag0):
 
     def fg(p):
         m = q.mol(FS + ["Ag"], np.vstack([FX, p]), 2)
-        mf, e = q.scf(m, conv=1e-8, dm0=state["dm"])
+        # grid 2 and 1e-7 are enough to locate the minimum; the score at the
+        # end uses the standard settings of 149
+        mf, e = q.scf(m, conv=1e-7, grid=2, dm0=state["dm"])
         state["dm"] = mf.make_rdm1()
         g = mf.nuc_grad_method().kernel()[-1] / q.BOHR          # Ha/A
         model = DispersionModel(Zs, np.vstack([X, p]) / q.BOHR)
         r = model.get_dispersion(RationalDampingParam(method="pbe0"), grad=True)
-        e += r["energy"]
-        g = g + r["gradient"][-1] / q.BOHR
+        e = (e + r["energy"]) * f.EV                             # eV
+        g = (g + r["gradient"][-1] / q.BOHR) * f.EV              # eV/A
         state["n"] += 1
-        print(f"    step {state['n']:2d}  E {e:.6f}  |g| {np.linalg.norm(g) * f.EV:.3f} eV/A",
+        print(f"    step {state['n']:2d}  E {e:.4f} eV  |g| {np.linalg.norm(g):.3f} eV/A",
               flush=True)
         return e, g
 
+    # eV and A: the identity starting Hessian then means a first step of
+    # g x 1 A^2/eV, about right for an Ag-N stretch (k ~ 1-3 eV/A^2); in
+    # hartree units the first step was 0.01 A
     res = minimize(fg, ag0, jac=True, method="BFGS",
-                   options={"gtol": 0.03 / f.EV, "maxiter": 25})
+                   options={"gtol": 0.05, "maxiter": 12})
     return res.x, state["n"]
 
 
