@@ -313,7 +313,7 @@
  },
  "T2T": {
   "n_atoms": 69,
-  "n_sites": 4,
+  "n_sites": 7,
   "sites": {
    "hollow15": {
     "E_b": 1.0998,
@@ -362,17 +362,54 @@
      -1.9006,
      1.6467
     ]
+   },
+   "lpN13": {
+    "E_b": 1.1738,
+    "q": 0.1399,
+    "near": "H63",
+    "near_el": "H",
+    "d": 2.205,
+    "pos": [
+     -3.0935,
+     -0.9784,
+     -1.528
+    ]
+   },
+   "lpN15": {
+    "E_b": 1.0991,
+    "q": 0.148,
+    "near": "H51",
+    "near_el": "H",
+    "d": 2.273,
+    "pos": [
+     2.0048,
+     -3.7458,
+     0.6317
+    ]
+   },
+   "lpN17": {
+    "E_b": 0.7775,
+    "q": 0.195,
+    "near": "H50",
+    "near_el": "H",
+    "d": 1.658,
+    "pos": [
+     1.8742,
+     2.4864,
+     0.3596
+    ]
    }
   },
   "pbe0_sites": [
+   "lpN13",
    "atop13",
-   "hollow15",
-   "hollow33"
+   "hollow15"
   ],
-  "deepest_site": "atop13",
-  "q_Ag1": 0.1481,
-  "q_Ag2_total": -0.0812,
-  "delta_q_Ag1_Ag2": -0.2293
+  "deepest_site": "lpN13",
+  "q_Ag1": 0.1399,
+  "q_Ag2_total": -0.0919,
+  "delta_q_Ag1_Ag2": -0.2318,
+  "lone_pairs_added": true
  },
  "3TPYMB": {
   "n_atoms": 88,
