@@ -74,6 +74,17 @@
   "gate_0.5": false
  },
  {
+  "name": "TPBi",
+  "role": "ETL / HBL",
+  "dq": -0.2061,
+  "E_b": 0.461,
+  "site": "lpN22 (near N22)",
+  "source": "pbe0_frag",
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
   "name": "B3PyMPM",
   "role": "ETL",
   "E_b": 0.416,
@@ -89,16 +100,6 @@
   "dq": -0.1123,
   "E_b": 0.416,
   "site": "bridge7 (GFN2)",
-  "source": "analog: B3PyMPM 3-pyridyl N",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
-  "name": "3TPYMB",
-  "role": "ETL / HBL",
-  "dq": -0.1313,
-  "E_b": 0.416,
-  "site": "lpN27 (GFN2)",
   "source": "analog: B3PyMPM 3-pyridyl N",
   "veto": "pass",
   "gate_0.5": false
@@ -154,12 +155,13 @@
   "gate_0.5": false
  },
  {
-  "name": "TPBi",
+  "name": "3TPYMB",
   "role": "ETL / HBL",
-  "dq": -0.2061,
-  "E_b": 0.373,
-  "site": "lpN22 (GFN2)",
-  "source": "analog: pyridine-type N (benzimidazole N3)",
+  "dq": -0.1313,
+  "E_b": 0.3738,
+  "site": "lpN27 (near N27)",
+  "source": "pbe0_frag",
+  "other": {},
   "veto": "pass",
   "gate_0.5": false
  },
