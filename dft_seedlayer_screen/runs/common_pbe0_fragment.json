@@ -176,5 +176,22 @@
    "near": "N7",
    "R_cut": 5.0
   }
+ },
+ "T2T": {
+  "lpN13": {
+   "E_b": 0.0744,
+   "elec": -0.1571,
+   "D3": -0.2315,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0356,
+   "frag_atoms": 39,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 3125,
+   "near": "H63",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN13",
+  "_E_b_deepest": 0.0744
  }
 }
