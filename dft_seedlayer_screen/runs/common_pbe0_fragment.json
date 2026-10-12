@@ -191,8 +191,30 @@
    "near": "H63",
    "R_cut": 5.0
   },
-  "_deepest": "lpN13",
-  "_E_b_deepest": 0.0744
+  "_deepest": "lpN13_pbe0relax",
+  "_E_b_deepest": 0.3244,
+  "lpN13_pbe0relax": {
+   "E_b": 0.3244,
+   "elec": 0.077,
+   "D3": -0.2474,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.045,
+   "frag_atoms": 39,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 7808,
+   "relax_steps": 4,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -3.2974,
+    -0.788,
+    -2.1182
+   ],
+   "near": "H63",
+   "d_near": 2.718,
+   "d_H_min": 2.718
+  }
  },
  "TSPO1": {
   "hollow14": {
