@@ -354,5 +354,31 @@
   },
   "_deepest": "lpO20_pbe0relax",
   "_E_b_deepest": 0.4508
+ },
+ "PO-T2T": {
+  "lpN21_pbe0relax": {
+   "E_b": 0.4778,
+   "elec": 0.0578,
+   "D3": -0.42,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.075,
+   "frag_atoms": 65,
+   "caps": 2,
+   "mol_atoms": 108,
+   "seconds": 18497,
+   "relax_steps": 4,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -0.5698,
+    2.0157,
+    1.6248
+   ],
+   "near": "N21",
+   "d_near": 2.709,
+   "d_H_min": 2.71
+  },
+  "_deepest": "lpN21_pbe0relax",
+  "_E_b_deepest": 0.4778
  }
 }
