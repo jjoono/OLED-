@@ -34,20 +34,47 @@ ROOT = os.path.join(HERE, "..")
 R_RELAX = float(os.environ.get("R_RELAX", "4.0"))
 H_MIN = 2.4
 HET = {"N", "O", "P", "Al", "B", "Si"}
+ANCHOR = {"N", "O"}           # atoms Ag can bind; P, B, Si, Al here are saturated
 
 
 def push_out(S, X, ag):
-    het = [i for i, s in enumerate(S) if s in HET]
-    k = min(het, key=lambda i: np.linalg.norm(X[i] - ag))
-    u = ag - X[k]
-    u /= np.linalg.norm(u)
-    H = np.array([X[i] for i, s in enumerate(S) if s == "H"])
-    p = ag.copy()
-    for _ in range(40):
-        if np.linalg.norm(H - p, axis=1).min() >= H_MIN:
-            break
-        p = p + 0.05 * u
-    return p, S[k] + str(k)
+    """The open position closest to the binding heteroatom(s).
+
+    Two cheaper rules failed: pushing along (GFN2 site - atom) sent the DPEPO
+    start 2 A into the molecule (|g| 39 eV/A), and pushing along the lone
+    pair runs into neighbouring rings on twisted molecules. So: the
+    N and O atoms within 3 A of the GFN2 site are the anchors; candidate points
+    lie on shells of 2.3-3.1 A around each anchor (600 directions); a point
+    is open if no H is within 2.3 A, no other heavy atom within 2.8 A and no
+    anchor within 2.2 A; the
+    open point with the smallest summed distance to the anchors is the start
+    (for a chelate pocket this is between both N). None open -> the
+    heteroatom is buried and not a site."""
+    het = [i for i, s in enumerate(S) if s in ANCHOR and np.linalg.norm(X[i] - ag) < 3.0]
+    if not het:
+        het = [min((i for i, s in enumerate(S) if s in ANCHOR),
+                   key=lambda i: np.linalg.norm(X[i] - ag))]
+    n = 600
+    k = np.arange(n) + 0.5
+    th = np.arccos(1 - 2 * k / n)
+    ph = np.pi * (1 + 5 ** 0.5) * k
+    dirs = np.stack([np.cos(ph) * np.sin(th), np.sin(ph) * np.sin(th), np.cos(th)], 1)
+    Hs = np.array([X[i] for i, s in enumerate(S) if s == "H"])
+    heavy = np.array([X[i] for i, s in enumerate(S) if s != "H" and i not in het])
+    best = None
+    for a in het:
+        for r in (2.3, 2.5, 2.7, 2.9, 3.1):
+            P = X[a] + r * dirs
+            dH = np.linalg.norm(P[:, None] - Hs[None], axis=2).min(1)
+            dX = np.linalg.norm(P[:, None] - heavy[None], axis=2).min(1)
+            dA = np.linalg.norm(P[:, None] - X[het][None], axis=2).min(1)
+            ok = (dH >= 2.3) & (dX >= 2.8) & (dA >= 2.2)
+            for p in P[ok]:
+                s = sum(np.linalg.norm(p - X[b]) for b in het)
+                if best is None or s < best[0]:
+                    best = (s, p)
+    label = ",".join(S[i] + str(i) for i in het)
+    return (None if best is None else best[1]), label
 
 
 def relax_ag(S, X, ag0):
@@ -82,8 +109,10 @@ def relax_ag(S, X, ag0):
     # eV and A: the identity starting Hessian then means a first step of
     # g x 1 A^2/eV, about right for an Ag-N stretch (k ~ 1-3 eV/A^2); in
     # hartree units the first step was 0.01 A
-    res = minimize(fg, ag0, jac=True, method="BFGS",
-                   options={"gtol": 0.05, "maxiter": 12})
+    # a box of +-0.8 A around the start caps any wild first step
+    res = minimize(fg, ag0, jac=True, method="L-BFGS-B",
+                   bounds=[(v - 0.8, v + 0.8) for v in ag0],
+                   options={"pgtol": 0.05, "maxiter": 12})
     return res.x, state["n"]
 
 
@@ -99,7 +128,16 @@ def main(names):
         ag_g = np.array(sv[name]["sites"][site]["pos"])
         t0 = time.time()
         ag0, het = push_out(S, X, ag_g)
-        print(f"{name}: {site} pushed {np.linalg.norm(ag0 - ag_g):.2f} A out from {het}", flush=True)
+        if ag0 is None:
+            print(f"{name}: {site} anchors {het} buried, no open start", flush=True)
+            done = json.load(open(f.OUT))
+            done.setdefault(name, {})[key] = {"buried": het}
+            json.dump(done, open(f.OUT, "w"), indent=1)
+            continue
+        dh = {S[i] + str(i): round(float(np.linalg.norm(X[i] - ag0)), 2)
+              for i in range(len(S)) if S[i] in HET and np.linalg.norm(X[i] - ag0) < 3.5}
+        print(f"{name}: {site} start {np.linalg.norm(ag0 - ag_g):.2f} A from the GFN2 site, "
+              f"anchors {dh}", flush=True)
         ag, nstep = relax_ag(S, X, ag0)
         d = np.linalg.norm(X - ag, axis=1)
         r = f.eb(S, X, ag)
