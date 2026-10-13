@@ -77,18 +77,35 @@ def push_out(S, X, ag):
     return (None if best is None else best[1]), label
 
 
-def relax_ag(S, X, ag0):
+# one file per molecule: two runners write at the same time
+CKPT = os.path.join(ROOT, "runs", "crowded_relax_ckpt")
+
+
+def ckpt_load(name):
+    p = os.path.join(CKPT, f"{name}.json")
+    return json.load(open(p)) if os.path.exists(p) else None
+
+
+def ckpt_save(name, rec):
+    os.makedirs(CKPT, exist_ok=True)
+    json.dump(rec, open(os.path.join(CKPT, f"{name}.json"), "w"), indent=1)
+
+
+def relax_ag(S, X, ag0, name, x0=None, steps0=0, best0=None):
     """Ag-only minimisation of E_PBE0(fragment+Ag) + D3(molecule+Ag).
 
-    The fragment is cut once, around the start; Ag moves < 1 A, so it stays
-    inside it."""
+    The fragment is cut once, around the start ag0; Ag moves < 1 A, so it
+    stays inside it. Every step writes the lowest point so far to CKPT: the
+    container restarts every several hours and a 5-step relaxation of a
+    40-atom fragment takes 6-10 h. A resumed run starts from that point with a
+    fresh Hessian, keeping the same fragment and box (both tied to ag0)."""
     old = f.R_CUT
     f.R_CUT = R_RELAX
     FS, FX, _ = f.fragment(S, X, ag0)
     f.R_CUT = old
     Zs = np.array([q.Z[s] for s in S + ["Ag"]])
     from dftd3.interface import RationalDampingParam, DispersionModel
-    state = {"dm": None, "n": 0}
+    state = {"dm": None, "n": steps0, "best": best0}
 
     def fg(p):
         m = q.mol(FS + ["Ag"], np.vstack([FX, p]), 2)
@@ -104,16 +121,27 @@ def relax_ag(S, X, ag0):
         state["n"] += 1
         print(f"    step {state['n']:2d}  E {e:.4f} eV  |g| {np.linalg.norm(g):.3f} eV/A",
               flush=True)
+        if state["best"] is None or e < state["best"]["E"]:
+            state["best"] = {"E": e, "pos": [float(v) for v in p],
+                             "g": float(np.linalg.norm(g))}
+        ckpt_save(name, {"start": [float(v) for v in ag0], "steps": state["n"],
+                         "best": state["best"], "relaxed": False})
         return e, g
 
     # eV and A: the identity starting Hessian then means a first step of
     # g x 1 A^2/eV, about right for an Ag-N stretch (k ~ 1-3 eV/A^2); in
     # hartree units the first step was 0.01 A
     # a box of +-0.8 A around the start caps any wild first step
-    res = minimize(fg, ag0, jac=True, method="L-BFGS-B",
-                   bounds=[(v - 0.8, v + 0.8) for v in ag0],
-                   options={"gtol": 0.05, "maxiter": 12})
-    return res.x, state["n"]
+    x_start = ag0 if x0 is None else np.asarray(x0, float)
+    if state["best"] is not None and state["best"]["g"] < 0.05:
+        return np.array(state["best"]["pos"]), state["n"]
+    minimize(fg, x_start, jac=True, method="L-BFGS-B",
+             bounds=[(v - 0.8, v + 0.8) for v in ag0],
+             options={"gtol": 0.05, "maxiter": max(3, 12 - steps0)})
+    ag = np.array(state["best"]["pos"])
+    ckpt_save(name, {"start": [float(v) for v in ag0], "steps": state["n"],
+                     "best": state["best"], "relaxed": True})
+    return ag, state["n"]
 
 
 def main(names):
@@ -127,6 +155,18 @@ def main(names):
             continue
         ag_g = np.array(sv[name]["sites"][site]["pos"])
         t0 = time.time()
+        ck = ckpt_load(name)
+        if ck:
+            ag0 = np.array(ck["start"])
+            if ck["relaxed"]:
+                ag, nstep = np.array(ck["best"]["pos"]), ck["steps"]
+            else:
+                print(f"{name}: resuming after {ck['steps']} steps, "
+                      f"|g| {ck['best']['g']:.3f} eV/A", flush=True)
+                ag, nstep = relax_ag(S, X, ag0, name, x0=ck["best"]["pos"],
+                                     steps0=ck["steps"], best0=ck["best"])
+            score(name, key, S, X, ag, nstep, t0)
+            continue
         ag0, het = push_out(S, X, ag_g)
         if ag0 is None:
             print(f"{name}: {site} anchors {het} buried, no open start", flush=True)
@@ -138,23 +178,27 @@ def main(names):
               for i in range(len(S)) if S[i] in HET and np.linalg.norm(X[i] - ag0) < 3.5}
         print(f"{name}: {site} start {np.linalg.norm(ag0 - ag_g):.2f} A from the GFN2 site, "
               f"anchors {dh}", flush=True)
-        ag, nstep = relax_ag(S, X, ag0)
-        d = np.linalg.norm(X - ag, axis=1)
-        r = f.eb(S, X, ag)
-        r.update(seconds=round(time.time() - t0), relax_steps=nstep, R_cut=f.R_CUT,
-                 R_relax=R_RELAX, pos=[round(float(v), 4) for v in ag],
-                 near=f"{S[int(d.argmin())]}{int(d.argmin())}",
-                 d_near=round(float(d.min()), 3),
-                 d_H_min=round(float(min(d[i] for i, s in enumerate(S) if s == "H")), 3))
-        done = json.load(open(f.OUT))
-        row = done.setdefault(name, {})
-        row[key] = r
-        good = {k: v["E_b"] for k, v in row.items() if isinstance(v, dict) and "E_b" in v}
-        row["_deepest"] = max(good, key=good.get)
-        row["_E_b_deepest"] = good[row["_deepest"]]
-        json.dump(done, open(f.OUT, "w"), indent=1)
-        print(f"{name:<9} {key:<26} near {r['near']:<5} E_b {r['E_b']:.3f}  "
-              f"d {r['d_near']:.2f}  H_min {r['d_H_min']:.2f}  {r['seconds']}s", flush=True)
+        ag, nstep = relax_ag(S, X, ag0, name)
+        score(name, key, S, X, ag, nstep, t0)
+
+
+def score(name, key, S, X, ag, nstep, t0):
+    d = np.linalg.norm(X - ag, axis=1)
+    r = f.eb(S, X, ag)
+    r.update(seconds=round(time.time() - t0), relax_steps=nstep, R_cut=f.R_CUT,
+             R_relax=R_RELAX, pos=[round(float(v), 4) for v in ag],
+             near=f"{S[int(d.argmin())]}{int(d.argmin())}",
+             d_near=round(float(d.min()), 3),
+             d_H_min=round(float(min(d[i] for i, s in enumerate(S) if s == "H")), 3))
+    done = json.load(open(f.OUT))
+    row = done.setdefault(name, {})
+    row[key] = r
+    good = {k: v["E_b"] for k, v in row.items() if isinstance(v, dict) and "E_b" in v}
+    row["_deepest"] = max(good, key=good.get)
+    row["_E_b_deepest"] = good[row["_deepest"]]
+    json.dump(done, open(f.OUT, "w"), indent=1)
+    print(f"{name:<9} {key:<26} near {r['near']:<5} E_b {r['E_b']:.3f}  "
+          f"d {r['d_near']:.2f}  H_min {r['d_H_min']:.2f}  {r['seconds']}s", flush=True)
 
 
 def read(name):
