@@ -11,7 +11,7 @@ finds repulsive -- T2T scored 0.07 eV there, below benzene.
 Here, for each such site:
   1. push Ag out along (site - nearest heteroatom) until no H is closer than
      2.4 A;
-  2. relax the Ag position only, molecule frozen, at PBE0/def2-SVP on a small
+  2. relax the Ag position only, molecule frozen, at PBE-D3/def2-SVP on a small
      fragment (R_RELAX, default 4 A) plus D3BJ of the whole molecule;
   3. score the relaxed position exactly as script 149 does (FRAG_RCUT fragment,
      whole-molecule D3).
@@ -23,6 +23,7 @@ import importlib.util
 
 import numpy as np
 from scipy.optimize import minimize
+from pyscf import dft
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("f149", os.path.join(HERE, "149_fragment_pbe0.py"))
@@ -32,6 +33,7 @@ q = f.q
 
 ROOT = os.path.join(HERE, "..")
 R_RELAX = float(os.environ.get("R_RELAX", "4.0"))
+RELAX_XC = os.environ.get("RELAX_XC", "PBE")
 H_MIN = 2.4
 HET = {"N", "O", "P", "Al", "B", "Si"}
 ANCHOR = {"N", "O"}           # atoms Ag can bind; P, B, Si, Al here are saturated
@@ -109,13 +111,24 @@ def relax_ag(S, X, ag0, name, x0=None, steps0=0, best0=None):
 
     def fg(p):
         m = q.mol(FS + ["Ag"], np.vstack([FX, p]), 2)
-        # grid 2 and 1e-7 are enough to locate the minimum; the score at the
-        # end uses the standard settings of 149
-        mf, e = q.scf(m, conv=1e-7, grid=2, dm0=state["dm"])
+        # The position is found at PBE-D3 (no exact exchange, ~5x faster than
+        # PBE0 with density fitting), grid 2, 1e-7; only the score at the end
+        # is PBE0, with the standard settings of 149. A PBE0 relaxation took
+        # 1.5-2 h per step on these 40-atom fragments.
+        mf = dft.UKS(m).density_fit()
+        mf.xc = RELAX_XC
+        mf.grids.level = 2
+        mf.conv_tol = 1e-7
+        mf.max_cycle = 200
+        mf.level_shift = 0.2
+        e = mf.kernel(state["dm"]) if state["dm"] is not None else mf.kernel()
+        if not mf.converged:
+            mf = mf.newton()
+            e = mf.kernel(mf.make_rdm1())
         state["dm"] = mf.make_rdm1()
         g = mf.nuc_grad_method().kernel()[-1] / q.BOHR          # Ha/A
         model = DispersionModel(Zs, np.vstack([X, p]) / q.BOHR)
-        r = model.get_dispersion(RationalDampingParam(method="pbe0"), grad=True)
+        r = model.get_dispersion(RationalDampingParam(method=RELAX_XC.lower()), grad=True)
         e = (e + r["energy"]) * f.EV                             # eV
         g = (g + r["gradient"][-1] / q.BOHR) * f.EV              # eV/A
         state["n"] += 1
