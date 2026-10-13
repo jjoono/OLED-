@@ -245,5 +245,18 @@
   },
   "_deepest": "atop0",
   "_E_b_deepest": 0.3805
+ },
+ "Alq3": {
+  "pocketN15N26": {
+   "E_b": 0.137,
+   "frag_atoms": 52,
+   "seconds": 12624,
+   "near": "O8",
+   "R_cut": 5.0,
+   "d3_sign_fixed": true,
+   "note": "E_b read from the run log (pbe0_run7); runner stopped during the second site to move Alq3 to script 151"
+  },
+  "_deepest": "pocketN15N26",
+  "_E_b_deepest": 0.137
  }
 }
