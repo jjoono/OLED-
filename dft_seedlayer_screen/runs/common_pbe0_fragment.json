@@ -214,6 +214,28 @@
    "near": "H63",
    "d_near": 2.718,
    "d_H_min": 2.718
+  },
+  "lpN13_pbe0relax_v2": {
+   "E_b": 0.2932,
+   "elec": 0.0564,
+   "D3": -0.2368,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0403,
+   "frag_atoms": 39,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 5351,
+   "relax_steps": 5,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -2.4934,
+    -2.0173,
+    2.2042
+   ],
+   "near": "H49",
+   "d_near": 2.684,
+   "d_H_min": 2.684
   }
  },
  "TSPO1": {
