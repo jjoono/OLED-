@@ -162,13 +162,15 @@ def main(names):
     for name in names:
         S, X = read(name)
         site = sv[name]["pbe0_sites"][0]
-        key = f"{site}_pbe0relax"
+        # KEY_SUFFIX: a second start for a molecule already done (T2T was
+        # relaxed from the first start rule, before the N/O-anchored one)
+        key = f"{site}_pbe0relax{os.environ.get('KEY_SUFFIX', '')}"
         done = json.load(open(f.OUT))
         if key in done.get(name, {}):
             continue
         ag_g = np.array(sv[name]["sites"][site]["pos"])
         t0 = time.time()
-        ck = ckpt_load(name)
+        ck = ckpt_load(name + os.environ.get("KEY_SUFFIX", ""))
         if ck:
             ag0 = np.array(ck["start"])
             if ck["relaxed"]:
@@ -176,7 +178,8 @@ def main(names):
             else:
                 print(f"{name}: resuming after {ck['steps']} steps, "
                       f"|g| {ck['best']['g']:.3f} eV/A", flush=True)
-                ag, nstep = relax_ag(S, X, ag0, name, x0=ck["best"]["pos"],
+                ag, nstep = relax_ag(S, X, ag0, name + os.environ.get("KEY_SUFFIX", ""),
+                                     x0=ck["best"]["pos"],
                                      steps0=ck["steps"], best0=ck["best"])
             score(name, key, S, X, ag, nstep, t0)
             continue
@@ -191,7 +194,7 @@ def main(names):
               for i in range(len(S)) if S[i] in HET and np.linalg.norm(X[i] - ag0) < 3.5}
         print(f"{name}: {site} start {np.linalg.norm(ag0 - ag_g):.2f} A from the GFN2 site, "
               f"anchors {dh}", flush=True)
-        ag, nstep = relax_ag(S, X, ag0, name)
+        ag, nstep = relax_ag(S, X, ag0, name + os.environ.get("KEY_SUFFIX", ""))
         score(name, key, S, X, ag, nstep, t0)
 
 
