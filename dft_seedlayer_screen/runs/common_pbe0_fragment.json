@@ -380,5 +380,35 @@
   },
   "_deepest": "lpN21_pbe0relax",
   "_E_b_deepest": 0.4778
+ },
+ "mCP": {
+  "hollow0": {
+   "E_b": 0.2048,
+   "elec": 0.0147,
+   "D3": -0.1902,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0465,
+   "frag_atoms": 32,
+   "caps": 1,
+   "mol_atoms": 52,
+   "seconds": 1912,
+   "near": "H36",
+   "R_cut": 5.0
+  },
+  "hollow13": {
+   "E_b": 0.2668,
+   "elec": 0.043,
+   "D3": -0.2238,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0312,
+   "frag_atoms": 32,
+   "caps": 1,
+   "mol_atoms": 52,
+   "seconds": 1292,
+   "near": "C12",
+   "R_cut": 5.0
+  },
+  "_deepest": "hollow13",
+  "_E_b_deepest": 0.2668
  }
 }
