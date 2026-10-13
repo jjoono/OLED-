@@ -280,5 +280,31 @@
    "d_near": 2.716,
    "d_H_min": 2.87
   }
+ },
+ "NBphen": {
+  "pocketN19N44_pbe0relax": {
+   "E_b": 0.4599,
+   "elec": 0.1808,
+   "D3": -0.2791,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0046,
+   "frag_atoms": 54,
+   "caps": 2,
+   "mol_atoms": 74,
+   "seconds": 25627,
+   "relax_steps": 8,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -0.728,
+    1.6484,
+    -1.4049
+   ],
+   "near": "H58",
+   "d_near": 2.193,
+   "d_H_min": 2.193
+  },
+  "_deepest": "pocketN19N44_pbe0relax",
+  "_E_b_deepest": 0.4599
  }
 }
