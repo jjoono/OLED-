@@ -6,6 +6,8 @@
   "site": "aza N",
   "dq": -0.197,
   "source": "pbe0",
+  "elec": 1.4558,
+  "disp": 0.1752,
   "veto": "pass",
   "gate_0.5": true
  },
@@ -16,6 +18,8 @@
   "site": "nitrile N",
   "dq": -0.268,
   "source": "pbe0",
+  "elec": 1.1472,
+  "disp": 0.0608,
   "veto": "pass",
   "gate_0.5": true
  },
@@ -26,6 +30,8 @@
   "E_b": 1.202,
   "site": "lpF14 (near N9)",
   "source": "pbe0_frag",
+  "elec": 1.1046,
+  "disp": 0.0974,
   "other": {},
   "veto": "pass",
   "gate_0.5": true
@@ -37,6 +43,8 @@
   "site": "phen chelate",
   "dq": -0.314,
   "source": "pbe0",
+  "elec": 0.5888,
+  "disp": 0.1953,
   "veto": "pass",
   "gate_0.5": true
  },
@@ -47,8 +55,23 @@
   "site": "phen chelate",
   "dq": -0.353,
   "source": "pbe0",
+  "elec": 0.4748,
+  "disp": 0.1337,
   "veto": "pass",
   "gate_0.5": true
+ },
+ {
+  "name": "PO-T2T",
+  "role": "ETL / exciplex acceptor",
+  "dq": -0.2324,
+  "E_b": 0.4778,
+  "site": "lpN21_pbe0relax (near N21)",
+  "source": "pbe0_frag",
+  "elec": 0.0578,
+  "disp": 0.42,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
  },
  {
   "name": "BCP",
@@ -57,6 +80,8 @@
   "E_b": 0.4683,
   "site": "atop24 (near N27)",
   "source": "pbe0_frag",
+  "elec": 0.2906,
+  "disp": 0.1777,
   "other": {
    "hollow25": 0.1951
   },
@@ -70,6 +95,8 @@
   "E_b": 0.461,
   "site": "lpN22 (near N22)",
   "source": "pbe0_frag",
+  "elec": 0.2185,
+  "disp": 0.2425,
   "other": {},
   "veto": "pass",
   "gate_0.5": false
@@ -81,6 +108,8 @@
   "E_b": 0.4599,
   "site": "pocketN19N44_pbe0relax (near H58)",
   "source": "pbe0_frag",
+  "elec": 0.1808,
+  "disp": 0.2791,
   "other": {},
   "veto": "pass",
   "gate_0.5": false
@@ -92,6 +121,8 @@
   "E_b": 0.4508,
   "site": "lpO20_pbe0relax (near O28)",
   "source": "pbe0_frag",
+  "elec": 0.1735,
+  "disp": 0.2773,
   "other": {},
   "veto": "pass",
   "gate_0.5": false
@@ -103,6 +134,8 @@
   "E_b": 0.4293,
   "site": "pocketN15N26_pbe0relax (near O8)",
   "source": "pbe0_frag",
+  "elec": 0.1888,
+  "disp": 0.2405,
   "other": {
    "pocketN15N26": 0.137
   },
@@ -116,16 +149,8 @@
   "site": "pyrimidine/pyridyl N",
   "dq": -0.238,
   "source": "pbe0",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
-  "name": "PO-T2T",
-  "role": "ETL / exciplex acceptor",
-  "dq": -0.2324,
-  "E_b": 0.408,
-  "site": "lpN21 (GFN2)",
-  "source": "analog: Ph3P=O",
+  "elec": 0.1947,
+  "disp": 0.2213,
   "veto": "pass",
   "gate_0.5": false
  },
@@ -146,6 +171,8 @@
   "E_b": 0.3805,
   "site": "atop0 (near O0)",
   "source": "pbe0_frag",
+  "elec": 0.2682,
+  "disp": 0.1123,
   "other": {
    "hollow14": 0.2742
   },
@@ -159,6 +186,8 @@
   "E_b": 0.3738,
   "site": "lpN27 (near N27)",
   "source": "pbe0_frag",
+  "elec": 0.2806,
+  "disp": 0.0932,
   "other": {},
   "veto": "pass",
   "gate_0.5": false
@@ -170,6 +199,8 @@
   "E_b": 0.3712,
   "site": "lpN40 (near N40)",
   "source": "pbe0_frag",
+  "elec": 0.2826,
+  "disp": 0.0886,
   "other": {
    "bridge7": 0.3121,
    "lpN7": 0.3705
@@ -184,6 +215,8 @@
   "E_b": 0.3244,
   "site": "lpN13_pbe0relax (near H63)",
   "source": "pbe0_frag",
+  "elec": 0.077,
+  "disp": 0.2474,
   "other": {
    "lpN13": 0.0744,
    "lpN13_pbe0relax_v2": 0.2932

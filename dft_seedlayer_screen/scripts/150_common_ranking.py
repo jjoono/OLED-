@@ -56,6 +56,13 @@ ANALOG = {
 }
 
 
+# electronic / dispersion split of E_b where it was computed: the fragment
+# runs store it; for the earlier full-molecule values it comes from the
+# validation entries (149 --validate) and runs/eb_bsse_basis.json (F4TCNQ)
+SPLIT_EARLIER = {"HATCN": "HATCN aza", "Bphen": "Bphen chelate",
+                 "B3PyMPM": "B3PyMPM", "p-bPPhenB": "p-bPPhenB"}
+
+
 def main():
     sv = json.load(open(os.path.join(ROOT, "runs", "common_survey_xtb.json")))
     fr = json.load(open(os.path.join(ROOT, "runs", "common_pbe0_fragment.json")))
@@ -63,14 +70,21 @@ def main():
     rows = []
     for name, (role, eb, site) in EARLIER.items():
         dq = round(2 * old[name]["q_Ag2_per_atom"] - old[name]["q_Ag1"], 3)
-        rows.append(dict(name=name, role=role, E_b=eb, site=site, dq=dq, source="pbe0"))
+        r = dict(name=name, role=role, E_b=eb, site=site, dq=dq, source="pbe0")
+        v = fr["_validation"].get(SPLIT_EARLIER.get(name, ""), {})
+        if "elec" in v:
+            r.update(elec=v["elec"], disp=-v["D3"])
+        elif name == "F4TCNQ":
+            r.update(elec=round(eb - 0.0608, 4), disp=0.0608)
+        rows.append(r)
     for name, v in sv.items():
         r = dict(name=name, role=ROLE.get(name, ""), dq=v["delta_q_Ag1_Ag2"])
         f = fr.get(name, {})
         if "_E_b_deepest" in f:
             lab = f["_deepest"]
             r.update(E_b=f["_E_b_deepest"], site=f"{lab} (near {f[lab]['near']})",
-                     source="pbe0_frag",
+                     source="pbe0_frag", elec=f[lab].get("elec"),
+                     disp=-f[lab]["D3"] if "D3" in f[lab] else None,
                      other={k: x["E_b"] for k, x in f.items()
                             if not k.startswith("_") and "E_b" in x and k != lab})
         else:
@@ -82,9 +96,12 @@ def main():
         r["gate_0.5"] = r["E_b"] >= 0.5
     rows.sort(key=lambda r: -r["E_b"])
     json.dump(rows, open(os.path.join(ROOT, "runs", "common_ranking.json"), "w"), indent=1)
-    print(f"{'#':>2} {'material':<10} {'role':<24} {'E_b':>6}  {'dq':>6} veto  gate  source")
+    print(f"{'#':>2} {'material':<10} {'role':<24} {'E_b':>6} {'elec':>6} {'disp':>6}  "
+          f"{'dq':>6} veto  gate  source")
     for i, r in enumerate(rows, 1):
-        print(f"{i:>2} {r['name']:<10} {r['role']:<24} {r['E_b']:6.3f}  {r['dq']:+.2f} "
+        el = f"{r['elec']:6.3f}" if r.get("elec") is not None else "     -"
+        di = f"{r['disp']:6.3f}" if r.get("disp") is not None else "     -"
+        print(f"{i:>2} {r['name']:<10} {r['role']:<24} {r['E_b']:6.3f} {el} {di}  {r['dq']:+.2f} "
               f"{r['veto']:<5} {'yes' if r['gate_0.5'] else 'no':<4}  {r['source']}")
 
 
