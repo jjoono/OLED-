@@ -51,16 +51,6 @@
   "gate_0.5": true
  },
  {
-  "name": "NBphen",
-  "role": "ETL",
-  "dq": -0.3165,
-  "E_b": 0.47,
-  "site": "pocketN19N44 (GFN2)",
-  "source": "analog: Bphen chelate, minus the 2,9-substituent penalty seen in BCP",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
   "name": "BCP",
   "role": "HBL / ETL",
   "dq": -0.3655,
@@ -85,22 +75,13 @@
   "gate_0.5": false
  },
  {
-  "name": "B3PyMPM",
+  "name": "NBphen",
   "role": "ETL",
-  "E_b": 0.416,
-  "site": "pyrimidine/pyridyl N",
-  "dq": -0.238,
-  "source": "pbe0",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
-  "name": "TmPyPB",
-  "role": "ETL / HBL",
-  "dq": -0.1123,
-  "E_b": 0.416,
-  "site": "bridge7 (GFN2)",
-  "source": "analog: B3PyMPM 3-pyridyl N",
+  "dq": -0.3165,
+  "E_b": 0.4599,
+  "site": "pocketN19N44_pbe0relax (near H58)",
+  "source": "pbe0_frag",
+  "other": {},
   "veto": "pass",
   "gate_0.5": false
  },
@@ -108,19 +89,33 @@
   "name": "DPEPO",
   "role": "blue host / HBL",
   "dq": -0.5055,
-  "E_b": 0.408,
-  "site": "lpO20 (GFN2)",
-  "source": "analog: Ph3P=O",
+  "E_b": 0.4508,
+  "site": "lpO20_pbe0relax (near O28)",
+  "source": "pbe0_frag",
+  "other": {},
   "veto": "pass",
   "gate_0.5": false
  },
  {
-  "name": "TSPO1",
-  "role": "blue host / HBL",
-  "dq": -0.0169,
-  "E_b": 0.408,
-  "site": "hollow14 (GFN2)",
-  "source": "analog: Ph3P=O",
+  "name": "Alq3",
+  "role": "ETL / green host",
+  "dq": -0.2751,
+  "E_b": 0.4293,
+  "site": "pocketN15N26_pbe0relax (near O8)",
+  "source": "pbe0_frag",
+  "other": {
+   "pocketN15N26": 0.137
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "B3PyMPM",
+  "role": "ETL",
+  "E_b": 0.416,
+  "site": "pyrimidine/pyridyl N",
+  "dq": -0.238,
+  "source": "pbe0",
   "veto": "pass",
   "gate_0.5": false
  },
@@ -145,12 +140,15 @@
   "gate_0.5": false
  },
  {
-  "name": "Alq3",
-  "role": "ETL / green host",
-  "dq": -0.2751,
-  "E_b": 0.398,
-  "site": "pocketN15N26 (GFN2)",
-  "source": "analog: Liq (metal quinolinolate O)",
+  "name": "TSPO1",
+  "role": "blue host / HBL",
+  "dq": -0.0169,
+  "E_b": 0.3805,
+  "site": "atop0 (near O0)",
+  "source": "pbe0_frag",
+  "other": {
+   "hollow14": 0.2742
+  },
   "veto": "pass",
   "gate_0.5": false
  },
@@ -162,6 +160,34 @@
   "site": "lpN27 (near N27)",
   "source": "pbe0_frag",
   "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TmPyPB",
+  "role": "ETL / HBL",
+  "dq": -0.1123,
+  "E_b": 0.3712,
+  "site": "lpN40 (near N40)",
+  "source": "pbe0_frag",
+  "other": {
+   "bridge7": 0.3121,
+   "lpN7": 0.3705
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "T2T",
+  "role": "ETL / host",
+  "dq": -0.2318,
+  "E_b": 0.3244,
+  "site": "lpN13_pbe0relax (near H63)",
+  "source": "pbe0_frag",
+  "other": {
+   "lpN13": 0.0744,
+   "lpN13_pbe0relax_v2": 0.2932
+  },
   "veto": "pass",
   "gate_0.5": false
  },
@@ -192,16 +218,6 @@
   "E_b": 0.279,
   "site": "hollow86 (GFN2)",
   "source": "analog: PhCz / TPA",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
-  "name": "T2T",
-  "role": "ETL / host",
-  "dq": -0.2318,
-  "E_b": 0.271,
-  "site": "lpN13 (GFN2)",
-  "source": "analog: triazine N",
   "veto": "pass",
   "gate_0.5": false
  },
