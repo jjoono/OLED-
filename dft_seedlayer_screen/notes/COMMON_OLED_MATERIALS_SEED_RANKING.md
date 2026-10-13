@@ -1,4 +1,4 @@
-# Common evaporable OLED materials ranked as Ag seed layers (2026-10-12)
+# Common evaporable OLED materials ranked as Ag seed layers (final, 2026-10-13)
 
 Question: with the screening rule fixed in `LIT_SEED_SYNTHESIS_20261011.md`
 (gates first, then rank by E_b), where do the everyday HIL/HTL/host/ETL
@@ -6,109 +6,156 @@ materials fall, and does 3TPYMB work as a seed under thin Ag?
 
 Data: `runs/common_ranking.json` (script 150), built from
 `runs/common_survey_xtb.json` (script 148, GFN2 multi-site survey with
-lone-pair starts) and `runs/common_pbe0_fragment.json` (script 149, fragment
-PBE0 at the GFN2-deepest site).
+lone-pair starts), `runs/common_pbe0_fragment.json` (scripts 149 and 151) and
+the earlier full-molecule PBE0 values.
 
-## Method in one paragraph
+## Method
 
-Each molecule was built from SMILES, optimised with GFN2-xTB, and searched for
-Ag sites (every heteroatom, every ring hollow, lone-pair directions, pockets
-between heteroatoms). GFN2 finds the sites well but its E_b is not
-transferable across elements (PBE0/GFN2 = 0.19–0.68 on N sites, 0.7–0.85 on
-all-carbon sites), so the ranking value is PBE0: the electronic part on a
-fragment (heavy atoms within 5 Å of Ag, ring systems completed, substituents
-kept whole, H caps) plus D3BJ on the whole molecule. Validated against
-full-molecule PBE0 on HATCN, Bphen, B3PyMPM and p-bPPhenB: largest error
-0.013 eV. The charge-capacity veto uses GFN2 Δq(Ag₁→Ag₂), whose sign was
-validated against PBE0 earlier. Materials not yet run at PBE0 carry the PBE0
-value of their closest computed motif and are marked *analog*.
+1. **Sites (GFN2-xTB).** Each molecule built from SMILES, optimised with
+   GFN2, and Ag relaxed (molecule frozen) from every heteroatom, ring hollow,
+   lone-pair direction and heteroatom pocket.
+2. **Score (PBE0-D3BJ/def2-SVP).** GFN2 E_b is not transferable across
+   elements (PBE0/GFN2 = 0.19–0.68 on N sites, 0.7–0.85 on carbon sites), so
+   the ranking value is PBE0: electronic part on a fragment (heavy atoms within
+   5 Å, ring systems completed, substituents whole, H caps) plus D3BJ on the
+   whole molecule. Validated on HATCN, Bphen, B3PyMPM, p-bPPhenB against
+   full-molecule PBE0: largest error 0.013 eV (script 149).
+3. **Crowded sites re-placed (script 151).** On sites between ortho
+   hydrogens GFN2 pulls Ag to 1.7–2.2 Å from H, which PBE0 finds repulsive
+   (T2T 0.07, Alq3 0.14 eV at the GFN2 position). For T2T, NBphen, DPEPO,
+   PO-T2T and Alq3 the Ag position was re-found: start at the open point
+   nearest the N/O anchors, relax Ag only at PBE-D3 on a 4 Å fragment, score
+   at PBE0 as in step 2. Every crowded site moved to ≥ 2.6 Å from H except
+   NBphen (2.19 Å, see below).
+4. **Veto (GFN2).** Δq(Ag₁→Ag₂), sign validated against PBE0 earlier.
+
+Every value in the table is PBE0 except four π-only materials (CBP, TCTA,
+TPD, TAPC), which carry their motif's PBE0 value. The two π-only materials
+computed directly confirm the motif values: mCP 0.267 (carbazole motif
+0.279), NPB 0.254 (triarylamine motif 0.259).
 
 ## Ranking
 
-Gates: condensation E_b ≥ ~0.5 eV; veto Δq ≥ +0.3 e. **No material in the list
-fails the veto** — every organic hands Ag₂ charge back or moves none — so the
-order is set by E_b alone.
+Gates: condensation E_b ≥ ~0.5 eV; veto Δq ≥ +0.3 e. **No material fails the
+veto** — every organic hands Ag₂ charge back or moves none — so the order is
+set by E_b. E_b is split into its electronic part (fragment PBE0, no D3) and
+dispersion (whole-molecule D3).
 
-| # | material | role | E_b (eV) | site | Δq Ag₁→Ag₂ (e) | source |
-|---|---|---|---|---|---|---|
-| 1 | HATCN | HIL / CGL | 1.63 | aza N | −0.20 | PBE0 |
-| 2 | F4TCNQ | p-dopant | 1.21 | nitrile N | −0.27 | PBE0 |
-| 3 | F6-TCNNQ | p-dopant | 1.20 | nitrile N | −0.26 | PBE0 fragment |
-| 4 | p-bPPhenB | ETL | 0.79 | phen chelate | −0.31 | PBE0 |
-| 5 | Bphen | ETL | 0.62 | phen chelate | −0.35 | PBE0 |
-| — | *0.5 eV condensation gate* | | | | | |
-| 6 | NBphen | ETL | (0.47) | phen pocket | −0.32 | analog — running |
-| 7 | BCP | HBL / ETL | 0.47 | N, off-chelate | −0.37 | PBE0 fragment |
-| 8 | TPBi | ETL / HBL | 0.46 | benzimidazole N3 | −0.21 | PBE0 fragment |
-| 9 | B3PyMPM | ETL | 0.42 | pyridyl N | −0.24 | PBE0 |
-| 10 | TmPyPB | ETL / HBL | (0.42) | pyridyl N | −0.11 | analog (B3PyMPM) |
-| 11 | DPEPO | blue host / HBL | (0.41) | P=O | −0.51 | analog (Ph₃P=O) |
-| 12 | TSPO1 | blue host / HBL | (0.41) | P=O / ring | −0.02 | analog (Ph₃P=O) |
-| 13 | PO-T2T | ETL / exciplex acceptor | (0.41) | P=O / triazine | −0.23 | analog — running |
-| 14 | Liq | EIL | 0.40 | Li–O | −0.07 | PBE0 |
-| 15 | Alq3 | ETL / host | (0.40) | quinolinolate O | −0.28 | analog (Liq) |
-| 16 | 3TPYMB | ETL / HBL | 0.37 | pyridyl N | −0.13 | PBE0 fragment |
-| 17 | CBP | host | (0.28) | ring hollow | −0.00 | analog (PhCz) |
-| 18 | mCP | host / EBL | (0.28) | ring hollow | +0.01 | analog (PhCz) |
-| 19 | TCTA | HTL / host | (0.28) | ring hollow | −0.03 | analog (PhCz) |
-| 20 | T2T | ETL / host | (0.27) | triazine N | −0.23 | analog (triazine) |
-| 21 | NPB | HTL | (0.26) | ring hollow | −0.02 | analog (TPA) |
-| 22 | TPD | HTL | (0.26) | ring hollow | −0.02 | analog (TPA) |
-| 23 | TAPC | HTL / EBL | (0.26) | ring hollow | +0.02 | analog (TPA) |
+| # | material | role | E_b | electronic | dispersion | site | Δq (e) | class |
+|---|---|---|---|---|---|---|---|---|
+| 1 | HATCN | HIL / CGL | **1.63** | 1.46 | 0.18 | aza N | −0.20 | 1 acceptor |
+| 2 | F4TCNQ | p-dopant | **1.21** | 1.15 | 0.06 | nitrile N | −0.27 | 1 |
+| 3 | F6-TCNNQ | p-dopant | **1.20** | 1.10 | 0.10 | nitrile N | −0.26 | 1 |
+| 4 | p-bPPhenB | ETL | **0.79** | 0.59 | 0.20 | phen chelate | −0.31 | 2 chelate |
+| 5 | Bphen | ETL | **0.62** | 0.47 | 0.13 | phen chelate | −0.35 | 2 |
+| — | *0.5 eV gate* | | | | | | | |
+| 6 | PO-T2T | ETL / exciplex acceptor | 0.48 | 0.06 | 0.42 | groove at triazine N | −0.23 | 3* |
+| 7 | BCP | HBL / ETL | 0.47 | 0.29 | 0.18 | phen N, off-chelate | −0.37 | 3 |
+| 8 | TPBi | ETL / HBL | 0.46 | 0.22 | 0.24 | benzimidazole N3 | −0.21 | 3 |
+| 9 | NBphen | ETL | 0.46 | 0.18 | 0.28 | half-blocked chelate | −0.32 | 3 |
+| 10 | DPEPO | blue host / HBL | 0.45 | 0.17 | 0.28 | P=O | −0.51 | 3 |
+| 11 | Alq3 | ETL / green host | 0.43 | 0.19 | 0.24 | quinolinolate O | −0.28 | 3 |
+| 12 | B3PyMPM | ETL | 0.42 | 0.19 | 0.22 | pyridyl N | −0.24 | 3 |
+| 13 | Liq | EIL | 0.40 | — | — | Li–O | −0.07 | 3 |
+| 14 | TSPO1 | blue host / HBL | 0.38 | 0.27 | 0.11 | P=O | −0.02 | 3 |
+| 15 | **3TPYMB** | ETL / HBL | **0.37** | 0.28 | 0.09 | pyridyl N | −0.13 | 3 |
+| 16 | TmPyPB | ETL / HBL | 0.37 | 0.28 | 0.09 | pyridyl N | −0.11 | 3 |
+| 17 | T2T | ETL / host | 0.32 | 0.08 | 0.25 | groove at triazine N | −0.23 | 4* |
+| 18 | CBP | host | (0.28) | — | — | ring | −0.00 | 4 π-only |
+| 19 | TCTA | HTL / host | (0.28) | — | — | ring | −0.03 | 4 |
+| 20 | mCP | host / EBL | 0.27 | 0.04 | 0.22 | ring | +0.01 | 4 |
+| 21 | TPD | HTL | (0.26) | — | — | ring | −0.02 | 4 |
+| 22 | TAPC | HTL / EBL | (0.26) | — | — | ring | +0.02 | 4 |
+| 23 | NPB | HTL | 0.25 | −0.00 | 0.26 | ring | −0.02 | 4 |
 
-Values in parentheses are analogs and will be replaced as the PBE0 queue
-finishes (NBphen, PO-T2T, T2T, TmPyPB, DPEPO, Alq3, TSPO1).
+Parentheses: motif value (carbazole / triarylamine), confirmed by mCP and NPB.
+\* see "dispersion-held sites".
 
 ## Reading the table
 
-**Four classes, separated by the binding motif, not by the role in the device.**
+**Only five materials clear the gate, and they are two motifs.** Nitrile/aza
+acceptors (1.2–1.6 eV; Ag donates into a deep LUMO, charge bounded at one
+electron per molecule) and unhindered phenanthroline chelates (0.6–0.8 eV;
+two N lone pairs at the right bite). Of these only HATCN, Bphen and
+p-bPPhenB are practical neat seed films.
 
-1. *Nitrile/aza acceptors (1.2–1.6 eV)* — HATCN, F4TCNQ, F6-TCNNQ. Ag donates
-   into a deep LUMO; charge stays bounded at one electron per molecule. Only
-   HATCN is a practical neat seed (the TCNQs are dopants, rarely used neat, and
-   F4TCNQ is volatile and diffuses in films).
-2. *Phenanthroline chelates (0.6–0.8 eV)* — Bphen, p-bPPhenB. Two N lone pairs
-   held at the right bite angle. The only ETL-class materials above the gate.
-3. *Single lone-pair donors (0.37–0.47 eV)* — pyridyl, benzimidazole,
-   phosphine oxide, metal-quinolinolate O. Ag binds one lone pair; the 2–3
-   rings around it add 0.05–0.1 eV through dispersion and polarisation. This is
-   where most ETLs and blue hosts sit, just below the gate.
-4. *π-only surfaces (0.26–0.28 eV)* — carbazole and triarylamine HTLs/hosts,
-   triazine without exposed N. Ag sits over a ring; benzene-like. Expected to
-   dewet like the inert aromatics in the literature.
+**Most ETLs and blue hosts sit in one band, 0.37–0.48 eV, just below the
+gate.** Their spread (0.11 eV) is close to what the method resolves; their
+order inside the band should not be read as a prediction until it is tested.
 
-**Substituents decide inside a class.** BCP is Bphen with 2,9-methyls; the
-methyls block the chelate pocket and cost 0.15 eV (0.62 → 0.47), dropping it a
-class. The same logic predicts NBphen (2,9-naphthyl) below Bphen; the PBE0
-result will test it. In 3TPYMB the boron is shielded by ortho-methyls and Ag
-never gets within 5 Å of it — the binding is that of a bare pyridine (0.374 vs
-pyridine 0.373 eV).
+**HTLs and carbazole hosts are π-only (0.25–0.28 eV), benzene-like.** The
+amine N of a triarylamine is buried; NPB's electronic binding is zero and all
+of its E_b is dispersion. Expected to dewet like inert aromatics.
 
-**Role in the device does not predict the class.** "ETL" spans classes 2–4
-(Bphen 0.62 … T2T ~0.27). Electron-transport ability tracks LUMO energy;
-Ag binding tracks lone-pair geometry.
+**Device role does not predict the class.** "ETL" spans Bphen 0.62 to T2T
+0.32. Electron transport tracks the LUMO; Ag binding tracks whether a lone
+pair is exposed.
+
+### Substituents next to the binding atom decide
+
+- **2,9-substituted phenanthrolines lose the chelate.** Bphen 0.62 → BCP 0.47
+  (methyls), NBphen 0.46 (naphthyls). In NBphen Ag gets to 2.42 Å from one N
+  but 2.85 Å from the other and touches a naphthyl H at 2.19 Å; the electronic
+  part halves (0.47 → 0.18).
+- **Aryl-triazines hide their N.** In T2T and PO-T2T each triazine N sits
+  between two ortho hydrogens of the attached phenyls. From two different
+  starts T2T's Ag ends 2.7–2.9 Å from N, next to H; electronic binding
+  0.06–0.08 eV. The triazine is not a site in these molecules.
+- **3TPYMB's boron is unreachable.** Ortho-methyls shield it; Ag never comes
+  within 5 Å. The pyridyl N binds like a bare pyridine (0.374 vs 0.373 eV).
+
+### Dispersion-held sites
+
+PO-T2T ranks 6th on E_b but 0.42 of its 0.48 eV is dispersion: Ag sits in a
+groove with three H at 2.7 Å. The electronic part (0.06) is the lowest of
+any heteroatom material. Ranked by the electronic part alone, class 3 orders
+differently:
+
+BCP 0.29 · TmPyPB 0.28 · 3TPYMB 0.28 · TSPO1 0.27 · TPBi 0.22 · B3PyMPM 0.19
+· Alq3 0.19 · NBphen 0.18 · DPEPO 0.17 · T2T 0.08 · PO-T2T 0.06
+
+Which order matters on a real film is open. On a single molecule a groove
+offers more dispersion than an open lone pair; on an amorphous film every
+surface site has neighbours, so dispersion is supplied everywhere and the
+electronic part is what differs between sites. The rule keeps E_b as the
+ranking variable (it is what was validated against the literature), but
+inside class 3 the two orders disagree, and **class 3 should be treated as
+one tier rather than ranked internally.** The electronic-part order is a
+specific prediction to test (e.g. BCP vs PO-T2T: same E_b, 5x different
+electronic binding).
 
 ## 3TPYMB
 
-* Site: pyridyl N (Ag–N 2.6 Å, GFN2), all three pyridyls equivalent.
-  Boron inaccessible.
-* E_b = 0.37 eV (PBE0 fragment). Below B3PyMPM (0.42), TPBi (0.46), BCP (0.47),
-  well below Bphen (0.62) and the 0.5 eV gate.
-* Δq Ag₁→Ag₂ = −0.13 e: passes the veto; Ag₁ is nearly neutral (−0.03 e GFN2,
-  −0.11 Mulliken PBE0) — a weak dative bond, no charge transfer.
-* Expected behaviour: Ag condenses but nucleates sparsely, Volmer–Weber islands,
-  later closure than on Bphen or HATCN. Usable as an ETL under a thicker Ag or
-  with a seed (HATCN, Bphen, or metal-doped Ag) on top; not a seed by itself.
+- Site: pyridyl N, all three equivalent; boron inaccessible.
+- E_b = 0.37 eV (electronic 0.28, dispersion 0.09). Same as TmPyPB and bare
+  pyridine; below B3PyMPM (0.42), TPBi (0.46), BCP (0.47); well below Bphen
+  (0.62) and the gate.
+- Δq Ag₁→Ag₂ = −0.13 e: passes the veto; Ag₁ nearly neutral — a weak dative
+  bond, no charge transfer.
+- Expected: Ag condenses, nucleates sparsely, Volmer–Weber islands, later
+  closure than on Bphen or HATCN. Usable as an ETL under a thicker Ag or with
+  a seed on top (HATCN, Bphen, or metal-doped Ag); not a seed by itself.
+
+## Method lessons from this round
+
+- **GFN2 positions are not safe on crowded sites.** Single points at GFN2 Ag
+  positions are within 0.03 eV of PBE0 on open sites (DMABN, Liq, Cu4I4) but
+  are repulsive at PBE0 where GFN2 has packed Ag against hydrogens. Check the
+  shortest Ag–H distance (< 2.4 Å → re-place) before trusting a score.
+- **The GFN2-deepest site is not always the PBE0-deepest.** TmPyPB: GFN2
+  preferred a bridge near N (PBE0 0.31); the lone-pair site is 0.37.
+- **Locate at PBE-D3, score at PBE0.** PBE0 gradients on 40-atom fragments
+  took 1.5–2 h per step; PBE-D3 took 5–40 min.
 
 ## Caveats
 
-* Single isolated molecule, one Ag atom. Real films are amorphous; the density
-  of exposed binding motifs at the surface matters as much as E_b, and bulky
-  molecules (3TPYMB, TAPC) bury their heteroatoms partially.
-* Absolute E_b is at PBE0/def2-SVP. For HATCN it drops by 0.14 eV at
-  TZVP+counterpoise (1.63 → 1.50); differences of < 0.05 eV between
-  neighbours are not resolved.
-* The 0.5 eV gate is a heuristic placed between the literature's good and poor
-  seeds; materials at 0.45–0.5 eV (BCP, TPBi) are borderline, not failures.
-* n-doped ETLs (Bphen:Cs, Liq co-deposited, Yb) change the surface chemistry
+- One molecule, one Ag atom. Real films are amorphous; how many binding
+  motifs face the surface matters as much as E_b, and bulky molecules (3TPYMB,
+  TAPC) may bury theirs.
+- Absolute E_b is PBE0/def2-SVP; for HATCN it drops 0.14 eV at
+  TZVP+counterpoise. Differences < 0.05 eV between neighbours are not
+  resolved, and class 3 as a whole spans only 0.11 eV.
+- The 0.5 eV gate is a heuristic placed between the literature's good and
+  poor seeds; BCP, TPBi, NBphen and PO-T2T at 0.46–0.48 are borderline.
+- n-doped ETLs (Bphen:Cs, Liq co-deposited, Yb) change the surface chemistry
   and are not covered by this neat-film ranking.

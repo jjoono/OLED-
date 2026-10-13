@@ -235,22 +235,27 @@
   "gate_0.5": false
  },
  {
-  "name": "mCP",
-  "role": "host / EBL",
-  "dq": 0.0076,
-  "E_b": 0.279,
-  "site": "hollow0 (GFN2)",
-  "source": "analog: PhCz",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
   "name": "TCTA",
   "role": "HTL / host",
   "dq": -0.0313,
   "E_b": 0.279,
   "site": "hollow86 (GFN2)",
   "source": "analog: PhCz / TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "mCP",
+  "role": "host / EBL",
+  "dq": 0.0076,
+  "E_b": 0.2668,
+  "site": "hollow13 (near C12)",
+  "source": "pbe0_frag",
+  "elec": 0.043,
+  "disp": 0.2238,
+  "other": {
+   "hollow0": 0.2048
+  },
   "veto": "pass",
   "gate_0.5": false
  },
@@ -265,22 +270,25 @@
   "gate_0.5": false
  },
  {
-  "name": "NPB",
-  "role": "HTL",
-  "dq": -0.0175,
-  "E_b": 0.259,
-  "site": "bridge6 (GFN2)",
-  "source": "analog: TPA",
-  "veto": "pass",
-  "gate_0.5": false
- },
- {
   "name": "TAPC",
   "role": "HTL / EBL",
   "dq": 0.0178,
   "E_b": 0.259,
   "site": "hollow31 (GFN2)",
   "source": "analog: TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "NPB",
+  "role": "HTL",
+  "dq": -0.0175,
+  "E_b": 0.2537,
+  "site": "bridge6 (near H71)",
+  "source": "pbe0_frag",
+  "elec": -0.0043,
+  "disp": 0.258,
+  "other": {},
   "veto": "pass",
   "gate_0.5": false
  }
