@@ -112,7 +112,7 @@ def relax_ag(S, X, ag0):
     # a box of +-0.8 A around the start caps any wild first step
     res = minimize(fg, ag0, jac=True, method="L-BFGS-B",
                    bounds=[(v - 0.8, v + 0.8) for v in ag0],
-                   options={"pgtol": 0.05, "maxiter": 12})
+                   options={"gtol": 0.05, "maxiter": 12})
     return res.x, state["n"]
 
 
