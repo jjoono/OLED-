@@ -256,7 +256,29 @@
    "d3_sign_fixed": true,
    "note": "E_b read from the run log (pbe0_run7); runner stopped during the second site to move Alq3 to script 151"
   },
-  "_deepest": "pocketN15N26",
-  "_E_b_deepest": 0.137
+  "_deepest": "pocketN15N26_pbe0relax",
+  "_E_b_deepest": 0.4293,
+  "pocketN15N26_pbe0relax": {
+   "E_b": 0.4293,
+   "elec": 0.1888,
+   "D3": -0.2405,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0878,
+   "frag_atoms": 52,
+   "caps": 0,
+   "mol_atoms": 52,
+   "seconds": 20999,
+   "relax_steps": 5,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -1.4102,
+    -0.4443,
+    -3.5241
+   ],
+   "near": "O8",
+   "d_near": 2.716,
+   "d_H_min": 2.87
+  }
  }
 }
