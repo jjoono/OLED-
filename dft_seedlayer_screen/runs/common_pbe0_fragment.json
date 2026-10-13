@@ -410,5 +410,22 @@
   },
   "_deepest": "hollow13",
   "_E_b_deepest": 0.2668
+ },
+ "NPB": {
+  "bridge6": {
+   "E_b": 0.2537,
+   "elec": -0.0043,
+   "D3": -0.258,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0598,
+   "frag_atoms": 40,
+   "caps": 1,
+   "mol_atoms": 78,
+   "seconds": 2503,
+   "near": "H71",
+   "R_cut": 5.0
+  },
+  "_deepest": "bridge6",
+  "_E_b_deepest": 0.2537
  }
 }
