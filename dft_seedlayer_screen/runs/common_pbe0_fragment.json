@@ -306,5 +306,31 @@
   },
   "_deepest": "pocketN19N44_pbe0relax",
   "_E_b_deepest": 0.4599
+ },
+ "DPEPO": {
+  "lpO20_pbe0relax": {
+   "E_b": 0.4508,
+   "elec": 0.1735,
+   "D3": -0.2773,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1122,
+   "frag_atoms": 49,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 6487,
+   "relax_steps": 5,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -0.2459,
+    -0.1063,
+    -4.1959
+   ],
+   "near": "O28",
+   "d_near": 2.61,
+   "d_H_min": 2.718
+  },
+  "_deepest": "lpO20_pbe0relax",
+  "_E_b_deepest": 0.4508
  }
 }
