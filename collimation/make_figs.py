@@ -48,21 +48,23 @@ for f in FWHMS:
                    label=f'FWHM {f:.0f}' + (' (scatterer loss 2%/pass)' if a else ''))
 ax[1].axhline(1, color='k', lw=0.7)
 ax[1].set_xlabel(r'$\beta$ (deg)'); ax[1].set_ylabel('system-efficiency gain vs strong cavity')
-ax[1].set_title('(b) gain at the eye (same pancake lens)', loc='left'); ax[1].legend(fontsize=5, ncol=2); ax[1].grid(alpha=.25)
+ax[1].set_title('(b) gain at the eye (same pancake lens)', loc='left'); ax[1].legend(fontsize=5, ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.2), frameon=False); ax[1].grid(alpha=.25)
 sh.append(('gain', ['fwhm', 'a_sc', *[f'beta{b:.0f}' for b in BETAS]],
            [[f, a, *[get(f, a, b)['eta_beta'] / get(f, a, b)['ref_eta_beta'] for b in BETAS]] for f in FWHMS for a in R['a_sc']]))
 save(fig, 'figC1_cone_efficiency', sh)
 
 # ---- Fig 2: angular profiles ----
 fig, ax = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw=dict(wspace=0.3))
-x = 0.5 * (Mo.AIR_EDGES[:-1] + Mo.AIR_EDGES[1:]); sr = 2 * np.pi * np.sin(np.radians(x)) * np.radians(0.25)
+E2 = np.arange(0, 92, 2.0); x = 0.5 * (E2[:-1] + E2[1:])
+sr = 2 * np.pi * (np.cos(np.radians(E2[:-1])) - np.cos(np.radians(E2[1:])))
+def rb(h): return np.array(h).reshape(-1, 8).sum(1)[:x.size]
 sh = []
 for k, b in enumerate((15.0, 25.0)):
     for f in (10.0, 20.0, 50.0):
-        r = get(f, 0.0, b); I = np.array(r['hist']) / sr
-        ax[k].plot(x, I, color=C[f], lw=1.1, label=f'scatterer+DBR, FWHM {f:.0f}')
+        r = get(f, 0.0, b); I = rb(r['hist']) / sr
+        ax[k].plot(x, I, 'o-', ms=2, color=C[f], lw=1.1, label=f'scatterer+DBR, FWHM {f:.0f}')
         sh.append((f'b{b:.0f}_FWHM{f:.0f}', ['theta_air', 'radiant_intensity'], list(zip(x, I))))
-    Ir = np.array(get(20.0, 0.0, b)['ref_hist']) / sr
+    Ir = rb(get(20.0, 0.0, b)['ref_hist']) / sr
     ax[k].plot(x, Ir, color='0.4', ls='--', lw=1, label='strong cavity (FWHM 20)')
     sh.append((f'b{b:.0f}_ref', ['theta_air', 'radiant_intensity'], list(zip(x, Ir))))
     ax[k].axvspan(0, b, color='0.92', zorder=0); ax[k].set_xlim(0, 60)
