@@ -24,3 +24,9 @@ D Ag/Liq1/Bebq2 97/EML25/TAPC 76/HATCN10/Ag12 0.558
 E Ag/Al0.2/Liq1/Bebq2:Ir 107 (RZ 5 nm from NPB)/NPB 81/HATCN10/Ag12 0.536
 F Ag/Liq1/Bebq2 101/EML25/TAPC 71/HATCN5/Ag8 0.605
 +-10 nm in d_ETL or d_HTL costs <= 0.6 %p; 2nd order (d_ETL ~240-270) is 4-8 %p lower in every case.
+
+Push to >= 60 % (`push60.py` -> `push60.csv`; 'Al2O3->lens' = ALD Al2O3 30 nm, lens printed on it, ParyC dyads over the lens;
+'film 50%' = top-Ag nk halfway between the 260703 #2 film and McPeak; 'test5' = library l_Ag_12nm_test5):
+C Ag12 meas full TFE 0.544 | C1 Al2O3->lens 0.559 | C2 +film 50% 0.591 | Ag12 test5 full TFE 0.596, Al2O3->lens 0.616
+G Ag8 meas full TFE 0.591 | G1 Al2O3->lens 0.610 | G2 film 50% 0.618 | G3 both 0.639 | Ag8 test5 0.635 / 0.659
+H Ag/Liq, Ag8 meas, Al2O3->lens 0.625 | I Ag10 meas Al2O3->lens 0.584 | J Ag10 film 50% Al2O3->lens 0.615

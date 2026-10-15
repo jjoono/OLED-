@@ -11,6 +11,7 @@ mat, spec = M['material'], M['spectrum']
 LAMS = np.linspace(400, 800, 401)
 def nk(f): return np.asarray(getattr(mat, f), dtype=complex)
 AG, AG15, AL, HAT = nk('l_Ag_McPeak'), nk('l_Ag_15_onHATCN'), nk('l_Al_JO'), nk('l_HATCN')
+AG12T5 = nk('l_Ag_12nm_test5')
 BEB = np.real(nk('l_bebq2_JH')) + 1j * np.imag(nk('l_bebq2_JH'))
 AL2O3, PARY = nk('l_Al2O3'), nk('l_ParyC')
 ZNS = nk('l_ZnS')
@@ -49,13 +50,15 @@ def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl
     i = idx(lam)
     ne = BEB[i] if n_etl is None else n_etl
     mb = AG[i] if bottom == 'Ag' else AL[i]
-    ag_t = {'meas': AG15[i], 'bulk': AG[i]}[agtop]
+    ag_t = {'meas': AG15[i], 'bulk': AG[i], 'test5': AG12T5[i]}[agtop] if isinstance(agtop, str) else AG15[i] + agtop * (AG[i] - AG15[i])
     above = [(ne, ne, dE), (LIQ, LIQ, 1.0)] + ([(AL[i], AL[i], al)] if al > 0 else []) + [(mb, mb, 100.0)]
     hl = (TAPCo[i], TAPCe[i], dH) if htl == 'TAPC' else (NPB[i], NPB[i], dH)
     below = [hl, (HAT[i], HAT[i], dHAT), (ag_t, ag_t, dAg)]
     if zns > 0:
         below += [(ZNS[i], ZNS[i], zns)]
-    if tfe:
+    if tfe == 'al2o3':
+        below += [(AL2O3[i], AL2O3[i], 30.)]
+    elif tfe:
         below += [(AL2O3[i], AL2O3[i], 30.), (PARY[i], PARY[i], 500.), (AL2O3[i], AL2O3[i], 30.), (PARY[i], PARY[i], 500.), (AL2O3[i], AL2O3[i], 30.)]
     return above, below, i
 
