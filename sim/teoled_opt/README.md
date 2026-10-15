@@ -73,3 +73,9 @@ Al2O3 30 / ParyC 500 / Al2O3 30 / n1.6 hemisphere MLA, Ag/Al0.2/Liq, ETL 60-140,
 Best: ZnS 200-225, ETL 80, HTL 60: MLA 0.581 | before TFE (planar, air) 0.32 | TFE no lens 0.29.
 Within 1 %p: ETL 70-100, HTL 50-80. Per ZnS best: 100 0.575, 125 0.565, 150 0.561, 175 0.569, 200 0.581, 225 0.581, 250 0.573.
 Ag/Liq instead of Ag/Al0.2/Liq at (225, 80, 60): 0.599 / 0.324 / 0.291.
+
+Top electrode IZO instead of HATCN/Ag/ZnS (`izo_top.py` -> `izo_top_grid.csv`, `izo_top_best.csv`; TAPC / HATCN 10 / IZO / same
+ParyC TFE / n1.6 MLA, l_IZO). Best within ETL 60-140, HTL 40-160 (HTL always at the 160 bound):
+IZO 30: 0.614 (ETL 90) | 50: 0.612 | 70: 0.613 | 100: 0.617 | 130: 0.618 (ETL 100). Before TFE 0.11-0.21, TFE no lens 0.15-0.21.
+HTL beyond the bound: IZO 30/ETL 100: HTL 200 0.622, 240 0.630, 280 0.634; IZO 100/ETL 100: HTL 200-240 0.626.
+l_IZO_SJ_RTP instead of l_IZO changes the result by < 0.5 %p. Optics only - sputter damage to the hole contact not included.

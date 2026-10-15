@@ -49,11 +49,11 @@ def R_from_lens(layers, lam, n_out=1.0):
     return 0.5 * (_rt(layers, NL, n_out, neff, 's', lam) + _rt(layers, NL, n_out, neff, 'p', lam))
 
 
-def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl=None, n_eml=None, bottom='Ag', zns=0.0, htl='TAPC', mirror='Ag', izo=100.0, dbr='ch', n_back=1.0):
+def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl=None, n_eml=None, bottom='Ag', zns=0.0, htl='TAPC', mirror='Ag', izo=100.0, dbr='ch', n_back=1.0, topm='Ag', izo_nk=None):
     i = idx(lam)
     ne = BEB[i] if n_etl is None else n_etl
     mb = AG[i] if bottom == 'Ag' else AL[i]
-    ag_t = agtop[i] if isinstance(agtop, np.ndarray) else {'meas': AG15[i], 'bulk': AG[i], 'test5': AG12T5[i]}[agtop] if isinstance(agtop, str) else AG15[i] + agtop * (AG[i] - AG15[i])
+    ag_t = (IZOk[i] if izo_nk is None else izo_nk[i]) if topm == 'IZO' else agtop[i] if isinstance(agtop, np.ndarray) else {'meas': AG15[i], 'bulk': AG[i], 'test5': AG12T5[i]}[agtop] if isinstance(agtop, str) else AG15[i] + agtop * (AG[i] - AG15[i])
     above = [(ne, ne, dE), (LIQ, LIQ, 1.0)] + ([(AL[i], AL[i], al)] if al > 0 else [])
     if mirror == 'Ag':
         above += [(mb, mb, 100.0)]
