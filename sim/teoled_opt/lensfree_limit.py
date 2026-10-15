@@ -29,12 +29,13 @@ def eta_air(lam, x, c):
 def spec(c, fine=True):
     """coarse (9 points) for the global search, fine (25 / 41 points) for the polish and the reported EQE"""
     if c['fwhm'] == 'Ir':
-        l = np.arange(560, 721, 4.0 if fine else 20.0); w = np.array([T.S[T.idx(x)] for x in l])
+        l = np.arange(560, 721, 4.0 if fine else 8.0); w = np.array([T.S[T.idx(x)] for x in l])
     elif c['fwhm'] == 0:
         l = np.array([c['lam0']]); w = np.ones(1)
     else:
         s = c['fwhm'] / 2.3548; h = (2.0 if fine else 1.5) * c['fwhm']
-        l = np.linspace(c['lam0'] - h, c['lam0'] + h, 25 if fine else 9); w = np.exp(-0.5 * ((l - c['lam0']) / s) ** 2)
+        n = 41 if fine else max(9, int(2 * h / 5.0) + 1)    # search: step <= 5 nm; report: FWHM/10
+        l = np.linspace(c['lam0'] - h, c['lam0'] + h, n); w = np.exp(-0.5 * ((l - c['lam0']) / s) ** 2)
     return l, w / w.sum()
 
 
@@ -47,13 +48,25 @@ def run(c):
     dmax = 150. if c['order'] == 'order1' else 400.
     agb = (7.87, 7.87) if c['metal'] == 'joint8' else (5., 60.)
     bnds = [(15., dmax), (15., dmax), agb, (0., 250.)]
-    r = differential_evolution(lambda x: -eqe(x, c, l, w), bnds, seed=1, popsize=10, maxiter=40, tol=1e-4, polish=c['fwhm'] == 0)
-    x = r.x
-    if c['fwhm'] != 0:                                  # polish on the fine spectrum, report the fine-spectrum EQE
-        lf, wf = spec(c)
-        r = minimize(lambda x: -eqe(x, c, lf, wf), x, method='Nelder-Mead', bounds=bnds, options=dict(maxiter=200, xatol=0.2, fatol=1e-5))
-        x = r.x
-    out = dict(c, EQE=-r.fun, dE=x[0], dH=x[1], dAg=x[2], dC=x[3])
+    lam_d = c['lam0'] if c['fwhm'] != 'Ir' else 615
+    cd = dict(c, fwhm=0, lam0=lam_d)                     # monochromatic optimum first (cheap, no spectral aliasing)
+    rd = differential_evolution(lambda x: -eqe(x, cd, [lam_d], [1.0]), bnds, seed=1, popsize=10, maxiter=40, tol=1e-4, polish=True)
+    if c['fwhm'] == 0:
+        x, best = rd.x, -rd.fun
+    else:                                                # spectral search seeded with it, then multi-start polish on the fine spectrum
+        r = differential_evolution(lambda x: -eqe(x, c, l, w), bnds, seed=1, popsize=8, maxiter=30, tol=1e-4, polish=False, x0=rd.x)
+        lf, wf = spec(c); x, best = None, -1
+        for s0 in (r.x, rd.x):
+            rr = minimize(lambda x: -eqe(x, c, lf, wf), s0, method='Nelder-Mead', bounds=bnds, options=dict(maxiter=200, xatol=0.2, fatol=1e-5))
+            if -rr.fun > best: x, best = rr.x, -rr.fun
+    out = dict(c, EQE=best, dE=x[0], dH=x[1], dAg=x[2], dC=x[3])
+    if c['fwhm'] not in (0, 'Ir'):                       # aliasing check on a 0.5 nm grid
+        lc = np.arange(c['lam0'] - 2 * c['fwhm'], c['lam0'] + 2 * c['fwhm'] + 0.01, 0.5)
+        wc = np.exp(-0.5 * ((lc - c['lam0']) / (c['fwhm'] / 2.3548)) ** 2); out['EQE_check'] = eqe(x, c, lc, wc / wc.sum())
+    elif c['fwhm'] == 'Ir':
+        lc = np.arange(560, 721, 1.0); wc = np.array([T.S[T.idx(v)] for v in lc]); out['EQE_check'] = eqe(x, c, lc, wc / wc.sum())
+    else:
+        out['EQE_check'] = best
     # power budget at lambda0 for the optimum
     lam = c['lam0'] if c['fwhm'] != 'Ir' else 615
     i = T.idx(lam); ab = T.AG[i]; at = AGJ[i] if c['metal'] == 'joint8' else ab
