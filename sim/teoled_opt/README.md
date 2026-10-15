@@ -49,3 +49,7 @@ Joint SE+T/R nk (thin_Ag_nk_260910, `nk_joint/Ag_HATCN_*_nk.csv`, 'joint' column
 Bottom mirror IZO on the chirped ZnS/LiF DBR (`dbr_bottom.py` -> `dbr_bottom.csv`, top Ag 8 joint):
 glass behind 0.26-0.45 (lens-side loss+leak 27.6 % vs 9.1 % for Ag at 615 nm); with IZO/Al1.5 0.34;
 Ag behind the DBR 0.575 / 0.594 (DBR guided mode 0.11) vs Ag/Liq 0.602 / 0.622.
+
+High-index 1.5-dyad TFE (`hi175.py` -> `hi175.csv`): Ag top | Al2O3 30 | n1.75 layer 3 um (incoherent, lossless) | Al2O3 30 |
+n1.75 hemisphere MLA (BSDF `mla_hemi_1.75.npz`, p_Lamb 0.307). Joint-fit top-Ag nk, d_ETL 129-138, d_HTL 69-92:
+Ag 7/8/10/12 nominal: Ag/Al0.2 0.627/0.624/0.618/0.614, Ag/Liq 0.643/0.641/0.636/0.634. Upper Al2O3 30 nm costs < 0.1 %p.
