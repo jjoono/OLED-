@@ -60,3 +60,10 @@ Ag 8 joint, Ag/Al0.2/Liq, HATCN 10: best ZnS ~100 nm with a thick HTL:
 d_ETL<=80: 0.608 | <=100: 0.630 (HTL 252) | <=130: 0.654 (HTL 254) | <=160: 0.663 | <=200: 0.667 (ETL 195, HTL 135).
 References at ETL 130: no ZnS/HTL 78 0.622; ZnS 100/HTL 78 0.612; no ZnS/HTL 254 0.597.
 Tolerance at (130, 254, ZnS 100): +-10 nm HTL or ZnS <= 0.5 %p, +-10 nm ETL -0.6/+0.4 %p.
+
+ZnS 100-250 nm with thin organics (`zns_thin.py` -> `zns_thin_grid.csv`, 27 wavelengths, 10 nm grid, Ag 8 joint, Ag/Al0.2/Liq):
+best (ETL<=130, HTL<=150) / (ETL<=100, HTL<=120) / (ETL<=80, HTL<=100):
+ZnS 100: 0.634 (130/150) / 0.614 (100/100) / 0.603 | 125: 0.619 / 0.602 / 0.588 | 150: 0.603 / 0.593 / 0.580 |
+175: 0.599 / 0.597 / 0.586 | 200: 0.610 (110/80) / 0.610 (100/70) / 0.601 | 225: 0.621 (110/80) / 0.620 (100/80) / 0.608 |
+250: 0.626 (130/110) / 0.618 (100/90) / 0.603.  ZnS phase repeats every ~130 nm (lambda/2n): ZnS ~225-250 restores the
+first-order HTL optimum that ZnS 100 pushes to HTL ~250.
