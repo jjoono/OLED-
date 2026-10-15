@@ -53,3 +53,10 @@ Ag behind the DBR 0.575 / 0.594 (DBR guided mode 0.11) vs Ag/Liq 0.602 / 0.622.
 High-index 1.5-dyad TFE (`hi175.py` -> `hi175.csv`): Ag top | Al2O3 30 | n1.75 layer 3 um (incoherent, lossless) | Al2O3 30 |
 n1.75 hemisphere MLA (BSDF `mla_hemi_1.75.npz`, p_Lamb 0.307). Joint-fit top-Ag nk, d_ETL 129-138, d_HTL 69-92:
 Ag 7/8/10/12 nominal: Ag/Al0.2 0.627/0.624/0.618/0.614, Ag/Liq 0.643/0.641/0.636/0.634. Upper Al2O3 30 nm costs < 0.1 %p.
+
+ZnS >= 100 nm on top Ag under the high-index TFE (`zns_hi2.py` -> `zns_hi2.csv`, 27 wavelengths 560-716 nm;
+`zns_hi.py` used 6 wavelengths and overrates resonant optima by up to 8 %p - do not use zns_hi_opt.csv / zns_hi_map.csv).
+Ag 8 joint, Ag/Al0.2/Liq, HATCN 10: best ZnS ~100 nm with a thick HTL:
+d_ETL<=80: 0.608 | <=100: 0.630 (HTL 252) | <=130: 0.654 (HTL 254) | <=160: 0.663 | <=200: 0.667 (ETL 195, HTL 135).
+References at ETL 130: no ZnS/HTL 78 0.622; ZnS 100/HTL 78 0.612; no ZnS/HTL 254 0.597.
+Tolerance at (130, 254, ZnS 100): +-10 nm HTL or ZnS <= 0.5 %p, +-10 nm ETL -0.6/+0.4 %p.
