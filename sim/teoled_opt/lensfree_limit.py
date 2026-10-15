@@ -45,7 +45,7 @@ def eqe(x, c, l, w):
 def run(c):
     l, w = spec(c, fine=False)
     dmax = 150. if c['order'] == 'order1' else 400.
-    agb = (7.87, 7.87) if c['metal'] == 'joint8' else (5., 30.)
+    agb = (7.87, 7.87) if c['metal'] == 'joint8' else (5., 60.)
     bnds = [(15., dmax), (15., dmax), agb, (0., 250.)]
     r = differential_evolution(lambda x: -eqe(x, c, l, w), bnds, seed=1, popsize=10, maxiter=40, tol=1e-4, polish=c['fwhm'] == 0)
     x = r.x
