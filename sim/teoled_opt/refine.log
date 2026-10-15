@@ -1,0 +1,63 @@
+/home/user/OLED-/sim/fig3c/cps2.py:58: RuntimeWarning: invalid value encountered in divide
+  t = tj * t * ph / den
+/home/user/OLED-/sim/fig3c/cps2.py:59: RuntimeWarning: invalid value encountered in divide
+  r = (rj + r * ph2) / den
+/home/user/OLED-/sim/fig3c/cps2.py:139: RuntimeWarning: invalid value encountered in divide
+  Xp = (1 + rb_p) * (1 + rt_p) / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:140: RuntimeWarning: invalid value encountered in divide
+  Yp = (1 - rb_p) * (1 - rt_p) / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:141: RuntimeWarning: invalid value encountered in divide
+  Xs = (1 + rb_s) * (1 + rt_s) / (1 - rb_s * rt_s)
+/home/user/OLED-/sim/fig3c/cps2.py:142: RuntimeWarning: invalid value encountered in divide
+  Apv = (1 + rt_p) * tb_p / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:143: RuntimeWarning: invalid value encountered in divide
+  Aph = (1 - rt_p) * tb_p / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:144: RuntimeWarning: invalid value encountered in divide
+  Ash = (1 + rt_s) * tb_s / (1 - rb_s * rt_s)
+/home/user/OLED-/sim/fig3c/cps2.py:58: RuntimeWarning: invalid value encountered in divide
+  t = tj * t * ph / den
+/home/user/OLED-/sim/fig3c/cps2.py:59: RuntimeWarning: invalid value encountered in divide
+  r = (rj + r * ph2) / den
+/home/user/OLED-/sim/fig3c/cps2.py:139: RuntimeWarning: invalid value encountered in divide
+  Xp = (1 + rb_p) * (1 + rt_p) / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:140: RuntimeWarning: invalid value encountered in divide
+  Yp = (1 - rb_p) * (1 - rt_p) / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:141: RuntimeWarning: invalid value encountered in divide
+  Xs = (1 + rb_s) * (1 + rt_s) / (1 - rb_s * rt_s)
+/home/user/OLED-/sim/fig3c/cps2.py:142: RuntimeWarning: invalid value encountered in divide
+  Apv = (1 + rt_p) * tb_p / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:143: RuntimeWarning: invalid value encountered in divide
+  Aph = (1 - rt_p) * tb_p / (1 - rb_p * rt_p)
+/home/user/OLED-/sim/fig3c/cps2.py:144: RuntimeWarning: invalid value encountered in divide
+  Ash = (1 + rt_s) * tb_s / (1 - rb_s * rt_s)
+Ag top meas                  Ag  6  dE  105.3  dH   51.4  EQE 0.631
+Ag top meas                  Ag  6  dE  250.2  dH   53.0  EQE 0.590
+Ag top meas                  Ag  7  dE  103.3  dH   58.6  EQE 0.618
+Ag top meas                  Ag  7  dE  248.3  dH   60.9  EQE 0.578
+Ag top meas                  Ag  8  dE  102.0  dH   65.3  EQE 0.605
+Ag top meas                  Ag  8  dE  245.4  dH   66.7  EQE 0.565
+Ag top meas                  Ag 10  dE   99.4  dH   71.5  EQE 0.581
+Ag top meas                  Ag 10  dE  243.4  dH   73.7  EQE 0.541
+Ag top bulk                  Ag  6  dE  115.5  dH   67.1  EQE 0.689
+Ag top bulk                  Ag  6  dE  230.7  dH   66.2  EQE 0.684
+Ag top bulk                  Ag  7  dE  113.3  dH   74.0  EQE 0.679
+Ag top bulk                  Ag  7  dE  228.9  dH   71.8  EQE 0.675
+Ag top bulk                  Ag  8  dE  114.2  dH   78.3  EQE 0.670
+Ag top bulk                  Ag  8  dE  229.0  dH   76.5  EQE 0.667
+Ag top bulk                  Ag 10  dE  112.1  dH   84.6  EQE 0.650
+Ag top bulk                  Ag 10  dE  225.4  dH   82.3  EQE 0.650
+Ag/Al0.2/Liq                 Ag  8  dE  100.0  dH   66.5  EQE 0.591
+Al/Liq (Batch)               Ag  8  dE   94.7  dH   82.9  EQE 0.485
+no TFE (lens on Ag)          Ag  8  dE  103.2  dH   63.5  EQE 0.626
+z0 = 2.5 (ETL side)          Ag  8  dE  109.4  dH   54.0  EQE 0.603
+z0 = 22.5 (HTL side)         Ag  8  dE   92.5  dH   76.1  EQE 0.606
+n_EML 1.81 / n_ETL 1.81      Ag  8  dE   98.3  dH   63.7  EQE 0.598
+n_EML 1.81 / n_ETL 1.81      Ag  8  dE  238.1  dH   63.3  EQE 0.531
+n_EML 1.65 / n_ETL 1.81      Ag  8  dE  107.5  dH   63.0  EQE 0.587
+n_EML 1.65 / n_ETL 1.81      Ag  8  dE  238.3  dH   68.9  EQE 0.557
+n_EML 1.81 / n_ETL 1.65      Ag  8  dE  108.5  dH   70.5  EQE 0.647
+n_EML 1.81 / n_ETL 1.65      Ag  8  dE  284.6  dH   73.8  EQE 0.642
+n_EML 1.65 / n_ETL 1.65      Ag  8  dE  121.5  dH   70.8  EQE 0.633
+n_EML 1.65 / n_ETL 1.65      Ag  8  dE  286.4  dH   78.4  EQE 0.654
+n_EML 1.55 / n_ETL 1.55      Ag  8  dE  126.8  dH   76.7  EQE 0.651
+n_EML 1.55 / n_ETL 1.55      Ag  8  dE  311.9  dH   83.6  EQE 0.687
