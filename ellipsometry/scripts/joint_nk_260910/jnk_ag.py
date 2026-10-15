@@ -15,7 +15,7 @@ import os as _os
 ELLIPS_DATA = _os.environ.get('ELLIPS_DATA', '.')
 ELLIPS_OUT  = _os.environ.get('ELLIPS_OUT', '.')
 
-import os, sys, json, time, numpy as np
+import os, sys, json, time, zlib, numpy as np
 from scipy.optimize import least_squares
 import jnk_data as D, jnk_ref as R, jnk_model as M, jnk_seed as S
 
@@ -33,6 +33,16 @@ NM = ['d_Ag', 'rough', 'Einf', 'rho', 'tau',
 P0 = np.array([6.0, 1.0, 3.5, 3e-6, 12.0, 3.0, 1.0, 4.2, 0.5, 1.0, 2.5, 3.0, 1.5, 5.5])
 
 HB_EVS, EPS0 = 6.582119569e-16, 8.8541878128e-12
+
+
+def stable_seed(*key):
+    """Restart seed from the job's identity.
+
+    Python's hash() of a str is salted per process (PYTHONHASHSEED), so seeding
+    from it made every run draw different random restarts and the fits were not
+    reproducible run to run.  crc32 of the repr is the same everywhere.
+    """
+    return zlib.crc32(repr(key).encode())
 
 
 def agN(p, wl):
@@ -99,7 +109,7 @@ def _scan_job(a):
     seed, d_seed, sh, nom, ps, nstart = a
     r, _ = residual_fun(sh, d_seed, ps, pin_d=float(nom))
     p0 = P0.copy(); p0[0] = nom
-    b = multistart(r, p0, nstart, np.random.default_rng(hash((sh, int(d_seed * 100))) % 2**31),
+    b = multistart(r, p0, nstart, np.random.default_rng(stable_seed(sh, int(round(d_seed * 100)))),
                    pin_first=True)
     return seed, d_seed, sh, float(M.mse_ncs(b.fun, len(P0) - 1))
 
@@ -140,7 +150,7 @@ def _fit_job(a):
     seed, nom, sh, tag, d_seed, ps, nstart = a
     r, _ = residual_fun(sh, d_seed, ps)
     p0 = P0.copy(); p0[0] = nom
-    b = multistart(r, p0, nstart, np.random.default_rng(hash(sh) % 2**31))
+    b = multistart(r, p0, nstart, np.random.default_rng(stable_seed(sh)))
     wp = np.array([450., 550., 633., 800., 1000.])
     N = agN(b.x, wp)
     return sh, dict(sheet=sh, seed=seed, ag_nom=nom, tag=tag, d_seed=float(d_seed),

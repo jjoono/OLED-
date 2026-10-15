@@ -117,7 +117,7 @@ def _job(a):
     p_se = np.array(rec['p'])
     p0 = np.concatenate([[p_se[0], p_se[1], p_se[0], p_se[1]], p_se[2:]])
     p0 = np.clip(p0, LO + 1e-9, HI - 1e-9)
-    rng = np.random.default_rng(hash(sh) % 2**31)
+    rng = np.random.default_rng(A.stable_seed(sh, 'joint'))
     out = {}
     for tag, (w_se, w_tr) in (('se', (1.0, 0.0)), ('joint', (1.0, 1.0)), ('tr', (0.0, 1.0))):
         r = make_res(B, w_se, w_tr)
