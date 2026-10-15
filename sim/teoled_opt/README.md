@@ -15,3 +15,12 @@ ZnS capping (l_ZnS, n 2.36 @550) between top Ag and TFE, d_E/d_H re-optimised (`
 meas Ag 8: ZnS 0/20/40/60/80 = 0.605/0.606/0.599/0.603/0.603; meas Ag 6: 0.631 -> 0.603-0.617; bulk Ag 8: 0.670 -> 0.683 (20 nm).
 At 615 nm (Ag 8 meas): ZnS 20 raises emission into the lens 0.746 -> 0.771 but also the round-trip loss A' 9.2 -> 11.2 %;
 ZnS 60 adds a guided mode (wg 0.04). Net effect within +-1.5 %p.
+
+Electrically plausible candidates (`cands.py` -> `cands.csv`, TFE + n1.65 MLA, 1st cavity order, d in nm):
+A Al/Liq1/Bebq2 84/EML25/TAPC 55/HATCN50/Ag15 (Batch10 replica) 0.407
+B Ag/Al0.2/Liq1/Bebq2 88/EML25/TAPC 38/HATCN50/Ag15 0.504
+C Ag/Al0.2/Liq1/Bebq2 97/EML25/TAPC 76/HATCN10/Ag12 0.544
+D Ag/Liq1/Bebq2 97/EML25/TAPC 76/HATCN10/Ag12 0.558
+E Ag/Al0.2/Liq1/Bebq2:Ir 107 (RZ 5 nm from NPB)/NPB 81/HATCN10/Ag12 0.536
+F Ag/Liq1/Bebq2 101/EML25/TAPC 71/HATCN5/Ag8 0.605
++-10 nm in d_ETL or d_HTL costs <= 0.6 %p; 2nd order (d_ETL ~240-270) is 4-8 %p lower in every case.

@@ -14,6 +14,7 @@ AG, AG15, AL, HAT = nk('l_Ag_McPeak'), nk('l_Ag_15_onHATCN'), nk('l_Al_JO'), nk(
 BEB = np.real(nk('l_bebq2_JH')) + 1j * np.imag(nk('l_bebq2_JH'))
 AL2O3, PARY = nk('l_Al2O3'), nk('l_ParyC')
 ZNS = nk('l_ZnS')
+NPB = np.real(nk('l_NPB'))
 TAPCo, TAPCe = np.real(nk('l_TAPC_o_JO')), np.real(nk('l_TAPC_e_JO'))
 LIQ = 1.70; NL = 1.65; ETA_RAD = 0.96; THETA = 0.82
 S = np.clip(np.real(np.asarray(spec.l_I_Irmphmq2tmd_measure_JH, dtype=float)), 0, None)
@@ -44,13 +45,14 @@ def R_from_lens(layers, lam):
     return 0.5 * (_rt(layers, NL, 1.0, neff, 's', lam) + _rt(layers, NL, 1.0, neff, 'p', lam))
 
 
-def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl=None, n_eml=None, bottom='Ag', zns=0.0):
+def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl=None, n_eml=None, bottom='Ag', zns=0.0, htl='TAPC'):
     i = idx(lam)
     ne = BEB[i] if n_etl is None else n_etl
     mb = AG[i] if bottom == 'Ag' else AL[i]
     ag_t = {'meas': AG15[i], 'bulk': AG[i]}[agtop]
     above = [(ne, ne, dE), (LIQ, LIQ, 1.0)] + ([(AL[i], AL[i], al)] if al > 0 else []) + [(mb, mb, 100.0)]
-    below = [(TAPCo[i], TAPCe[i], dH), (HAT[i], HAT[i], dHAT), (ag_t, ag_t, dAg)]
+    hl = (TAPCo[i], TAPCe[i], dH) if htl == 'TAPC' else (NPB[i], NPB[i], dH)
+    below = [hl, (HAT[i], HAT[i], dHAT), (ag_t, ag_t, dAg)]
     if zns > 0:
         below += [(ZNS[i], ZNS[i], zns)]
     if tfe:
