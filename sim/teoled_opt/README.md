@@ -67,3 +67,9 @@ ZnS 100: 0.634 (130/150) / 0.614 (100/100) / 0.603 | 125: 0.619 / 0.602 / 0.588 
 175: 0.599 / 0.597 / 0.586 | 200: 0.610 (110/80) / 0.610 (100/70) / 0.601 | 225: 0.621 (110/80) / 0.620 (100/80) / 0.608 |
 250: 0.626 (130/110) / 0.618 (100/90) / 0.603.  ZnS phase repeats every ~130 nm (lambda/2n): ZnS ~225-250 restores the
 first-order HTL optimum that ZnS 100 pushes to HTL ~250.
+
+Practical TFE (`pary16.py` -> `pary16_grid.csv`, `pary16_best.csv`): ... HATCN 10 / Ag 8 joint / ZnS / Al2O3 30 / ParyC 500 /
+Al2O3 30 / ParyC 500 / Al2O3 30 / n1.6 hemisphere MLA, Ag/Al0.2/Liq, ETL 60-140, HTL 40-160, ZnS 100-250, 27 wavelengths.
+Best: ZnS 200-225, ETL 80, HTL 60: MLA 0.581 | before TFE (planar, air) 0.32 | TFE no lens 0.29.
+Within 1 %p: ETL 70-100, HTL 50-80. Per ZnS best: 100 0.575, 125 0.565, 150 0.561, 175 0.569, 200 0.581, 225 0.581, 250 0.573.
+Ag/Liq instead of Ag/Al0.2/Liq at (225, 80, 60): 0.599 / 0.324 / 0.291.
