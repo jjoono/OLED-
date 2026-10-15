@@ -50,7 +50,7 @@ def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl
     i = idx(lam)
     ne = BEB[i] if n_etl is None else n_etl
     mb = AG[i] if bottom == 'Ag' else AL[i]
-    ag_t = {'meas': AG15[i], 'bulk': AG[i], 'test5': AG12T5[i]}[agtop] if isinstance(agtop, str) else AG15[i] + agtop * (AG[i] - AG15[i])
+    ag_t = agtop[i] if isinstance(agtop, np.ndarray) else {'meas': AG15[i], 'bulk': AG[i], 'test5': AG12T5[i]}[agtop] if isinstance(agtop, str) else AG15[i] + agtop * (AG[i] - AG15[i])
     above = [(ne, ne, dE), (LIQ, LIQ, 1.0)] + ([(AL[i], AL[i], al)] if al > 0 else []) + [(mb, mb, 100.0)]
     hl = (TAPCo[i], TAPCe[i], dH) if htl == 'TAPC' else (NPB[i], NPB[i], dH)
     below = [hl, (HAT[i], HAT[i], dHAT), (ag_t, ag_t, dAg)]

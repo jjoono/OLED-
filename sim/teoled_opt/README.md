@@ -30,3 +30,9 @@ Push to >= 60 % (`push60.py` -> `push60.csv`; 'Al2O3->lens' = ALD Al2O3 30 nm, l
 C Ag12 meas full TFE 0.544 | C1 Al2O3->lens 0.559 | C2 +film 50% 0.591 | Ag12 test5 full TFE 0.596, Al2O3->lens 0.616
 G Ag8 meas full TFE 0.591 | G1 Al2O3->lens 0.610 | G2 film 50% 0.618 | G3 both 0.639 | Ag8 test5 0.635 / 0.659
 H Ag/Liq, Ag8 meas, Al2O3->lens 0.625 | I Ag10 meas Al2O3->lens 0.584 | J Ag10 film 50% Al2O3->lens 0.615
+
+2026-08 thin-Ag-on-HATCN nk (`joint_run.py` -> `joint_run.csv`; HATCN 5, top Ag 7/8 nm):
+TRinv = T/R point inversion (nk_joint/*_TRinv.csv); jointA = TRinv rescaled to the SE+T/R joint n,k at 550 nm
+(README_260910_joint.md: 7 nm 0.184+3.360i, 8 nm 0.153+3.450i) until the joint CSVs are available.
+Ag 8 jointA: Ag/Al0.2 full TFE 0.584, Al2O3->lens 0.602; Ag/Liq 0.598 / 0.618.  Ag 7 jointA: 0.586 / 0.604; 0.600 / 0.619.
+Ag 8 TRinv: 0.539 / 0.554; 0.552 / 0.567.
