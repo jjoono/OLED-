@@ -1,0 +1,18 @@
+{
+ "300.0": {"R": 30000.0, "p_down": 0.1449,
+  "5.0": {"rms": 0.792, "cov": 1.0, "n_isl": 0.0},
+  "21.0": {"rms": 1.258, "cov": 1.0, "n_isl": 0.0}},
+ "275.0": {"R": 10800.0, "p_down": 0.1213,
+  "5.0": {"rms": 1.000, "cov": 1.0, "n_isl": 0.0},
+  "21.0": {"rms": 1.708, "cov": 1.0, "n_isl": 0.0}},
+ "250.0": {"R": 3180.0, "p_down": 0.0977,
+  "5.0": {"rms": 1.232, "cov": 0.999, "n_isl": 0.0},
+  "21.0": {"rms": 2.231, "cov": 1.0, "n_isl": 0.0}},
+ "225.0": {"R": 713.0, "p_down": 0.0759,
+  "5.0": {"rms": 1.536, "cov": 0.998, "n_isl": 0.0},
+  "21.0": {"rms": 2.840, "cov": 1.0, "n_isl": 0.0}},
+ "200.0": {"R": 110.0, "p_down": 0.0553,
+  "5.0": {"rms": 1.814, "cov": 0.996, "n_isl": 0.0},
+  "21.0": {"rms": 3.407, "cov": 1.0, "n_isl": 0.0}},
+ "_note": "transcribed from runs/79_cooling.log; R_ref 3e4 at 300 K, L=128, 2 seeds. rms in monolayers. n_isl not re-transcribed (film continuous at both thicknesses)."
+}
