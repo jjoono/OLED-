@@ -16,6 +16,9 @@ BEB = np.real(nk('l_bebq2_JH')) + 1j * np.imag(nk('l_bebq2_JH'))
 AL2O3, PARY = nk('l_Al2O3'), nk('l_ParyC')
 ZNS = nk('l_ZnS')
 NPB = np.real(nk('l_NPB'))
+IZOk = nk('l_IZO'); LIF = 1.408 + 0.0002j
+_d = np.load('/home/user/OLED-/sim/dbr_design/dbr_maps.npz')
+DBR = {'ch': list(_d['d_ch']), 'qw': list(_d['d_qw']), 'chr': list(_d['d_ch'])[::-1]}
 TAPCo, TAPCe = np.real(nk('l_TAPC_o_JO')), np.real(nk('l_TAPC_e_JO'))
 LIQ = 1.70; NL = 1.65; ETA_RAD = 0.96; THETA = 0.82
 S = np.clip(np.real(np.asarray(spec.l_I_Irmphmq2tmd_measure_JH, dtype=float)), 0, None)
@@ -41,17 +44,26 @@ def _rt(layers, n_in, n_out, neff, pol, lam):
     return np.abs((ei * B - C) / (ei * B + C)) ** 2
 
 
-def R_from_lens(layers, lam):
+def R_from_lens(layers, lam, n_out=1.0):
     neff = NL * np.sin(np.radians(TH))
-    return 0.5 * (_rt(layers, NL, 1.0, neff, 's', lam) + _rt(layers, NL, 1.0, neff, 'p', lam))
+    return 0.5 * (_rt(layers, NL, n_out, neff, 's', lam) + _rt(layers, NL, n_out, neff, 'p', lam))
 
 
-def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl=None, n_eml=None, bottom='Ag', zns=0.0, htl='TAPC'):
+def stack(lam, dE, dH, dHAT, dAg, agtop='meas', al=0.0, z0=12.5, tfe=True, n_etl=None, n_eml=None, bottom='Ag', zns=0.0, htl='TAPC', mirror='Ag', izo=100.0, dbr='ch', n_back=1.0):
     i = idx(lam)
     ne = BEB[i] if n_etl is None else n_etl
     mb = AG[i] if bottom == 'Ag' else AL[i]
     ag_t = agtop[i] if isinstance(agtop, np.ndarray) else {'meas': AG15[i], 'bulk': AG[i], 'test5': AG12T5[i]}[agtop] if isinstance(agtop, str) else AG15[i] + agtop * (AG[i] - AG15[i])
-    above = [(ne, ne, dE), (LIQ, LIQ, 1.0)] + ([(AL[i], AL[i], al)] if al > 0 else []) + [(mb, mb, 100.0)]
+    above = [(ne, ne, dE), (LIQ, LIQ, 1.0)] + ([(AL[i], AL[i], al)] if al > 0 else [])
+    if mirror == 'Ag':
+        above += [(mb, mb, 100.0)]
+    else:                                   # IZO electrode on a ZnS/LiF DBR (ZnS first from the IZO side)
+        above += [(IZOk[i], IZOk[i], izo)]
+        for j, d in enumerate(DBR[dbr]):
+            m_ = ZNS[i] if j % 2 == 0 else LIF
+            above += [(m_, m_, d)]
+        if mirror == 'DBR+Ag':
+            above += [(AG[i], AG[i], 100.0)]
     hl = (TAPCo[i], TAPCe[i], dH) if htl == 'TAPC' else (NPB[i], NPB[i], dH)
     below = [hl, (HAT[i], HAT[i], dHAT), (ag_t, ag_t, dAg)]
     if zns > 0:
@@ -67,11 +79,12 @@ def eta_out(lam, dE, dH, dHAT, dAg, BT, BR, **kw):
     above, below, i = stack(lam, dE, dH, dHAT, dAg, **kw)
     ne_ = np.real(BEB[i]) if kw.get('n_eml') is None else kw['n_eml']
     e = (ne_, ne_)
-    St = cps2.Stack(lam, e, 25.0, kw.get('z0', 12.5), above=above, below=below, n_sub=NL, n_top=1.0, h=THETA)
+    nb = kw.get('n_back', 1.0) if kw.get('mirror', 'Ag') == 'DBR' else 1.0
+    St = cps2.Stack(lam, e, 25.0, kw.get('z0', 12.5), above=above, below=below, n_sub=NL, n_top=nb, h=THETA)
     P = np.real(cps2.solve(St)['P_tot'])
     sU = np.nan_to_num(np.real(cps2.sub_angular(St, TH))) / P
     lay = [(l[0], l[2]) for l in below[::-1]] + [(e[0], 25.0)] + [(l[0], l[2]) for l in above]
-    Ru = R_from_lens(lay, lam)
+    Ru = R_from_lens(lay, lam, nb)
     a = np.linalg.solve(np.eye(90) - Ru[:, None] * BR, sU)
     return float(BT @ a), float(sU.sum())
 

@@ -36,3 +36,16 @@ TRinv = T/R point inversion (nk_joint/*_TRinv.csv); jointA = TRinv rescaled to t
 (README_260910_joint.md: 7 nm 0.184+3.360i, 8 nm 0.153+3.450i) until the joint CSVs are available.
 Ag 8 jointA: Ag/Al0.2 full TFE 0.584, Al2O3->lens 0.602; Ag/Liq 0.598 / 0.618.  Ag 7 jointA: 0.586 / 0.604; 0.600 / 0.619.
 Ag 8 TRinv: 0.539 / 0.554; 0.552 / 0.567.
+
+Joint SE+T/R nk (thin_Ag_nk_260910, `nk_joint/Ag_HATCN_*_nk.csv`, 'joint' columns; Ag at the SE-fitted thickness;
+`joint_true.py` -> `joint_true.csv`). EQE, d_ETL ~100-105, d_HTL 57-82:
+| Ag nom (fit) | Ag/Al0.2 full TFE | Ag/Al0.2 Al2O3->lens | Ag/Liq full TFE | Ag/Liq Al2O3->lens |
+| 6 (6.18)  | 0.581 | 0.599 | 0.594 | 0.613 |
+| 7 (6.84)  | 0.592 | 0.610 | 0.605 | 0.625 |
+| 8 (7.87)  | 0.588 | 0.606 | 0.602 | 0.622 |
+| 10 (8.97) | 0.581 | 0.599 | 0.596 | 0.615 |
+| 12 (10.71)| 0.574 | 0.592 | 0.590 | 0.610 |
+
+Bottom mirror IZO on the chirped ZnS/LiF DBR (`dbr_bottom.py` -> `dbr_bottom.csv`, top Ag 8 joint):
+glass behind 0.26-0.45 (lens-side loss+leak 27.6 % vs 9.1 % for Ag at 615 nm); with IZO/Al1.5 0.34;
+Ag behind the DBR 0.575 / 0.594 (DBR guided mode 0.11) vs Ag/Liq 0.602 / 0.622.
