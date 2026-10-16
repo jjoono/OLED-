@@ -79,3 +79,16 @@ ParyC TFE / n1.6 MLA, l_IZO). Best within ETL 60-140, HTL 40-160 (HTL always at 
 IZO 30: 0.614 (ETL 90) | 50: 0.612 | 70: 0.613 | 100: 0.617 | 130: 0.618 (ETL 100). Before TFE 0.11-0.21, TFE no lens 0.15-0.21.
 HTL beyond the bound: IZO 30/ETL 100: HTL 200 0.622, 240 0.630, 280 0.634; IZO 100/ETL 100: HTL 200-240 0.626.
 l_IZO_SJ_RTP instead of l_IZO changes the result by < 0.5 %p. Optics only - sputter damage to the hole contact not included.
+
+Lens-free planar TEOLED limit, emission straight into air (`lensfree_limit.py` -> `lensfree_limit.csv`, cross-seeded
+`lensfree_refine.py` -> `lensfree_refined.csv`; the per-case DE fell into 2nd-order local optima for Theta 1, refinement
+fixes them). Ag 100 | ETL | EML 2 nm sheet | HTL | top Ag | cap | air, PLQY 1 (EQE = eta_out), lossless non-dispersive organics.
+Red 620 nm, bulk (McPeak) Ag with free thickness, n 1.8, ZnS cap; rows Theta, columns FWHM (delta/10/20/30/50 nm/Ir 68 nm):
+0.67: 0.614 0.610 0.598 0.583 0.537 0.473 | 0.82: 0.713 0.709 0.700 0.686 0.640 0.575 | 0.90: 0.763 0.760 0.753 0.740 0.697 0.636
+1.00: 0.827 0.825 0.821 0.811 0.778 0.733.  Optima are 1st order (ETL 57-67, HTL 68-76, top Ag 23-33 nm, ZnS 46-73).
+Colours (Theta 1, delta / FWHM 20): 460 nm 0.760/0.726, 530 nm 0.804/0.789, 620 nm 0.827/0.821.
+Variants (Theta 1 delta | Theta 0.82 Ir): measured HATCN/Ag 8 nm 0.633 | 0.470; transport n 1.5 0.894 | 0.780 (EML 2 nm sheet,
+optimistic); cap n 1.8 0.798 | 0.555; 1st order only = free.  Forward-Lambertian reading of the Theta 1 optimum: 109 %.
+Ladder to the real stack (`lensfree_ladder.py`, Theta 0.82, Ir): ideal 0.575 -> Ag 7.87 bulk 0.496 -> joint nk 0.470 ->
+real stack (Bebq2/TAPC o,e/HATCN/Al0.2/Liq) 0.486 (ETL 61.5, HTL 51.4, ZnS 87.2) -> x0.96 = 0.466; Octave v2 0.4617.
+`lensfree_variants.py`: ZnS >= 100 0.460 (61.1/47.3/100); Al 1 nm 0.447; both 0.438.
