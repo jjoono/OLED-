@@ -1,5 +1,7 @@
 """Upper limit of a lens-free (planar, emitting straight into air) top-emitting microcavity OLED.
   Ag 100 (McPeak) | ETL d_E (n_t) | EML 2 nm (n_e, dipole sheet at its centre) | HTL d_H (n_t) | top Ag d_Ag | cap d_C (n_c) | air
+EML thickness d_eml is a case parameter (default 2 nm sheet; `python3 lensfree_limit.py 25` runs every case with a 25 nm EML,
+dipole at its centre, and adds EQE_zone = uniform emission across the EML at the optimum) -> lensfree_limit_eml25.csv.
 eta_out = angle-integrated power into air / total dissipated power (CPS), PLQY = 1 so EQE = eta_out (Purcell irrelevant).
 Spectrum: delta or Gaussian (FWHM in nm) at lambda0, or the measured Ir(mphmq)2tmd spectrum; organics non-dispersive.
 d_E, d_H, d_Ag, d_C optimised globally (differential evolution) per case; 'order1' bounds d_E, d_H <= 150 nm, 'free' <= 400 nm."""
@@ -21,7 +23,8 @@ def eta_air(lam, x, c):
     nt, ne, nc = c['n_t'], c['n_e'], c['n_c']
     above = [(nt, nt, dE), (ab, ab, 100.)]
     below = [(nt, nt, dH), (at, at, dAg)] + ([(nc, nc, dC)] if dC > 0.5 else [])
-    St = cps2.Stack(lam, (ne, ne), 2.0, 1.0, above=above, below=below, n_sub=1.0, n_top=1.0, h=c['theta'])
+    d = c.get('d_eml', 2.0)
+    St = cps2.Stack(lam, (ne, ne), d, c.get('z0', d / 2), above=above, below=below, n_sub=1.0, n_top=1.0, h=c['theta'])
     P = np.real(cps2.solve(St, npts=3000)['P_tot'])
     return float(np.sum(np.real(cps2.sub_angular(St, TH))) * 0.1 / P)
 
@@ -67,10 +70,14 @@ def run(c):
         lc = np.arange(560, 721, 1.0); wc = np.array([T.S[T.idx(v)] for v in lc]); out['EQE_check'] = eqe(x, c, lc, wc / wc.sum())
     else:
         out['EQE_check'] = best
+    d = c.get('d_eml', 2.0)
+    if d > 2.0:                                          # uniform emission zone across the EML (PLQY 1: plain average)
+        lf, wf = spec(c)
+        out['EQE_zone'] = float(np.mean([eqe(x, dict(c, z0=z), lf, wf) for z in np.linspace(d / 14, d - d / 14, 7)]))
     # power budget at lambda0 for the optimum
     lam = c['lam0'] if c['fwhm'] != 'Ir' else 615
     i = T.idx(lam); ab = T.AG[i]; at = AGJ[i] if c['metal'] == 'joint8' else ab
-    St = cps2.Stack(lam, (c['n_e'],) * 2, 2.0, 1.0, above=[(c['n_t'],) * 2 + (x[0],), (ab, ab, 100.)],
+    St = cps2.Stack(lam, (c['n_e'],) * 2, d, d / 2, above=[(c['n_t'],) * 2 + (x[0],), (ab, ab, 100.)],
                     below=[(c['n_t'],) * 2 + (x[1],), (at, at, x[2])] + ([(c['n_c'],) * 2 + (x[3],)] if x[3] > 0.5 else []),
                     n_sub=1.0, n_top=1.0, h=c['theta'])
     r2 = cps2.solve(St, npts=3000)
@@ -96,8 +103,10 @@ def cases():
 
 
 if __name__ == '__main__':
+    D = float(sys.argv[1]) if len(sys.argv) > 1 else 2.0
+    C = [dict(c, d_eml=D) for c in cases()] if D != 2.0 else cases()
     with Pool(4) as p:
-        res = p.map(run, cases(), chunksize=1)
+        res = p.map(run, C, chunksize=1)
     keys = list(res[0].keys())
-    with open('lensfree_limit.csv', 'w', newline='') as f:
+    with open('lensfree_limit.csv' if D == 2.0 else 'lensfree_limit_eml%g.csv' % D, 'w', newline='') as f:
         wr = csv.DictWriter(f, keys); wr.writeheader(); wr.writerows(res)
