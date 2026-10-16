@@ -92,3 +92,7 @@ optimistic); cap n 1.8 0.798 | 0.555; 1st order only = free.  Forward-Lambertian
 Ladder to the real stack (`lensfree_ladder.py`, Theta 0.82, Ir): ideal 0.575 -> Ag 7.87 bulk 0.496 -> joint nk 0.470 ->
 real stack (Bebq2/TAPC o,e/HATCN/Al0.2/Liq) 0.486 (ETL 61.5, HTL 51.4, ZnS 87.2) -> x0.96 = 0.466; Octave v2 0.4617.
 `lensfree_variants.py`: ZnS >= 100 0.460 (61.1/47.3/100); Al 1 nm 0.447; both 0.438.
+EML 25 nm instead of the 2 nm sheet (`lensfree_eml25.py` -> `lensfree_eml25.csv`): with n_t = n_e the EML thickness is optically
+invisible at fixed dipole position (identical EQE; ETL/HTL each 11.5 nm shorter); uniform emission over the 25 nm EML costs
+0.2-0.6 %p (red/green), 1.3-1.5 %p (blue). Low-index transport (n 1.5) with a 25 nm n 1.8 EML, re-optimised:
+Theta 1 delta 0.894 -> 0.886, Theta 0.82 Ir 0.780 -> 0.761 (zone 0.759); Theta 0.82 delta 0.830 -> 0.812.
