@@ -1,13 +1,13 @@
 """Fine-spectrum (2 nm) confirmation of the be_cone_opt.py optima.  The 10 nm spectral grid overrates some thick
 resonant structures, so for every (IZO, extractor, bound) the 8 best mutually separated (>= 30 nm) grid points are
 re-evaluated on the 2 nm grid, the best is refined locally (+-10 nm, step 5), and results are made monotonic in the
-bound (an optimum under a smaller bound is admissible under a larger one).  -> be_cone_best.csv"""
+bound (an optimum under a smaller bound is admissible under a larger one).  -> be_cone_best.csv (BE_ETL suffix as in be_cone_opt)"""
 import csv, itertools, numpy as np
 from multiprocessing import Pool
 import be_cone_opt as B
 
 G = {}
-for r in csv.DictReader(open('be_cone_grid.csv')):
+for r in csv.DictReader(open('be_cone_grid%s.csv' % B.SUF)):
     G[(int(r['d_ETL']), int(r['d_HTL']), r['IZO'])] = {k: float(v) for k, v in r.items() if k.startswith('EQE_')}
 BOUNDS = (100, 200, 300, 500); EXTS = list(B.EXT)
 
@@ -38,5 +38,5 @@ if __name__ == '__main__':
             rows.append(dict(IZO=izo, extractor=ext, bound=bd, d_ETL=k[0], d_HTL=k[1], EQE=v[f'EQE_{ext}'], eta_sub=v['eta_sub'],
                              eta_ext=v[f'EQE_{ext}'] / v['eta_sub'], spp=v['spp'], EQE_grid10=G.get(k, {}).get(f'EQE_{ext}', float('nan'))))
             print({a: (round(b, 4) if isinstance(b, float) else b) for a, b in rows[-1].items()}, flush=True)
-    with open('be_cone_best.csv', 'w', newline='') as f:
+    with open('be_cone_best%s.csv' % B.SUF, 'w', newline='') as f:
         wr = csv.DictWriter(f, list(rows[0].keys())); wr.writeheader(); wr.writerows(rows)

@@ -7,8 +7,9 @@ EQE = sum_lambda w(lambda) eta_sub(lambda) eta_ext(lambda), PLQY 1, w = photon-n
 Grid d_E, d_H = 20..500 nm step 10 on a 10 nm spectral grid; the best point under each bound (d_E, d_H <= 100/200/300/500)
 is then re-evaluated on a 2 nm spectral grid (with a +-10 nm local search on that grid).
 IZO: l_IZO_SJ_RTP (main) and l_IZO.  Hemisphere arrays (close-packed and 0.2 um gap, same tracer) and a flat
-substrate are evaluated on the same grid for reference.  -> be_cone_grid.csv, be_cone_best.csv"""
-import numpy as np, scipy.io as sio, sys, csv, itertools
+substrate are evaluated on the same grid for reference.  -> be_cone_grid.csv, be_cone_best.csv
+ETL from the environment: BE_ETL=3TPYMB uses the isotropic library 3TPYMB (TPYMB_3) -> be_cone_grid_3TPYMB.csv, ..."""
+import numpy as np, scipy.io as sio, sys, csv, itertools, os
 from multiprocessing import Pool
 sys.path[:0] = ['/home/user/OLED-/sim/fig3c', '/home/user/OLED-/sim/mla']
 import cps2, series
@@ -17,7 +18,8 @@ M = sio.loadmat('/home/user/OLED-/sim/table1_author/nk_JH_total.mat', squeeze_me
 mat, spec = M['material'], M['spectrum']
 LAM = np.arange(400, 701)
 def lib(f): return np.asarray(getattr(mat, f))[:301]
-AG = lib('l_Ag_McPeak'); B3o, B3e = lib('l_B3_o_JO'), lib('l_B3_e_JO'); EMo, EMe = lib('l_TCTA_B3_o_JO'), lib('l_TCTA_B3_e_JO')
+ETL = os.environ.get('BE_ETL', 'B3PyMPM'); SUF = '' if ETL == 'B3PyMPM' else '_' + ETL
+AG = lib('l_Ag_McPeak'); B3o, B3e = (lib('l_B3_o_JO'), lib('l_B3_e_JO')) if ETL == 'B3PyMPM' else (lib('TPYMB_3'),) * 2; EMo, EMe = lib('l_TCTA_B3_o_JO'), lib('l_TCTA_B3_e_JO')
 TPo, TPe = lib('l_TAPC_o_JO'), lib('l_TAPC_e_JO'); IZOS = {'SJ_RTP': lib('l_IZO_SJ_RTP'), 'l_IZO': lib('l_IZO')}
 I = np.clip(np.asarray(spec.I_Irppy2acac, float)[:301], 0, None); WP = LAM * I
 NSUB, THETA = 1.77, 0.8
@@ -56,7 +58,7 @@ if __name__ == '__main__':
     D = list(range(20, 501, 10))
     with Pool(4) as pool:
         grid = evaluate([(dE, dH, izo) for izo in IZOS for dE in D for dH in D], 10, pool)
-        with open('be_cone_grid.csv', 'w', newline='') as f:
+        with open('be_cone_grid%s.csv' % SUF, 'w', newline='') as f:
             wr = csv.writer(f); keys = list(next(iter(grid.values())).keys()); wr.writerow(['IZO', 'd_ETL', 'd_HTL'] + keys)
             for (dE, dH, izo), v in grid.items(): wr.writerow([izo, dE, dH] + [v[k] for k in keys])
         rows = []
@@ -69,5 +71,5 @@ if __name__ == '__main__':
             row = dict(IZO=izo, extractor=ext, bound=bound, d_ETL=bE, d_HTL=bH, EQE=v[f'EQE_{ext}'], eta_sub=v['eta_sub'],
                        eta_ext=v[f'EQE_{ext}'] / v['eta_sub'], spp=v['spp'], EQE_grid10=grid[(dE, dH, izo)][f'EQE_{ext}'])
             rows.append(row); print({k: (round(x, 4) if isinstance(x, float) else x) for k, x in row.items()}, flush=True)
-    with open('be_cone_best.csv', 'w', newline='') as f:
+    with open('be_cone_best%s.csv' % SUF, 'w', newline='') as f:
         wr = csv.DictWriter(f, list(rows[0].keys())); wr.writeheader(); wr.writerows(rows)
