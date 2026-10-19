@@ -26,6 +26,10 @@ Two lens shapes, selected with `shape`:
 
 So use 'cap' up to AR = 1 and 'ellipsoid' above it; run_aspect.py does that.
 
+  'cone'       a right circular cone of base radius r and height h (apex on the axis at z = h),
+               rho = r (1 - z/h).  With `pitch` > 2 r the cones stand apart and the gap between
+               base circles is flat glass/air.
+
 The lens material and the substrate are the same medium, so there is no
 interface at the base plane; the 9.3 % of the base plane that the close-packed
 circles do not cover is flat glass/air.
@@ -106,12 +110,12 @@ def escape_probability(AR, n, N=400000, max_events=40, seed=0, chunk=100000,
 PITCH = 2.0                     # lattice pitch in units of the base radius; 2 = touching
 
 
-def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
+def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None, pitch=None):
     if shape is None:                # cap up to the hemisphere, ellipsoid above it
         shape = 'cap' if AR <= 1.0 else 'ellipsoid'
     r = 1.0
     h = AR * r
-    a = PITCH * r                   # pitch; 2 r when the base circles touch
+    a = (PITCH if pitch is None else pitch) * r   # pitch; 2 r when the base circles touch
     off = _lattice_offsets(a)
     z_lo, r_gap, cyl = 0.0, r, False
     if shape == 'cap':              # spherical cap of fixed base r; it overlaps its neighbours for h > r
@@ -131,6 +135,8 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
         zc = h - r
         inv = np.array([1.0, 1.0, 1.0])
         z_lo, cyl = zc, True
+    elif shape == 'cone':
+        k2 = (r / h) ** 2
     else:                           # half-ellipsoid
         R, zc = 1.0, 0.0
         inv = np.array([1.0 / r ** 2, 1.0 / r ** 2, 1.0 / h ** 2])
@@ -165,6 +171,27 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
         best_t = np.full(len(idx), np.inf)
         best_n = np.zeros((len(idx), 3))
         for o in off:
+            if shape == 'cone':     # x^2 + y^2 = k^2 (z - h)^2 about the apex, lower nappe 0 <= z <= h
+                L = p - np.array([o[0], o[1], h])
+                qa = d[:, 0] ** 2 + d[:, 1] ** 2 - k2 * d[:, 2] ** 2
+                qb = 2.0 * (L[:, 0] * d[:, 0] + L[:, 1] * d[:, 1] - k2 * L[:, 2] * d[:, 2])
+                qc = L[:, 0] ** 2 + L[:, 1] ** 2 - k2 * L[:, 2] ** 2
+                lin = np.abs(qa) < 1e-12
+                disc = qb * qb - 4.0 * qa * qc
+                ok = (disc > 0) | lin
+                sq = np.sqrt(np.where(disc > 0, disc, 0.0))
+                qa_s = np.where(lin, 1.0, qa)
+                cands = (np.where(lin, -qc / np.where(np.abs(qb) > 1e-300, qb, 1e-300), (-qb - sq) / (2 * qa_s)),
+                         np.where(lin, np.inf, (-qb + sq) / (2 * qa_s)))
+                for t in cands:
+                    hit = p + t[:, None] * d
+                    good = ok & np.isfinite(t) & (t > 1e-9) & (hit[:, 2] >= 0.0) & (hit[:, 2] <= h) & (t < best_t)
+                    if good.any():
+                        best_t = np.where(good, t, best_t)
+                        g = np.stack([hit[:, 0] - o[0], hit[:, 1] - o[1], -k2 * (hit[:, 2] - h)], 1)
+                        nrm = g / np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-300)
+                        best_n = np.where(good[:, None], nrm, best_n)
+                continue
             c = np.array([o[0], o[1], zc])
             L = p - c
             qa = np.sum(d * d * inv, 1)
@@ -286,7 +313,7 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None):
     return escaped, ret_cos
 
 
-def bsdf(AR, n, N=40000, n_bin=90, max_events=40, seed=0, shape=None):
+def bsdf(AR, n, N=40000, n_bin=90, max_events=40, seed=0, shape=None, pitch=None):
     """Angle-resolved response of the array, as the recycling series needs it.
 
     B_T[i]    fraction of light arriving at polar angle bin i that escapes to air
@@ -306,7 +333,7 @@ def bsdf(AR, n, N=40000, n_bin=90, max_events=40, seed=0, shape=None):
     BT = np.zeros(n_bin)
     BR = np.zeros((n_bin, n_bin))
     for i, th in enumerate(centres):
-        esc, rc = _trace_chunk(AR, n, N, max_events, rng, float(th), shape)
+        esc, rc = _trace_chunk(AR, n, N, max_events, rng, float(th), shape, pitch)
         BT[i] = esc.mean()
         good = np.isfinite(rc)
         if good.any():
