@@ -8,7 +8,8 @@ from multiprocessing import Pool
 import raytrace as rt
 
 R_UM, H_UM, GAP_UM = 1.4, 1.8, 0.2
-GEOM = {'cone': ('cone', H_UM / R_UM, (2 * R_UM + GAP_UM) / R_UM), 'hemi_gap': ('cap', 1.0, (2 * R_UM + GAP_UM) / R_UM)}
+GEOM = {'cone': ('cone', H_UM / R_UM, (2 * R_UM + GAP_UM) / R_UM), 'hemi_gap': ('cap', 1.0, (2 * R_UM + GAP_UM) / R_UM),
+        'hemi_cp': ('cap', 1.0, 2.0)}   # close-packed hemisphere reference
 N = 40000
 TH = np.arange(90) + 0.5
 
