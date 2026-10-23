@@ -110,7 +110,7 @@ def escape_probability(AR, n, N=400000, max_events=40, seed=0, chunk=100000,
 PITCH = 2.0                     # lattice pitch in units of the base radius; 2 = touching
 
 
-def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None, pitch=None):
+def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None, pitch=None, return_dir=False):
     if shape is None:                # cap up to the hemisphere, ellipsoid above it
         shape = 'cap' if AR <= 1.0 else 'ellipsoid'
     r = 1.0
@@ -310,6 +310,8 @@ def _trace_chunk(AR, n, N, max_events, rng, th_fixed=None, shape=None, pitch=Non
             ret_cos[ai[home]] = np.abs(newd[home, 2])
             alive[ai[home]] = False
 
+    if return_dir:                  # final direction (in air for escaped rays), lattice frame: a1 along x
+        return escaped, ret_cos, D
     return escaped, ret_cos
 
 
