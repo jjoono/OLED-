@@ -33,11 +33,12 @@ def measured(fn='data/2026-10-22_glass_d32_p5_gon-spec-deg.csv'):
     return S, asym
 
 
-def stack(j, f, g, z, dizo=50.0, e=1.0, kd=0.0, kh=0.0):
-    """kd: k of the 10 wt% Cs2CO3-doped ETL, kh: k of the three 5 nm HATCN layers (HATCN/TAPC interface CT absorption)"""
+def stack(j, f, g, z, dizo=50.0, e=1.0, kd=0.0, kh=0.0, kcs=0.0):
+    """kd: k of the 10 wt% Cs2CO3-doped ETL, kh: k of the three 5 nm HATCN layers (HATCN/TAPC interface CT absorption),
+    kcs: k of the 5 nm 50 wt% Cs2CO3 layer at the Ag interface"""
     B3o, B3e, EMo, EMe, TCo, TCe, TPo, TPe, HAT, AG = (D.B3o[j], D.B3e[j], D.EMo[j], D.EMe[j], D.TCo[j], D.TCe[j], D.TPo[j], D.TPe[j], D.HAT[j], D.AG[j])
     return cps2.Stack(float(D.LAM[j]), (EMo, EMe), 25.0 * e, z,
-                      above=[(B3o, B3e, 120.0 * f), (B3o + 1j * kd, B3e + 1j * kd, 60.0 * f), (1.7, 1.7, 5.0), (AG, AG, 100.0)],
+                      above=[(B3o, B3e, 120.0 * f), (B3o + 1j * kd, B3e + 1j * kd, 60.0 * f), (1.7 + 1j * kcs, 1.7 + 1j * kcs, 5.0), (AG, AG, 100.0)],
                       below=[(TCo, TCe, 10.0 * e), (TPo, TPe, 70.0 * g), (HAT + 1j * kh, HAT + 1j * kh, 5.0 * e), (TPo, TPe, 70.0 * g), (HAT + 1j * kh, HAT + 1j * kh, 5.0 * e),
                              (TPo, TPe, 70.0 * g), (HAT + 1j * kh, HAT + 1j * kh, 5.0 * e), (dev3.IZO[j], dev3.IZO[j], dizo)], n_sub=NS, h=1.0)
 
@@ -73,7 +74,7 @@ def cost(S, f, g, z, t, dizo):
     return float(np.sqrt((e ** 2).sum() / (w.sum() * 7)))
 
 
-Z = float(sys.argv[1]) if len(sys.argv) > 1 else 12.5     # dipole distance from the ETL/EML interface [nm]
+Z = 12.5                                  # dipole distance from the ETL/EML interface [nm]; `python3 fit_ref_angles.py <Z>`
 
 
 def profile(f):
@@ -86,6 +87,7 @@ def profile(f):
 
 
 if __name__ == '__main__':
+    Z = float(sys.argv[1]) if len(sys.argv) > 1 else 12.5
     S, asym = measured()
     print('+theta / -theta (lam-integrated), 10..80 deg:', np.round(asym, 3))
     with Pool(4) as p:
