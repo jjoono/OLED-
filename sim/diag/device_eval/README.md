@@ -68,3 +68,23 @@ CIE (0.29, 0.65), 피크 523 nm, FWHM 52 nm. roll-off는 100 → 1000 cd/m²에�
 
 재실행: `cd sim/diag/device_eval && python3 run_afterAgMLA.py` (numpy, pandas, scipy, openpyxl, matplotlib).
 다른 픽셀: `python3 pixel_report.py <jvl.csv> <gon-spec-deg.csv> <out_dir> "<이름>"`.
+
+## Reference(flat glass) 소자: 2026-10-22 glass d32_p5
+
+`run_reference.py`로 위와 같은 방법(−90~90°, 같은 보정 파일, PD 58 mm, 50 dB)으로 평가했다.
+업로드된 JVL은 행마다 큰따옴표가 붙어 있어 따옴표를 뺀 사본(`out/ref_d32_p5/`)으로 읽는다.
+
+| | 값 |
+|---|---|
+| 최대 EQE (−90~90°) | **20.3 %** (56 cd/m², 4.1 V), GUI 방식 20.8 % |
+| EQE @ 100 cd/m² | 19.9 % (최대 휘도 858 cd/m², 7 V까지 EQE 17~20 %로 평탄) |
+| 각도 보정 계수 e (+쪽 / −쪽) | 0.379 (0.389 / 0.369), Lambertian 0.5보다 좁은 분포 |
+| 피크 / FWHM / CIE | 525 nm / 58 nm / (0.293, 0.657) |
+
+- +80° 한 점이 −80°의 2.5배인 이상치다. −쪽 계수만 쓰면 최대 EQE는 19.8 %다.
+- 각도 측정은 50 µA 설정에서 7 V 한계에 걸렸다(JVL 기준 7 V에서 38 µA). EQE는 JVL의 전류와 PD로 계산하고
+  각도 측정은 분포 모양(e)에만 쓰므로 EQE 값에는 영향이 없다. 측정 중 밝기 변화는 deg 파일이 보정한다.
+- `dev3.py`의 `meas` 0.16과 다르다. 같은 방법으로 평가한 값은 0.20이다.
+- 모델 비교(`../fit_ref_angles.py`, `../eqe_fitted.log`): 각도 스펙트럼에 맞춘 두께(ETL 161 nm)에서 모델 ref EQE는
+  0.175~0.200이다. 측정/모델은 ref 1.0~1.16, MLA + 반사체(57.9 %, 모델 0.83~0.87) 0.67~0.70이다.
+  두께로 설명되지 않는 손실은 MLA 소자에만 있다.
