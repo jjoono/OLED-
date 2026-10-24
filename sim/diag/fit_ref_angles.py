@@ -33,12 +33,13 @@ def measured(fn='data/2026-10-22_glass_d32_p5_gon-spec-deg.csv'):
     return S, asym
 
 
-def stack(j, f, g, z, dizo=50.0, e=1.0):
+def stack(j, f, g, z, dizo=50.0, e=1.0, kd=0.0, kh=0.0):
+    """kd: k of the 10 wt% Cs2CO3-doped ETL, kh: k of the three 5 nm HATCN layers (HATCN/TAPC interface CT absorption)"""
     B3o, B3e, EMo, EMe, TCo, TCe, TPo, TPe, HAT, AG = (D.B3o[j], D.B3e[j], D.EMo[j], D.EMe[j], D.TCo[j], D.TCe[j], D.TPo[j], D.TPe[j], D.HAT[j], D.AG[j])
     return cps2.Stack(float(D.LAM[j]), (EMo, EMe), 25.0 * e, z,
-                      above=[(B3o, B3e, 120.0 * f), (B3o, B3e, 60.0 * f), (1.7, 1.7, 5.0), (AG, AG, 100.0)],
-                      below=[(TCo, TCe, 10.0 * e), (TPo, TPe, 70.0 * g), (HAT, HAT, 5.0 * e), (TPo, TPe, 70.0 * g), (HAT, HAT, 5.0 * e),
-                             (TPo, TPe, 70.0 * g), (HAT, HAT, 5.0 * e), (dev3.IZO[j], dev3.IZO[j], dizo)], n_sub=NS, h=1.0)
+                      above=[(B3o, B3e, 120.0 * f), (B3o + 1j * kd, B3e + 1j * kd, 60.0 * f), (1.7, 1.7, 5.0), (AG, AG, 100.0)],
+                      below=[(TCo, TCe, 10.0 * e), (TPo, TPe, 70.0 * g), (HAT + 1j * kh, HAT + 1j * kh, 5.0 * e), (TPo, TPe, 70.0 * g), (HAT + 1j * kh, HAT + 1j * kh, 5.0 * e),
+                             (TPo, TPe, 70.0 * g), (HAT + 1j * kh, HAT + 1j * kh, 5.0 * e), (dev3.IZO[j], dev3.IZO[j], dizo)], n_sub=NS, h=1.0)
 
 
 def air(S):
@@ -72,11 +73,14 @@ def cost(S, f, g, z, t, dizo):
     return float(np.sqrt((e ** 2).sum() / (w.sum() * 7)))
 
 
+Z = float(sys.argv[1]) if len(sys.argv) > 1 else 12.5     # dipole distance from the ETL/EML interface [nm]
+
+
 def profile(f):
-    """ETL scale fixed, TAPC scale / Theta / IZO thickness free, dipole at the EML centre"""
+    """ETL scale fixed, TAPC scale / Theta / IZO thickness free, dipole at Z (default: EML centre)"""
     from scipy.optimize import minimize
     S = measured()[0]
-    r = minimize(lambda x: cost(S, f, x[0], 12.5, x[1], x[2]), [0.85, 0.71, 20.0], method='Nelder-Mead',
+    r = minimize(lambda x: cost(S, f, x[0], Z, x[1], x[2]), [0.85, 0.71, 20.0], method='Nelder-Mead',
                  bounds=[(0.4, 1.5), (0.5, 1.0), (0.0, 90.0)], options=dict(maxiter=300, xatol=1e-3, fatol=1e-6))
     return f, r.fun, *r.x
 
@@ -85,9 +89,9 @@ if __name__ == '__main__':
     S, asym = measured()
     print('+theta / -theta (lam-integrated), 10..80 deg:', np.round(asym, 3))
     with Pool(4) as p:
-        rows = p.map(profile, np.round(np.arange(0.80, 0.961, 0.02), 3))
+        rows = p.map(profile, np.round(np.arange(0.80, 0.961, 0.02) if Z == 12.5 else np.arange(0.86, 1.021, 0.02), 3))
     import csv
-    with open('fit_ref_angles.csv', 'w', newline='') as fo:
+    with open('fit_ref_angles.csv' if Z == 12.5 else 'fit_ref_angles_z%g.csv' % Z, 'w', newline='') as fo:
         wr = csv.writer(fo); wr.writerow(['f_ETL', 'ETL_nm', 'rms_log', 'g_TAPC', 'Theta', 'IZO_nm'])
         for r in rows:
             wr.writerow([r[0], round(185 * r[0], 1)] + [round(v, 4) for v in r[1:]])

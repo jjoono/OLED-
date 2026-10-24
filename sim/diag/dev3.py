@@ -24,8 +24,9 @@ def flat(ns):
 
 def stack(args):
     j, ns, f, kd, kcs, theta, *geo = args
-    g, z, dizo, e = geo or (1.0, 12.5, 50.0, 1.0)         # TAPC scale, dipole distance from the ETL side, IZO, EML/TCTA/HATCN scale
+    g, z, dizo, e, *kh = geo or (1.0, 12.5, 50.0, 1.0)     # TAPC scale, dipole distance from the ETL side, IZO, EML/TCTA/HATCN scale
     B3o, B3e, EMo, EMe, TCo, TCe, TPo, TPe, HAT, AG = (D.B3o[j], D.B3e[j], D.EMo[j], D.EMe[j], D.TCo[j], D.TCe[j], D.TPo[j], D.TPe[j], D.HAT[j], D.AG[j])
+    HAT = HAT + 1j * (kh[0] if kh else 0.0)                 # optional k of the HATCN layers (HATCN/TAPC interface absorption)
     cs = 1.7 + 1j * kcs
     S = cps2.Stack(float(D.LAM[j]), (EMo, EMe), 25.0 * e, z,
                    above=[(B3o, B3e, 120.0 * f), (B3o + 1j * kd, B3e + 1j * kd, 60.0 * f), (cs, cs, 5.0), (AG, AG, 100.0)],
