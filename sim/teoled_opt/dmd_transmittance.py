@@ -27,13 +27,14 @@ def TRA(d1,d2,dag=8.0,dhat=5.0):
         Ttot=Tc*Tg/(1-Rb*Rg); Rtot=Rf+Tc*Rg*Tc/(1-Rb*Rg)  # incoherent glass back face (Tc reused by reciprocity)
         out.append((Ttot,Rtot,1-Ttot-Rtot))
     return np.array(out)
-glass=TRA(0,0,0,0); Tg=glass[:,0]
-i550=list(L).index(550.)
-for name,(d1,d2) in [('bare (glass/HATCN5/Ag8/air)',(0,0))]:
-    o=TRA(d1,d2); print('%-34s T550 %.3f (rel %.3f)  A550 %.3f  Tavg %.3f'%(name,o[i550,0],o[i550,0]/Tg[i550],o[i550,2],o[:,0].mean()))
-for tgt in ('550','avg'):
-    f=(lambda x:-TRA(*np.abs(x))[i550,0]) if tgt=='550' else (lambda x:-TRA(*np.abs(x))[:,0].mean())
-    best=min((minimize(f,x0,method='Nelder-Mead',options=dict(xatol=0.5,fatol=1e-5)) for x0 in ([30,30],[50,40],[20,60],[60,20])),key=lambda r:r.fun)
-    d1,d2=np.abs(best.x); o=TRA(d1,d2)
-    print('DMD opt %-4s ZnS %4.1f/HATCN5/Ag8/ZnS %4.1f: T550 %.3f (rel %.3f)  R550 %.3f A550 %.3f  Tavg %.3f (rel %.3f)'%(tgt,d1,d2,o[i550,0],o[i550,0]/Tg[i550],o[i550,1],o[i550,2],o[:,0].mean(),(o[:,0]/Tg).mean()))
-print('bare glass T550 %.3f'%Tg[i550])
+if __name__ == '__main__':
+    glass=TRA(0,0,0,0); Tg=glass[:,0]
+    i550=list(L).index(550.)
+    for name,(d1,d2) in [('bare (glass/HATCN5/Ag8/air)',(0,0))]:
+        o=TRA(d1,d2); print('%-34s T550 %.3f (rel %.3f)  A550 %.3f  Tavg %.3f'%(name,o[i550,0],o[i550,0]/Tg[i550],o[i550,2],o[:,0].mean()))
+    for tgt in ('550','avg'):
+        f=(lambda x:-TRA(*np.abs(x))[i550,0]) if tgt=='550' else (lambda x:-TRA(*np.abs(x))[:,0].mean())
+        best=min((minimize(f,x0,method='Nelder-Mead',options=dict(xatol=0.5,fatol=1e-5)) for x0 in ([30,30],[50,40],[20,60],[60,20])),key=lambda r:r.fun)
+        d1,d2=np.abs(best.x); o=TRA(d1,d2)
+        print('DMD opt %-4s ZnS %4.1f/HATCN5/Ag8/ZnS %4.1f: T550 %.3f (rel %.3f)  R550 %.3f A550 %.3f  Tavg %.3f (rel %.3f)'%(tgt,d1,d2,o[i550,0],o[i550,0]/Tg[i550],o[i550,1],o[i550,2],o[:,0].mean(),(o[:,0]/Tg).mean()))
+    print('bare glass T550 %.3f'%Tg[i550])
