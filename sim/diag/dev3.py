@@ -23,13 +23,14 @@ def flat(ns):
 
 
 def stack(args):
-    j, ns, f, kd, kcs, theta = args
+    j, ns, f, kd, kcs, theta, *geo = args
+    g, z, dizo, e = geo or (1.0, 12.5, 50.0, 1.0)         # TAPC scale, dipole distance from the ETL side, IZO, EML/TCTA/HATCN scale
     B3o, B3e, EMo, EMe, TCo, TCe, TPo, TPe, HAT, AG = (D.B3o[j], D.B3e[j], D.EMo[j], D.EMe[j], D.TCo[j], D.TCe[j], D.TPo[j], D.TPe[j], D.HAT[j], D.AG[j])
     cs = 1.7 + 1j * kcs
-    S = cps2.Stack(float(D.LAM[j]), (EMo, EMe), 25.0, 12.5,
+    S = cps2.Stack(float(D.LAM[j]), (EMo, EMe), 25.0 * e, z,
                    above=[(B3o, B3e, 120.0 * f), (B3o + 1j * kd, B3e + 1j * kd, 60.0 * f), (cs, cs, 5.0), (AG, AG, 100.0)],
-                   below=[(TCo, TCe, 10.0), (TPo, TPe, 70.0), (HAT, HAT, 5.0), (TPo, TPe, 70.0), (HAT, HAT, 5.0), (TPo, TPe, 70.0),
-                          (HAT, HAT, 5.0), (IZO[j], IZO[j], 50.0)], n_sub=ns, h=theta)
+                   below=[(TCo, TCe, 10.0 * e), (TPo, TPe, 70.0 * g), (HAT, HAT, 5.0 * e), (TPo, TPe, 70.0 * g), (HAT, HAT, 5.0 * e),
+                          (TPo, TPe, 70.0 * g), (HAT, HAT, 5.0 * e), (IZO[j], IZO[j], dizo)], n_sub=ns, h=theta)
     r = cps2.solve_pol(S, npts=3000)
     return float(np.real(r['air'] + r['sub'])), np.real(cps2.sub_angular(S, TH)), np.real(cps2.stack_reflectance(S, TH))
 
@@ -60,14 +61,14 @@ def mc(args):
     return top / N
 
 
-def three(pool, f=1.0, kd=0.0, kcs=0.0, theta=THETA, nref=1.52, N=60000, nrun=4):
+def three(pool, f=1.0, kd=0.0, kcs=0.0, theta=THETA, nref=1.52, N=60000, nrun=4, geo=()):
     out = {}
-    res = pool.map(stack, [(j, nref, f, kd, kcs, theta) for j in LAMJ])
+    res = pool.map(stack, [(j, nref, f, kd, kcs, theta, *geo) for j in LAMJ])
     ES = np.array([r[0] for r in res]); PS = np.array([r[1] for r in res]); RS = np.array([r[2] for r in res])
     es = WP @ ES; WL = WP * ES / es; BT, BR = flat(nref)
     out['ref'] = float(sum(WP[k] * ES[k] * series.eta_ext(BT, BR, RS[k], PS[k], 300)[0] for k in range(len(LAMJ))))
     out['es_ref'] = float(es)
-    res = pool.map(stack, [(j, 1.77, f, kd, kcs, theta) for j in LAMJ])
+    res = pool.map(stack, [(j, 1.77, f, kd, kcs, theta, *geo) for j in LAMJ])
     ES = np.array([r[0] for r in res]); PS = np.array([r[1] for r in res]); RS = np.array([r[2] for r in res])
     es = WP @ ES; WL = WP * ES / es; out['es'] = float(es)
     for mode in ('cathode', 'full'):
