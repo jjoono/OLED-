@@ -2,7 +2,8 @@
 
     python scripts/152_slide_descriptors.py   ->  runs/slide_descriptors.csv
 
-One row per organic computed at PBE0 (19), plus MoOx as a reference row.
+One row per organic computed at PBE0 (19), Cs2CO3 (n-type EIL, inorganic),
+plus MoOx as a reference row.
 Each column comes from one method only, so a bar chart of a column compares
 like with like:
 
@@ -27,7 +28,7 @@ ROLE = {"HATCN": "HIL", "F4TCNQ": "HIL (p-dopant)", "F6-TCNNQ": "HIL (p-dopant)"
         "p-bPPhenB": "ETL", "Bphen": "ETL", "B3PyMPM": "ETL", "Liq": "EIL",
         "TPBi": "ETL", "BCP": "ETL", "NBphen": "ETL", "TmPyPB": "ETL", "3TPYMB": "ETL",
         "T2T": "ETL", "PO-T2T": "ETL", "Alq3": "ETL", "DPEPO": "host", "TSPO1": "host",
-        "mCP": "host", "NPB": "HTL"}
+        "mCP": "host", "NPB": "HTL", "Cs2CO3": "EIL (inorganic)"}
 
 # earlier full-molecule PBE0 values (binding_energies_pbe0 + multi-site
 # updates); electronic/dispersion split from the 149 validation entries,
@@ -42,6 +43,8 @@ EARLIER = {
     "Bphen":    (0.621, 0.475, 0.134, -0.085),
     "B3PyMPM":  (0.416, 0.195, 0.221, -0.071),
     "Liq":      (0.398, 0.307, 0.091, -0.104),
+    # PBE0 single point on Cs2CO3_Ag_pbe0.xyz (reproduces E_b 0.7006 exactly)
+    "Cs2CO3":   (0.701, 0.609, 0.091, -0.112),
 }
 # MoOx reference: Mo3O9 cluster for E_b and q (PBE0), MoO3(010) slab for dq
 # (GFN2, the same method as the organics' dq). On the small cluster the PBE0

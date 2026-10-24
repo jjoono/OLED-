@@ -18,7 +18,9 @@ const rows = lines.slice(1).map((l) => {
   head.forEach((h, i) => (r[h] = i >= 2 && i <= 6 ? parseFloat(v[i]) : v[i]));
   return r;
 });
-const organics = rows.filter((r) => !r.name.startsWith("MoOx"));
+const DISPLAY = { Cs2CO3: "Cs₂CO₃" };
+rows.forEach((r) => (r.label = DISPLAY[r.name] || r.name));
+const organics = rows.filter((r) => !r.name.startsWith("MoOx")); // + Cs2CO3 (inorganic EIL)
 const moox = rows.find((r) => r.name.startsWith("MoOx"));
 const klass = (r) =>
   r.name.startsWith("MoOx") ? "ref" : r.role.startsWith("HIL") ? "HIL"
@@ -175,7 +177,7 @@ s1.addNotes("① E_b가 순위 변수, ④ Δq는 통과/탈락 게이트. ② E
 const s2 = pres.addSlide();
 s2.background = { color: "FFFFFF" };
 title(s2, "물질별 지표 계산값 (내림차순)",
-  "유기물 19종 · E_b, q(Ag₁): PBE0-D3/def2-SVP · Δq: GFN2-xTB · MoOx는 참고값");
+  "유기물 19종 + Cs₂CO₃ · E_b, q(Ag₁): PBE0-D3/def2-SVP · Δq: GFN2-xTB · MoOx는 참고값");
 
 const GX = [0.35, 4.67, 8.99], GW = 4.05, GY = 1.35, GH = 5.05;
 const LAY = { x: 0.33, y: 0.1, w: 0.62, h: 0.76 }; // inner plot area, fraction of chart
@@ -215,19 +217,19 @@ function takeaway(i, text) {
 {
   // ascending: PowerPoint draws the first category at the bottom
   const d = [...organics].sort((a, b) => a.E_b - b.E_b);
-  const labels = d.map((r) => `${r.name}  ${r.E_b.toFixed(2)}`);
+  const labels = d.map((r) => `${r.label}  ${r.E_b.toFixed(2)}`);
   s2.addChart(pres.charts.BAR, [
     { name: "화학 결합(전자적)", labels, values: d.map((r) => Math.max(0, r.E_elec)) },
     { name: "분산력", labels, values: d.map((r) => r.E_disp) },
   ], Object.assign(baseOpts(0, 0, 1.8, 0.3, "① E_b  흡착 에너지 (eV)"),
     { chartColors: [C.elec, C.disp] }));
   vline(0, 0.5, 0, 1.8, C.fail, "기준 0.5 eV");
-  takeaway(0, "0.5 eV 통과: HIL 3종 + phen 킬레이트 2종뿐. PO-T2T는 대부분 분산력, BCP는 화학 결합");
+  takeaway(0, "0.5 eV 통과: HIL 3종 + phen 킬레이트 2종 + Cs₂CO₃. PO-T2T는 대부분 분산력, BCP는 화학 결합");
 }
 
 // charts 2-3: one series per class, zeros hidden by the label format
 function classSeries(d, key, withRef) {
-  const labels = d.map((r) => r.name);
+  const labels = d.map((r) => r.label);
   const groups = [["HIL", "HIL"], ["ETL", "ETL · EIL"], ["HOST", "호스트 · HTL"]];
   if (withRef) groups.push(["ref", "MoOx (참고)"]);
   return groups.map(([k, nm]) => ({ name: nm, labels,
@@ -252,7 +254,7 @@ const lblOpts = { barGrouping: "clustered", barOverlapPct: 100, showValue: true,
     Object.assign(baseOpts(2, -0.8, 0.6, 0.2, "④ 전하 되돌림  Δq(Ag₁→Ag₂) (e)"), lblOpts,
       { chartColors: [C.HIL, C.ETL, C.HOST, C.fail], valAxisLabelFormatCode: "+0.0;-0.0;0" }));
   vline(2, 0.3, -0.8, 0.6, C.fail, "탈락 +0.3 e");
-  takeaway(2, "유기물 19종 모두 통과(≤ 0: 전하를 되돌려 Ag₂ 금속). MoOx만 +0.46으로 탈락");
+  takeaway(2, "유기물 19종과 Cs₂CO₃ 모두 통과(≤ 0: Ag₂ 금속). MoOx만 +0.46으로 탈락");
 }
 
 s2.addText("E_d(확산 장벽)는 비정질 유기막에서 계산 대표성이 낮아 그래프에서 제외. CBP·TCTA·TPD·TAPC는 mCP·NPB와 같은 π 계열(0.25–0.28 eV). " +
