@@ -1,0 +1,21 @@
+name,role,E_b,E_elec,E_disp,q_Ag1,dq_Ag1_2,source
+HATCN,HIL,1.631,1.456,0.175,0.572,-0.197,full-molecule PBE0
+F4TCNQ,HIL (p-dopant),1.208,1.147,0.061,0.545,-0.268,full-molecule PBE0
+F6-TCNNQ,HIL (p-dopant),1.202,1.105,0.097,0.638,-0.255,fragment PBE0
+p-bPPhenB,ETL,0.785,0.589,0.195,0.148,-0.314,full-molecule PBE0
+Bphen,ETL,0.621,0.475,0.134,-0.085,-0.353,full-molecule PBE0
+PO-T2T,ETL,0.478,0.058,0.42,-0.075,-0.232,fragment PBE0 (Ag re-placed)
+BCP,ETL,0.468,0.291,0.178,-0.078,-0.365,fragment PBE0
+TPBi,ETL,0.461,0.218,0.242,-0.115,-0.206,fragment PBE0
+NBphen,ETL,0.46,0.181,0.279,-0.005,-0.317,fragment PBE0 (Ag re-placed)
+DPEPO,host,0.451,0.173,0.277,-0.112,-0.505,fragment PBE0 (Ag re-placed)
+Alq3,ETL,0.429,0.189,0.24,-0.088,-0.275,fragment PBE0 (Ag re-placed)
+B3PyMPM,ETL,0.416,0.195,0.221,-0.071,-0.238,full-molecule PBE0
+Liq,EIL,0.398,0.307,0.091,-0.104,-0.07,full-molecule PBE0
+TSPO1,host,0.381,0.268,0.112,-0.105,-0.017,fragment PBE0
+3TPYMB,ETL,0.374,0.281,0.093,-0.115,-0.131,fragment PBE0
+TmPyPB,ETL,0.371,0.283,0.089,-0.116,-0.112,fragment PBE0
+T2T,ETL,0.324,0.077,0.247,-0.045,-0.232,fragment PBE0 (Ag re-placed)
+mCP,host,0.267,0.043,0.224,-0.031,0.008,fragment PBE0
+NPB,HTL,0.254,-0.004,0.258,-0.06,-0.018,fragment PBE0
+MoOx (ref.),oxide HIL,2.164,2.039,0.125,0.722,0.456,Mo3O9 cluster (PBE0) / MoO3(010) slab (GFN2)
