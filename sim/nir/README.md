@@ -13,3 +13,9 @@ Two optimum families appear:
 Best at q = 0.3: IOH / n 1.8 / DBR4 27.0 % (q = 1: 87 %); Ag 12 nm / n 1.5 / DBR4 25.4 %; flat-glass ITO reference 8.4 %.
 Caveats: isotropic dipoles, unity charge balance/spin factor, laterally infinite substrate, IOH optical model hypothetical,
 structures optimised for q = 0.3 only, Ag/Au thicknesses at bound in several cases.
+
+## Literature emitters (`emitter_opt.py`, `summary_emitters.md`)
+Fabricable set only (measured n,k: ITO, IZO, Ag on HATCN). Emitter inputs: Pt(fprpz)2 neat (740 nm, PLQY 0.80, Θ 0.78);
+Py-CN-TPA in CBP 12 / 24 wt% (747 / 761 nm, PLQY 0.786 / 0.467, Θ 0.80 assumed); Ir(mCPDTiq)2tmd (760 nm, PLQY 0.032, Θ 0.80).
+Planar check (flat glass, ITO): Pt(fprpz)2 25.7 % vs 24 ± 1 % reported; Py-CN-TPA 25.3 / 15.2 % vs 16.3 / 13.2 % reported.
+Best: Pt(fprpz)2, IZO 80 nm / n 1.8 + MLA / 4-pair DBR, ETL 330 / HTL 276 nm: 66.6 % (Py-CN-TPA 12 wt% 65.3 %).
