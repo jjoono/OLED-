@@ -39,8 +39,14 @@ from pathgeom import read_xyz, _bonded  # noqa: E402
 
 s148 = importlib.import_module("148_common_materials_survey")
 ROOT = os.path.join(HERE, "..")
-OUT = os.path.join(ROOT, "runs", "bphen_cs_seed.json")
-XYZ = os.path.join(ROOT, "structures", "common", "BphenCs_opt.xyz")
+# MODEL=phen: the 4,7-phenyls replaced by H (23 atoms). The whole-molecule
+# PBE0 on BphenCs (44 atoms with Ag) had not finished its first SCF after 2 h
+# on 4 cores; the radical, the Cs and every Ag site sit on the phen core, and
+# the neat-phen chelate is run the same way so the comparison is like for like.
+MODEL = os.environ.get("MODEL", "bphen")
+TAG = {"bphen": "bphen_cs", "phen": "phen_cs"}[MODEL]
+OUT = os.path.join(ROOT, "runs", f"{TAG}_seed.json")
+XYZ = os.path.join(ROOT, "structures", "common", f"{'BphenCs' if MODEL == 'bphen' else 'PhenCs'}_opt.xyz")
 EV = 27.211386
 
 
@@ -88,6 +94,8 @@ def stage1(d):
     if "complex" in d:
         return read_xyz(XYZ)
     S, X = read_xyz(os.path.join(ROOT, "structures", "BphenCs.xyz"))
+    if MODEL == "phen":
+        S, X = strip_phenyls(S, np.asarray(X, float))
     r = relax(S, np.asarray(X, float), 0, 2, fmax=0.03, steps=600)
     e, q, P = r
     write_xyz(XYZ, S, P, "BphenCs GFN2 doublet")
@@ -98,6 +106,89 @@ def stage1(d):
     save(d)
     print("complex", d["complex"], flush=True)
     return S, P
+
+
+def strip_phenyls(S, X):
+    """Bphen -> phen: drop each all-carbon ring outside the N-containing fused
+    system, with its H, and cap the core carbon along the cut bond."""
+    from rdkit import Chem
+    from rdkit.Chem import rdDetermineBonds
+    keep_idx = [i for i, s in enumerate(S) if s != "Cs"]
+    xyz = f"{len(keep_idx)}\n\n" + "\n".join(f"{S[i]} {X[i][0]} {X[i][1]} {X[i][2]}" for i in keep_idx)
+    m = Chem.MolFromXYZBlock(xyz)
+    rdDetermineBonds.DetermineConnectivity(m)
+    Chem.FastFindRings(m)
+    rings = [set(r) for r in m.GetRingInfo().AtomRings()]
+    core = set()
+    for r in rings:
+        if any(m.GetAtomWithIdx(a).GetSymbol() == "N" for a in r):
+            core |= r
+    grow = True
+    while grow:
+        grow = False
+        for r in rings:
+            if r & core and not r <= core and len(r & core) >= 2:
+                core |= r
+                grow = True
+    drop = set()
+    for r in rings:
+        if not r & core:
+            drop |= r
+    for a in list(drop):
+        for nb in m.GetAtomWithIdx(a).GetNeighbors():
+            if nb.GetSymbol() == "H":
+                drop.add(nb.GetIdx())
+    S2, X2 = [], []
+    for j, i in enumerate(keep_idx):
+        if j not in drop:
+            S2.append(S[i])
+            X2.append(X[i])
+    for b in m.GetBonds():
+        a, c = b.GetBeginAtomIdx(), b.GetEndAtomIdx()
+        for u, v in ((a, c), (c, a)):
+            if u not in drop and v in drop:
+                vec = X[keep_idx[v]] - X[keep_idx[u]]
+                S2.append("H")
+                X2.append(X[keep_idx[u]] + 1.09 * vec / np.linalg.norm(vec))
+    ics = S.index("Cs")
+    return S2 + ["Cs"], np.vstack([np.array(X2), X[ics]])
+
+
+def neat_reference(d, S, X):
+    """Neat phen, Ag in the chelate pocket: the undoped baseline, same model."""
+    import qclocal as q
+    from pyscf import lib
+    lib.num_threads(int(os.environ.get("QC_THREADS", "4")))
+    ref = d.setdefault("neat_ref", {})
+    ics = S.index("Cs")
+    Sn = [s for i, s in enumerate(S) if i != ics]
+    Xn = np.delete(X, ics, axis=0)
+    if "pos" not in ref:
+        rr = relax(Sn, Xn, 0, 1, fmax=0.03, steps=400)
+        Xn = rr[2]
+        nN = [i for i, s in enumerate(Sn) if s == "N"]
+        mid = Xn[nN].mean(axis=0)
+        cen = Xn.mean(axis=0)
+        u = (mid - cen) / np.linalg.norm(mid - cen)
+        r = relax(Sn + ["Ag"], np.vstack([Xn, mid + 1.9 * u]), len(Sn), 2)
+        ref.update(X=[[round(float(v), 5) for v in x] for x in Xn],
+                   pos=[round(float(v), 4) for v in r[2][-1]],
+                   Ag_N_A=[round(float(np.linalg.norm(r[2][-1] - Xn[i])), 3) for i in nN])
+        save(d)
+    Xn = np.array(ref["X"])
+    ag = np.array(ref["pos"])
+    if "E_b" not in ref:
+        t0 = time.time()
+        _, e_m = q.scf(q.mol(Sn, Xn, 1))
+        _, e_a = q.scf(q.mol(["Ag"], [[0, 0, 0]], 2))
+        mf, e_c = q.scf(q.mol(Sn + ["Ag"], np.vstack([Xn, ag]), 2))
+        d3 = (q.d3bj(Sn + ["Ag"], np.vstack([Xn, ag])) - q.d3bj(Sn, Xn)) * EV
+        elec = (e_m + e_a - e_c) * EV
+        ref.update(E_b=round(elec - d3, 4), elec=round(elec, 4), D3=round(d3, 4),
+                   q_Ag=round(float(q.mulliken(mf)[-1]), 4), sec=round(time.time() - t0))
+        save(d)
+    print(f"neat phen chelate E_b {ref['E_b']:.3f} eV (elec {ref['elec']:.3f}), "
+          f"Ag-N {ref['Ag_N_A']}", flush=True)
 
 
 def cs_starts(S, X, n=60, r=3.2):
@@ -254,4 +345,6 @@ if __name__ == "__main__":
     stage2(d, S, X)
     stage3(d, S, X)
     if "--no-pbe0" not in sys.argv:
+        if MODEL == "phen":
+            neat_reference(d, S, X)
         stage4(d, S, X)
