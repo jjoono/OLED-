@@ -15,7 +15,7 @@
 Practical Saturation of Freeform Microlens Arrays on Extended OLED Emitters
 and Design Routes beyond Lens Shape
 
-This supplement collects the material that supports the main text but is not needed to follow its argument. It covers platform and campaign settings, statistical controls, normalization checks, convergence and cost calibrations, the angle-selective multi-pass model, and the separately constrained asymmetric study. Notes S1–S8 follow the order in which the main text cites them. Main-text references are cited as "main ref. n".
+This supplement collects the material that supports the main text but is not needed to follow its argument. It covers platform and campaign settings, statistical controls, normalization checks, convergence and cost calibrations, the angle-selective multi-pass model, the separately constrained asymmetric study, and the multi-pass analysis of angular depletion. Notes S1–S9 follow the order in which the main text cites them. Main-text references are cited as "main ref. n".
 
 \section*{Note S1 | Common platform and campaign settings}
 
@@ -69,6 +69,8 @@ Patch-size check & \texttt{check\_patch\_convergence.m} & re-evaluation only & 1
 
 The inverted family uses a model file identical to the convex one except for the texture relief setting (\texttt{LibraryElementUnitCell.Bumps}, "Yes" \ensuremath{\rightarrow} "No"). The two families therefore differ in construction and nothing else. The randomly assembled family is the only campaign with reduced sampling (Note S6).
 
+\textbf{Usable evaluations and trace failures.} An evaluation counts as usable when the trace returns a positive total EQE; no outliers are removed. The weighted-sum campaign logged 691 evaluations (150 random, 526 optimizer, 15 polish), of which 606 are usable (114 random, 492 optimizer and polish). The convex per-band campaign logged 238 evaluations with 25 trace failures (10.5\%); the hemispherical campaign logged 224 with none. Candidates rejected by the geometric feasibility rules (main-text Table 1) are not traced; they are returned to \texttt{surrogateopt} as infeasible through its inequality-constraint output, so the optimizer learns the feasible region rather than spending evaluations on it.
+
 \section*{Note S2 | Hemispherical benchmark and restart control}
 
 \textbf{Table S3} lists the entries behind $G_j$ in main-text Fig. 2b. Every entry comes from a fixed-patch (25 \ensuremath{\times} 25 mm) campaign, so the two columns share one normalization.
@@ -91,6 +93,8 @@ total EQE & 0.5539 & 0.54679 & 1.013 & dedicated total-EQE campaign \\
 \end{table}
 
 Each freeform entry is the better of the matched freeform campaigns. In the 40–60\ensuremath{^\circ} arm the restart control did not surpass the per-band optimum (0.19355 against 0.19802). In the 60–80\ensuremath{^\circ} arm it did (0.14075 against 0.13863). The total is from the dedicated campaign (0.5495 / 0.5530 / 0.5539 over three starts), and the restart control's same-session value of 0.5523 confirms it to within 0.3\%.
+
+\textbf{Test statistic.} For each objective the two designs are re-evaluated $n = 3$ times. The statistic is $t = \Delta/(s_p\sqrt{2/n})$, where $\Delta$ is the absolute difference of the means and $s_p$ the pooled standard deviation; the one-sided 95\% threshold at four degrees of freedom is 2.13. The five-repeat re-measurement of the 20–40\ensuremath{^\circ} arm uses eight degrees of freedom (threshold 1.86; 2.90 at 1\%). With a Holm correction over the five objectives, the step-wise one-sided thresholds are 3.75, 3.50, 3.19, 2.78, and 2.13; the 40–60\ensuremath{^\circ}, 60–80\ensuremath{^\circ}, and total-EQE gains ($t$ = 115, 30, 69) remain significant. The large $t$ values reflect the small re-evaluation spread, about $10^{-4}$ in absolute EQE.
 
 \textbf{Why the restart control was needed.} In the original per-band campaign, which was randomly seeded, the 0–20\ensuremath{^\circ} and 20–40\ensuremath{^\circ} gains came out below unity, at 0.946 and 0.966. Because the hemisphere is a point of the 13-variable feasible set, $G_j \ge 1$ holds for an exhaustive search. A value below unity is therefore a statement about the search, not about optics. It was also the strongest objection to the main result: a search that fails to recover a solution it contains cannot be trusted when it reports that nothing better exists. The restart control removes this ambiguity.
 
@@ -165,7 +169,28 @@ Three observations follow.
 
 \section*{Note S4 | Angular-composition statistics}
 
-\textbf{Natural composition.} The natural composition is the median selectivity of the twenty designs with the highest total EQE in a campaign log. For the convex weighted-sum log it is 0.094 / 0.278 / 0.361 / 0.236. The 10–90\% spreads are 0.092–0.096, 0.277–0.281, 0.358–0.364, and 0.233–0.238.
+\textbf{Natural composition.} The natural composition is the median selectivity of the twenty designs with the highest total EQE in a campaign log. For the convex per-band log, whose top designs were located by four different single-band objectives, it is 0.094 / 0.278 / 0.361 / 0.236, with 10–90\% spreads of 0.092–0.096, 0.277–0.281, 0.358–0.364, and 0.233–0.238. For the weighted-sum log it is 0.102 / 0.276 / 0.354 / 0.239.
+
+\textbf{Sensitivity to the choice of twenty.} For the weighted-sum log:
+
+\textbf{Table S6a | Natural composition for different top-k choices (weighted-sum log).}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{llllll}
+\hline
+Statistic & 0–20\ensuremath{^\circ} & 20–40\ensuremath{^\circ} & 40–60\ensuremath{^\circ} & 60–80\ensuremath{^\circ} & bootstrap 95\% half-width \\
+\hline
+top-10 median & 0.100 & 0.277 & 0.353 & 0.239 & 0.003–0.005 \\
+top-20 median & 0.102 & 0.276 & 0.354 & 0.239 & 0.002–0.003 \\
+top-50 median & 0.100 & 0.277 & 0.356 & 0.237 & 0.001–0.002 \\
+top-20 mean & 0.101 & 0.276 & 0.353 & 0.239 & — \\
+\hline
+\end{tabular}}
+\end{table}
+
+The choices differ by at most 0.003 in any band.
 
 \textbf{Dedicated versus natural.} The band-dedicated optima of the per-band campaign reach selectivities of 0.119 / 0.300 / 0.364 / 0.283. These are +27\%, +8\%, +1\%, and +20\% above the natural medians. The same designs lose total EQE: 3\%, 2\%, 1\%, and 11\% below that campaign's best total of 0.548. The net band-power gain is the product of the selectivity gain and the total-EQE ratio: 1.22, 1.05, 1.00, and 1.07 (Fig. S3). A stricter benchmark compares each dedicated optimum with the best value of the same band reached incidentally while another band was being optimized. Against that benchmark the dedicated optima win by only 6.3\%, 0.6\%, 4.5\%, and 5.8\%.
 
@@ -175,7 +200,28 @@ Three observations follow.
 \caption*{\textbf{Fig. S3.} \textbf{Gain decomposition of the band-dedicated optima.} Selectivity gain $S_{\mathrm{win}}/S_{\mathrm{nat}}$, total-EQE ratio $E_{\mathrm{win}}/E_{\max}$, and their product, the net band-power gain (labelled).}
 \end{figure}
 
-\textbf{Selectivity across the design space.} Fig. S4 shows the four bands separately, over all 606 usable evaluations of the weighted-sum campaign. The log holds 691 evaluations. The remaining 85 traces failed to return a positive total EQE. The correlations between total EQE and $S_j$ are +0.60, +0.55, -0.12, and -0.57.
+\textbf{Selectivity across the design space.} Fig. S4 shows the four bands separately, over all 606 usable evaluations of the weighted-sum campaign. The log holds 691 evaluations. The remaining 85 traces failed to return a positive total EQE. The correlations between total EQE and $S_j$ are +0.60, +0.55, -0.12, and -0.57. With the bands normalized to 0–80\ensuremath{^\circ} instead of 0–90\ensuremath{^\circ} they become +0.60, +0.55, -0.23, and -0.59. The 80–90\ensuremath{^\circ} remainder is 3.1\% for the median design (2.1–8.2\% over all designs) and falls as efficiency rises (correlation -0.63).
+
+\textbf{Collapse statistics.} Least-squares fits of $\mathrm{EQE}_j$ against $\mathrm{EQE}_{\mathrm{total}}$ over the 606 usable designs (95\% intervals):
+
+\textbf{Table S6b | Band-EQE collapse.}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{lllll}
+\hline
+Band & slope & intercept & $R^2$ (all 606) & $R^2$ (114 random only) \\
+\hline
+0–20\ensuremath{^\circ} & 0.125 \ensuremath{\pm} 0.004 & -0.014 \ensuremath{\pm} 0.002 & 0.848 & 0.828 \\
+20–40\ensuremath{^\circ} & 0.318 \ensuremath{\pm} 0.007 & -0.020 \ensuremath{\pm} 0.004 & 0.931 & 0.925 \\
+40–60\ensuremath{^\circ} & 0.348 \ensuremath{\pm} 0.005 & 0.003 \ensuremath{\pm} 0.003 & 0.968 & 0.967 \\
+60–80\ensuremath{^\circ} & 0.189 \ensuremath{\pm} 0.008 & 0.026 \ensuremath{\pm} 0.004 & 0.769 & 0.724 \\
+\hline
+\end{tabular}}
+\end{table}
+
+The random designs alone reproduce the collapse, so it is not produced by correlated points along optimizer trajectories. Because each band is a part of the total, the substantive content is the narrow spread of $S_{40\text{–}60}$, 0.336–0.375 (5–95\%) over all designs.
 
 \textbf{Band ordering.} The tilt toward lower polar angles does not reorder the bands among efficient designs:
 
@@ -249,6 +295,8 @@ The drift is therefore neither Monte-Carlo noise nor a narrowband artifact.
 
 \section*{Note S6 | Cost calibration for the randomly assembled family}
 
+\textbf{Supercell construction.} Lenslets sit on a jittered hexagonal lattice. Each lenslet radius is drawn uniformly within $r_{\mathrm{mean}}(1 \pm r_{\mathrm{jitter}})$ and each aspect ratio within $\mathrm{AR}_{\mathrm{mean}}(1 \pm \mathrm{AR}_{\mathrm{jitter}})$. Positions are displaced uniformly within a disc whose radius is a fraction (\texttt{posJitter}) of the largest displacement that keeps neighbours from overlapping, $(p - 2r_{\max})/2$. Each profile is a convex blend, with weight \texttt{profileMix}, of the hemispherical control points and an independently drawn valid set of freeform control points ($x$ sorted in 0–1, $y$ in 0–1.5, the same feasibility rules as Table 1). Lenslets are kept inside the supercell so that tiling produces no seams. A realization is fixed by its random seed.
+
 One fixed geometry (seed 7777, mid-range assembly statistics) was re-evaluated under each setting. Because the reported quantities are ratios, the acceptance criterion is band selectivity. \ensuremath{\Delta} selectivity is the largest absolute deviation from the reference across the four bands, in percentage points.
 
 \begin{table}[htbp]
@@ -279,17 +327,19 @@ The adopted combination is 4.3\ensuremath{\times} faster and shifts selectivity 
 
 \section*{Note S7 | Angle-selective multi-pass extraction model}
 
-The calculation behind the last route of main-text Table 1 is not a device proposal. It is a reference computation that separates the saturation of non-selective refractive films from the behaviour of angle-selective multi-pass extraction.
+The calculation behind the last route of main-text Table 3 is not a device proposal. It is a reference computation that separates the saturation of non-selective refractive films from the behaviour of angle-selective multi-pass extraction.
 
 \textbf{Relation to the round-trip-loss framework.} Light that an outcoupling structure does not extract returns to the device, is partly absorbed, and reaches the structure again. Main ref. 6 treats this as a multi-pass process. For angle-randomizing structures it gives $\eta_{\mathrm{sta}} = p/[p+(1-p)A']$ (its Eq. 2), where $p$ is the escape probability per encounter and $A'$ the loss per round trip. That expression is formally identical to the statistical-ray-optics result for thin-film LEDs with a rear reflector (main ref. 2 and references in main ref. 6). The model here uses the same framework and the same Lambertian weighting, $\cos\theta\sin\theta$. Its round-trip loss $a$ plays the role of $A'$. The only addition is an angle-selective transmittance on the exit side. We use "multi-pass extraction" and "round-trip loss" as in main ref. 6. This avoids confusion with photon recycling by reabsorption and re-emission in the emitter.
 
 \textbf{Distinction from the auxiliary reflector.} The low-loss auxiliary reflector of main ref. 6 sits behind the device. It lowers $A'$ and returns light without angular selection. The filter considered here sits on the exit side. It lowers the transmittance outside the target band and so changes $p$ by angle. The two act on different factors and are complementary.
 
+\textbf{Model specification.} The state is the light in the substrate, binned in polar angle (0.5\ensuremath{^\circ} bins) and weighted by $\cos\theta\sin\theta$; the model is single-wavelength except in the bandwidth calculation. At every pass the returned light is assumed to be re-randomized into this Lambertian distribution, which is the condition under which an angular filter helps (Note S9). The ideal filter has $T = 1$ inside the target band and $T = 0$ outside. The realizable filter is an eight-pair high/low-index multilayer whose transmittance is computed by transfer matrices for s and p polarization and averaged. In the bandwidth calculation the transmittance is averaged over a Gaussian source spectrum of the stated width. As a consistency check, the matrix multi-pass model of Note S9 without any filter reproduces the ray-traced extraction of a hemispherical MLA (escape probability 0.4275 against 0.4274 from LightTools).
+
 \textbf{Model.} The external layer is represented by its angular transmittance $T(\theta,\lambda)$. The reflective electrode and absorption on each round trip are represented by a round-trip loss $a$. A Markov chain tracks the light between the two: at each encounter with the external layer, the transmitted part escapes and the reflected part returns for another attempt, reduced by $a$. The emission of the source into the substrate is taken as Lambertian, and a two-stream scattering layer with asymmetry parameter $g$ may be inserted. With no absorption ($a = 0$) every ray eventually escapes (main refs. 2, 6). Loss is therefore what limits any multi-pass scheme.
 
 \textbf{Single-pass wall.} A non-selective layer delivers $\sin^2 60^\circ - \sin^2 40^\circ = 33.7\%$ of the escaping light into the 40–60\ensuremath{^\circ} band (33.8\% numerically). This value is unchanged over $g \in [-0.5, +0.5]$. Without angular selection, further passes only repeat the same partition.
 
-\textbf{Ideal filter.} With $T = 1$ inside the target band and $T = 0$ outside, delivery into the 40–60\ensuremath{^\circ} band reaches 100\% of generated power at $a = 0$. It falls to 62.1\% at $a = 10\%$, whereas the planar non-selective reference stays at 29.1\%. The two converge as $a$ grows, so loss, not filter quality, sets the practical ceiling, consistent with main ref. 6.
+\textbf{Ideal filter.} With $T = 1$ inside the target band and $T = 0$ outside, delivery into the 40–60\ensuremath{^\circ} band reaches 100\% of generated power at $a = 0$. It falls to 62.1\% at $a = 10\%$, whereas the planar non-selective reference stays at 29.1\%. At $a = 15\%$, the round-trip loss of the Al platform of the main text, the values are 52.2\% and 27.2\%. The two converge as $a$ grows, so loss, not filter quality, sets the practical ceiling, consistent with main ref. 6.
 
 \textbf{Realizable filter.} A transfer-matrix calculation of an alternating high/low-index dielectric multilayer (eight pairs) gives 48.2\% for a monochromatic source. Delivery falls to 32.5\% over a 100 nm source bandwidth, back below the single-pass wall. Source bandwidth is therefore the second practical constraint.
 
@@ -310,6 +360,41 @@ To check whether axial symmetry itself limits the outcome, three-dimensional asy
 This was a separate, differently constrained study. It used a different OLED stack (Ag rather than ITO electrode), an anisotropic emitter cell, and 52 shape variables rather than 13. It is therefore not part of the same-constraints benchmark.
 
 The asymmetric shapes could shift the centroid and fine structure of the far field. They did not reliably achieve an absolute window power appreciably above the hemispherical MLA. We report this comparison qualitatively and give no ratio. The stack, emitter cell, and parameter count all differ from the controlled benchmark, so a numerical gain would invite a side-by-side reading that the scope does not support. What carries over is the sign of the effect, not its magnitude. Periodic arrays can steer light under other conditions: asymmetric prisms, diffractive elements, metasurfaces, or sufficient aperture expansion can produce directional emission (main refs. 14, 17). Within coextensive refractive MLAs on a uniform extended source, such redistribution did not become a useful output channel beyond the hemispherical reference.
+
+\section*{Note S9 | Angular depletion over many passes and the effect of a randomizing rear}
+
+\textbf{Purpose.} This note quantifies why reshaping the lens buys little, by following the light pass by pass, and tests whether breaking the angular memory of the returned light would restore leverage to the lens shape.
+
+\textbf{Method.} The bidirectional scattering distribution functions (BSDFs) of the optimized lenses of this work were computed with a Monte-Carlo height-field ray tracer for a hexagonally close-packed array, index-matched to the substrate ($n = 1.51$). The tracer reproduces the LightTools BSDF of a hemispherical MLA: escape probability 0.4275 against 0.4274, and angle-resolved transmittance within 0.01. The profiles were rebuilt from the optimized control points with a PCHIP spline; LightTools uses its own spline, so the freeform BSDFs approximate the traced geometry. The 0–20\ensuremath{^\circ} freeform optimum is excluded because it ends in a vertical sidewall at the rim, which a height-field tracer cannot represent. The BSDFs enter the angle-resolved multi-pass model of main ref. 6: the light in the substrate is a vector over polar angle, the film transmits $B_T$ and returns $B_R$, and the device reflects with $R(\theta)$ from a CPS/transfer-matrix model of the same stack at 550 nm (Al or Ag cathode, ITO 150 nm, horizontal dipole ratio 0.865). Two device reflections are compared: angle-preserving (the actual device) and a Lambertian reset, in which the returned light is redistributed as $\cos\theta\sin\theta$ at every pass. To separate lens from cavity, all lenses were also evaluated with one common cavity (ETL 61.3 nm, HTL 97.5 nm, the hemispherical total-EQE optimum).
+
+\textbf{Depletion.} With the angle-preserving device, the escape probability of the hemispherical total-EQE design falls pass by pass: 0.43, 0.39, 0.35, 0.31, 0.27, 0.23 (Al) and 0.41, 0.37, 0.34, 0.30, 0.27, 0.24 (Ag). Light at angles the lens transmits well leaves first, and the remainder sits at angles it transmits poorly. With the Lambertian reset the escape probability stays at 0.42.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption*{Table S10. Extraction efficiency at a common cavity (550 nm).}
+\resizebox{\linewidth}{!}{\begin{tabular}{lllll}
+\hline
+Lens & Al, angle-preserving & Al, reset & Ag, angle-preserving & Ag, reset \\
+\hline
+hemisphere (total-EQE height) & 0.808 & 0.834 & 0.926 & 0.944 \\
+hemispheres, all five heights (range) & 0.800–0.809 & 0.832–0.834 & 0.921–0.927 & 0.943–0.944 \\
+freeform 20–40\ensuremath{^\circ}, 40–60\ensuremath{^\circ}, 60–80\ensuremath{^\circ}, total (range) & 0.789–0.807 & 0.827–0.835 & 0.915–0.931 & 0.942–0.945 \\
+\hline
+\end{tabular}}
+\end{table}
+
+The reset raises the extraction by 2.7–5.5\% (Al) and 1.2–3.0\% (Ag), and the spread between lenses falls from 2.5\% to 1\% (Al) and from 1.7\% to 0.3\% (Ag). The output composition converges as well: across the nine lenses the range of $S_{40\text{–}60}$ falls from 0.325–0.354 to 0.335–0.346. The gain disappears if the randomizing element adds round-trip loss of more than about 3.1 percentage points (median over lenses; 2.3–4.8) with Al, or about 1.4 percentage points (0.9–2.2) with Ag.
+
+\textbf{Lens versus cavity.} With each design's own cavity, the 60–80\ensuremath{^\circ} hemisphere design reaches $S_{60\text{–}80}$ = 0.303, against 0.247 for the total-EQE design. With the common cavity the same two lenses give 0.249 and 0.247, and the 60–80\ensuremath{^\circ} freeform lens gives 0.252. In this model, therefore, almost all of the band steering of the dedicated designs comes from the cavity, and the lens shape adds about 0.005. A fixed-cavity LightTools control is in progress to confirm this at full fidelity.
+
+\textbf{Consequences.} Breaking the angular memory of the returned light does not restore leverage to the lens shape; it removes most of what remains, because every lens then sees the same Lambertian input on every pass. An angle-selective filter (Note S7) needs this randomization to work, since with angle-preserving return the rejected light comes back at the same angle and is rejected again.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/figS8_angle_reset.pdf}
+\caption*{\textbf{Fig. S8.} \textbf{Angle-preserving versus Lambertian-reset device reflection.} (a) Escape probability per pass for the hemispherical total-EQE design with the Al cathode. (b) Extraction efficiency of nine optimized lenses at a common cavity, with Al and Ag cathodes. (c) Range of the output composition over the nine lenses (Al), with the Lambertian partition for reference.}
+\end{figure}
 
 \section*{Reproducing the figures and data}
 
@@ -341,6 +426,7 @@ Fig. S4 & \texttt{figS4\_selectivity\_map} & \texttt{pareto\_front\_result.mat} 
 Fig. S5 & \texttt{figS5\_convergence} & \texttt{convergence\_check\_result.mat} \\
 Fig. S6 & \texttt{figS6\_cost\_calibration} & \texttt{calibrate\_random\_cost.mat} \\
 Fig. S7 & \texttt{figS7\_recycling\_model} & \texttt{angular\_recycling\_result.npz}, \texttt{angular\_recycling\_bandwidth.npz} \\
+Fig. S8 & \texttt{figS8\_angle\_reset} & \texttt{multipass\_reset/} (\texttt{hftrace.py}, \texttt{multipass.py}, \texttt{bsdfs.npz}, \texttt{fig\_reset.py}) \\
 \hline
 \end{tabular}
 \end{table}

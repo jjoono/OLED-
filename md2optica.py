@@ -28,6 +28,7 @@ FIGFILES = {
     'S5': 'figures/figS5_convergence.pdf',
     'S6': 'figures/figS6_cost_calibration.pdf',
     'S7': 'figures/figS7_recycling_model.pdf',
+    'S8': 'figures/figS8_angle_reset.pdf',
 }
 
 
