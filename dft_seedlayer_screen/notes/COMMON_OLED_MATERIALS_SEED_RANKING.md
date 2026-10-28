@@ -159,3 +159,45 @@ electronic binding).
   poor seeds; BCP, TPBi, NBphen and PO-T2T at 0.46–0.48 are borderline.
 - n-doped ETLs (Bphen:Cs, Liq co-deposited, Yb) change the surface chemistry
   and are not covered by this neat-film ranking.
+
+## n-doped Bphen (Bphen:Cs2CO3) — script 153 (2026-10-28)
+
+Model: Cs gives its electron to the phenanthroline and sits as Cs⁺ in the
+chelate pocket (GFN2: q(Cs) +0.57, Cs–N 2.92 Å). At 20 wt% Cs2CO3 that is
+about one Cs per two Bphen, so the doped surface mixes this complex with
+neat Bphen. The whole-molecule PBE0 on Bphen–Cs (44 atoms with Ag) did not
+finish one SCF in 2 h on 4 cores, so PBE0 was run on phen–Cs (4,7-phenyls →
+H; GFN2 reproduces Bphen–Cs: q(Cs), Cs–N, site order, Δq) with a neat-phen
+chelate baseline in the same model. Whole-Bphen Gaussian jobs with PBE0-
+optimised Ag positions are in `bphencs_jobs/` (script 154).
+
+| site (phen model) | PBE0 E_b | electronic | dispersion | state | q(Ag) |
+|---|---|---|---|---|---|
+| neat phen, chelate (baseline) | 0.45 | 0.31 | 0.13 | doublet | +0.01 |
+| **phen⁻Cs⁺, Ag next to Cs** | **0.87** | 0.84 | 0.03 | singlet (triplet +0.93 eV) | **−0.45** |
+| phen⁻Cs⁺, Ag at the N side | −0.04 (unbound at the GFN2 position) | −0.25 | 0.20 | triplet | −0.07 |
+
+GFN2 Δq(Ag₁→Ag₂) at the Cs site: −0.01 (phen–Cs), −0.02 (Bphen–Cs).
+
+Reading:
+- **Doping adds a new, stronger site and removes the old one.** The radical
+  anion's extra electron pairs with Ag's 5s electron next to Cs⁺ (closed-shell
+  singlet, 0.93 eV below the triplet): a real chemical bond, +0.43 eV over
+  the neat chelate in the same model. Cs⁺ occupies the chelate pocket, and
+  the N side is no longer a site.
+- **Charge flows the other way from HATCN/MoOx.** Ag takes electrons
+  (−0.45 e at PBE0); Ag₂ keeps the same charge — no veto; the Ag stays
+  metallic/electron-rich.
+- **Expected place in the ranking.** The Cs site carries almost no
+  dispersion (0.03 eV), so the 4,7-phenyls should change it little: about
+  0.9 eV on Bphen–Cs (to be confirmed by `bphencs_jobs`). The doped surface
+  then offers ~0.9 eV sites on the doped half of the molecules and the 0.62 eV
+  chelate on the rest: above neat Bphen (0.62), Cs2CO3 alone (0.70) and
+  p-bPPhenB (0.79), below F4TCNQ (1.21) and HATCN (1.63).
+- **Prediction:** Ag on Bphen:Cs2CO3 closes at a smaller thickness than on
+  neat Bphen, but not as early as on HATCN. In the stack
+  Bphen:Cs2CO3 / HATCN / Ag the HATCN remains the better seed by E_b.
+
+Caveats: phen model; Ag positions are GFN2 single points (the N-side value
+in particular may improve if relaxed at PBE0 — the Gaussian jobs do this);
+Cs2CO3 partly decomposes on evaporation, and Cs is mobile.
