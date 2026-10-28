@@ -377,7 +377,19 @@
    "conv_m1": true,
    "q_Ag_m1": -0.4516,
    "q_Cs_m1": 0.3843,
-   "sec_m1": 879
+   "sec_m1": 879,
+   "E_m3": -737.6401016726229,
+   "conv_m3": true,
+   "q_Ag_m3": 0.0614,
+   "q_Cs_m3": 0.6362,
+   "sec_m3": 1988,
+   "E_b": 0.8718,
+   "elec": 0.8384,
+   "D3": -0.0334,
+   "state": "singlet",
+   "singlet_minus_triplet_eV": -0.9339,
+   "near": "Cs22",
+   "H_min": 5.791
   }
  }
 }
