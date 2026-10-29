@@ -40,20 +40,38 @@ XYZ = os.path.join(ROOT, "structures", "common", "BphenCs_opt.xyz")
 OUT = os.path.join(ROOT, "runs", "bphencs_gaussian.json")
 EV = 27.211386
 
-HEAD = "%Chk={name}.chk\n%NProcShared=3\n%Mem=24GB\n"
+HEAD = "%Chk={name}.chk\n%NProcShared={nproc}\n%Mem=24GB\n"
+NPROC = 3
 SCF = "SCF=(XQC,MaxCycle=128,VShift=300) NoSymm Pop=Hirshfeld"
 R_SP = "#P PBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP " + SCF
 R_OPT = "#P UPBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ Opt=(Loose,MaxCycles=80) " + SCF
 R_OPT_BS = R_OPT + " Guess=Mix"
 
+# v2 (2026-10-29): the v1 site jobs optimised Ag at PBE0 with 3 cores each and
+# were still running hours after the 52-min molecule single point. As in
+# script 151: locate Ag at PBE-D3 with density fitting (no exact exchange),
+# then score at PBE0 in a --Link1-- step from the same checkpoint; 8 cores
+# per job (the runner fills 32 physical cores with 4 such jobs).
+V2 = "--v2" in sys.argv
+SCF2 = "SCF=(XQC,MaxCycle=128,VShift=300) NoSymm"
+R_LOC = "#P UPBEPBE/Def2SVP/W06 EmpiricalDispersion=GD3BJ Opt=(Loose,MaxCycles=60) " + SCF2
+R_LOC_BS = R_LOC + " Guess=Mix"
+R_SCORE = ("#P UPBE1PBE/Def2SVP EmpiricalDispersion=GD3BJ SP Geom=Check Guess=Read "
+           + SCF2 + " Pop=Hirshfeld")
+
 
 def gjf(folder, name, route, title, charge, mult, S, X, free=()):
     os.makedirs(folder, exist_ok=True)
-    lines = [HEAD.format(name=name) + route, "", title, "", f"{charge} {mult}"]
+    lines = [HEAD.format(name=name, nproc=NPROC) + route, "", title, "", f"{charge} {mult}"]
     for i, (s, x) in enumerate(zip(S, X)):
         flag = "" if free is None else (" 0" if i in free else " -1")
         lines.append(f" {s:<2}{flag}  {x[0]:13.8f} {x[1]:13.8f} {x[2]:13.8f}")
-    lines += ["", ""]
+    lines += [""]
+    if V2 and route.startswith("#P UPBEPBE"):
+        # --Link1--: PBE0 single point at the PBE-D3 geometry, from its orbitals
+        lines += ["--Link1--", HEAD.format(name=name, nproc=NPROC) + R_SCORE, "",
+                  title + " -- PBE0 at the PBE-D3 geometry", "", f"{charge} {mult}", ""]
+    lines += [""]
     with open(os.path.join(folder, name + ".gjf"), "w", newline="\r\n") as f:
         f.write("\n".join(lines))
     with open(os.path.join(folder, "ORDER.txt"), "a", newline="\r\n") as f:
@@ -93,28 +111,47 @@ def write():
     S, X = read_xyz(XYZ)
     X = np.asarray(X, float)
     n = len(S)
-    if os.path.exists(PKG):
-        shutil.rmtree(PKG)
-    os.makedirs(PKG)
-    for f in ("RUN_ALL.bat", "run_campaign.py"):
-        shutil.copy(os.path.join(ROOT, "cluster_growth", f), PKG)
-    ref = os.path.join(PKG, "ref")
-    gjf(ref, "BphenCs_mol", R_SP, "Bphen(-)Cs(+), doublet, GFN2 geometry", 0, 2, S, X, None)
-    gjf(ref, "Ag_atom", R_SP, "Ag atom, doublet", 0, 2, ["Ag"], [[0, 0, 0]], None)
+    global NPROC
+    pkg = PKG + "_v2" if V2 else PKG
+    if os.path.exists(pkg):
+        shutil.rmtree(pkg)
+    os.makedirs(pkg)
+    if V2:
+        NPROC = 8
+        r_s, r_t = R_LOC_BS, R_LOC
+    else:
+        r_s, r_t = R_OPT_BS, R_OPT
+        for f in ("RUN_ALL.bat", "run_campaign.py"):
+            shutil.copy(os.path.join(ROOT, "cluster_growth", f), pkg)
+        ref = os.path.join(pkg, "ref")
+        gjf(ref, "BphenCs_mol", R_SP, "Bphen(-)Cs(+), doublet, GFN2 geometry", 0, 2, S, X, None)
+        gjf(ref, "Ag_atom", R_SP, "Ag atom, doublet", 0, 2, ["Ag"], [[0, 0, 0]], None)
     picks = site_picks(d)
     for el, lab in picks.items():
-        folder = os.path.join(PKG, f"site_{el}")
+        folder = os.path.join(pkg, f"site_{el}")
         ag = np.array(d["sites"][lab]["pos"])
         S2, X2 = S + ["Ag"], np.vstack([X, ag])
-        gjf(folder, f"{el}_singlet", R_OPT_BS, f"Ag at {lab}, singlet (broken symmetry allowed),"
+        gjf(folder, f"{el}_singlet", r_s, f"Ag at {lab}, singlet (broken symmetry allowed),"
             " molecule frozen", 0, 1, S2, X2, {n})
-        gjf(folder, f"{el}_triplet", R_OPT, f"Ag at {lab}, triplet, molecule frozen",
+        gjf(folder, f"{el}_triplet", r_t, f"Ag at {lab}, triplet, molecule frozen",
             0, 3, S2, X2, {n})
     deep = sorted(d["sites"], key=lambda k: -d["sites"][k]["E_b"])[0]
     P = ag2_start(S, X, d, deep)
-    gjf(os.path.join(PKG, "ag2"), "Ag2_Cs", R_OPT, f"Ag2 at {deep}, doublet, molecule frozen",
+    gjf(os.path.join(pkg, "ag2"), "Ag2_Cs", r_t, f"Ag2 at {deep}, doublet, molecule frozen",
         0, 2, S + ["Ag", "Ag"], np.vstack([X, P]), {n, n + 1})
-    with open(os.path.join(PKG, "README.txt"), "w", newline="\r\n") as f:
+    if V2:
+        with open(os.path.join(pkg, "README_v2.txt"), "w", newline="\r\n") as f:
+            f.write(
+                "v2: replaces site_C, site_Cs, site_N and ag2 of bphencs_jobs (ref is kept).\n"
+                "Ag is located at PBE-D3 (density fitting, fast) and scored at PBE0 in a\n"
+                "--Link1-- step; 8 cores per job.\n\n"
+                "1. Close the running window and end any g16 process (Task Manager).\n"
+                "2. In bphencs_jobs, delete site_C, site_Cs, site_N and ag2.\n"
+                "3. Copy the four folders of this zip into bphencs_jobs.\n"
+                "4. Run RUN_ALL.bat again: ref is already done and is skipped.\n")
+        print("wrote", pkg, "sites", picks)
+        return
+    with open(os.path.join(pkg, "README.txt"), "w", newline="\r\n") as f:
         f.write(
             "Ag on n-doped Bphen (Bphen(-)Cs(+)) -- PBE1PBE/Def2SVP GD3BJ\n\n"
             "Run: double-click RUN_ALL.bat (or: python run_campaign.py --workers 3).\n"
@@ -123,7 +160,7 @@ def write():
             "site_*/   Ag position optimised, molecule frozen; singlet and triplet\n"
             "ag2/      two Ag atoms at the deepest (Cs) site\n\n"
             f"Sites: {json.dumps(picks)}  (deepest of each kind, GFN2 survey)\n")
-    print("wrote", PKG, "sites", picks)
+    print("wrote", pkg, "sites", picks)
 
 
 E_RE = re.compile(r"SCF Done:\s+E\(\S+\)\s*=\s*(-?\d+\.\d+)")
