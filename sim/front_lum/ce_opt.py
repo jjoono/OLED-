@@ -16,7 +16,7 @@ import front_lum as FL, cps2
 D, IZO, ZNS, LIF = FL.D, FL.IZO, FL.ZNS, FL.LIF
 Q, THETA, NG = 0.98, 0.76, 1.52
 NB = 45; TB = np.arange(NB) * 2 + 1.0; OM = 2 * np.pi * (1 - np.cos(np.radians(6.0)))
-BZ = np.load('/home/user/OLED-/sim/front_lum/scat_ag_B.npz')
+BZ = dict(np.load('/home/user/OLED-/sim/front_lum/scat_ag_B.npz'))   # eager load: a lazy NpzFile is not fork-safe
 SG = [(S, g) for S in (0.0, 0.3, 1.0, 3.0, 10.0, 30.0) for g in (0.0, 0.6, 0.9) if not (S == 0 and g > 0)]
 I = FL.I; V = FL.V
 def dbr(N, lamc, j):
