@@ -19,10 +19,13 @@ L = np.arange(400, 701)
 def joint(f):
     a = np.genfromtxt('/home/user/OLED-/sim/teoled_opt/nk_joint/' + f, delimiter=',', names=True)
     return np.interp(L, a['wavelength_nm'], a['n_joint']) + 1j * np.interp(L, a['wavelength_nm'], a['k_joint'])
-AGT = {8.0: joint('Ag_HATCN_2-6_8nm_nk.csv'), 10.0: joint('Ag_HATCN_2-7_10nm_nk.csv'), 12.0: joint('Ag_HATCN_2-8_12nm_nk.csv')}
-def agthin(d, j):
-    d = min(max(d, 8.0), 12.0); lo = 8.0 if d <= 10 else 10.0; t = (d - lo) / 2.0
-    return (1 - t) * AGT[lo][j] + t * AGT[lo + 2][j]
+AGT = {6.0: joint('Ag_HATCN_1-8_6nm_nk.csv'), 7.0: joint('Ag_HATCN_2-5_7nm_nk.csv'), 8.0: joint('Ag_HATCN_2-6_8nm_nk.csv'),
+       10.0: joint('Ag_HATCN_2-7_10nm_nk.csv'), 12.0: joint('Ag_HATCN_2-8_12nm_nk.csv')}
+AGD = sorted(AGT)
+def agthin(d, j):                       # measured HATCN-seeded thin-Ag n,k, interpolated in thickness (6-12 nm)
+    d = min(max(d, AGD[0]), AGD[-1]); i = max(k for k in range(len(AGD) - 1) if AGD[k] <= d) if d < AGD[-1] else len(AGD) - 2
+    lo, hi = AGD[i], AGD[i + 1]; t = (d - lo) / (hi - lo)
+    return (1 - t) * AGT[lo][j] + t * AGT[hi][j]
 C.SG = [(S, g) for S in (0.3, 1.0, 3.0, 10.0) for g in (0.0, 0.6, 0.9)]          # realistic diffusers (S <= 10)
 def layers(case, j, x):
     if case == 'F1':
@@ -66,7 +69,7 @@ class Obj:
 if __name__ == '__main__':
     case = sys.argv[1]; N = int(sys.argv[2]) if len(sys.argv) > 2 else 0; os.makedirs('results_fab', exist_ok=True)
     if case == 'TREF': bd = [(30.0, 250.0), (30.0, 250.0), (8.0, 12.0), (20.0, 120.0)]; names = ['d_ETL', 'd_HTL', 'd_Ag', 'd_CPL']
-    elif case == 'F1': bd = [(30.0, 250.0), (30.0, 250.0), (440.0, 800.0), (8.0, 12.0), (30.0, 80.0), (1.6, 1.9)]; names = ['d_ETL', 'd_HTL', 'lam_c', 'd_Ag', 'd_IZO_b', 'n_s']
+    elif case == 'F1': bd = [(30.0, 250.0), (30.0, 250.0), (440.0, 800.0), (6.0, 12.0), (30.0, 80.0), (1.6, 1.9)]; names = ['d_ETL', 'd_HTL', 'lam_c', 'd_Ag', 'd_IZO_b', 'n_s']
     else: bd = [(30.0, 250.0), (30.0, 250.0), (440.0, 800.0), (30.0, 80.0), (30.0, 80.0), (1.6, 1.9)]; names = ['d_HTL', 'd_ETL', 'lam_c', 'd_IZO_f', 'd_IZO_b', 'n_s']
     lo = np.array([b[0] for b in bd]); hi = np.array([b[1] for b in bd])
     with Pool(4) as pool:
