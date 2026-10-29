@@ -1,0 +1,15 @@
+{
+ "case": "NORM",
+ "ext": "planar",
+ "fixITO": true,
+ "structure": {
+  "d_ETL_doped": 181.8,
+  "d_HTL_TAPC": 248.3,
+  "d_ITO": 150.0
+ },
+ "EQE": 0.3134,
+ "eta_sub": 0.5291,
+ "eta_ext": 0.5923,
+ "spp": 0.0242,
+ "absorb": 0.0088
+}

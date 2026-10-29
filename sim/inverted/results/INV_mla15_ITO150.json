@@ -1,0 +1,15 @@
+{
+ "case": "INV",
+ "ext": "mla15",
+ "fixITO": true,
+ "structure": {
+  "d_ETL_doped": 41.7,
+  "d_HTL_TAPC": 63.7,
+  "d_ITO": 150.0
+ },
+ "EQE": 0.5753,
+ "eta_sub": 0.6231,
+ "eta_ext": 0.9233,
+ "spp": 0.2419,
+ "absorb": 0.0106
+}
