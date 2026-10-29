@@ -38,3 +38,17 @@ Reference glass device: 181 cd/A (EQE 30.5 %).
 | 6 | 0.01 | 366 / 350 / 30 / 30 | 681 | 1.75 | 614 (3.39) | 500 (2.76) | 403 (2.22) | 52.4 % |
 | 6 | 0.0 | 400 / 347 / 30 / 30 | 683 | 1.75 | 612 (3.37) | 499 (2.75) | 403 (2.22) | 53.5 % |
 Best back diffuser in every case: S 30 (largest on the grid), g 0. See ce_vs_scatter.csv for weaker diffusers.
+
+## Fabricable variants (ce_fab.py; reference = conventional top-emitting AMOLED, TREF 231 cd/A, EQE 25.1 %)
+
+| case | DBR | structure | CE mu_a 0 | 0.01 | 0.03 | EQE (0.01) |
+|---|---|---|---|---|---|---|
+| F1_N2 | 2 | d_ETL 166.63, d_HTL 222.13, lam_c 800, d_Ag 6, d_IZO_b 50.27, n_s 1.75 | 332 (1.44x) | 297 (1.29x) | 254 (1.10x) | 55.6 % |
+| F1_N4 | 4 | d_ETL 176.85, d_HTL 222.24, lam_c 709.6, d_Ag 6, d_IZO_b 50.86, n_s 1.75 | 376 (1.63x) | 325 (1.41x) | 267 (1.15x) | 42.5 % |
+| F1_N4_Agmin8 | 4 | d_ETL 176.74, d_HTL 234.44, lam_c 712.8, d_Ag 8, d_IZO_b 30, n_s 1.75 | 353 (1.53x) | 304 (1.32x) | 248 (1.07x) | 40.3 % |
+| F1_N6 | 6 | d_ETL 175.15, d_HTL 220.51, lam_c 685.96, d_Ag 6, d_IZO_b 59.08, n_s 1.72 | 353 (1.53x) | 297 (1.29x) | 238 (1.03x) | 34.4 % |
+| F2_N2 | 2 | d_HTL 250, d_ETL 44.36, lam_c 800, d_IZO_f 80, d_IZO_b 30, n_s 1.84 | 384 (1.66x) | 339 (1.47x) | 284 (1.23x) | 71.6 % |
+| F2_N4 | 4 | d_HTL 205.27, d_ETL 118.58, lam_c 706.97, d_IZO_f 42.73, d_IZO_b 30, n_s 1.84 | 496 (2.15x) | 414 (1.79x) | 326 (1.41x) | 60.7 % |
+| F2_N6 | 6 | d_HTL 223.25, d_ETL 250, lam_c 682.09, d_IZO_f 36.42, d_IZO_b 30, n_s 1.8 | 564 (2.44x) | 438 (1.90x) | 325 (1.41x) | 48.1 % |
+
+Pixel-level spread: pixel_mc.log; angular luminance/colour: angular_color.log.
