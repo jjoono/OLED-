@@ -1,0 +1,31 @@
+{
+ "neutral": {
+  "E_b": 3.287,
+  "q_Ag1": 0.312,
+  "q_HATCN_before": 0.0,
+  "q_HATCN_with_Ag": -0.312,
+  "q_Ag2_total": 0.101,
+  "dq_Ag1_Ag2": -0.211,
+  "Ag_N_min_A": 2.332
+ },
+ "ion_pair": {
+  "E_b": 2.956,
+  "q_Ag1": 0.292,
+  "q_HATCN_before": -0.656,
+  "q_HATCN_with_Ag": -0.955,
+  "q_Ag2_total": 0.08,
+  "dq_Ag1_Ag2": -0.212,
+  "Ag_N_min_A": 2.329,
+  "q_Cs": 0.656,
+  "Ag_Cs_A": 5.179
+ },
+ "anion": {
+  "E_b": 2.907,
+  "q_Ag1": 0.23,
+  "q_HATCN_before": -1.0,
+  "q_HATCN_with_Ag": -1.23,
+  "q_Ag2_total": -0.061,
+  "dq_Ag1_Ag2": -0.291,
+  "Ag_N_min_A": 2.302
+ }
+}
