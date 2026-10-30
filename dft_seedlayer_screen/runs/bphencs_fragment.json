@@ -1,7 +1,11 @@
 {
  "sites": {
   "Cs4": {
-   "relax_steps": 4
+   "relax_steps": 4,
+   "E_frag": -590.7133944035706,
+   "frag_atoms": 23,
+   "caps": 2,
+   "frag_conv": true
   }
  },
  "E_ag": -146.9303252610551
