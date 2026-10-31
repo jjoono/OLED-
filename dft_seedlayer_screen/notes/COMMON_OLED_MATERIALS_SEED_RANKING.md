@@ -228,3 +228,37 @@ PBE0 Ag₂ at the Cs site: total charge −0.46 against −0.44 for Ag₁ —
   neighbourhoods, and their density is set by the Cs content.
 - Place in the ranking: neat Bphen 0.62 < Cs₂CO₃ 0.70 < p-bPPhenB 0.79 <
   **Bphen⁻Cs⁺ 0.89** < F4TCNQ 1.21 < HATCN 1.63.
+
+## Does the underlayer change HATCN as a seed? (scripts 156, 157; 2026-10-31)
+
+On glass HATCN is neutral. On an n-doped ETL or an HTL, electrons flow into
+HATCN from below. Model: HATCN⁻ with Cs⁺ 3.5 Å below the ring centre (the far
+face), Ag in the aza pocket on the top face; neutral HATCN at the same Ag
+position for a matched pair. Whole molecule, PBE0-D3BJ/def2-SVP.
+
+| model | HATCN charge | E_b | electronic | state | q(Ag) |
+|---|---|---|---|---|---|
+| neutral HATCN (glass) | 0 | 1.61 | 1.44 | doublet | +0.58 |
+| HATCN⁻Cs⁺ (electron from below) | −0.76 (Cs +0.78) | **1.77** | 1.58 | **triplet** (closed-shell singlet +0.58 eV) | +0.54 |
+
+GFN2 (156) gave the same charges but a 10% weaker bond; PBE0 gives a 10%
+stronger one. Ag₂ hand-back at GFN2: −0.21 (neutral), −0.21 (ion pair).
+
+Reading:
+- **A reduced HATCN still takes Ag's electron** (q(Ag) +0.54) and binds it
+  at least as strongly. The complex is a triplet: the electron from below and
+  the one from Ag sit in the two components of HATCN's degenerate LUMO with
+  parallel spins (Hund), so the second electron costs little.
+- HATCN's capacity is two electrons, not one; the underlayer's electron does
+  not use it up. With the GFN2 Ag₂ result, Ag still turns metallic.
+- **HATCN is insensitive to its underlayer**, the opposite of the n-doped
+  seed (Bphen:Cs), whose 0.89 eV bond needs the dopant electron and would be
+  lost if a p-type layer below drained it.
+- For the stack Bphen:Cs₂CO₃ / HATCN 3–5 nm / Ag: whatever charge crosses the
+  junction, the top HATCN surface stays a strong, metal-returning seed.
+  Glass results for HATCN should transfer to the device; for MoOx and n-doped
+  seeds they need to be re-measured on the real underlayer.
+
+Caveats: the singlet is closed-shell only (a broken-symmetry singlet could
+lie near the triplet; E_b would not drop); one molecule, Cs⁺ as the stand-in
+for whatever the underlayer donates; Ag at the GFN2 position.
