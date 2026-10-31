@@ -62,7 +62,9 @@ def pbe_guess(mol):
     mf.level_shift = 0.3
     mf.damp = 0.3
     mf.kernel()
-    return mf.make_rdm1()
+    dm = mf.make_rdm1()
+    # q.scf runs RKS for a singlet: it takes the total density
+    return dm[0] + dm[1] if mol.spin == 0 else dm
 
 
 def main():
