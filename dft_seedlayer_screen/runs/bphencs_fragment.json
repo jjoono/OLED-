@@ -32,7 +32,11 @@
    "d_H_min": 6.06
   },
   "hollow8": {
-   "relax_steps": 5
+   "relax_steps": 5,
+   "E_frag": -590.7133943974579,
+   "frag_atoms": 23,
+   "caps": 2,
+   "frag_conv": true
   }
  },
  "E_ag": -146.9303252610551,
