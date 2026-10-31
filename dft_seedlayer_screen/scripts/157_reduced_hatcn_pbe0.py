@@ -49,6 +49,22 @@ def geometries():
     return out
 
 
+def pbe_guess(mol):
+    """Converged PBE density as the PBE0 start. The ion-pair molecule took
+    3.7 h from the default guess: 200 DIIS cycles without convergence, then
+    the second-order solver."""
+    from pyscf import dft
+    mf = dft.UKS(mol).density_fit()
+    mf.xc = "PBE"
+    mf.grids.level = 2
+    mf.conv_tol = 1e-6
+    mf.max_cycle = 150
+    mf.level_shift = 0.3
+    mf.damp = 0.3
+    mf.kernel()
+    return mf.make_rdm1()
+
+
 def main():
     from pyscf import lib
     lib.num_threads(int(os.environ.get("QC_THREADS", "4")))
@@ -69,7 +85,8 @@ def main():
         for m in states:
             if f"E_m{m}" in row:
                 continue
-            mf, e = q.scf(q.mol(S2, X2, m))
+            mol = q.mol(S2, X2, m)
+            mf, e = q.scf(mol, dm0=pbe_guess(mol) if "Cs" in Sm else None)
             mq = q.mulliken(mf)
             row[f"E_m{m}"] = float(e)
             row[f"q_Ag_m{m}"] = round(float(mq[-1]), 4)
