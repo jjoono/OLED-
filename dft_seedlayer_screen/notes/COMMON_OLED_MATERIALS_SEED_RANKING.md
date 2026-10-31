@@ -201,3 +201,30 @@ Reading:
 Caveats: phen model; Ag positions are GFN2 single points (the N-side value
 in particular may improve if relaxed at PBE0 — the Gaussian jobs do this);
 Cs2CO3 partly decomposes on evaporation, and Cs is mobile.
+
+### Whole-Bphen confirmation (script 155, 2026-10-31)
+
+Cs-keeping fragment PBE0 (phen core + Cs⁺ + caps) with whole-molecule D3,
+Ag located at PBE-D3 on a 4 Å fragment (replaces the Gaussian package, which
+did not run on the workstation).
+
+| site on Bphen⁻Cs⁺ | PBE0 E_b | electronic | dispersion | state | q(Ag) | Ag–Cs |
+|---|---|---|---|---|---|---|
+| **next to Cs (Cs4)** | **0.89** | 0.86 | 0.03 | singlet | −0.44 | 3.57 Å |
+| N side (hollow8), relaxed | 0.51 | 0.32 | 0.19 | singlet | −0.39 | 3.70 Å |
+| π face, far from Cs (hollow3)* | 0.25 | 0.09 | 0.16 | triplet | −0.05 | 8.82 Å |
+
+\* relaxation stopped at its lowest point (|g| 0.14 eV/Å) after the line
+search looped.
+
+PBE0 Ag₂ at the Cs site: total charge −0.46 against −0.44 for Ag₁ —
+Δq(Ag₁→Ag₂) = −0.015 e, passes the veto (GFN2 gave −0.02).
+
+- The phen-model estimate is confirmed: 0.89 eV (phen 0.87). The phenyls add
+  0.02 eV to the Cs site.
+- Every bound site draws its strength from Cs: the N-side minimum moves
+  towards Cs (3.70 Å) and takes electrons; far from Cs the surface is
+  π-only (0.25, unpaired). So on a doped film the useful sites are the Cs
+  neighbourhoods, and their density is set by the Cs content.
+- Place in the ranking: neat Bphen 0.62 < Cs₂CO₃ 0.70 < p-bPPhenB 0.79 <
+  **Bphen⁻Cs⁺ 0.89** < F4TCNQ 1.21 < HATCN 1.63.
