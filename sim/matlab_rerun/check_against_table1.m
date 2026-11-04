@@ -1,6 +1,13 @@
 % Sanity check: planar_inputs + multipass_series (20 terms) must reproduce
 % ../table1_author/table1_author_model.csv (d_ETL 300, k_ITO 0.0032, Theta 2/3, 400-700 nm).
-addpath('../table1_author');
+% Required in the same folder (or on the MATLAB path):
+%   planar_inputs.m, multipass_series.m, TMF_birefringence_whole.m, TMF_birefringence_whole_p.m,
+%   TMF_birefringence_whole_s.m, nk_JH_total.mat, hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat
+here = fileparts(mfilename('fullpath')); if ~isempty(here), addpath(here); end
+if exist(fullfile(here,'..','table1_author'),'dir'), addpath(fullfile(here,'..','table1_author')); end
+req = {'planar_inputs','multipass_series','TMF_birefringence_whole','TMF_birefringence_whole_p','TMF_birefringence_whole_s','nk_JH_total.mat','hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat'};
+miss = req(cellfun(@(f) ~exist(f,'file'), req)); if ~isempty(miss), error('missing: %s', strjoin(miss, ', ')); end
+
 load('nk_JH_total.mat'); load('hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat');
 W = 1:301; wl = (400:700)'; nl = numel(wl);
 ito = material.l_ITO(W); ito = ito(:);

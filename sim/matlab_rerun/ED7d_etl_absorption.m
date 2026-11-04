@@ -5,7 +5,15 @@
 % Ir(ppy)2acac spectrum, 400-700 nm in 1-nm steps, Theta = 2/3, PLQY = 1,
 % series summed to convergence (last term < 1e-6 of the sum).
 % Needs nk_JH_total.mat and the BSDF .mat on the path (both in ../table1_author).
-clear; addpath('../table1_author');
+clear;
+% Required in the same folder (or on the MATLAB path):
+%   planar_inputs.m, multipass_series.m, TMF_birefringence_whole.m, TMF_birefringence_whole_p.m,
+%   TMF_birefringence_whole_s.m, nk_JH_total.mat, hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat
+here = fileparts(mfilename('fullpath')); if ~isempty(here), addpath(here); end
+if exist(fullfile(here,'..','table1_author'),'dir'), addpath(fullfile(here,'..','table1_author')); end
+req = {'planar_inputs','multipass_series','TMF_birefringence_whole','TMF_birefringence_whole_p','TMF_birefringence_whole_s','nk_JH_total.mat','hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat'};
+miss = req(cellfun(@(f) ~exist(f,'file'), req)); if ~isempty(miss), error('missing: %s', strjoin(miss, ', ')); end
+
 load('nk_JH_total.mat'); load('hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat');
 BSDF = BSDF_MLA(:,:,11);                         % n_MLA = 1.80
 W = 1:301; wl = (400:700)'; nl = numel(wl); one = ones(nl,1);

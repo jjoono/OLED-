@@ -7,7 +7,15 @@
 % The BSDF of every lens geometry comes from LightTools (one .mat per row of
 % ED8_lighttools_geometries.csv, variable BSDF, 180 x 90, same layout as
 % hexagonal_half_sphere_MLA_BSDF_nMLA_130_0,05_200.mat).  Put them in ./bsdf/.
-clear; addpath('../table1_author');
+clear;
+% Required in the same folder (or on the MATLAB path):
+%   planar_inputs.m, multipass_series.m, TMF_birefringence_whole.m, TMF_birefringence_whole_p.m,
+%   TMF_birefringence_whole_s.m, nk_JH_total.mat, flat_bsdf.m, pss.m, csv2cell_simple.m, ED8_lighttools_geometries.csv
+here = fileparts(mfilename('fullpath')); if ~isempty(here), addpath(here); end
+if exist(fullfile(here,'..','table1_author'),'dir'), addpath(fullfile(here,'..','table1_author')); end
+req = {'planar_inputs','multipass_series','TMF_birefringence_whole','TMF_birefringence_whole_p','TMF_birefringence_whole_s','nk_JH_total.mat','flat_bsdf','pss','csv2cell_simple'};
+miss = req(cellfun(@(f) ~exist(f,'file'), req)); if ~isempty(miss), error('missing: %s', strjoin(miss, ', ')); end
+
 load('nk_JH_total.mat');
 j = 151; wl = 550;                                       % 550 nm
 refl.Ag = material.l_Ag_McPeak(j); refl.Al = material.l_Al_JO(j); ito = material.l_ITO(j);
