@@ -1,9 +1,9 @@
-# oled-multipass-series
+# OLED-Multipass_series
 
-[![DOI](https://zenodo.org/badge/DOI/{{ZENODO_DOI}}.svg)](https://doi.org/{{ZENODO_DOI}})
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23965264.svg)](https://doi.org/10.5281/zenodo.23965264)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-`oled-multipass-series` is a MATLAB function for computing the light extracted from an organic light-emitting diode (OLED) with an outcoupling structure, accounting for repeated round trips of light between the outcoupling structure and the OLED.
+`OLED-Multipass_series` is a MATLAB function for computing the light extracted from an organic light-emitting diode (OLED) with an outcoupling structure, accounting for repeated round trips of light between the outcoupling structure and the OLED.
 
 - [Overview](#overview)
 - [System Requirements](#system-requirements)
@@ -24,16 +24,16 @@ where `P_sub` is the angular distribution of the power delivered to the substrat
 
 # System Requirements
 ## Hardware requirements
-`oled-multipass-series` requires only a standard computer. No non-standard hardware is required.
+`OLED-Multipass_series` requires only a standard computer. No non-standard hardware is required.
 
 ## Software requirements
 ### OS Requirements
 The code runs on any operating system supported by MATLAB or GNU Octave. It has been tested on the following systems:
-+ Windows: {{OS}} with MATLAB {{MATLAB_VERSION}}
++ Windows: Windows 10 Pro 22H2 with MATLAB R2025b
 + Linux: Ubuntu 24.04 with GNU Octave 8.4.0
 
 ### MATLAB Dependencies
-`oled-multipass-series` uses only built-in MATLAB functions. No toolboxes are required.
+`OLED-Multipass_series` uses only built-in MATLAB functions. No toolboxes are required.
 
 ```
 MATLAB R2019b or later, or GNU Octave 8 or later
@@ -42,13 +42,13 @@ MATLAB R2019b or later, or GNU Octave 8 or later
 # Installation Guide
 ### Download from GitHub
 ```
-git clone https://github.com/{{GITHUB_USER}}/oled-multipass-series
+git clone https://github.com/junhokim-hcnb/OLED-Multipass_series
 ```
 or download the repository as a ZIP file and extract it. No installation is required, and downloading takes less than 1 minute on a standard computer.
 
 # Demo
 ### Instructions to run on data
-In MATLAB or GNU Octave, change the current folder to `oled-multipass-series` and run
+In MATLAB or GNU Octave, change the current folder to `OLED-Multipass_series` and run
 ```
 run_demo
 ```
@@ -63,7 +63,7 @@ converged (86) : eta_ext = 0.9004, EQE = 0.8802 (last term 1.0e-06 of the sum)
 followed by the elapsed time.
 
 ### Expected run time
-Less than 1 s on a standard desktop computer ({{DEMO_TIME}} s with MATLAB {{MATLAB_VERSION}}).
+Less than 1 s on a standard desktop computer (0.09 s with MATLAB R2025b).
 
 # Instructions for Use
 ```
@@ -89,7 +89,7 @@ Less than 1 s on a standard desktop computer ({{DEMO_TIME}} s with MATLAB {{MATL
 To run the code on your own device, replace the four inputs in `demo_input.mat` with those of your device and outcoupling structure, keeping the sizes and angular grid above.
 
 # Citation
-If you use this code, please cite the paper above and this repository (https://doi.org/{{ZENODO_DOI}}).
+If you use this code, please cite the paper above and this repository (https://doi.org/10.5281/zenodo.23965264).
 
 # License
 This project is covered under the **MIT License**.
