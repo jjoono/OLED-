@@ -12,6 +12,15 @@
 lt   = actxserver('LightTools.ltapi');
 ltml = actxserver('ltcom64.LTAPI2');
 
+% the receiver must be the 180-bin intensity mesh of the original BSDF set-up (1 deg per bin,
+% bins 1-90 transmitted, 91-180 reflected); stop before tracing anything if it is not
+XDim = ltml.LTDbGet(lt,'receiver[1].mesh[1]','X_Dimension');
+YDim = ltml.LTDbGet(lt,'receiver[1].mesh[1]','Y_Dimension');
+fprintf('receiver[1].mesh[1]: X_Dimension %g, Y_Dimension %g\n', XDim, YDim);
+if ~(XDim == 1 && YDim == 180)
+    error('receiver mesh is %g x %g; set it to 1 x 180 (as in the original BSDF .lts) and run again', XDim, YDim);
+end
+
 n_MLA = 1.80;
 FF0   = pi/(2*sqrt(3));                                  % 0.9069, close-packed
 
@@ -54,6 +63,7 @@ for r = 1:nrun
             raw(j,i) = ltml.LTDbGet(lt,'receiver[1].mesh[1]','CellFlux_UI',1,j);
         end
     end
+    if any(sum(raw,1) <= 0) || any(raw(:) < 0), error('%s: empty or negative mesh column, nothing saved', id); end
     BSDF = raw ./ repmat(sum(raw,1),180,1);              % each incidence angle normalized to 1
     w = cosd(0:89).*sind(0:89); p = sum(sum(BSDF(1:90,:),1).*w)/sum(w);
     fprintf('%-16s Scale %.4f StretchZ %.2f | p(cos sin) = %.4f\n', id, scale, stretchZ, p);
