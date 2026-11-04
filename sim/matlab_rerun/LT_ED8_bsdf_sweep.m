@@ -18,7 +18,7 @@ XDim = ltml.LTDbGet(lt,'receiver[1].mesh[1]','X_Dimension');
 YDim = ltml.LTDbGet(lt,'receiver[1].mesh[1]','Y_Dimension');
 fprintf('receiver[1].mesh[1]: X_Dimension %g, Y_Dimension %g\n', XDim, YDim);
 if ~(XDim == 1 && YDim == 180)
-    error('receiver mesh is %g x %g; set it to 1 x 180 (as in the original BSDF .lts) and run again', XDim, YDim);
+    error('receiver mesh is %g x %g; it must match the original BSDF .lts (read below as CellFlux_UI(1,j), j = 1..180). Fix the mesh, delete bsdf\*.mat written by the failed run, and run again', XDim, YDim);
 end
 
 n_MLA = 1.80;
