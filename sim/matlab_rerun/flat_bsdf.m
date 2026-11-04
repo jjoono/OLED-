@@ -9,7 +9,7 @@ for a = 0:89
   t = linspace(max(0,a-0.5), a+0.5, 201); w = sind(t); if a == 0, w = w + eps; end
   s = n_sub*sind(t); T = zeros(size(t)); ok = s < 1;
   ci = cosd(t(ok)); ct = sqrt(1-s(ok).^2);
-  rs = (n_sub*ci-ct)./(n_sub*ci+ct); rp = (ct-n_sub*ci)./(ct+n_sub*ci);
+  rs = (n_sub*ci-ct)./(n_sub*ci+ct); rp = (ci-n_sub*ct)./(ci+n_sub*ct);
   T(ok) = 1 - (rs.^2+rp.^2)/2;
   Tm = sum(T.*w)/sum(w);
   if Tm > 0, B(min(90,floor(asind(min(1,n_sub*sind(a))))+1), a+1) = Tm; end   % only the row sum is used
