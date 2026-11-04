@@ -22,11 +22,14 @@ def evaluate(x, step, npts, mapper):
     res = list(mapper(one, [(tuple(x), l, npts) for l in lams])); D = np.zeros(90); Fb = 0.0
     for wi, (F, es, Dl) in zip(w, res): D += wi * F * es * Dl; Fb += wi * F
     return q * D / (1 - q + q * Fb)
+class Obj:
+    def __init__(self, lo, hi): self.lo, self.hi = lo, hi
+    def __call__(self, x): return -C.metrics(evaluate(np.clip(x, self.lo, self.hi), 20, 1000, map))[obj]
 if __name__ == '__main__':
     bd = N.bounds(te, npr); lo, hi = np.array([b[0] for b in bd]), np.array([b[1] for b in bd]); t0 = time.time()
     with Pool(2) as pool:
         f = lambda x, st=20, npts=1000: C.metrics(evaluate(np.clip(x, lo, hi), st, npts, map))[obj]
-        r = differential_evolution(lambda x: -f(x), bd, seed=3, popsize=8, maxiter=40, tol=1e-4, polish=False, workers=pool.map, updating='deferred')
+        r = differential_evolution(Obj(lo, hi), bd, seed=3, popsize=8, maxiter=40, tol=1e-4, polish=False, workers=pool.map, updating='deferred')
         m = minimize(lambda x: -C.metrics(evaluate(np.clip(x, lo, hi), 10, 1500, pool.map))[obj], r.x, method='Nelder-Mead',
                      options=dict(maxiter=200, xatol=0.5, fatol=1e-5))
         xb = np.clip(m.x, lo, hi); D = evaluate(xb, 2, 3000, pool.map)

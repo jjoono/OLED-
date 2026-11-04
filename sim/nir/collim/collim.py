@@ -32,13 +32,14 @@ def tmm_RT(n_in, layers, lam, th, n_out=1.0):
         m11 = np.ones_like(s); m12 = np.zeros_like(s); m21 = np.zeros_like(s); m22 = np.ones_like(s)
         for n, d in layers:
             if d <= 0.5: continue
+            n = np.conj(n)                     # data are n + ik; the characteristic-matrix form here needs n - ik
             c = cosang(n); c = np.where(c.imag < 0, -c, c); e = eta(n, c); dl = 2 * np.pi * n * d * c / lam
             a11, a12, a21, a22 = np.cos(dl), 1j * np.sin(dl) / e, 1j * e * np.sin(dl), np.cos(dl)
             m11, m12, m21, m22 = m11 * a11 + m12 * a21, m11 * a12 + m12 * a22, m21 * a11 + m22 * a21, m21 * a12 + m22 * a22
         Bv = m11 + m12 * eo; Cv = m21 + m22 * eo
         r = (ei * Bv - Cv) / (ei * Bv + Cv); t = 2 * ei / (ei * Bv + Cv)
         out.append((np.abs(r) ** 2, np.real(eo) / np.real(ei) * np.abs(t) ** 2))
-    R = 0.5 * (out[0][0] + out[1][0]); T = 0.5 * (out[0][1] + out[1][1]); return R, T
+    R = np.clip(0.5 * (out[0][0] + out[1][0]), 0, 1); T = np.clip(0.5 * (out[0][1] + out[1][1]), 0, None); return R, np.minimum(T, 1 - R)
 # ---------------------------------------------------------------- slab-angle bins -> air-angle bins (power uniform in sin^2 within a bin)
 def to_air(n):
     C = np.zeros((90, 90)); ea = np.sin(np.radians(np.arange(91))) ** 2
