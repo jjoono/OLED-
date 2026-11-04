@@ -36,7 +36,7 @@ ws.append(['Extended Data Fig. 7d: Ag 100 nm / B3PyMPM d_ETL (k_ETL added to n_o
 ws['A1'].font = Font(bold=True)
 ws.append(['d_ETL (nm)'] + ['k_ETL = %g' % k for k in KS])
 for j, d in enumerate(D): ws.append([int(d)] + [round(float(E[k][j]), 3) for k in KS])
-ws.append([]); ws.append(['Optimum (open circles)'] + ['%.1f%% at %d nm' % (E[k].max(), D[np.argmax(E[k])]) for k in KS])
+ws.append([]); ws.append(['Maximum EQE (open circles for k_ETL > 0)'] + ['%.1f%% at %d nm' % (E[k].max(), D[np.argmax(E[k])]) for k in KS])
 ws2 = wb.create_sheet('all quantities'); ws2.append(['k_ETL', 'd_ETL (nm)', 'eta_sub', 'eta_sta', 'EQE', 'round trips summed'])
 for k in KS:
     for j, d in enumerate(D):
