@@ -11,7 +11,7 @@ BI = {b: i for i, b in enumerate(sel.BETAS)}
 class Sweep:
     def __init__(self, path='data/sweep.npz'):
         z = np.load(path)
-        self.designs = [ast.literal_eval(s) for s in z['designs']]
+        self.designs = [tuple(float(x) if isinstance(x, np.floating) else x for x in eval(s, {'np': np})) for s in z['designs']]
         self.data = {tuple(k.split('|')): z[k] for k in z.files if '|' in k}
         DV = np.load('data/devices.npz')
         self.eta_sub = {k: DV[f'{k}_eta_sub'] for k in sel.STACKS}

@@ -9,6 +9,7 @@ import sel, common
 
 K550 = sel.D['n_ITO'][150].imag
 SW = common.Sweep()
+sel.D['n_ITO'] = sel.D['n_ITO'].copy()
 
 
 def one(k):

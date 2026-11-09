@@ -8,8 +8,8 @@ from multiprocessing import Pool
 import sel, common
 
 SW = common.Sweep()
-DV = np.load('data/devices.npz'); SL = np.load('data/slabs.npz')
-SLABS = {k: tuple(SL[k]) for k in SL.files}
+DV = dict(np.load('data/devices.npz')); SL = dict(np.load('data/slabs.npz'))
+SLABS = {k: tuple(v) for k, v in SL.items()}
 MS = (0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.85, 1.0)
 CASES = []
 for st in sel.STACKS:
