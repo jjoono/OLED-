@@ -173,7 +173,10 @@ def main():
     done = set()
     if os.path.exists(OUT):
         done = {json.loads(l)["name"] for l in open(OUT) if l.strip()}
-    todo = [k for k, p in props.items() if "error" not in p and k not in done]
+    ea_min = float(a[a.index("--ea-min") + 1]) if "--ea-min" in a else -99
+    refs = {k for k, v in lib.items() if v["family"] == "reference"}
+    todo = [k for k, p in props.items() if "error" not in p and k not in done
+            and (p["EA"] >= ea_min or k in refs)]
     todo.sort(key=lambda k: -props[k]["EA"])
     if nmax:
         todo = todo[:nmax]
