@@ -2,6 +2,8 @@
 
 Each item lists what was changed and where. "Main" refers to `manuscript_draft.md`, "Supp." to `supplementary.md`. New computations are in `selectivity/review_checks.py`, `multipass_reset/run_review_traces.py`, `selectivity/review_traces_analysis.py` (data in `selectivity/data/review_checks.json`, `review_traces.json`).
 
+> **Numbering update (OE length condensation).** The supplement was reorganized after this table was written. Old → new: Note S10/S12/S13 → Notes S1–S4; Table S10 → S1, S14 → S2, S12 → S3, S11 → S4, S13 → S5, S15 → S6, S16 → S7, S17 → S8, S18 → S9, Table 1 + S1 → S10, S4 → S11, S6b → S12, S9 → S13; Fig. S11 → S1, S1 → S2, S2 → S3, S6 → S4, S10 → S5; Note S2 → S6, Note S4 → S7, Note S9 → S8. Old Notes S3, S5–S8 (patch size, drift convergence, cost calibration, MLA families, asymmetric 3D) were removed as outside the scope of this paper. Main-text references were renumbered (71 → 52).
+
 | # | Suggestion | Action | Where |
 |---|---|---|---|
 | 1 | State-vector and binning definitions | Bin edges θ_k = k°, v_k = power per bin over the full azimuth, uniform radiance ↔ v ∝ w, p = Σw_k p_k/Σw_k; 0.5° slab matrices coarsened to 1° | Main 2.1 |

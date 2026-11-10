@@ -32,10 +32,8 @@ const FIGS = {
   '3': 'figures_oe/fig3_structure_map.png',
   '4': 'figures_oe/fig4_bound_window.png',
   '5': 'figures_oe/fig5_hemisphere_benchmark.png',
-  'S1': 'fig1_platform.png', 'S2': 'figS1_restart_control.png', 'S3': 'figS2_patch_dependence.png',
-  'S4': 'figS3_gain_decomposition.png', 'S5': 'figS4_selectivity_map.png', 'S6': 'fig3_efficiency_composition.png',
-  'S7': 'figS5_convergence.png', 'S8': 'figS6_cost_calibration.png', 'S9': 'fig4_families.png',
-  'S10': 'figS8_angle_reset.png', 'S11': 'figures_oe/figS11_device_inputs.png',
+  'S1': 'figures_oe/figS11_device_inputs.png', 'S2': 'fig1_platform.png', 'S3': 'figS1_restart_control.png',
+  'S4': 'fig3_efficiency_composition.png', 'S5': 'figS8_angle_reset.png',
 };
 
 // ---------- PNG size from IHDR ----------
@@ -207,7 +205,7 @@ const flushPara = (buf) => {
   if (!t) return;
 
   // figure caption block
-  const fm = t.match(/^\*\*Fig\.\s*(S?\d+)\s*\|/);
+  const fm = t.match(/^\*\*(?:Fig\.|그림)\s*(S?\d+)\s*\|/);
   if (fm && FIGS[fm[1]]) {
     const f = FIGS[fm[1]];
     const { w, h } = pngSize(f);
