@@ -20,10 +20,13 @@ judged on five things, each computed, none assumed:
    The partner must not crystallise itself (its own risk score, script 53).
 3. CT absorption with HATCN: a donor partner with a low IP forms a
    charge-transfer complex with HATCN that absorbs in the visible/NIR
-   (NPB:HATCN, TAPC:HATCN are documented CT blends). Proxy: the gas-phase
-   CT energy IP(partner) - EA(HATCN) at IPEA1-xTB, minus the solid-state
-   Coulomb + polarisation stabilisation (~2.5 eV for a contact pair). Flag
-   when the estimate is below 3.1 eV (400 nm).
+   (NPB:HATCN, TAPC:HATCN are documented CT blends; TPBi/Bphen-class ETLs
+   with HATCN are not). An absolute CT energy from gas-phase IP/EA needs a
+   solid-state correction we cannot compute reliably, so the rule is
+   calibrated on those known cases instead. IPEA1-xTB vertical IPs split
+   cleanly: the amine donors (TAPC, NPB, TPD, TCTA) at 6.29-6.31 eV, Alq3/
+   CBP/mCP at 6.7-7.0, every ETL at >= 7.08. So: IP < 6.5 -> CT (as for the
+   documented blends); 6.5-7.0 -> weak CT possible; >= 7.0 -> none.
 4. Ag charge veto: unchanged by blending (every partner passes it).
 5. Electrical (CGL p-side): HATCN must stay connected through the film
    (3D site percolation, p_c ~ 0.31 for random mixing) -> x <= 0.6. So the
@@ -55,8 +58,6 @@ KMC1 = os.path.join(D, "kmc_neat_partner.json")
 KB, NU0, T = 8.617333262e-5, 1.0e13, 300.0
 E_D, E_FACE, T_CAP = 0.29, 0.10, 0.01
 SIG_EB = 0.10
-E_COUL = 2.5            # contact-pair Coulomb + polarisation, eV
-CT_LIMIT = 3.1          # eV (400 nm)
 X_KILL, X_PERC = 0.45, 0.60
 EA_HATCN = 3.693
 
@@ -171,13 +172,14 @@ def main():
         eb = rank[n]["E_b"]
         pt, e_star = p_trap(eb)
         th = THETA_SITE[n] * pt
-        ct = pp[n]["IP"] - EA_HATCN - E_COUL
+        ip = pp[n]["IP"]
+        ct = "strong" if ip < 6.5 else ("weak possible" if ip < 7.0 else "none")
         rows.append({
             "formulation": f"HATCN:{n} 1:1", "partner": n, "E_b_partner": eb,
             "tau_s": float(f"{tau(eb):.3g}"), "p_trap": round(pt, 2), "theta_eff": round(th, 3),
             "N_sat_rel": round(float(np.interp(th, gx, gy)) / n_hat, 3),
             "hatcn_domains_killed": True, "partner_risk": pp[n]["risk"],
-            "IP_partner": pp[n]["IP"], "E_CT_est": round(ct, 2), "CT_flag": bool(ct < CT_LIMIT),
+            "IP_partner": ip, "CT_class": ct, "CT_flag": ct != "none",
             "dq_partner": rank[n]["dq"]})
     # neat references
     rows.append({"formulation": "HATCN neat", "partner": None, "E_b_partner": 1.631, "p_trap": 1.0,
@@ -199,8 +201,8 @@ def main():
     for r in rows:
         bad = []
         if r.get("CT_flag"):
-            bad.append("CT absorption with HATCN")
-        if r["partner_risk"] is not None and r["partner"] and r["partner_risk"] > 55 and "Cs" not in r["formulation"]:
+            bad.append(f"CT with HATCN ({r.get('CT_class')})")
+        if r["partner_risk"] is not None and r["partner"] and r["partner_risk"] > 58 and "Cs" not in r["formulation"]:
             bad.append("partner crystallises itself")
         if r["hatcn_domains_killed"] is False:
             bad.append("HATCN domains span the film (crystallisation, Park & Suh)")
@@ -211,13 +213,13 @@ def main():
                            - 0.002 * max(0, (r["partner_risk"] or 0) - 30), 3)
     rows.sort(key=lambda r: -r["score"])
     out = {"params": {"sigma_Eb": SIG_EB, "E_star_trap_eV": round(e_star, 3), "t_capture_s": T_CAP,
-                      "E_coul": E_COUL, "x_window": [X_KILL, X_PERC]}, "rows": rows,
+                      "x_window": [X_KILL, X_PERC]}, "rows": rows,
            "kmc_neat_partner": neat}
     json.dump(out, open(OUT, "w"), indent=1)
     print(f"trap threshold E* = {e_star:.3f} eV (tau = t_capture)")
     for r in rows:
         print(f"{r['formulation']:<28} Eb {r['E_b_partner']:.3f} ptrap {r['p_trap']:.2f} "
-              f"Nsat {r['N_sat_rel']:.3f} risk {r['partner_risk']} CT {r.get('E_CT_est','-')} "
+              f"Nsat {r['N_sat_rel']:.3f} risk {r['partner_risk']} CT {r.get('CT_class','-')} "
               f"score {r['score']:+.3f} {'; '.join(r['issues'])}")
 
 

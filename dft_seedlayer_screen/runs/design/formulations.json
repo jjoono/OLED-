@@ -1,0 +1,479 @@
+{
+ "params": {
+  "sigma_Eb": 0.1,
+  "E_star_trap_eV": 0.465,
+  "t_capture_s": 0.01,
+  "x_window": [
+   0.45,
+   0.6
+  ]
+ },
+ "rows": [
+  {
+   "formulation": "HATCN:TPBi 1:1",
+   "partner": "TPBi",
+   "E_b_partner": 0.461,
+   "tau_s": 0.00864,
+   "p_trap": 0.48,
+   "theta_eff": 0.242,
+   "N_sat_rel": 0.883,
+   "hatcn_domains_killed": true,
+   "partner_risk": 17.1,
+   "IP_partner": 7.243,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.2061,
+   "issues": [],
+   "score": 0.883
+  },
+  {
+   "formulation": "HATCN:PO-T2T 1:1",
+   "partner": "PO-T2T",
+   "E_b_partner": 0.4778,
+   "tau_s": 0.0165,
+   "p_trap": 0.55,
+   "theta_eff": 0.221,
+   "N_sat_rel": 0.875,
+   "hatcn_domains_killed": true,
+   "partner_risk": 29.0,
+   "IP_partner": 7.817,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.2324,
+   "issues": [],
+   "score": 0.875
+  },
+  {
+   "formulation": "HATCN:p-bPPhenB 1:1",
+   "partner": "p-bPPhenB",
+   "E_b_partner": 0.785,
+   "tau_s": 2390.0,
+   "p_trap": 1.0,
+   "theta_eff": 0.35,
+   "N_sat_rel": 0.922,
+   "hatcn_domains_killed": true,
+   "partner_risk": 55.8,
+   "IP_partner": 7.337,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.314,
+   "issues": [],
+   "score": 0.87
+  },
+  {
+   "formulation": "HATCN neat",
+   "partner": null,
+   "E_b_partner": 1.631,
+   "p_trap": 1.0,
+   "theta_eff": 1.0,
+   "N_sat_rel": 1.0,
+   "hatcn_domains_killed": false,
+   "partner_risk": null,
+   "CT_flag": false,
+   "issues": [
+    "HATCN domains span the film (crystallisation, Park & Suh)"
+   ],
+   "score": 0.85
+  },
+  {
+   "formulation": "HATCN:DPEPO 1:1",
+   "partner": "DPEPO",
+   "E_b_partner": 0.4508,
+   "tau_s": 0.00582,
+   "p_trap": 0.44,
+   "theta_eff": 0.133,
+   "N_sat_rel": 0.844,
+   "hatcn_domains_killed": true,
+   "partner_risk": 18.3,
+   "IP_partner": 7.781,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.5055,
+   "issues": [],
+   "score": 0.844
+  },
+  {
+   "formulation": "HATCN:3TPYMB 1:1",
+   "partner": "3TPYMB",
+   "E_b_partner": 0.3738,
+   "tau_s": 0.000296,
+   "p_trap": 0.18,
+   "theta_eff": 0.073,
+   "N_sat_rel": 0.822,
+   "hatcn_domains_killed": true,
+   "partner_risk": 15.7,
+   "IP_partner": 7.58,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.1313,
+   "issues": [],
+   "score": 0.822
+  },
+  {
+   "formulation": "HATCN:TmPyPB 1:1",
+   "partner": "TmPyPB",
+   "E_b_partner": 0.3712,
+   "tau_s": 0.000268,
+   "p_trap": 0.17,
+   "theta_eff": 0.07,
+   "N_sat_rel": 0.821,
+   "hatcn_domains_killed": true,
+   "partner_risk": 19.5,
+   "IP_partner": 7.534,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.1123,
+   "issues": [],
+   "score": 0.821
+  },
+  {
+   "formulation": "HATCN:TSPO1 1:1",
+   "partner": "TSPO1",
+   "E_b_partner": 0.3805,
+   "tau_s": 0.000384,
+   "p_trap": 0.2,
+   "theta_eff": 0.06,
+   "N_sat_rel": 0.818,
+   "hatcn_domains_killed": true,
+   "partner_risk": 15.6,
+   "IP_partner": 7.804,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.0169,
+   "issues": [],
+   "score": 0.818
+  },
+  {
+   "formulation": "HATCN:NBphen 1:1",
+   "partner": "NBphen",
+   "E_b_partner": 0.4599,
+   "tau_s": 0.00828,
+   "p_trap": 0.48,
+   "theta_eff": 0.168,
+   "N_sat_rel": 0.857,
+   "hatcn_domains_killed": true,
+   "partner_risk": 51.1,
+   "IP_partner": 7.084,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.3165,
+   "issues": [],
+   "score": 0.815
+  },
+  {
+   "formulation": "HATCN:B3PyMPM 1:1",
+   "partner": "B3PyMPM",
+   "E_b_partner": 0.416,
+   "tau_s": 0.00151,
+   "p_trap": 0.31,
+   "theta_eff": 0.125,
+   "N_sat_rel": 0.841,
+   "hatcn_domains_killed": true,
+   "partner_risk": 46.3,
+   "IP_partner": 7.653,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.238,
+   "issues": [],
+   "score": 0.808
+  },
+  {
+   "formulation": "HATCN:T2T 1:1",
+   "partner": "T2T",
+   "E_b_partner": 0.3244,
+   "tau_s": 4.38e-05,
+   "p_trap": 0.08,
+   "theta_eff": 0.024,
+   "N_sat_rel": 0.805,
+   "hatcn_domains_killed": true,
+   "partner_risk": 57.5,
+   "IP_partner": 7.54,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.2318,
+   "issues": [],
+   "score": 0.75
+  },
+  {
+   "formulation": "HATCN:Bphen 1:1",
+   "partner": "Bphen",
+   "E_b_partner": 0.621,
+   "tau_s": 4.21,
+   "p_trap": 0.94,
+   "theta_eff": 0.329,
+   "N_sat_rel": 0.914,
+   "hatcn_domains_killed": true,
+   "partner_risk": 59.7,
+   "IP_partner": 7.99,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.353,
+   "issues": [
+    "partner crystallises itself"
+   ],
+   "score": 0.705
+  },
+  {
+   "formulation": "HATCN:Alq3 1:1",
+   "partner": "Alq3",
+   "E_b_partner": 0.4293,
+   "tau_s": 0.00253,
+   "p_trap": 0.36,
+   "theta_eff": 0.108,
+   "N_sat_rel": 0.835,
+   "hatcn_domains_killed": true,
+   "partner_risk": 19.7,
+   "IP_partner": 6.68,
+   "CT_class": "weak possible",
+   "CT_flag": true,
+   "dq_partner": -0.2751,
+   "issues": [
+    "CT with HATCN (weak possible)"
+   ],
+   "score": 0.685
+  },
+  {
+   "formulation": "Bphen:Cs 20% (no HATCN)",
+   "partner": "Bphen",
+   "E_b_partner": 0.886,
+   "p_trap": 0.94,
+   "theta_eff": 0.529,
+   "N_sat_rel": 0.889,
+   "hatcn_domains_killed": null,
+   "partner_risk": 59.7,
+   "CT_flag": false,
+   "electrical_role": "n-side: fails CGL p-side spec",
+   "issues": [
+    "not a p-side seed"
+   ],
+   "score": 0.68
+  },
+  {
+   "formulation": "HATCN:NPB 1:1",
+   "partner": "NPB",
+   "E_b_partner": 0.2537,
+   "tau_s": 2.84e-06,
+   "p_trap": 0.02,
+   "theta_eff": 0.003,
+   "N_sat_rel": 0.797,
+   "hatcn_domains_killed": true,
+   "partner_risk": 29.2,
+   "IP_partner": 6.286,
+   "CT_class": "strong",
+   "CT_flag": true,
+   "dq_partner": -0.0175,
+   "issues": [
+    "CT with HATCN (strong)"
+   ],
+   "score": 0.647
+  },
+  {
+   "formulation": "HATCN:BCP 1:1",
+   "partner": "BCP",
+   "E_b_partner": 0.4683,
+   "tau_s": 0.0115,
+   "p_trap": 0.51,
+   "theta_eff": 0.154,
+   "N_sat_rel": 0.852,
+   "hatcn_domains_killed": true,
+   "partner_risk": 60.2,
+   "IP_partner": 7.872,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.3655,
+   "issues": [
+    "partner crystallises itself"
+   ],
+   "score": 0.642
+  },
+  {
+   "formulation": "Bphen:Cs 10% (no HATCN)",
+   "partner": "Bphen",
+   "E_b_partner": 0.886,
+   "p_trap": 0.94,
+   "theta_eff": 0.429,
+   "N_sat_rel": 0.848,
+   "hatcn_domains_killed": null,
+   "partner_risk": 59.7,
+   "CT_flag": false,
+   "electrical_role": "n-side: fails CGL p-side spec",
+   "issues": [
+    "not a p-side seed"
+   ],
+   "score": 0.639
+  },
+  {
+   "formulation": "HATCN:mCP 1:1",
+   "partner": "mCP",
+   "E_b_partner": 0.2668,
+   "tau_s": 4.72e-06,
+   "p_trap": 0.02,
+   "theta_eff": 0.004,
+   "N_sat_rel": 0.798,
+   "hatcn_domains_killed": true,
+   "partner_risk": 35.0,
+   "IP_partner": 6.996,
+   "CT_class": "weak possible",
+   "CT_flag": true,
+   "dq_partner": 0.0076,
+   "issues": [
+    "CT with HATCN (weak possible)"
+   ],
+   "score": 0.638
+  },
+  {
+   "formulation": "HATCN:TAPC 1:1",
+   "partner": "TAPC",
+   "E_b_partner": 0.259,
+   "tau_s": 3.49e-06,
+   "p_trap": 0.02,
+   "theta_eff": 0.003,
+   "N_sat_rel": 0.797,
+   "hatcn_domains_killed": true,
+   "partner_risk": 38.8,
+   "IP_partner": 6.285,
+   "CT_class": "strong",
+   "CT_flag": true,
+   "dq_partner": 0.0178,
+   "issues": [
+    "CT with HATCN (strong)"
+   ],
+   "score": 0.629
+  },
+  {
+   "formulation": "HATCN:TPD 1:1",
+   "partner": "TPD",
+   "E_b_partner": 0.259,
+   "tau_s": 3.49e-06,
+   "p_trap": 0.02,
+   "theta_eff": 0.003,
+   "N_sat_rel": 0.797,
+   "hatcn_domains_killed": true,
+   "partner_risk": 43.5,
+   "IP_partner": 6.304,
+   "CT_class": "strong",
+   "CT_flag": true,
+   "dq_partner": -0.0192,
+   "issues": [
+    "CT with HATCN (strong)"
+   ],
+   "score": 0.62
+  },
+  {
+   "formulation": "Bphen:Cs 5% (no HATCN)",
+   "partner": "Bphen",
+   "E_b_partner": 0.886,
+   "p_trap": 0.94,
+   "theta_eff": 0.379,
+   "N_sat_rel": 0.824,
+   "hatcn_domains_killed": null,
+   "partner_risk": 59.7,
+   "CT_flag": false,
+   "electrical_role": "n-side: fails CGL p-side spec",
+   "issues": [
+    "not a p-side seed"
+   ],
+   "score": 0.615
+  },
+  {
+   "formulation": "HATCN:TCTA 1:1",
+   "partner": "TCTA",
+   "E_b_partner": 0.279,
+   "tau_s": 7.57e-06,
+   "p_trap": 0.03,
+   "theta_eff": 0.005,
+   "N_sat_rel": 0.798,
+   "hatcn_domains_killed": true,
+   "partner_risk": 47.1,
+   "IP_partner": 6.306,
+   "CT_class": "strong",
+   "CT_flag": true,
+   "dq_partner": -0.0313,
+   "issues": [
+    "CT with HATCN (strong)"
+   ],
+   "score": 0.614
+  },
+  {
+   "formulation": "HATCN:Liq 1:1",
+   "partner": "Liq",
+   "E_b_partner": 0.398,
+   "tau_s": 0.000755,
+   "p_trap": 0.25,
+   "theta_eff": 0.101,
+   "N_sat_rel": 0.832,
+   "hatcn_domains_killed": true,
+   "partner_risk": 71.7,
+   "IP_partner": 7.111,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.07,
+   "issues": [
+    "partner crystallises itself"
+   ],
+   "score": 0.599
+  },
+  {
+   "formulation": "Bphen:Cs 0% (no HATCN)",
+   "partner": "Bphen",
+   "E_b_partner": 0.621,
+   "p_trap": 0.94,
+   "theta_eff": 0.329,
+   "N_sat_rel": 0.791,
+   "hatcn_domains_killed": null,
+   "partner_risk": 59.7,
+   "CT_flag": false,
+   "electrical_role": "n-side: fails CGL p-side spec",
+   "issues": [
+    "not a p-side seed"
+   ],
+   "score": 0.582
+  },
+  {
+   "formulation": "HATCN:CBP 1:1",
+   "partner": "CBP",
+   "E_b_partner": 0.279,
+   "tau_s": 7.57e-06,
+   "p_trap": 0.03,
+   "theta_eff": 0.005,
+   "N_sat_rel": 0.798,
+   "hatcn_domains_killed": true,
+   "partner_risk": 65.5,
+   "IP_partner": 6.734,
+   "CT_class": "weak possible",
+   "CT_flag": true,
+   "dq_partner": -0.0012,
+   "issues": [
+    "CT with HATCN (weak possible)",
+    "partner crystallises itself"
+   ],
+   "score": 0.427
+  }
+ ],
+ "kmc_neat_partner": {
+  "0.0": {
+   "N_sat": 0.016316731770833332,
+   "theta_perc": 0.4747517903645833
+  },
+  "0.1": {
+   "N_sat": 0.049112955729166664,
+   "theta_perc": 0.4522705078125
+  },
+  "0.2": {
+   "N_sat": 0.06483968098958333,
+   "theta_perc": 0.4318033854166667
+  },
+  "0.35": {
+   "N_sat": 0.07820638020833333,
+   "theta_perc": 0.4262898763020833
+  },
+  "0.5": {
+   "N_sat": 0.08516438802083333,
+   "theta_perc": 0.4242146809895833
+  },
+  "1.0": {
+   "N_sat": 0.0965576171875,
+   "theta_perc": 0.4288330078125
+  }
+ }
+}
