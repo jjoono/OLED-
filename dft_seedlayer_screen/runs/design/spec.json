@@ -1,0 +1,20 @@
+{
+ "role": "p-side seed of charge-generation junction: n-ETL / seed / Ag (top)",
+ "reference": "HATCN",
+ "hard": {
+  "EA_min_eV": 3.39,
+  "dq_max_e": 0.0,
+  "gap_gfn2_min_eV": 0.83,
+  "MW_range": [300, 900],
+  "HBD_max": 0,
+  "synth_class_max": 2,
+  "SA_max": 4.5
+ },
+ "Eb_target_eV": 1.0,
+ "optical_finalists": {
+  "neutral_no_state_f_gt": 0.02, "below_eV": 3.1,
+  "anion_visible_sum_f_max": "HATCN anion value at same level (1.65-3.1 eV)"
+ },
+ "objectives": {"Eb_pred": "max", "cryst_risk": "min", "gap_gfn2": "max", "synth_cost": "min"},
+ "HATCN_values": {"EA": 3.693, "gap_gfn2": 1.18, "cryst_risk": 92.2, "Eb_pbe0": 1.631, "dq": -0.197}
+}
