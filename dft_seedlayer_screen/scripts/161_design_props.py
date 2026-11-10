@@ -28,6 +28,7 @@ OUT = os.path.join(ROOT, "runs", "design", "props.jsonl")
 XYZ = os.path.join(ROOT, "structures", "design")
 BOHR = 0.52917721092
 HA = 27.211386
+SHIFT = 4.8455
 MASS = {"H": 1.008, "C": 12.011, "N": 14.007, "O": 15.999, "F": 18.998, "Cl": 35.45}
 
 
@@ -98,7 +99,9 @@ def work(item):
         f.write(f"{len(S)}\n{name} GFN2\n")
         for s, x in zip(S, X):
             f.write(f"{s} {x[0]:.5f} {x[1]:.5f} {x[2]:.5f}\n")
-    return {"name": name, "IP": round((ep - e0) * HA, 3), "EA": round((e0 - em) * HA, 3),
+    # xtb's empirical IPEA shift (4.8455 eV), as in `xtb --vipea`
+    return {"name": name, "IP": round(float((ep - e0) * HA - SHIFT), 3),
+            "EA": round(float((e0 - em) * HA - SHIFT), 3),
             "gap_gfn2": round(float(lumo - homo), 3), "threeD": round(float(td), 3),
             "thick_A": round(float(thick), 3),
             "cryst_risk": round(risk(td, d["nrot"], d["sym_frac"], d["MW"]), 1),
