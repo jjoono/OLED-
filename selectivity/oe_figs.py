@@ -67,7 +67,7 @@ def evaluate(BTair, BR, dev, i):
     x = np.linalg.solve(np.eye(90) - R[:, None] * BR, P); air = x @ BTair
     lam2 = mixing.lam2_cut(BR)
     return dict(eta=float(air.sum()), S=[float(air[a:b].sum() / air.sum()) for a, b in BANDS],
-                closed=mixing.closed(pT, W1, R), m0=mixing.reduced(pT, W1, R, P, 0.0), red=mixing.reduced(pT, W1, R, P, 1 - lam2),
+                closed=mixing.closed(pT, W1, R), m0=mixing.reduced(pT, W1, R, P, 0.0), m1=mixing.reduced(pT, W1, R, P, 1.0), red=mixing.reduced(pT, W1, R, P, 1 - lam2),
                 p=float(pT @ (W1 / W1.sum())), lam2=lam2, first=P @ BTair)
 
 
