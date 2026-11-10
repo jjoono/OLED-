@@ -1,4 +1,4 @@
-# Practical Saturation of Freeform Microlens Arrays on Extended OLED Emitters and Design Routes beyond Lens Shape
+# An Angular Mixing Number for Passive Light-Extraction Structures: Why Microlens Shape Saturates on Extended OLED Emitters
 
 **Authors** — [TBD]
 
@@ -6,46 +6,75 @@
 
 ## Abstract
 
-Freeform microlens arrays (MLAs) are widely expected to control both the light-extraction efficiency and the angular emission of organic light-emitting diodes (OLEDs). We test this expectation for MLAs tiled over an extended emitter. We couple an experimentally validated dipole-microcavity source model to three-dimensional ray tracing and compare an axisymmetric freeform MLA with an equally optimized hemispherical MLA under identical constraints. Total external quantum efficiency (EQE) and four polar bands are optimized as separate objectives. The freeform optimum exceeds the hemisphere by at most 7% in any band and by 1.3% in total EQE. A control that restarts every search at the hemispherical optimum shows that these small margins come from the design space, not from a weak search. All sampled designs collapse onto one line relating band power to total EQE. Among efficient designs the angular composition stays within a narrow window. This holds for convex, concave, and randomly assembled arrays alike. We trace the saturation to three causes: the output/source area ratio of a coextensive array is fixed, the thick substrate mixes light laterally, and a passive film cannot raise radiance. The platform uses a lossy Al cathode, the regime in which lens shape has the most leverage, so the saturation is expected to be stronger in low-loss devices. We then map the design routes that remain productive, led by a lower round-trip loss.
+Microlens arrays, scattering layers, and random textures are widely used to extract substrate modes from organic light-emitting diodes (OLEDs), and machine-learning optimization of their shapes is increasingly common. There is, however, no common metric for comparing such structures. Closed-form models assume that the angle of the returned light is fully randomized on every pass, and angle-resolved matrix models are evaluated only numerically. Here we treat multi-pass extraction as a Markov chain on the polar angle in the substrate. The return matrix of a passive, reciprocal structure obeys detailed balance with respect to the étendue weight, so its spectrum is real. Its second eigenvalue $\lambda_2$ defines an angular mixing number $N_{\mathrm{mix}} = 1/(1-\lambda_2)$, the number of passes a structure needs to lose the angle of the incident light. A reduced model that describes each structure only by its angle-resolved escape probability $p(\theta)$ and $N_{\mathrm{mix}}$ reproduces the full angle-resolved series to within 0.6 percentage points (pp) on average over 144 combinations of three devices, three wavelengths, and planar, scattering, and microlens structures. The memoryless closed form deviates by 5.4 pp on average and by up to 60 pp. On the $(p, N_{\mathrm{mix}})$ map the structure classes separate. Hemispherical microlens arrays have the highest escape probability but return light at its original angle for about eight passes, so the angles they transmit well are depleted first. Scattering layers forget the angle within one or two passes but escape less. Randomizing the lenslet shapes, or replacing the lenses by a gently wavy surface, keeps the microlens escape probability while lowering $N_{\mathrm{mix}}$ to the level of a scattering layer. Resolving the radiance-ordered extraction bound into polar bands for the anisotropic radiance of a microcavity OLED shows that every passive structure reaches only 35–80% of it on the first pass, and that angle-insensitive structures keep the 40–60° selectivity within 0.33–0.36 regardless of their type. Freeform optimization of the lens profile therefore changes $N_{\mathrm{mix}}$ but hardly $p$, and gains at most 7% in any polar band over an equally optimized hemisphere.
 
 ---
 
 ## 1. Introduction
 
-A planar OLED loses much of its generated light. Waveguided modes in the organic layers, losses at the metal electrode, and total internal reflection (TIR) at the substrate/air interface all trap photons [1,2]. External MLAs extract the substrate modes without touching the electrical stack, which makes them attractive for large-area and flexible OLEDs [3–5]. Hemispherical and near-hemispherical MLAs already give high efficiencies [4,5]. With external outcoupling structures, however, OLED EQEs have generally plateaued near 55–60%. This ceiling has recently been traced to the loss that light returned by the outcoupling structure suffers on each round trip through the device [6]. High total extraction has also been reached without lenses, by combining an external scattering layer with horizontally oriented emitters [7].
+A planar OLED loses much of its generated light. Waveguided modes, losses at the metal electrode, and total internal reflection (TIR) at the substrate/air interface all trap photons [1,2]. External structures on the substrate extract the substrate modes without touching the electrical stack: microlens arrays (MLAs) [3–5], scattering layers [6,7], and textured films [8]. Their shapes are increasingly optimized by inverse design and machine learning [9,10]. With such structures, OLED external quantum efficiencies (EQEs) have generally plateaued near 55–60%, a ceiling recently traced to the loss that light returned by the structure suffers on each round trip through the device [11].
 
-More complex lens shapes are still expected to do better. Freeform illumination optics and inverse design are powerful tools for producing a prescribed intensity distribution. They have recently been applied to micro-LED and OLED packaging [8,9]. Tuning lenslet curvature, height, asymmetry, and the microcavity together should, in principle, give finer control over both total extraction and emission into chosen directions.
+What is missing is a common way to compare the structures themselves. Two descriptions are in use. The first is the statistical ray-optics picture, in which the light in the substrate is assumed to be fully randomized in angle on every pass [12,13]. The extraction efficiency then depends on one escape probability $p$ and one round-trip loss $A'$, $\eta = p/[p+(1-p)A']$ [11]. The second propagates the angle-resolved power distribution from pass to pass with redistribution matrices, as in the OPTOS formalism for solar cells [14], in models of textured LEDs [15], and in the trans-scale model of ref. [11]. The matrix models are accurate but numerical, and the degree of randomization they contain is not extracted. Where randomization has been quantified, it has been done empirically: by a randomization fraction [16], by the number of passes after which the internal distribution looks Lambertian [17], or not at all, as noted for partial randomization in thin-film solar cells [18].
 
-That expectation comes from optics built around point-like sources, and it may not carry over to an OLED. Freeform design methods were developed for sources of near-zero étendue. A thin-film OLED is an extended source, and its light reaches the array only after travelling inside a millimetre-thick substrate, often over several round trips. Whether shape freedom pays off in this regime is therefore an open question, and the answer has a practical cost. Freeform molding raises fabrication and metrology effort. If it buys little over a hemisphere, the next design step should be a change of loss, source, or aperture rather than a more complex surface.
+The distinction matters for OLEDs. A hemispherical MLA returns unextracted light largely at its original angle [11]. Light at angles it transmits well leaves in the first passes, and later passes see mostly light at angles it transmits poorly. The memoryless formula then overestimates extraction, and the error depends on the structure. It also matters for the expected value of shape optimization. If a structure acts mainly through how it redistributes returned light, a freeform profile may change the redistribution without changing how much light escapes.
 
-The round-trip-loss analysis of ref. [6] already showed that, in a low-loss device, the EQE becomes insensitive to the aspect ratio of a hemispherical microlens. That analysis concerned total efficiency and a one-parameter lens family. It did not ask whether a freely shaped profile can steer power into chosen polar bands, nor whether the angular composition of the output can be moved at all.
-
-We therefore ask: **how much is lens-shape freedom worth for a tiled refractive MLA on an extended OLED?** We answer with a controlled numerical benchmark. We use one source model that has been validated against fabricated devices [10,11] and one set of manufacturable constraints. Under these we compare a hemispherical MLA and an axisymmetric freeform MLA, each optimized for total EQE and for four polar bands. A restart control separates the limits of the search from the limits of the physics. Two further external-film families, inverted (concave) and randomly assembled arrays, test whether the outcome depends on how the array is built. The result is a reproducible numerical observation for this platform, not an impossibility theorem: a *practical saturation* of the explored design space. We explain why it occurs and map which levers remain productive beyond it.
+Here we introduce an angular mixing number, $N_{\mathrm{mix}} = 1/(1-\lambda_2)$, defined by the second eigenvalue of a structure's return matrix. It is the per-pass counterpart of the transport factor $1/(1-g)$ of radiative transfer [19] and of the relaxation time of a reversible Markov chain [20]. We show that $p(\theta)$ and $N_{\mathrm{mix}}$ suffice to predict multi-pass extraction for planar, scattering, and microlens structures, place the structure classes on a common map, and connect the map to the radiance-ordered extraction bound [21–23]. As a case study, we use a controlled freeform-versus-hemisphere benchmark on an experimentally validated OLED platform [24,25] to show why lens-shape freedom saturates.
 
 ---
 
-## 2. Methods
+## 2. Theory
 
-### 2.1 Source model and experimental validation
+### 2.1 Multi-pass extraction as a Markov chain on angle
 
-Dipole emission in the OLED microcavity is computed with the Chance–Prock–Silbey (CPS) formalism. The result is the substrate-side angular–spectral intensity $I_{\mathrm{sub}}(\theta,\lambda)$, which serves as the source for three-dimensional ray tracing in LightTools, driven from MATLAB through the COM interface (Fig. 1). The stack is Al (100 nm) / B3PyMPM ETL / TCTA:B3PyMPM EML (25 nm) / TCTA (10 nm) / TAPC HTL / ITO (150 nm) / glass. The organic layers are birefringent, with measured ordinary and extraordinary indices, and Al and ITO use dispersive optical constants. The emitter is Ir(dmppy-ph)$_2$tmd, with a horizontal dipole ratio of 0.865, a radiative efficiency of 0.98, and the emission zone at the centre of the EML; the emission spectrum spans 453–753 nm. With an Al cathode and an ETL of index about 1.8, light returned to the device loses about 13–16% per round trip [6], so the platform lies in the loss-limited regime where external structures reach EQEs near 55–60%. Section 4.3 discusses what this implies for the result. The emitting region is a disc of radius 1 mm, and the glass substrate is $d_{\mathrm{sub}} = 1.295$ mm thick with $n = 1.51$. All CPS inputs are listed in Supplement 1, Note S1 (Table S1).
+Light delivered to the substrate is described by a vector $\mathbf{v}$ of power in polar-angle bins $\theta_k$. On each encounter with the structure a fraction $p(\theta_k)$ escapes into air, and the remainder returns into the substrate with the redistribution matrix $B_R(\theta_i \to \theta_r)$. The device reflects the returned light with its angle-resolved reflectance $R(\theta)$, without changing its angle. The power reaching the structure after $m$ round trips is $\mathbf{v}^{(m)} = (\mathrm{diag}\,R\; B_R)^m\,\mathbf{v}^{(0)}$, and the substrate-to-air extraction efficiency is
 
-The CPS output is handed to the ray tracer one wavelength at a time. For each sampled wavelength, a 1 mm-radius disc source launches rays into the substrate with the polar distribution $I_{\mathrm{sub}}(\theta) = (I_s + I_p)/2$, imposed by a 90-bin direction-grid apodizer and uniform in azimuth. The source power is set to $\int I_{\mathrm{sub}}\sin\theta\,d\theta$. Light that the film returns to the device is reflected by a user coating on the device face, which carries the angle- and wavelength-resolved device reflectance $(R_s+R_p)/2$ computed by transfer matrices for the same stack. The total EQE is the sum over wavelengths of the traced extraction ratio multiplied by the CPS substrate-delivery efficiency at that wavelength. Polarization is therefore averaged both in the source and in the returned light. This is justified because rays in the substrate are reflected and refracted many times at the curved lens surfaces, which scrambles polarization, and because every class comparison uses the same treatment.
+$$
+\eta_{\mathrm{sta}} = \mathbf{p}^{\mathsf T}\left(I - \mathrm{diag}\,R\; B_R\right)^{-1}\mathbf{v}^{(0)} ,
+$$
 
-The same pipeline has been validated against fabricated devices with almost the same geometry. In ref. [11], OLEDs with a 1 mm emitting-aperture radius on a 1.4 mm substrate with $n_{\mathrm{sub}} = 1.51$ were made in three configurations: bare, MLA-attached, and with a structured outcoupler. Measured angular profiles and current efficiencies agreed with the simulations in all three cases, with measured maximum EQEs of 35.6%, 35.4%, and 48.0% (Fig. 3 and Table 2 of ref. [11]). In ref. [10], the pipeline reproduced the emission pattern and near-Lambertian angular electroluminescence of an inverted-MLA device. That device reached 58.0% EQE, against 30.5% for its planar control. The validation therefore covers the source model, the ray-optical treatment of microtextured exit faces, and both attached and inverted lenses, on the same emitter platform and substrate geometry used here.
+the matrix form of the trans-scale model [11]. Normalizing each column of $B_R$ gives a column-stochastic matrix $M$, the transition matrix of a Markov chain on the polar angle of the returned light.
 
-### 2.2 Lens classes and constraints
+### 2.2 Reciprocity, detailed balance, and the angular mixing number
 
-The exit face carries a hexagonal array of lenslets of about 10 μm radius over a 25 × 25 mm patch. The emitting disc is therefore about 100 lenslet radii across, and the array extends well beyond it. The lens material is N-BK7 ($n = 1.517$ at 589 nm), nearly index-matched to the substrate ($\Delta n = 0.007$, which changes the interface reflectance by about $10^{-5}$). The film/air boundary therefore sets the escape condition. The lens index is held fixed throughout. It is a property of the platform here, not a design variable.
+For a passive, reciprocal structure, the power scattered from bin $i$ into bin $j$ and from $j$ into $i$ obey $w_i\,B_R(i\to j) = w_j\,B_R(j\to i)$, where $w_k = \sin^2\theta_{k+1}-\sin^2\theta_k$ is the étendue of bin $k$. This is detailed balance with respect to the étendue weight. $M$ is therefore similar to a symmetric matrix, its eigenvalues are real, and for a lossless structure the uniform-radiance (Lambertian) distribution is stationary. The largest eigenvalue is one. The second, $\lambda_2$, sets how fast any other initial distribution relaxes towards the stationary one: the deviation shrinks by $\lambda_2$ per pass. We define the angular mixing number
 
-Two lens classes are compared (Fig. 1b):
+$$
+N_{\mathrm{mix}} = \frac{1}{1-|\lambda_2|},
+$$
 
-- **Hemispherical reference.** The profile is the same spline with its five control points fixed on the quarter circle. It reproduces a true circle to within 0.007 lens radii for $r < 0.95$ and 0.055 lens radii at the rim. The lens height and the ETL and HTL thicknesses are free.
-- **Axisymmetric freeform.** The profile is a spline with endpoints fixed at (0,1) and (1,0) and five free control points, whose radial coordinates are constrained monotonic. Together with the two cavity thicknesses and the lens height, this gives 13 design variables.
+the number of passes the structure needs to forget the angle of the incident light. A planar interface has $\lambda_2 = 1$ and $N_{\mathrm{mix}} = \infty$; a Lambertian scatterer has $\lambda_2 = 0$ and $N_{\mathrm{mix}} = 1$. $N_{\mathrm{mix}}$ is the relaxation time of the chain [20] and the per-pass analogue of the $1/(1-g)$ scattering events that a photon needs to lose its direction in radiative transfer [19]. Because states at near-grazing angles carry almost no étendue but can return light at the same angle, we evaluate $\lambda_2$ on $\theta < 85°$, which excludes 0.76% of the étendue (Note S10).
 
-Both classes share the same material, pitch, fill factor, height range, and cavity bounds (Table 1). Because the hemispherical reference is the member of the spline family whose control points lie on the quarter circle, it is an exact point of the freeform design space. The freeform constraints are never more permissive than the hemisphere's, so any difference measures shape freedom alone. Cavity thicknesses are optimized together with the lens in every campaign, so each class is compared at its own best cavity.
+### 2.3 Reduced model
 
-**Table 1 | Design variables, bounds, and feasibility rules.**
+The reduced model keeps the angle-resolved escape probability $p(\theta)$ and replaces $B_R$ by a single mixing parameter $m$: the returned light is $(1-p(\theta))[(1-m)\,\delta(\theta_r-\theta_i) + m\,w(\theta_r)/\sum w]$. With $m = 1$ and a scalar $p$, this is the memoryless formula of ref. [11]; with $m = 0$ the structure returns every ray at its own angle. We set $m = 1-\lambda_2$, so that the reduced model relaxes at the same rate as the full matrix.
+
+### 2.4 Band-resolved radiance-ordered bound
+
+The power that a passive structure can send into a set of output directions in one encounter is bounded by filling the corresponding output étendue with the brightest internal radiance first [21–23]. For a uniform internal radiance the bound reduces to the étendue ratio, $1/n^2$ for the full hemisphere [12] and $(\sin^2\theta_{\mathrm{hi}}-\sin^2\theta_{\mathrm{lo}})/n^2$ for a polar band in air. An OLED microcavity, however, launches an anisotropic radiance into the substrate. We resolve the bound into the four polar bands used below, with the actual first-pass radiance of the device, and use it to rate how much of the available phase space each structure uses.
+
+---
+
+## 3. Methods
+
+### 3.1 Devices
+
+Dipole emission and the device reflectance are computed with the Chance–Prock–Silbey model extended to birefringent layers and with transfer matrices, using measured optical constants [11,24]. Three bottom-emitting stacks are used. The first is the platform of the freeform benchmark: Al (100 nm) / B3PyMPM / TCTA:B3PyMPM:Ir(dmppy-ph)$_2$tmd (25 nm) / TCTA (10 nm) / TAPC / ITO (150 nm) / glass ($n = 1.51$), with a horizontal dipole ratio of 0.865. Its round-trip loss for Lambertian light is $A' = 0.17$ at 530 nm. The second replaces Al by Ag ($A' = 0.049$). The third is a low-loss stack, Ag / B3PyMPM (200 nm) / EML / TAPC (180 nm) / ITO (50 nm), on glass ($A' = 0.027$) [11]. The angular distribution of the light delivered to the substrate and the device reflectance are computed per wavelength.
+
+### 3.2 Structures and their return matrices
+
+All structures are index-matched to the substrate, so the structure/air boundary sets the escape condition. Their transmission and return matrices are computed on 1° (microlenses) or 0.5° (others) polar bins.
+
+- **Planar interface.** Fresnel reflection, returned at the incident angle.
+- **Scattering layers.** Index-matched, non-absorbing slabs with a Henyey–Greenstein phase function (asymmetry $g$ = 0–0.9) and transport optical thickness $\tau^* = S(1-g)$ = 0.25–4, combined with the flat exit face by the adding method; Monte Carlo with 20,000 rays per incidence bin.
+- **Hexagonal MLAs.** Close-packed axisymmetric lenslets of the spline family of the benchmark (Table 1), traced with a height-field Monte-Carlo tracer that reproduces the LightTools return matrix of the hemispherical MLA (escape probability 0.4275 against 0.4274; Note S11). The set includes the hemispherical and freeform optima of the benchmark.
+- **Random MLAs.** A 6 × 6 supercell in which every lenslet carries its own profile (shape spread $s$ about the quarter circle), its own height (aspect spread), or a jittered position and radius; overlapping lenslets take the higher surface.
+- **Wavy surfaces.** Periodic Gaussian-correlated random height fields with rms slope 0.2–1.5. Ray optics is scale-free, so only the slope distribution matters.
+
+### 3.3 Freeform benchmark
+
+The case study of Section 4.4 compares an axisymmetric freeform MLA with an equally optimized hemispherical MLA on the Al platform. LightTools ray tracing is driven from MATLAB, with the CPS source on a 1 mm-radius disc and a 1.295 mm glass substrate. The pipeline has been validated against fabricated devices with nearly the same geometry, including attached and inverted MLAs [24,25]. Both lens classes share the material, pitch, height range, and cavity bounds (Table 1); the hemisphere is a point of the freeform design space. Total EQE and the EQE in four polar bands (0–20°, 20–40°, 40–60°, 60–80°) are optimized as separate objectives by surrogate-based global search followed by pattern search. Every optimum is re-evaluated three times with 50,000 rays and 151 wavelengths. A restart control repeats every search from the hemispherical optimum and tests the gain with a pooled $t$ statistic, with Holm correction for the five objectives (Note S2).
+
+**Table 1 | Design variables, bounds, and feasibility rules of the benchmark.**
 
 | Quantity | Freeform | Hemispherical reference |
 |---|---|---|
@@ -57,64 +86,46 @@ Both classes share the same material, pitch, fill factor, height range, and cavi
 | Feasibility rules | no self-intersection or collinear triples; control-point spacing 0.05–1.0; turning angle between adjacent segments ≤ 120° | always satisfied |
 | Free variables | 13 | 3 |
 
-Candidates that violate a feasibility rule are not traced. They are returned to the optimizer as infeasible, so that `surrogateopt` learns the feasible region.
-
-### 2.3 Figures of merit
-
-The total EQE, $\mathrm{EQE}_{\mathrm{total}}$, counts all photons emitted into air over the full hemisphere (0–90°). The far field is divided into four polar bands over the full azimuth: 0–20°, 20–40°, 40–60°, and 60–80°. The band EQE, $\mathrm{EQE}_j$, is the fraction of generated photons emitted into band $j$. The band selectivity is
-
-$$
-S_j=\frac{\mathrm{EQE}_{j}}{\mathrm{EQE}_{\mathrm{total}}} .
-$$
-
-The four selectivities therefore sum to slightly less than one. The 80–90° remainder is 3.1% of the output for the median design (2.1–8.2% over all designs) and falls as efficiency rises; normalizing the bands to 0–80° instead changes none of the conclusions (Note S4). As an analytic reference we use the Lambertian partition $S_j^{\mathrm{Lam}} = \sin^2\theta_{\mathrm{hi}} - \sin^2\theta_{\mathrm{lo}}$, which gives 0.117, 0.296, 0.337, and 0.220. The value of shape freedom for objective $j$ is the relative gain
-
-$$
-G_j=\frac{\max\left[\mathrm{EQE}_j\mid\mathrm{freeform}\right]}{\max\left[\mathrm{EQE}_j\mid\mathrm{hemisphere}\right]} .
-$$
-
-Each maximum is the mean of three high-precision re-evaluations of the best design. Because the hemispherical reference is a point of the freeform design space, $G_j \ge 1$ holds for an exhaustive search.
-
-### 2.4 Optimization and the restart control
-
-Each objective is optimized by surrogate-based global search (MATLAB `surrogateopt`), followed by `patternsearch` polishing from the surrogate winner. The campaigns are:
-
-- one optimization per objective, for total EQE and each of the four bands;
-- a dedicated total-EQE campaign with three independent starts;
-- a weighted-sum sweep, $J_w = w\,\hat{\eta}_{\mathrm{ext}} + (1-w)\,\hat{P}_{40\text{–}60}$ with $w \in \{0, 0.25, 0.5, 0.75, 1\}$, together with 150 random feasible designs that populate the design space without optimizer bias.
-
-Searches use 10,000 rays and 31 wavelengths. Every reported optimum is re-evaluated three times with 50,000 rays and 151 wavelengths; the standard deviation of a re-evaluated EQE is about $10^{-4}$. Budgets, trace counts, and failure rates for every campaign are listed in Supplement 1, Table S2. An evaluation counts as usable when the trace returns a positive total EQE; no other filtering is applied. Of the 691 logged evaluations of the weighted-sum campaign, 606 are usable (114 of the 150 random designs). Trace failures occurred in 10.5% of the freeform per-band evaluations and in none of the hemisphere evaluations.
-
-A search that misses part of its own design space could report a false absence of gain. To exclude this, we ran a restart control. For each objective, the search was restarted from that objective's hemispherical optimum, using the identical objective, constraints, and fidelities. The hemisphere point and eight perturbations within 8% of each variable's range were placed in the seed set. A pattern search was also launched directly from the hemisphere point. The hemisphere baseline was re-measured in the same session. The test statistic is the absolute difference of the two means divided by its pooled standard error, $t = \Delta/(s_p\sqrt{2/n})$ with $n = 3$ repeats per design. An objective counts as improved when $t$ exceeds the one-sided 95% threshold, 2.13 at four degrees of freedom. The three large effects reported below remain significant under a Holm correction for the five objectives (step-wise thresholds 2.78–3.75). The one borderline case was re-measured with five repeats per design (threshold 1.86 at eight degrees of freedom). The control is biased toward reporting a gain, because the winner is the maximum over many noisy evaluations. A null result under it is therefore conservative (Supplement 1, Note S2).
-
-The sampling uncertainty of the selectivity–efficiency correlations was checked on 20 designs spread across the efficiency range. These were re-evaluated with 200,000 rays (three repeats) and over a 450–750 nm broadband spectrum (Note S5). The dependence of absolute EQE on patch size was measured separately (Note S3).
-
-### 2.5 Additional external-film families
-
-Two further manufacturable families test whether the outcome depends on array construction:
-
-- **Inverted (concave) MLA.** The concave counterpart of the same profile class, as realized by dimples in an ultrathin substrate [10]. It uses the same per-band protocol as the convex benchmark: four single-band optimizations of 60 surrogate evaluations plus 15 polish steps each.
-- **Randomly assembled MLA.** A 6 × 6-lenslet pseudo-random supercell, tiled over the patch. Lenslet positions are jittered off the hexagonal lattice, and each lenslet carries an independently drawn profile from the same class. Six assembly statistics replace the lens shape as design variables: fill factor, radius jitter, position jitter, mean aspect ratio, aspect jitter, and a hemisphere-to-random profile blend. The campaign samples 50 random realizations and then optimizes these statistics. Because the disorder correlation length is one pitch, a sixth of the supercell, the supercell is statistically equivalent to a fully random array.
-
-A supercell trace is expensive, so the random family uses reduced sampling (5,000 rays and 16 wavelengths during search). A calibration shows that this shifts band selectivity by at most 0.39 percentage points (pp), comparable to the Monte-Carlo spread (Note S6).
-
-All three families are external outcoupling films: they act on light that has already entered the substrate. Internal arrays beneath the electrode, which address waveguided rather than substrate modes [5], change the emitting stack itself. They lie outside this comparison.
-
-**Fig. 1 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture: CPS microcavity dipole source (emitting radius 1 mm), glass substrate ($d_{\mathrm{sub}} = 1.295$ mm), hexagonal lenslet array (~10 μm lens radius, 25 × 25 mm). (b) The two lens classes under identical constraints, drawn in units of the lens radius: the hemispherical reference (3 free variables) and the axisymmetric freeform (13 variables). Open circles are the five free spline control points; the freeform shown is the 40–60° optimum. (c) The four polar bands and the band selectivity $S_j$, taken over the full azimuth. (d) Optimization workflow: CPS source, LightTools ray tracing through the MATLAB COM interface, surrogate-based global search, pattern-search polishing, and high-ray re-evaluation. *(`fig1_platform.png`)*
+**Fig. 1 | Multi-pass extraction as a Markov chain on angle.** (a) Light delivered to the substrate meets the passive structure, which transmits a fraction $p(\theta)$ and returns the rest with the redistribution $B_R(\theta_i\to\theta_r)$; the device reflects the returned light with $R(\theta)$ and a round-trip loss $A'$. (b–d) Column-normalized return matrices $M$ (log scale) of a planar interface, the hemispherical MLA, and a scattering layer ($g$ = 0.8, $\tau^*$ = 1), with $\lambda_2$ and $N_{\mathrm{mix}}$. *(`fig1_mixing_concept.png`)*
 
 ---
 
-## 3. Results
+## 4. Results
 
-### 3.1 Freeform versus an equally optimized hemisphere
+### 4.1 Two parameters predict multi-pass extraction
 
-Figure 2 compares the two lens classes. The band-optimized freeform profiles differ visibly from the hemisphere and from one another (Fig. 2a). These shape differences buy little performance. The relative gains are $G_j$ = 1.003, 1.002, 1.070, and 1.036 for the four bands, and $G$ = 1.013 for total EQE (Fig. 2b). In no objective does the freeform exceed the hemisphere by more than 7%, and in none does it fall below.
+Figure 2 compares three models with the full angle-resolved series for 144 combinations: three devices, three wavelengths (500, 550, and 600 nm), and sixteen structures (planar, six scattering layers, and nine MLAs). The memoryless formula fails for structures that retain the angle (Fig. 2a). It overestimates the planar interface by up to 60 pp, because it lets returned light reach the escape cone that a flat face never lets it reach, and it overestimates the hemispherical MLA by 2–3 pp. Assuming that every ray returns at its own angle fails in the opposite direction for scattering layers (Fig. 2b). With $m = 1-\lambda_2$, the reduced model reproduces the series to within 0.57 pp on average and 4.5 pp at most (Fig. 2c). For the hemispherical MLAs the mean error is 0.19 pp. The remaining errors occur for thin isotropic scatterers and some freeform lenses, whose mixing is not uniform across angles (Note S10).
 
-The total-EQE ceiling of the freeform class was found twice, by two different procedures. The dedicated campaign reaches 0.5539, with a 0.8% spread across three independent starts. The restart control reaches 0.5523 in the same session as the hemisphere baseline of 0.5468. The two estimates agree within 0.3%.
+A structure is therefore described, for the purpose of multi-pass extraction, by its angle-resolved escape probability and one number for how fast it forgets the angle.
 
-The restart control also shows how much of the remaining margin is real (Fig. 2c). Gains above the hemisphere are significant in three objectives: +4.70% at 40–60° ($t = 115$), +3.64% at 60–80° ($t = 30$), and +1.01% for total EQE ($t = 69$). In the two lower bands the residual gains are +0.32% at 0–20° ($t = 1.7$) and +0.20% at 20–40° ($t = 2.1$), both below the threshold. A five-repeat re-measurement settles the 20–40° case as a real but tiny residue of +0.29% ($t = 4.1$). The same procedure that resolves a +0.29% residue does not miss gains ten times larger. The small values at 0–40° therefore show that shape freedom is worth little there, not that the search is weak. The original, randomly seeded per-band campaign under-recovered the hemisphere in these two bands. The restart corrects this, and the restart values are the ones reported (Note S2).
+**Fig. 2 | Validation of the reduced model.** Extraction efficiency $\eta_{\mathrm{sta}}$ predicted by (a) the memoryless formula $\eta = p/[p+(1-p)A']$, (b) the angle-preserving limit ($m = 0$), and (c) the reduced model with $m = 1-\lambda_2$, against the full angle-resolved series. Symbols: planar (squares), scattering layers (circles), hemispherical (diamonds) and freeform (triangles) MLAs; Al, Ag, and low-loss devices at 500, 550, and 600 nm. *(`fig2_reduced_model.png`)*
 
-Table 2 collects every entry behind these numbers. Two different quantities appear in it, and they should not be confused. $G_j$ compares the best freeform design of any matched campaign with the archived hemisphere optimum. The restart gain compares, within one session, the restarted design with a re-measured hemisphere. For 40–60° the two give 1.070 and +4.70%, because the per-band campaign found a better freeform design (0.19802) than the restart did (0.19355).
+### 4.2 The structure map
+
+Figure 3a places all structures on the $(p, N_{\mathrm{mix}})$ plane, with contours of $\eta_{\mathrm{sta}}$ for the Al device. The classes separate:
+
+- **Planar interface:** $p$ = 0.40 and $N_{\mathrm{mix}} = \infty$. Light outside the escape cone never reaches it, and $\eta_{\mathrm{sta}}$ = 0.38.
+- **Scattering layers:** $N_{\mathrm{mix}}$ = 1.1–2.3, but $p$ = 0.19–0.39, falling with thickness because more light is back-scattered before it reaches the exit face. $\eta_{\mathrm{sta}}$ = 0.58–0.75.
+- **Hemispherical MLAs:** the highest escape probability, $p$ = 0.42, but $N_{\mathrm{mix}}$ ≈ 7–9. $\eta_{\mathrm{sta}}$ = 0.79.
+- **Freeform MLAs:** $p$ = 0.42–0.43, like the hemisphere, with $N_{\mathrm{mix}}$ ≈ 3–8.
+
+Randomness lowers $N_{\mathrm{mix}}$ without lowering $p$ (Fig. 3b). Drawing every lenslet profile independently reduces $N_{\mathrm{mix}}$ from 7.8 to 2.1 while $p$ stays at 0.42–0.43. A gently wavy surface reaches $\lambda_2$ = 0.12 at an rms slope of one, which is lower than that of a scattering layer of $\tau^* = 1$, at $p$ = 0.42. Varying only the lenslet heights, by contrast, leaves $N_{\mathrm{mix}}$ at the hemisphere value. [Position-jitter and complete wavy-surface results to be inserted when the sweep finishes.]
+
+The contours show what this is worth. On the Al device, a structure with $p$ = 0.42 gains about 1 pp in $\eta_{\mathrm{sta}}$ when $N_{\mathrm{mix}}$ falls from 8 to 2. The leverage of mixing grows with the round-trip loss: the more light is absorbed per pass, the more it matters that later passes still see favourable angles (Section 5).
+
+**Fig. 3 | The structure map.** (a) Escape probability for Lambertian incidence and angular mixing number of planar, scattering, hemispherical, freeform, random-lens, and wavy structures, with contours of $\eta_{\mathrm{sta}}$ from the reduced model for the Al device at 550 nm. (b) $N_{\mathrm{mix}}$ against the randomness parameter: lenslet shape spread, position jitter, and rms slope of a wavy surface; the dotted line marks a scattering layer ($g$ = 0.8, $\tau^*$ = 1). *(`fig3_structure_map.png`)*
+
+### 4.3 How much of the radiance bound passive structures use
+
+On the first pass, the microcavity delivers light to the substrate with a radiance that is far from uniform. For the Al platform at 550 nm, filling each air band with the brightest internal radiance allows 0.085, 0.205, 0.230, and 0.156 of the substrate power into the 0–20°, 20–40°, 40–60°, and 60–80° bands, and 0.540 in total (Fig. 4a). The uniform-radiance bound gives 0.051, 0.130, 0.148, and 0.096, and 0.439 in total. Every passive structure we examined stays well below the band-resolved bound. The MLAs reach 76–80% of it in total and 55–70% per band, the planar interface 65%, and the scattering layers 35–68%. The lenses transmit almost exactly as much as a structure facing uniform radiance would (0.43 against 0.44), so the anisotropy that the cavity provides is not used.
+
+The output composition, finally, is nearly independent of the structure type (Fig. 4b). Over planar, scattering, hemispherical, freeform, random, and wavy structures, the share of the output in the 40–60° band stays between 0.33 and 0.36, close to the Lambertian partition of 0.337. Within the class of angle-insensitive passive structures, the angular composition of multi-pass output is therefore set by the platform rather than by the structure.
+
+**Fig. 4 | Radiance bound and composition window.** (a) First-pass power into each polar band for the Al platform at 550 nm: uniform-radiance bound, radiance-ordered bound for the actual cavity emission, hemispherical MLA, and scattering layer. (b) 40–60° selectivity of the multi-pass output against $\eta_{\mathrm{sta}}$ for all structures; the band marks 0.33–0.36 and the dotted line the Lambertian partition. *(`fig4_bound_window.png`)*
+
+### 4.4 Case study: freeform versus an equally optimized hemisphere
+
+The map explains the result of a controlled shape-optimization benchmark. On the Al platform, band-optimized freeform profiles differ visibly from the hemisphere and from one another (Fig. 5a), but the gains are small: $G_j$ = 1.003, 1.002, 1.070, and 1.036 for the four bands, and $G$ = 1.013 for total EQE (Fig. 5b, Table 2). The restart control shows that these margins come from the design space and not from a weak search (Fig. 5c). Gains are significant at 40–60° (+4.70%, $t$ = 115), 60–80° (+3.64%, $t$ = 30), and for total EQE (+1.01%, $t$ = 69), and remain significant under Holm correction. At 0–40° the residues are +0.32% and +0.20%; a five-repeat re-measurement resolves the 20–40° residue as +0.29% ($t$ = 4.1). The same procedure that resolves a +0.29% residue does not miss gains ten times larger.
 
 **Table 2 | Freeform versus hemisphere for each objective.**
 
@@ -126,98 +137,33 @@ Table 2 collects every entry behind these numbers. Two different quantities appe
 | 60–80° | 0.13589 | 0.14075 | restart control | 1.036 | 0.13581 ± 0.00014 → 0.14075 ± 0.00025 | +3.64%, 30 |
 | Total EQE | 0.54679 | 0.5539 | dedicated total-EQE campaign | 1.013 | 0.54679 ± 0.00013 → 0.55231 ± 0.00004 | +1.01%, 69 |
 
-The hemisphere is therefore not merely a convenient baseline. It is a practical near-optimum of this structural class. This does not mean the optimum is exactly hemispherical. The best profiles differ from one another, and the low-efficiency part of the design space is diverse. Near the top of the performance range, however, this diversity does not convert into meaningful extra efficiency or band power.
+In the language of Section 4.2, every optimized freeform lens has the same escape probability as the hemisphere ($p$ = 0.42–0.43) and differs from it only in $N_{\mathrm{mix}}$ and in the shape of $p(\theta)$. Shape freedom thus moves a structure vertically on the map, where the $\eta_{\mathrm{sta}}$ contours are flat, and cannot move it to the right, where they are steep. The band selectivities of all designs follow the same picture: across 606 sampled designs the 40–60° band EQE is proportional to the total EQE ($R^2$ = 0.968), and band-dedicated optimization raises the band power by at most a factor of 1.22 net of the loss in total EQE (Note S4). The same collapse holds for inverted and randomly assembled arrays (Note S7).
 
-**Fig. 2 | Freeform versus an equally optimized hemisphere.** (a) Band-optimized freeform profiles (colored) against the hemispherical reference at its own optimized height (black), in units of the lens radius. (b) Best EQE reached by each class at each objective, labelled with the relative gain $G_j$. All entries come from campaigns at the same 25 × 25 mm patch. (c) Restart control: gain over the hemisphere when each search is restarted from the hemispherical optimum, labelled with $t$ against three high-precision repeats. Green marks gains above the one-sided 95% threshold ($t = 2.13$). A five-repeat re-measurement resolves the 20–40° residue as +0.29% ($t = 4.1$; Note S2). *(`fig2_hemisphere_benchmark.png`)*
-
-### 3.2 Total efficiency fixes the angular composition
-
-If shape freedom offered an independent angular degree of freedom, optimizing for one band would trade against total EQE and trace out a Pareto front. The data show no such front. Across all 606 usable evaluations of the weighted-sum campaign, the 40–60° band EQE is almost proportional to total EQE ($R^2 = 0.968$, Fig. 3a). This holds for random and optimized designs alike, across total EQE from 0.12 to 0.56: the 114 random designs alone give $R^2 = 0.967$, so the collapse is not produced by correlated points along optimizer trajectories. Because $\mathrm{EQE}_{40\text{–}60}$ is part of $\mathrm{EQE}_{\mathrm{total}}$, the substantive content of the collapse is that $S_{40\text{–}60}$ varies little; over all designs it stays within 0.336–0.375 (5–95%). The other bands collapse as well, with $R^2$ = 0.85, 0.93, and 0.77 for 0–20°, 20–40°, and 60–80° (slopes and intervals in Note S4). Every weight $w$ returns a design in the same high-efficiency cluster. For this design space, maximizing the band and maximizing total extraction are the same goal.
-
-The angular composition of efficient designs is correspondingly narrow. We take the median selectivity of the twenty designs with the highest total EQE as the *natural composition*: what a design acquires when only efficiency is pushed. It is 0.094 / 0.278 / 0.361 / 0.236 for the four bands. The 10–90% spread is a few thousandths in each band. These twenty designs were located by four different single-band objectives, so the agreement is not an artifact of a shared objective. Nor is it an artifact of the choice of twenty: the top-10, top-20, and top-50 medians and means differ by at most 0.003, and bootstrap 95% intervals are ±0.002–0.005 (Note S4). Compared with the Lambertian partition, the platform depletes the 0–20° band and enriches the 40–60° band.
-
-Band-dedicated optimization does move the composition, and we measure by how much (Fig. 3b). Selectivity rises by +27%, +8%, +1%, and +20% relative to the natural composition, but total EQE falls by 3%, 2%, 1%, and 11%. The two effects largely cancel. Referred to the natural composition at the best total EQE, the net band-power gains are 1.22, 1.05, 1.00, and 1.07 (decomposition in Note S4, Fig. S3). Two points follow. First, the 40–60° band, the natural target of a directional film, gains nothing: the most efficient design already maximizes it. Second, the largest gain is at 0–20°, the band the platform under-serves. Shape freedom restores a depleted direction better than it creates a new one. Part of this displacement comes from the cavity rather than the lens, because the cavity thicknesses are optimized together with the lens. In the multi-pass model of Note S9, with one common cavity, the 60–80° lens raises $S_{60\text{–}80}$ by only about 0.005 over the hemisphere, whereas the 60–80° cavity alone raises it by about 0.06. The lens-only share of the steering is therefore even smaller than Fig. 3b suggests; a fixed-cavity LightTools control is in progress.
-
-The composition is not strictly constant, and we report the deviation. Over the full sampled population, the correlation $R$ between total EQE and $S_j$ is +0.60, +0.55, −0.12, and −0.57 for the four bands (Fig. 3c; per-band panels in Fig. S4). As efficiency rises, the distribution tilts toward lower polar angles. The tilt is robust to sampling: a stratified subset of 20 designs, re-evaluated at 20 times the ray count, gives +0.61, +0.67, +0.04, and −0.71, with the same outer-band signs and a near-zero 40–60° value (Note S5). It is also not a patch artifact, because band selectivity changes by at most 0.24 pp when the patch is enlarged from 25 to 100 mm (Note S3).
-
-The tilt does not reorder the bands among efficient designs. In all 520 designs with total EQE ≥ 0.40, the 40–60° band carries the largest share. Among the 421 designs with EQE ≥ 0.50, 416 follow the order 40–60° > 20–40° > 60–80° > 0–20°. Reordering appears only in the inefficient part of the space. In 8 of the 606 designs, all with EQE ≤ 0.354, the 60–80° band is largest. This is why the 20–40° and 60–80° fits cross at low efficiency in Fig. 3c.
-
-Passive optics can trade position for angle, so étendue conservation alone does not fix the angular distribution, and we claim no absolute invariance. The data support a narrower, practical statement. **Within the explored manufacturable class, angular redistribution is limited to a weak tilt of a few percentage points in selectivity, and its net value for band power is at most about 20%.**
-
-**Fig. 3 | Total efficiency fixes the angular composition.** (a) Total EQE versus 40–60° band EQE for random feasible designs (grey) and optimizer-visited designs (green) of the weighted-sum campaign. All points collapse onto one near-linear locus (black line, $R^2 = 0.968$, $n = 606$). (b) Selectivity of each band-dedicated optimum (red) against the natural composition of the twenty most efficient designs (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity versus total EQE for all four bands, with least-squares fits and the correlation $R$ in the legend. Among designs with total EQE ≥ 0.40 the 40–60° band is always the largest; the 20–40° and 60–80° fits cross only in the inefficient region. *(`fig3_efficiency_composition.png`)*
-
-### 3.3 Generality across external-film families
-
-We next ask whether the result depends on the array construction. We repeat the analysis for the inverted (concave) and the randomly assembled families (Fig. 4), using the same statistics, each computed from the family's own evaluation log. The concave family uses exactly the variable bounds and feasibility rules of Table 1. Three signatures of saturation recur in all three families:
-
-- **Collapse.** The (total EQE, 40–60° EQE) points again collapse onto a line. $R^2$ is 0.94 for the convex per-band campaign, 0.94 for the concave family, and 0.84 for the random family (Fig. 4, left column). The logs differ in sampling density and, for the random family, in fidelity, so we read these values only as evidence that the collapse recurs, not as a ranking of the families.
-- **Narrow composition.** The concave family's best total EQE is 0.517, 6% below the convex 0.548, as expected for a recessed rather than protruding surface. Its natural composition is 0.113 / 0.303 / 0.340 / 0.215. The random family reaches 0.522 ± 0.001 over three disorder realizations, a coefficient of variation of 0.2%. Only the assembly statistics matter, not the particular realization. Its natural composition is 0.111 / 0.299 / 0.347 / 0.213. Band-dedicated optimization of the concave family gives a largest net band-power gain of 1.19, in the 60–80° band, close to the convex family's 1.22.
-- **Same direction of tilt.** Selectivity again rises with efficiency at 0–40° and falls at 60–80° (Fig. 4, right column). The 40–60° correlation is weak in the two periodic families and negative in the random one. In every family the 40–60° band remains the largest in at least 99% of sampled designs.
-
-The families also bound how far the composition can be moved at all. Every high-efficiency composition we obtained lies within 0.09–0.11 (0–20°), 0.28–0.30 (20–40°), 0.34–0.36 (40–60°), and 0.21–0.24 (60–80°). This spans three constructions, four single-band objectives, and two averaging conventions (top-twenty median and population mean). The change from convex to concave lenslets moves the composition to the edge of this window. The shift is at most 0.02 in any band, about the same as switching the averaging convention within one family (Note S4, Table S6). Positional disorder and per-lenslet shape disorder leave the composition inside the window. The composition is therefore set by the platform—extended source, thick substrate, coextensive external film—not by any design variable within it.
-
-The randomly assembled MLA should not be confused with a volumetric scattering layer. Each lenslet remains a refractive surface with deterministic local normals and a single index step. A scattering layer instead redirects light by multiple volumetric scattering. Its behaviour depends on the particle–matrix index contrast and loading, which are not parameters of this study. Our conclusions apply to refractive external films and make no comparison with scattering layers.
-
-**Fig. 4 | Generality across external-film MLA families.** Rows: convex freeform (reference, per-band campaign), inverted (concave), and randomly assembled (pseudo-random supercell). Every statistic is computed from each family's own evaluation log. (a1–c1) Total EQE versus 40–60° band EQE with a least-squares line; the near-linear collapse recurs in all three families. (a2–c2) Natural composition (top-twenty median, colored) against the convex reference (grey) and the Lambertian partition (dashed outline). The open circle is the population mean of the same family; the spread between statistics is comparable to the spread between families. (a3–c3) Correlation $R$ between total EQE and $S_j$, per band, against the convex reference. *(`fig4_families.png`)*
+**Fig. 5 | Freeform versus an equally optimized hemisphere.** (a) Band-optimized freeform profiles against the hemispherical reference at its optimized height. (b) Best EQE of each class at each objective, labelled with $G_j$. (c) Restart control: gain over the hemisphere when each search restarts from the hemispherical optimum, labelled with $t$; green marks gains above the one-sided 95% threshold. *(`fig5_hemisphere_benchmark.png`)*
 
 ---
 
-## 4. Discussion
+## 5. Discussion
 
-### 4.1 Why the design space saturates
+**Why lens shape saturates.** The escape probability of a lens array for uniform radiance is close to the étendue bound $1/n^2$ already for a hemisphere, so profile changes cannot raise $p$ appreciably. What they can change is how the returned light is redistributed, that is, $N_{\mathrm{mix}}$, and the shape of $p(\theta)$. Along that direction the efficiency contours are flat. The anisotropy of the cavity emission would allow more, but a refractive surface that is coextensive with an extended source cannot map the bright part of the internal radiance into a chosen band; it behaves as if the radiance were uniform.
 
-Three considerations explain the saturation, and a fourth explains why the composition, and not only the efficiency, is fixed.
+**When mixing matters.** The leverage of $N_{\mathrm{mix}}$ scales with the round-trip loss. In the Al device a structure that forgets the angle quickly gains about 1 pp; in the low-loss device, where $\eta_{\mathrm{sta}}$ approaches 0.97, all structures with $p \ge 0.38$ and $N_{\mathrm{mix}} \le 10$ lie within 1 pp of each other. In low-loss devices the choice of outcoupling structure, and its shape in particular, therefore matters even less, in line with ref. [11].
 
-**No area leverage.** Angular compression requires an output aperture larger than the source. A small source under a large lens can narrow its emission cone because the lens supplies extra output area. In a tiled MLA on a large-area OLED, each lenslet's aperture and the source area it serves grow together. The output/source area ratio is pinned near unity, whatever the lenslet size, so enlarging the lenslets does not restore the point-source collimation gain. The same relation explains why an index-matched hemispherical macroextractor works well on a small emitter, and why it cannot be tiled over a large area.
+**Design implications.** Two parameters are worth reporting for any new outcoupling structure: its escape probability for uniform radiance and its angular mixing number. A structure that combines a high $p$ with a low $N_{\mathrm{mix}}$, such as a random MLA or a gently wavy surface, avoids both the low escape probability of thick scattering layers and the angle retention of periodic lenses, without introducing absorption. Optimizers, including machine-learning ones [9,10], can then be benchmarked against the $(p, N_{\mathrm{mix}})$ map and the band-resolved bound rather than against each other.
 
-**Lateral mixing in the substrate.** A ray at the critical angle moves sideways by $d_{\mathrm{sub}}\tan\theta_c = 1.16$ mm in one pass through the substrate, and by 2.32 mm per round trip. That is about 100 and 200 lenslet radii. Each lenslet therefore receives light launched from a substrate region two orders of magnitude wider than itself. The light reaching the lens surface has already been spatially averaged before the lens shape can act on it. The patch-size series measures this mixing directly (Note S3). One fixed design gives total EQE 0.517, 0.543, 0.551, and 0.564 at patch sizes of 15, 25, 35, and 100 mm. Total EQE keeps rising slowly up to 100 mm, so light travels laterally over many round trips before escaping. The 25 mm values are therefore lower bounds. The angular composition changes by at most 0.24 pp over the same range, so every ratio, correlation, and class comparison is unaffected. Ref. [11] shows the same loss channel experimentally: an MLA film only 2 mm in radius on a 1 mm emitter gave no EQE gain (35.4% against 35.6% bare), because light escaped past the film edge before it could be extracted. For the same reason, round-trip experiments on small emitters need rear reflectors much larger than the active area [6].
-
-**The radiance limit of a passive film.** For a given source radiance and exit area, the power a passive external layer can deliver into a chosen solid angle is bounded [12]. We use this bound as a benchmark, not as an impossibility proof. Once a hemisphere operates near the bound, a more complex profile can only reshuffle small amounts of power; it cannot create radiance.
-
-**Depletion of favourable angles.** A hemispherical MLA returns unextracted light largely at its incident angle [6]. Light at angles the lens transmits well therefore leaves in the first passes, and later passes see mostly light at angles it transmits poorly. We quantified this with the angle-resolved multi-pass model of ref. [6], using ray-traced BSDFs of the optimized lenses of this work (Note S9). For the hemispherical total-EQE design with the Al cathode, the escape probability falls from 0.43 in the first pass to 0.39, 0.35, and 0.31 in the next three. A lens shaped to favour one band only changes which angles are emptied first, so the gain from reshaping is bounded. To test this, we replaced the angle-preserving device reflection by one that resets the returned light to a Lambertian distribution at every pass. The escape probability then stays at 0.42. The total extraction rises by 2.7–5.5% (Al) and 1.2–3.0% (Ag) at a common cavity, but the differences between lenses shrink: the spread of extraction efficiency over the nine optimized lenses falls from 2.5% to 1%, and the spread of $S_{40\text{–}60}$ from 0.029 to 0.011. Breaking the angular memory of the returned light therefore does not restore leverage to the lens shape; it removes most of what remains.
-
-### 4.2 Design routes beyond lens shape
-
-Saturation of the lens shape does not end light extraction. It changes which quantity is worth varying. Table 3 maps each target figure of merit to the lever that remains productive once the hemispherical benchmark has confirmed saturation.
-
-**Table 3 | Design-route map after refractive-MLA saturation.**
-
-| Target figure of merit | Productive lever | Evidence | Practical constraint |
-|---|---|---|---|
-| Total EQE from substrate modes | Hemispherical MLA at its optimum; freeform shape adds ≤ 1.3% | Sec. 3.1, Fig. 2 | Molding tolerance only |
-| Total EQE beyond the hemispherical benchmark | Lower round-trip loss: low-loss rear reflector (Ag or dielectric), thin and weakly absorbing transparent electrode [6] | EQE of an MLA device raised from 51% to 77% by a low-loss auxiliary reflector alone [6] | Reflector outside the current path, or integrated into the stack |
-| Light delivered to the substrate and its angular distribution | Source/cavity engineering: dipole orientation, cavity design, substrate index [7,13] | Cavity co-optimized in every campaign | Effect on EQE shrinks as the round-trip loss falls [6] |
-| Power in a chosen polar band | Follows total EQE; band-dedicated shape gives a net gain ≤ 1.22 | Sec. 3.2, Fig. 3 | Selectivity is paid for in total EQE |
-| Angular compression (collimation) | Aperture expansion: output/source area ratio > 1 (macroextractor, pixel-level optics) | Composition window fixed in coextensive films, Fig. 4 | Loses planar tiling |
-| Selectivity beyond the single-pass limit | Angle-selective multi-pass extraction: exit-side angular filter plus low-loss rear reflector [6,14–16] | Ideal filter 62.1% vs 29.1% planar at 10% loss (52.2% vs 27.2% at 15%); DBR 48.2% → 32.5% over 100 nm (Note S7) | Round-trip loss, source bandwidth, and angle randomization of the returned light (Note S9) |
-
-**Reducing the round-trip loss** is the main lever for total EQE once the lens shape has saturated. Light that the film does not extract returns to the device and is partly absorbed on every round trip. The substrate-to-air extraction efficiency is then $\eta_{\mathrm{sta}} = p/[p+(1-p)A']$, where $p$ is the escape probability per encounter with the film and $A'$ the loss per round trip [6]. With an Al cathode, $A' \approx 0.13$–0.16 caps the EQE near 60%. A low-loss auxiliary reflector raised the EQE of an MLA device from 51% to 77%, without any change to the OLED stack or the outcoupling structure [6]. In the angle-randomizing approximation, lens shape acts only through $p$, and $p$ matters less as $A'$ falls, so this lever and the saturation reported here point the same way.
-
-**Source and cavity engineering** sets how much light reaches the substrate and at which angles, through cavity thickness, dipole orientation, substrate index, or resonant structures [7,13]. In a lossy device it also changes the EQE strongly. Its effect on the EQE shrinks, however, once the round-trip loss is small [6].
-
-**Aperture expansion** is needed when collimation is the main requirement. Everything we varied within the coextensive geometry moved the natural composition by at most 0.02 in any band: shape freedom, convex versus concave lenslets, and positional and shape disorder. Angular compression therefore requires changing the output/source area ratio, which means leaving the coextensive geometry. Small emitters and pixel-level optics allow this, at the cost of planar scalability.
-
-**Angle-selective multi-pass extraction** can provide the selectivity that a non-selective refractive film cannot. Here an exit-side filter reflects out-of-band light back toward the device for another attempt. The multi-pass framework and the central role of the round-trip loss are those of ref. [6]; we add only angular selectivity on the exit side. This filter differs from the low-loss auxiliary reflector of ref. [6], which sits behind the device and returns light without angular selection. The two are complementary: the filter selects the angle, and the low round-trip loss lets the rejected light survive enough passes to be redirected. The filter only helps if the rejected light changes angle before it returns: with an angle-preserving device reflection and an MLA that keeps the angle, rejected light comes back at the same angle and is rejected again (Note S9). In a single pass, non-selective layers deliver 33.7% of the escaping light into the 40–60° band. A Markov multi-pass model with an ideal angular filter, full angle randomization, and 10% round-trip loss raises the delivery into that band to 62.1% of generated power, against 29.1% for a planar non-selective reference; at the 15% loss of the Al platform the two values are 52.2% and 27.2%. A realizable eight-pair dielectric multilayer gives 48.2% for a monochromatic source but only 32.5% over a 100 nm bandwidth (Note S7, Fig. S7). Round-trip loss and source bandwidth are therefore the practical limits of this route. This is a reference calculation that shows why angular selection must be paired with a low round-trip loss, not a device proposal.
-
-### 4.3 Scope and limitations
-
-**Round-trip-loss regime.** The platform uses an Al cathode with an ETL of index about 1.8, so its absolute EQEs lie in the loss-limited regime identified in ref. [6]. A low-index ETL in front of Al reduces the round-trip loss by total internal reflection, so this ceiling is specific to the conventional stack. One might ask whether the saturation is simply this ceiling. It is not. The comparison is relative: both lens classes share the same stack, and the hemisphere sits at 0.547 against 0.554 for the freeform. The multi-pass picture also shows that the lossy regime favours shape freedom. In $\eta_{\mathrm{sta}} = p/[p+(1-p)A']$, which assumes the angle of returned light is randomized on each pass, the lens shape acts only through $p$. Raising $p$ by 10%, from 0.40 to 0.44, raises $\eta_{\mathrm{sta}}$ by 2.9% at $A' = 0.15$ (Al), but by only 1.0% at $A' = 0.045$ (Ag) and 0.4% at $A' = 0.02$. The Al platform is therefore the case in which lens shape has the most leverage. In a low-loss device the saturation should be stronger, not weaker. The absolute EQEs reported here should not be compared directly with those of low-loss devices.
-
-The saturation statement covers three manufacturable external-film families at substrate-matched lens index. It does not cover internal arrays, scattering layers, or high-index films. A separate exploration with three-dimensional asymmetric lenslets, run under different constraints, is consistent with the result but is suggestive only. It used an Ag electrode, an anisotropic emitter cell, and 52 shape variables. Its asymmetric shapes moved the far-field centroid but did not reliably raise the absolute power in a target $(\theta,\phi)$ window above the hemisphere. Because its stack and constraints differ, we report it only qualitatively (Note S8) and draw no quantitative conclusion from it. Directional emission is possible with other elements, such as resonant structures, metasurfaces, and asymmetric prisms [14,17]; the result here concerns refractive lenslets only. Absolute EQE values at the 25 mm patch are lower bounds (Section 4.1), but ratios and comparisons are not affected. Finally, the simulated surfaces are ideal: there is no form error, misalignment, or lens-to-lens variation. Fabrication imperfections can only reduce whatever advantage a freeform profile holds over the hemisphere, so the near-null result is conservative. The saturation is a robust property of the validated pipeline and constraint set. The smallest residues, such as +0.29% at 20–40° or +1% in total EQE, lie within plausible model-form uncertainty (optical constants, dispersion, polarization averaging) and should be read as design-space margins, not as predicted experimental differences.
+**Scope.** The analysis covers passive, angle-insensitive external structures index-matched to the substrate, in the ray-optical regime. Elements that select the angle of transmission, such as angular filters, are also passive and also obey the radiance bound per encounter, but in combination with recycling they can change the output composition; they are outside the present scope. Internal structures that act on waveguided modes, absorbing scatterers, and wavelength-converting layers are not covered either. The reduced model assumes that the device reflectance preserves the angle and that $p(\theta)$ is azimuthally symmetric. The results at three wavelengths are representative of the emission band; spectrally averaged values are given in Note S10.
 
 ---
 
-## 5. Conclusion
+## 6. Conclusion
 
-We tested the practical value of lens-shape freedom for manufacturable, tiled refractive MLAs on an extended OLED. Against an equally optimized hemisphere, the freeform optimum gains at most 7% in any polar band and 1.3% in total EQE. A restart control confirms that this is a property of the design space and not of the search. All designs collapse onto a single line relating band power to total EQE. Among efficient designs the angular composition is fixed to within a few percentage points, whatever objective located them. Optimizing for one band raises its selectivity by up to 27%, but costs up to 11% of total EQE, leaving a net band-power gain of at most 1.22.
-
-Convex, concave, and randomly assembled films all keep the composition within one narrow window. That window is therefore a property of the platform: an extended source, a thick substrate, and a coextensive external film. The finding is not a claim that the hemisphere is optimal in every optical system. It provides a decision criterion. Once the hemispherical benchmark confirms saturation, further improvement should come from a lower round-trip loss, from the source and cavity, from aperture expansion, or from angle-selective multi-pass extraction, not from more lens-shape freedom. Because the platform uses a lossy Al cathode, where lens shape has the most leverage, the saturation is expected to be stronger still in low-loss devices. The same reasoning applies to other extended thin-film emitters, such as perovskite and quantum-dot LEDs.
+We introduced an angular mixing number, $N_{\mathrm{mix}} = 1/(1-\lambda_2)$, from the spectrum of the return matrix of a passive light-extraction structure. Together with the angle-resolved escape probability it predicts multi-pass extraction to within 0.6 pp on average across planar, scattering, and microlens structures, where the memoryless formula deviates by up to 60 pp. On the resulting map, periodic microlenses combine high escape probability with long angle retention, scattering layers the opposite, and random lens arrays and wavy surfaces combine the advantages of both. Every passive structure uses only part of the band-resolved radiance bound, and angle-insensitive structures share one output composition. Freeform optimization of microlens shape mainly changes $N_{\mathrm{mix}}$, which explains why it gains at most 7% in any band over an equally optimized hemisphere on an extended OLED emitter.
 
 ---
 
 ## Funding
 
-[TBD — 과제/기관 정보 입력 필요]
+[TBD]
 
 ## Acknowledgments
 
@@ -229,7 +175,11 @@ The authors declare no conflicts of interest.
 
 ## Data availability
 
-The result archives underlying all figures and tables are available from the corresponding author upon reasonable request. These comprise the evaluation logs and optima of every optimization campaign and the multi-pass-model outputs, listed in Supplement 1. The archives come with the scripts that generated them. `make_figures.py` and `make_supp_figures_and_data.py` reproduce every figure, together with an Excel workbook of its plotted data. Data for the separately constrained asymmetric exploration are also available on request. Running the CPS source model and LightTools project files requires a LightTools license.
+Return matrices, scripts, and the data underlying all figures are available in Supplement 1 and from the authors upon reasonable request.
+
+## Supplemental document
+
+See Supplement 1 for supporting content.
 
 ---
 
@@ -237,7 +187,7 @@ The result archives underlying all figures and tables are available from the cor
 
 1. Brütting, W.; Frischeisen, J.; Schmidt, T. D.; Scholz, B. J.; Mayr, C. **Device Efficiency of Organic Light-Emitting Diodes: Progress by Improved Light Outcoupling.** *Phys. Status Solidi A* **2013**, *210*, 44–65.
 
-2. Yablonovitch, E. **Statistical Ray Optics.** *J. Opt. Soc. Am.* **1982**, *72*, 899–907.
+2. Greiner, H. **Light Extraction from Organic Light Emitting Diode Substrates: Simulation and Experiment.** *Jpn. J. Appl. Phys.* **2007**, *46*, 4125–4137. https://doi.org/10.1143/JJAP.46.4125.
 
 3. Möller, S.; Forrest, S. R. **Improved Light Out-Coupling in Organic Light Emitting Diodes Employing Ordered Microlens Arrays.** *J. Appl. Phys.* **2002**, *91*, 3324–3327.
 
@@ -245,26 +195,42 @@ The result archives underlying all figures and tables are available from the cor
 
 5. Qu, Y.; Kim, J.; Coburn, C.; Forrest, S. R. **Efficient, Nonintrusive Outcoupling in Organic Light Emitting Devices Using Embedded Microlens Arrays.** *ACS Photonics* **2018**, *5*, 2453–2458. https://doi.org/10.1021/acsphotonics.8b00255.
 
-6. Kim, J.; Lee, S.; Yoo, S.; Gather, M. C. **Minimizing Round-Trip Loss for Near-Unity Quantum Efficiency in Organic Light-Emitting Diodes.** *Preprint* **2026**.
+6. Song, J.; et al. **Lensfree OLEDs with over 50% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters.** *Nat. Commun.* **2018**, *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x.
 
-7. Song, J.; et al. **Lensfree OLEDs with over 50% External Quantum Efficiency via External Scattering and Horizontally Oriented Emitters.** *Nat. Commun.* **2018**, *9*, 3207. https://doi.org/10.1038/s41467-018-05671-x.
+7. Levell, J. W.; Harkema, S.; Pendyala, R. K.; Rensing, P.; Senes, A.; Bollen, D.; MacKerron, D.; Wilson, J. S. **Device Reflectivity as a Simple Rule for Predicting the Suitability of Scattering Foils for Improved OLED Light Extraction.** *Proc. SPIE* **2013**, *8829*, 88291L. https://doi.org/10.1117/12.2023021.
 
-8. Kim, S.; Shin, J. M.; Lee, J.; Park, C.; Lee, S.; Park, J.; Seo, D.; Park, S.; Park, C. Y.; Jang, M. S. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*, 4533–4541. https://doi.org/10.1515/nanoph-2021-0434.
+8. Kovačič, M. **Design of External Microtextures for Efficient Light Outcoupling in OLEDs with Different Preferential Orientation of Emission Dipoles.** *Opto-Electron. Rev.* **2022**, *30*, e141542. https://doi.org/10.24425/opelre.2022.141542.
 
-9. Ni, Y.; Feng, D.; Ma, D. **Design of Freeform Microlens Arrays with Prescribed Luminance Distributions for MicroLED Optical Packaging.** *Appl. Opt.* **2025**, *64*, 7875–7884. https://opg.optica.org/ao/abstract.cfm?uri=ao-64-27-7875.
+9. Kim, S.; Shin, J. M.; Lee, J.; Park, C.; Lee, S.; Park, J.; Seo, D.; Park, S.; Park, C. Y.; Jang, M. S. **Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks.** *Nanophotonics* **2021**, *10*, 4533–4541. https://doi.org/10.1515/nanoph-2021-0434.
 
-10. Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. **Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays.** *ACS Photonics* **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017.
+10. Zhao, Z.-R.; et al. **Deep Q-Network-Guided TiO2/NOA61 Microstructures for Light Outcoupling and Angular Emission Redistribution in Blue Top-Emitting OLEDs.** *Adv. Funct. Mater.* **2026**, e78939. https://doi.org/10.1002/adfm.78939.
 
-11. Kim, M.; Kim, J.; Yoo, S. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**, *16*, 11606. https://doi.org/10.1038/s41467-025-66538-6.
+11. Kim, J.; Lee, S.; Yoo, S.; Gather, M. C. **Minimizing Round-Trip Loss for Near-Unity Quantum Efficiency in Organic Light-Emitting Diodes.** *arXiv* **2026**, 2610.12065.
 
-12. Winston, R.; Jiang, L.; Ricketts, M. **Nonimaging Optics: A Tutorial.** *Adv. Opt. Photon.* **2018**, *10*, 484–511.
+12. Yablonovitch, E. **Statistical Ray Optics.** *J. Opt. Soc. Am.* **1982**, *72*, 899–907.
 
-13. Xiang, C.; Koo, W.; So, F.; Sasabe, H.; Kido, J. **A Systematic Study on Efficiency Enhancements in Phosphorescent Green, Red and Blue Microcavity Organic Light-Emitting Devices.** *Light: Sci. Appl.* **2013**, *2*, e74. https://doi.org/10.1038/lsa.2013.30.
+13. Schnitzer, I.; Yablonovitch, E.; Caneau, C.; Gmitter, T. J.; Scherer, A. **30% External Quantum Efficiency from Surface Textured, Thin-Film Light-Emitting Diodes.** *Appl. Phys. Lett.* **1993**, *63*, 2174–2176. https://doi.org/10.1063/1.110575.
 
-14. Buhl, M.; et al. **Resonance-Based Directional Light Emission from Organic Light-Emitting Diodes.** *Adv. Photonics Res.* **2023**, *4*, 2200143. https://doi.org/10.1002/adpr.202200143.
+14. Eisenlohr, J.; Tucher, N.; Höhn, O.; Hauser, H.; Peters, M.; Kiefel, P.; Goldschmidt, J. C.; Bläsi, B. **Matrix Formalism for Light Propagation and Absorption in Thick Textured Optical Sheets.** *Opt. Express* **2015**, *23*, A502–A518. https://doi.org/10.1364/OE.23.00A502.
 
-15. Liao, P.-H.; Lee, W.-K.; Lee, C.-C.; Huang, C.-W.; Wen, S.-W.; Chen, Y.-T.; Chen, C.-C.; Lin, W.-Y.; Kwak, B. L.; Visser, R. J.; Wu, C.-C. **Using Angle-Selective Optical Film to Enhance the Light Extraction of a Thin-Film Encapsulated 3D Reflective Pixel for OLED Displays.** *Opt. Express* **2022**, *30*, 46435–46449. https://doi.org/10.1364/OE.477797.
+15. David, A. **Surface-Roughened Light-Emitting Diodes: An Accurate Model.** *J. Display Technol.* **2013**, *9*, 301–316. https://doi.org/10.1109/JDT.2013.2240373.
 
-16. Kim, H.-J.; et al. **High Efficient OLED Displays Prepared with the Air-Gapped Bridges on Quantum Dot Patterns for Optical Recycling.** *Sci. Rep.* **2017**, *7*, 43063. https://doi.org/10.1038/srep43063.
+16. Deckman, H. W.; Roxlo, C. B.; Yablonovitch, E. **Maximum Statistical Increase of Optical Absorption in Textured Semiconductor Films.** *Opt. Lett.* **1983**, *8*, 491–493. https://doi.org/10.1364/OL.8.000491.
 
-17. Abdelkhalik, M. S.; Garcia-Santiago, X.; van Raaij, T.-J.; López, T.; Berghuis, A. M.; de Jong, L. M. A.; Gómez Rivas, J. **Enhanced and Directional Electroluminescence from MicroLEDs Using Metallic or Dielectric Metasurfaces.** *Commun. Eng.* **2025**, *4*, 63. https://doi.org/10.1038/s44172-025-00401-w.
+17. Manzoor, S.; Filipič, M.; Onno, A.; Topič, M.; Holman, Z. C. **Visualizing Light Trapping within Textured Silicon Solar Cells.** *J. Appl. Phys.* **2020**, *127*, 063104. https://doi.org/10.1063/1.5131173.
+
+18. Battaglia, C.; Boccard, M.; Haug, F.-J.; Ballif, C. **Light Trapping in Solar Cells: When Does a Lambertian Scatterer Scatter Lambertianly?** *J. Appl. Phys.* **2012**, *112*, 094504. https://doi.org/10.1063/1.4761988.
+
+19. van Rossum, M. C. W.; Nieuwenhuizen, T. M. **Multiple Scattering of Classical Waves: Microscopy, Mesoscopy, and Diffusion.** *Rev. Mod. Phys.* **1999**, *71*, 313–371. https://doi.org/10.1103/RevModPhys.71.313.
+
+20. Levin, D. A.; Peres, Y. **Markov Chains and Mixing Times**, 2nd ed.; American Mathematical Society: Providence, RI, **2017**. https://doi.org/10.1090/mbk/107.
+
+21. Bortz, J. C.; Shatz, N. E.; Ries, H.; Winston, R. **Consequences of Étendue and Skewness Conservation for Nonimaging Devices with Inhomogeneous Sources and Targets.** *Proc. SPIE* **1997**, *3139*, 59–75. https://doi.org/10.1117/12.290222.
+
+22. Muschaweck, J.; Wiesmann, C. **Extracting Light out of LEDs.** *Adv. Opt. Technol.* **2013**, *2*, 291–300. https://doi.org/10.1515/aot-2013-0027.
+
+23. Lenef, A.; Piquette, A.; Kelso, J. **Thermodynamics of Light Extraction from Luminescent Materials.** *ECS J. Solid State Sci. Technol.* **2018**, *7*, R3211–R3226. https://doi.org/10.1149/2.0271801jss.
+
+24. Kim, M.; Kim, J.; Yoo, S. **Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays.** *Nat. Commun.* **2025**, *16*, 11606. https://doi.org/10.1038/s41467-025-66538-6.
+
+25. Kim, J.; Kim, E.; Park, J.; Song, J.; Kim, S.; Moon, H.; Yoo, S. **Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays.** *ACS Photonics* **2023**, *10*, 1775–1782. https://doi.org/10.1021/acsphotonics.3c00017.
