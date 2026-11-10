@@ -1,9 +1,9 @@
 # Supplement 1
 
-Practical Saturation of Freeform Microlens Arrays on Extended OLED Emitters
-and Design Routes beyond Lens Shape
+An Angular Mixing Number for Passive Light-Extraction Structures:
+Why Microlens Shape Saturates on Extended OLED Emitters
 
-This supplement collects the material that supports the main text but is not needed to follow its argument. It covers platform and campaign settings, statistical controls, normalization checks, convergence and cost calibrations, the angle-selective multi-pass model, the separately constrained asymmetric study, and the multi-pass analysis of angular depletion. Notes S1–S9 follow the order in which the main text cites them. Main-text references are cited as "main ref. n".
+This supplement collects the material that supports the main text but is not needed to follow its argument. Notes S1–S9 document the freeform-versus-hemisphere benchmark (platform and campaign settings, statistical controls, normalization checks, convergence and cost calibrations, the inverted and randomly assembled families, the separately constrained asymmetric study, and the pass-by-pass analysis of angle retention). Notes S10 and S11 document the angular mixing number and the library of structures and return matrices. Main-text references are cited as "main ref. n".
 
 ---
 
@@ -49,9 +49,13 @@ The inverted family uses a model file identical to the convex one except for the
 
 ---
 
+**Fig. S9 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture: CPS microcavity dipole source (emitting radius 1 mm), glass substrate ($d_{\mathrm{sub}} = 1.295$ mm), hexagonal lenslet array (~10 μm lens radius, 25 × 25 mm). (b) The two lens classes under identical constraints, in units of the lens radius: the hemispherical reference (3 free variables) and the axisymmetric freeform (13 variables). Open circles are the five free spline control points; the freeform shown is the 40–60° optimum. (c) The four polar bands and the band selectivity $S_j$, taken over the full azimuth. (d) Optimization workflow: CPS source, LightTools ray tracing through the MATLAB COM interface, surrogate-based global search, pattern-search polishing, and high-ray re-evaluation. *(`fig1_platform.png`)*
+
+---
+
 ## Note S2 | Hemispherical benchmark and restart control
 
-**Table S3** lists the entries behind $G_j$ in main-text Fig. 2b. Every entry comes from a fixed-patch (25 × 25 mm) campaign, so the two columns share one normalization.
+**Table S3** lists the entries behind $G_j$ in main-text Fig. 5b. Every entry comes from a fixed-patch (25 × 25 mm) campaign, so the two columns share one normalization.
 
 **Table S3 | Relative gain of the freeform optimum over the equally optimized hemisphere.**
 
@@ -181,6 +185,10 @@ Every entry lies within 0.094–0.113 (0–20°), 0.274–0.303 (20–40°), 0.3
 
 ---
 
+**Fig. S10 | Total efficiency fixes the angular composition.** (a) Total EQE versus 40–60° band EQE for random feasible designs (grey) and optimizer-visited designs (green) of the weighted-sum campaign. All points collapse onto one near-linear locus (black line, $R^2 = 0.968$, $n = 606$). (b) Selectivity of each band-dedicated optimum (red) against the natural composition of the twenty most efficient designs (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity versus total EQE for all four bands, with least-squares fits and the correlation $R$ in the legend. Among designs with total EQE ≥ 0.40 the 40–60° band is always the largest; the 20–40° and 60–80° fits cross only in the inefficient region. *(`fig3_efficiency_composition.png`)*
+
+---
+
 ## Note S5 | Convergence of the selectivity–efficiency drift
 
 Twenty designs stratified across the efficiency range were re-evaluated under three conditions of increasing strictness: the baseline ray count; twenty-fold ray count (200,000 rays) with three repeats; and broadband evaluation over 450–750 nm. Because the subset is stratified rather than representative, its correlations differ in magnitude from the full-population values (+0.60 / +0.55 / −0.12 / −0.57). The outer-band signs agree, and the 40–60° value is near zero in both.
@@ -223,25 +231,19 @@ The adopted combination is 4.3× faster and shifts selectivity by 0.39 pp. This 
 
 ---
 
-## Note S7 | Angle-selective multi-pass extraction model
+## Note S7 | Inverted and randomly assembled MLA families
 
-The calculation behind the last route of main-text Table 3 is not a device proposal. It is a reference computation that separates the saturation of non-selective refractive films from the behaviour of angle-selective multi-pass extraction.
+We next ask whether the result depends on the array construction. We repeat the analysis for the inverted (concave) and the randomly assembled families (Fig. S7), using the same statistics, each computed from the family's own evaluation log. The concave family uses exactly the variable bounds and feasibility rules of main-text Table 1. Three signatures of saturation recur in all three families:
 
-**Relation to the round-trip-loss framework.** Light that an outcoupling structure does not extract returns to the device, is partly absorbed, and reaches the structure again. Main ref. 6 treats this as a multi-pass process. For angle-randomizing structures it gives $\eta_{\mathrm{sta}} = p/[p+(1-p)A']$ (its Eq. 2), where $p$ is the escape probability per encounter and $A'$ the loss per round trip. That expression is formally identical to the statistical-ray-optics result for thin-film LEDs with a rear reflector (main ref. 2 and references in main ref. 6). The model here uses the same framework and the same Lambertian weighting, $\cos\theta\sin\theta$. Its round-trip loss $a$ plays the role of $A'$. The only addition is an angle-selective transmittance on the exit side. We use "multi-pass extraction" and "round-trip loss" as in main ref. 6. This avoids confusion with photon recycling by reabsorption and re-emission in the emitter.
+- **Collapse.** The (total EQE, 40–60° EQE) points again collapse onto a line. $R^2$ is 0.94 for the convex per-band campaign, 0.94 for the concave family, and 0.84 for the random family (Fig. S7, left column). The logs differ in sampling density and, for the random family, in fidelity, so we read these values only as evidence that the collapse recurs, not as a ranking of the families.
+- **Narrow composition.** The concave family's best total EQE is 0.517, 6% below the convex 0.548, as expected for a recessed rather than protruding surface. Its natural composition is 0.113 / 0.303 / 0.340 / 0.215. The random family reaches 0.522 ± 0.001 over three disorder realizations, a coefficient of variation of 0.2%. Only the assembly statistics matter, not the particular realization. Its natural composition is 0.111 / 0.299 / 0.347 / 0.213. Band-dedicated optimization of the concave family gives a largest net band-power gain of 1.19, in the 60–80° band, close to the convex family's 1.22.
+- **Same direction of tilt.** Selectivity again rises with efficiency at 0–40° and falls at 60–80° (Fig. S7, right column). The 40–60° correlation is weak in the two periodic families and negative in the random one. In every family the 40–60° band remains the largest in at least 99% of sampled designs.
 
-**Distinction from the auxiliary reflector.** The low-loss auxiliary reflector of main ref. 6 sits behind the device. It lowers $A'$ and returns light without angular selection. The filter considered here sits on the exit side. It lowers the transmittance outside the target band and so changes $p$ by angle. The two act on different factors and are complementary.
+The families also bound how far the composition can be moved at all. Every high-efficiency composition we obtained lies within 0.09–0.11 (0–20°), 0.28–0.30 (20–40°), 0.34–0.36 (40–60°), and 0.21–0.24 (60–80°). This spans three constructions, four single-band objectives, and two averaging conventions (top-twenty median and population mean). The change from convex to concave lenslets moves the composition to the edge of this window. The shift is at most 0.02 in any band, about the same as switching the averaging convention within one family (Note S4, Table S6). Positional disorder and per-lenslet shape disorder leave the composition inside the window. The composition is therefore set by the platform—extended source, thick substrate, coextensive external film—not by any design variable within it.
 
-**Model specification.** The state is the light in the substrate, binned in polar angle (0.5° bins) and weighted by $\cos\theta\sin\theta$; the model is single-wavelength except in the bandwidth calculation. At every pass the returned light is assumed to be re-randomized into this Lambertian distribution, which is the condition under which an angular filter helps (Note S9). The ideal filter has $T = 1$ inside the target band and $T = 0$ outside. The realizable filter is an eight-pair high/low-index multilayer whose transmittance is computed by transfer matrices for s and p polarization and averaged. In the bandwidth calculation the transmittance is averaged over a Gaussian source spectrum of the stated width. As a consistency check, the matrix multi-pass model of Note S9 without any filter reproduces the ray-traced extraction of a hemispherical MLA (escape probability 0.4275 against 0.4274 from LightTools).
+The randomly assembled MLA should not be confused with a volumetric scattering layer. Each lenslet remains a refractive surface with deterministic local normals and a single index step. A scattering layer instead redirects light by multiple volumetric scattering. Its behaviour depends on the particle–matrix index contrast and loading, which are not parameters of this study. Our conclusions apply to refractive external films and make no comparison with scattering layers.
 
-**Model.** The external layer is represented by its angular transmittance $T(\theta,\lambda)$. The reflective electrode and absorption on each round trip are represented by a round-trip loss $a$. A Markov chain tracks the light between the two: at each encounter with the external layer, the transmitted part escapes and the reflected part returns for another attempt, reduced by $a$. The emission of the source into the substrate is taken as Lambertian, and a two-stream scattering layer with asymmetry parameter $g$ may be inserted. With no absorption ($a = 0$) every ray eventually escapes (main refs. 2, 6). Loss is therefore what limits any multi-pass scheme.
-
-**Single-pass wall.** A non-selective layer delivers $\sin^2 60^\circ - \sin^2 40^\circ = 33.7\%$ of the escaping light into the 40–60° band (33.8% numerically). This value is unchanged over $g \in [-0.5, +0.5]$. Without angular selection, further passes only repeat the same partition.
-
-**Ideal filter.** With $T = 1$ inside the target band and $T = 0$ outside, delivery into the 40–60° band reaches 100% of generated power at $a = 0$. It falls to 62.1% at $a = 10\%$, whereas the planar non-selective reference stays at 29.1%. At $a = 15\%$, the round-trip loss of the Al platform of the main text, the values are 52.2% and 27.2%. The two converge as $a$ grows, so loss, not filter quality, sets the practical ceiling, consistent with main ref. 6.
-
-**Realizable filter.** A transfer-matrix calculation of an alternating high/low-index dielectric multilayer (eight pairs) gives 48.2% for a monochromatic source. Delivery falls to 32.5% over a 100 nm source bandwidth, back below the single-pass wall. Source bandwidth is therefore the second practical constraint.
-
-**Fig. S7 | Angle-selective multi-pass extraction model.** (a) Power delivered into the 40–60° band, as a fraction of generated power, versus round-trip loss $a$, for the ideal angular filter and the planar non-selective reference; the dashed line is the single-pass wall. (b) Band delivery of the eight-pair dielectric multilayer versus source bandwidth. (c) Single-pass angular transmittance in the substrate of the planar interface, the multilayer, and the ideal filter, with the target band shaded. *(`figS7_recycling_model.png`)*
+**Fig. S7 | Generality across external-film MLA families.** Rows: convex freeform (reference, per-band campaign), inverted (concave), and randomly assembled (pseudo-random supercell). Every statistic is computed from each family's own evaluation log. (a1–c1) Total EQE versus 40–60° band EQE with a least-squares line; the near-linear collapse recurs in all three families. (a2–c2) Natural composition (top-twenty median, colored) against the convex reference (grey) and the Lambertian partition (dashed outline). The open circle is the population mean of the same family; the spread between statistics is comparable to the spread between families. (a3–c3) Correlation $R$ between total EQE and $S_j$, per band, against the convex reference. *(`fig4_families.png`)*
 
 ---
 
@@ -255,15 +257,15 @@ $$
 
 This was a separate, differently constrained study. It used a different OLED stack (Ag rather than ITO electrode), an anisotropic emitter cell, and 52 shape variables rather than 13. It is therefore not part of the same-constraints benchmark.
 
-The asymmetric shapes could shift the centroid and fine structure of the far field. They did not reliably achieve an absolute window power appreciably above the hemispherical MLA. We report this comparison qualitatively and give no ratio. The stack, emitter cell, and parameter count all differ from the controlled benchmark, so a numerical gain would invite a side-by-side reading that the scope does not support. What carries over is the sign of the effect, not its magnitude. Periodic arrays can steer light under other conditions: asymmetric prisms, diffractive elements, metasurfaces, or sufficient aperture expansion can produce directional emission (main refs. 14, 17). Within coextensive refractive MLAs on a uniform extended source, such redistribution did not become a useful output channel beyond the hemispherical reference.
+The asymmetric shapes could shift the centroid and fine structure of the far field. They did not reliably achieve an absolute window power appreciably above the hemispherical MLA. We report this comparison qualitatively and give no ratio. The stack, emitter cell, and parameter count all differ from the controlled benchmark, so a numerical gain would invite a side-by-side reading that the scope does not support. What carries over is the sign of the effect, not its magnitude. Periodic arrays can steer light under other conditions: asymmetric prisms, diffractive elements, metasurfaces, or sufficient aperture expansion can produce directional emission (see, e.g., main ref. 10). Within coextensive refractive MLAs on a uniform extended source, such redistribution did not become a useful output channel beyond the hemispherical reference.
 
 ---
 
-## Note S9 | Angular depletion over many passes and the effect of a randomizing rear
+## Note S9 | Angle retention over many passes and the effect of a randomizing rear
 
-**Purpose.** This note quantifies why reshaping the lens buys little, by following the light pass by pass, and tests whether breaking the angular memory of the returned light would restore leverage to the lens shape.
+**Purpose.** This note quantifies why reshaping the lens buys little, by following the light pass by pass, and tests whether breaking the angle retention of the returned light would restore leverage to the lens shape.
 
-**Method.** The bidirectional scattering distribution functions (BSDFs) of the optimized lenses of this work were computed with a Monte-Carlo height-field ray tracer for a hexagonally close-packed array, index-matched to the substrate ($n = 1.51$). The tracer reproduces the LightTools BSDF of a hemispherical MLA: escape probability 0.4275 against 0.4274, and angle-resolved transmittance within 0.01. The profiles were rebuilt from the optimized control points with a PCHIP spline; LightTools uses its own spline, so the freeform BSDFs approximate the traced geometry. The 0–20° freeform optimum is excluded because it ends in a vertical sidewall at the rim, which a height-field tracer cannot represent. The BSDFs enter the angle-resolved multi-pass model of main ref. 6: the light in the substrate is a vector over polar angle, the film transmits $B_T$ and returns $B_R$, and the device reflects with $R(\theta)$ from a CPS/transfer-matrix model of the same stack at 550 nm (Al or Ag cathode, ITO 150 nm, horizontal dipole ratio 0.865). Two device reflections are compared: angle-preserving (the actual device) and a Lambertian reset, in which the returned light is redistributed as $\cos\theta\sin\theta$ at every pass. To separate lens from cavity, all lenses were also evaluated with one common cavity (ETL 61.3 nm, HTL 97.5 nm, the hemispherical total-EQE optimum).
+**Method.** The bidirectional scattering distribution functions (BSDFs) of the optimized lenses of this work were computed with a Monte-Carlo height-field ray tracer for a hexagonally close-packed array, index-matched to the substrate ($n = 1.51$). The tracer reproduces the LightTools BSDF of a hemispherical MLA: escape probability 0.4275 against 0.4274, and angle-resolved transmittance within 0.01. The profiles were rebuilt from the optimized control points with a PCHIP spline; LightTools uses its own spline, so the freeform BSDFs approximate the traced geometry. The 0–20° freeform optimum is excluded because it ends in a vertical sidewall at the rim, which a height-field tracer cannot represent. The BSDFs enter the angle-resolved multi-pass model of main ref. 11: the light in the substrate is a vector over polar angle, the film transmits $B_T$ and returns $B_R$, and the device reflects with $R(\theta)$ from a CPS/transfer-matrix model of the same stack at 550 nm (Al or Ag cathode, ITO 150 nm, horizontal dipole ratio 0.865). Two device reflections are compared: angle-preserving (the actual device) and a Lambertian reset, in which the returned light is redistributed as $\cos\theta\sin\theta$ at every pass. To separate lens from cavity, all lenses were also evaluated with one common cavity (ETL 61.3 nm, HTL 97.5 nm, the hemispherical total-EQE optimum).
 
 **Depletion.** With the angle-preserving device, the escape probability of the hemispherical total-EQE design falls pass by pass: 0.43, 0.39, 0.35, 0.31, 0.27, 0.23 (Al) and 0.41, 0.37, 0.34, 0.30, 0.27, 0.24 (Ag). Light at angles the lens transmits well leaves first, and the remainder sits at angles it transmits poorly. With the Lambertian reset the escape probability stays at 0.42.
 
@@ -279,9 +281,44 @@ The reset raises the extraction by 2.7–5.5% (Al) and 1.2–3.0% (Ag), and the 
 
 **Lens versus cavity.** With each design's own cavity, the 60–80° hemisphere design reaches $S_{60\text{–}80}$ = 0.303, against 0.247 for the total-EQE design. With the common cavity the same two lenses give 0.249 and 0.247, and the 60–80° freeform lens gives 0.252. In this model, therefore, almost all of the band steering of the dedicated designs comes from the cavity, and the lens shape adds about 0.005. A fixed-cavity LightTools control is in progress to confirm this at full fidelity.
 
-**Consequences.** Breaking the angular memory of the returned light does not restore leverage to the lens shape; it removes most of what remains, because every lens then sees the same Lambertian input on every pass. An angle-selective filter (Note S7) needs this randomization to work, since with angle-preserving return the rejected light comes back at the same angle and is rejected again.
+**Consequences.** Breaking the angle retention of the returned light does not restore leverage to the lens shape; it removes most of what remains, because every lens then sees the same Lambertian input on every pass.
 
 **Fig. S8 | Angle-preserving versus Lambertian-reset device reflection.** (a) Escape probability per pass for the hemispherical total-EQE design with the Al cathode. (b) Extraction efficiency of nine optimized lenses at a common cavity, with Al and Ag cathodes. (c) Range of the output composition over the nine lenses (Al), with the Lambertian partition for reference. *(`figS8_angle_reset.png`)*
+
+---
+
+## Note S10 | Angular mixing number: definition, robustness, and validation
+
+**Definition.** The return matrix $B_R(\theta_i\to\theta_r)$ of a structure gives the fraction of the power incident in polar bin $i$ that re-enters the substrate in bin $r$. Normalizing every column by the returned fraction $1-p(\theta_i)$ gives the column-stochastic kernel $M$ of the conditional Markov chain of the returned light. When transmission or absorption removes light, the surviving light relaxes to a quasi-stationary distribution; normalizing the columns separates this escape from the redistribution itself. For a reciprocal structure $w_i B_R(i\to r) = w_r B_R(r\to i)$ with the étendue weight $w_k = \sin^2\theta_{k+1}-\sin^2\theta_k$, so $D^{1/2} M D^{-1/2}$ is symmetric for a suitable diagonal $D$, and the spectrum of $M$ is real. We define $N_{\mathrm{mix}} = 1/(1-|\lambda_2|)$, with $\lambda_2$ the eigenvalue of second-largest modulus (the absolute spectral gap of main ref. 20). For every structure in this work the second eigenvalue was real and positive and also the second largest in modulus. $N_{\mathrm{mix}}$ is the relaxation time, not the e-folding pass number $-1/\ln|\lambda_2|$; for $\lambda_2$ = 0.5 the two are 2 and 1.44.
+
+**Grazing-angle truncation.** Bins near 90° carry almost no étendue but can return light at their own angle; a few such states can then dominate $\lambda_2$ without affecting extraction. We therefore evaluate $\lambda_2$ on $\theta < 85°$, which excludes 0.76% of the étendue. Table S11 shows the effect.
+
+**Table S11 | Sensitivity of $|\lambda_2|$ to the angular range.**
+
+| Structure | 0–90° | 0–85° | 0–80° | 0–70° | weight of second eigenvector above 80° |
+|---|---|---|---|---|---|
+| hemispherical MLA (total-EQE height) | 0.876 | 0.859 | 0.846 | 0.840 | 0.23 |
+| freeform MLA (40–60° optimum) | 0.941 | 0.867 | 0.689 | 0.532 | 0.49 |
+| random lenslet shapes, s = 0.2 | 0.679 | 0.628 | 0.514 | 0.419 | 0.30 |
+| random lenslet heights, spread 0.2 | 0.935 | 0.859 | 0.826 | 0.787 | 0.46 |
+
+For the hemisphere the value is insensitive to the range. For the freeform 40–60° lens and for height-randomized hemispheres, the full-range value is set by grazing states, and truncation at 85° brings it to the hemisphere level. Truncation at 85° leaves the mean error of the reduced model unchanged (0.57 pp) and lowers the largest error for freeform lenses from 4.1 to 2.2 pp; truncation at 80° raises the mean error to 0.80 pp.
+
+**Validation.** The reduced model of main-text Sec. 2.3 was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm. Table S12 summarizes the errors by class. [Table S12 and the spectrally averaged comparison to be completed with the final library.]
+
+---
+
+## Note S11 | Library of structures and return matrices
+
+**Height-field tracer.** Microlens arrays, random lens arrays, and wavy surfaces are traced with a Monte-Carlo height-field ray tracer: the surface $z = h(x, y)$ separates the index-matched medium ($n = 1.51$) from air, rays are marched with a Lipschitz-safe step and refined by bisection, and each interface event chooses reflection or refraction by the unpolarized Fresnel coefficients. Rays start at the base plane with a uniform position over the periodic cell and a uniform azimuth; 20,000 rays per 1° incidence bin are used (10,000 for wavy surfaces). The transmitted rays are histogrammed by their polar angle in air ($B_T$), the returned rays by their polar angle in the substrate ($B_R$). For a single hemispherical lenslet the tracer reproduces the LightTools return matrix of main ref. 11: escape probability 0.4275 against 0.4274, angle-resolved transmittance within 0.008, and less than 0.1% of rays undetermined.
+
+**Random lens arrays.** A 6 × 6 supercell of lenslets is tiled periodically. Every lenslet may carry its own spline profile, its own height, and a jittered centre and radius. Shape spread $s$ perturbs the five control points of the quarter circle by Gaussian noise of standard deviation $0.25s$ (radial) and $0.4s$ (height); $s$ = 1 approaches independently drawn profiles. Where lenslets overlap, the higher surface is taken; gaps are flat. Profiles with near-vertical walls, which a height field cannot represent, are rejected.
+
+**Wavy surfaces.** Periodic, Gaussian-correlated random height fields $h = h_0 + \sum_m a_m\cos(\mathbf{g}_m\cdot\mathbf{x}+\phi_m)$ on a 12 × 12 box with correlation length one, scaled to a prescribed rms slope. Ray optics is scale-free, so only the slope statistics matter; the physical correlation length must exceed a few wavelengths.
+
+**Scattering layers.** Non-absorbing, index-matched slabs with a Henyey–Greenstein phase function, Monte Carlo with 20,000 rays per 0.5° incidence bin, combined with the flat exit face by the adding method.
+
+**Table S13 | Randomness sweep.** [To be completed when the sweep finishes: $p$, $|\lambda_2|$, $N_{\mathrm{mix}}$, $\eta_{\mathrm{sta}}$ (Al, Ag, low loss), $S_{40\text{–}60}$ for every random structure.]
 
 ---
 

@@ -37,6 +37,15 @@ def closed(pT, w, R):
     return p / (p + (1 - p) * A)
 
 
+def lam2_cut(BR, cut_deg=85.0):
+    """|lambda2| of the column-normalised return kernel restricted to theta < cut_deg (default: excludes 0.76 % of the
+    etendue at grazing angles, where a few nearly unreachable states can return light at their own angle)."""
+    nb = BR.shape[0]; th = (np.arange(nb) + 0.5) * 90.0 / nb; k = th < cut_deg
+    B = BR[np.ix_(k, k)]; M = B / np.maximum(B.sum(0, keepdims=True), 1e-12)
+    ev = np.linalg.eigvals(M); ev = ev[np.argsort(-np.abs(ev))]
+    return float(np.abs(ev[1]))
+
+
 def mixing_defs(BR, w, P0):
     cs = BR.sum(0); ok = cs > 1e-6
     M = np.where(ok[None, :], BR / np.maximum(cs, 1e-12)[None, :], 0)
@@ -86,10 +95,10 @@ if __name__ == '__main__':
                     P0, Rg = P, R
                 pT = BT if BT.ndim == 1 else BT
                 eta = full(pT, BR, Rg, P0)
-                lam2, lam_eff = mixing_defs(BR, w, P0)
+                lam2_full, lam_eff = mixing_defs(BR, w, P0); lam2 = lam2_cut(BR)
                 r = dict(device=dev, lam=lam, structure=name, eta_full=eta, eta_closed=closed(pT, w, Rg),
                          eta_m0=reduced(pT, w, Rg, P0, 0.0), eta_m1=reduced(pT, w, Rg, P0, 1.0),
-                         lam2=lam2, lam_eff=lam_eff, eta_red_lam2=reduced(pT, w, Rg, P0, 1 - lam2),
+                         lam2=lam2, lam2_full=lam2_full, lam_eff=lam_eff, eta_red_lam2=reduced(pT, w, Rg, P0, 1 - lam2),
                          eta_red_eff=reduced(pT, w, Rg, P0, float(np.clip(1 - lam_eff, 0, 1))),
                          m_fit=m_fit(pT, w, Rg, P0, eta), p_lamb=float(pT @ (w / w.sum())))
                 res.append(r)
