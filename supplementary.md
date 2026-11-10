@@ -381,6 +381,21 @@ We also tested two scalar uses of $p_\infty$. Fitting a two-parameter reciprocal
 | W_slope1.0 | 0.422 | 0.115 | 1.1 | 0.377 | 0.87 | 0.792 | 0.932 | 0.968 | 0.329 | -0.07 | +1.70 |
 | W_slope1.5 | 0.427 | 0.174 | 1.2 | 0.387 | 0.88 | 0.801 | 0.935 | 0.968 | 0.337 | -0.09 | +1.21 |
 
+**Monte Carlo uncertainty.** Two sources of uncertainty were separated for six representative random structures and two scattering layers (Table S13). Ray noise was estimated by re-tracing the same geometry with two further ray seeds. Realization spread was estimated by drawing two further geometries with the same statistical parameters (geometry seeds 12 and 13; for wavy surfaces, surface seeds 1 and 2). Ray noise is negligible: $N_{\mathrm{mix}}$ changes by at most 0.01, $\xi$ by at most 0.003, and $\eta_{\mathrm{sta}}$ by at most 0.06 pp. Realization spread is larger but does not affect any comparison made in the main text: it is at most 0.24 in $N_{\mathrm{mix}}$ (height spread ±60%), 0.021 in $\xi$, and 0.23 pp in $\eta_{\mathrm{sta}}$. The structure with zero shape spread ($s$ = 0) has no realization spread because all its lenslets are identical hemispheres. The reduced-model error changes by at most 0.03 pp.
+
+**Table S13 | Monte Carlo uncertainty of the metrics (550 nm).** Values are for the library structure; ± is the standard deviation over ray seeds (3 traces), and the value in parentheses is the standard deviation over geometric realizations (3 geometries). n: number of traces. Last column: reciprocal reduced model minus full series (Al).
+
+| Structure | n (ray / real.) | p | λ₂ | N_mix | p∞ | ξ | η Al | η Ag | η LL | err. Al (pp) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A_shape0.0 | 3 / 3 | 0.422 ± 0.001 (0.000) | 0.858 ± 0.000 (0.000) | 7.05 ± 0.01 (0.00) | 0.214 ± 0.001 (0.000) | 0.499 ± 0.003 (0.000) | 0.7944 ± 0.0001 (0.0000) | 0.9266 ± 0.0000 (0.0000) | 0.9646 ± 0.0000 (0.0000) | -0.15 ± 0.01 (0.00) |
+| A_shape1.0 | 3 / 3 | 0.428 ± 0.000 (0.000) | 0.487 ± 0.001 (0.031) | 1.95 ± 0.00 (0.12) | 0.335 ± 0.000 (0.004) | 0.769 ± 0.000 (0.009) | 0.7853 ± 0.0003 (0.0023) | 0.9273 ± 0.0001 (0.0010) | 0.9658 ± 0.0001 (0.0003) | -0.23 ± 0.00 (0.03) |
+| B_aspect0.6 | 3 / 3 | 0.423 ± 0.000 (0.000) | 0.755 ± 0.000 (0.013) | 4.08 ± 0.00 (0.24) | 0.294 ± 0.001 (0.009) | 0.686 ± 0.002 (0.021) | 0.7994 ± 0.0002 (0.0001) | 0.9328 ± 0.0001 (0.0003) | 0.9677 ± 0.0001 (0.0001) | -0.19 ± 0.01 (0.01) |
+| C_jitter0.3 | 3 / 3 | 0.420 ± 0.000 (0.000) | 0.714 ± 0.001 (0.008) | 3.50 ± 0.01 (0.10) | 0.298 ± 0.000 (0.003) | 0.699 ± 0.001 (0.006) | 0.7979 ± 0.0001 (0.0005) | 0.9323 ± 0.0001 (0.0002) | 0.9661 ± 0.0000 (0.0000) | -0.20 ± 0.00 (0.01) |
+| W_slope0.2 | 3 / 3 | 0.402 ± 0.000 (0.000) | 0.539 ± 0.003 (0.002) | 2.17 ± 0.01 (0.01) | 0.142 ± 0.000 (0.001) | 0.345 ± 0.001 (0.001) | 0.6084 ± 0.0006 (0.0008) | 0.8154 ± 0.0005 (0.0007) | 0.9331 ± 0.0002 (0.0002) | -2.71 ± 0.01 (0.02) |
+| W_slope1.0 | 3 / 3 | 0.422 ± 0.000 (0.001) | 0.115 ± 0.001 (0.007) | 1.13 ± 0.00 (0.01) | 0.377 ± 0.000 (0.004) | 0.871 ± 0.001 (0.007) | 0.7924 ± 0.0002 (0.0023) | 0.9316 ± 0.0001 (0.0010) | 0.9675 ± 0.0001 (0.0002) | -0.07 ± 0.02 (0.01) |
+| scatter g0.8_t1.0 | 3 / – | 0.326 ± 0.000 | 0.147 ± 0.000 | 1.17 ± 0.00 | 0.326 ± 0.000 | 0.977 ± 0.000 | 0.7374 ± 0.0000 | 0.9127 ± 0.0000 | 0.9507 ± 0.0000 | -0.08 ± 0.00 |
+| scatter g0.0_t0.25 | 3 / – | 0.381 ± 0.000 | 0.555 ± 0.001 | 2.25 ± 0.01 | 0.212 ± 0.000 | 0.545 ± 0.000 | 0.6754 ± 0.0001 | 0.8740 ± 0.0001 | 0.9445 ± 0.0000 | -2.07 ± 0.01 |
+
 ---
 
 ## Reproducing the figures and data
@@ -394,7 +409,7 @@ python3 make_figures.py
 python3 make_supp_figures_and_data.py
 ```
 
-**Table S13 | Figure files and their inputs.**
+**Table S14 | Figure files and their inputs.**
 
 | Figure | Output | Inputs |
 |---|---|---|
@@ -413,6 +428,7 @@ python3 make_supp_figures_and_data.py
 | Fig. S8 | `figS6_cost_calibration` | `calibrate_random_cost.mat` |
 | Fig. S9 | `fig4_families` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
 | Fig. S10 | `figS8_angle_reset` | `multipass_reset/` (`hftrace.py`, `multipass.py`, `bsdfs.npz`, `fig_reset.py`) |
+| Table S13 | `selectivity/data/uncertainty.json` | `multipass_reset/run_uncertainty.py` → `random_sweep_unc/`, `selectivity/run_slab_unc.py`, `selectivity/unc_analysis.py` |
 
 Each output exists as `.png`, `.pdf`, and `.xlsx`.
 

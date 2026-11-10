@@ -518,6 +518,28 @@ W_slope1.5 & 0.427 & 0.174 & 1.2 & 0.387 & 0.88 & 0.801 & 0.935 & 0.968 & 0.337 
 \end{tabular}}
 \end{table}
 
+\textbf{Monte Carlo uncertainty.} Two sources of uncertainty were separated for six representative random structures and two scattering layers (Table S13). Ray noise was estimated by re-tracing the same geometry with two further ray seeds. Realization spread was estimated by drawing two further geometries with the same statistical parameters (geometry seeds 12 and 13; for wavy surfaces, surface seeds 1 and 2). Ray noise is negligible: $N_{\mathrm{mix}}$ changes by at most 0.01, $\xi$ by at most 0.003, and $\eta_{\mathrm{sta}}$ by at most 0.06 pp. Realization spread is larger but does not affect any comparison made in the main text: it is at most 0.24 in $N_{\mathrm{mix}}$ (height spread \ensuremath{\pm}60\%), 0.021 in $\xi$, and 0.23 pp in $\eta_{\mathrm{sta}}$. The structure with zero shape spread ($s$ = 0) has no realization spread because all its lenslets are identical hemispheres. The reduced-model error changes by at most 0.03 pp.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption*{\textbf{Table S13 | Monte Carlo uncertainty of the metrics (550 nm).} Values are for the library structure; \ensuremath{\pm} is the standard deviation over ray seeds (3 traces), and the value in parentheses is the standard deviation over geometric realizations (3 geometries). n: number of traces. Last column: reciprocal reduced model minus full series (Al).}
+\resizebox{\linewidth}{!}{\begin{tabular}{lllllllllll}
+\hline
+Structure & n (ray / real.) & p & \ensuremath{\lambda}₂ & N_mix & p∞ & ξ & η Al & η Ag & η LL & err. Al (pp) \\
+\hline
+A_shape0.0 & 3 / 3 & 0.422 \ensuremath{\pm} 0.001 (0.000) & 0.858 \ensuremath{\pm} 0.000 (0.000) & 7.05 \ensuremath{\pm} 0.01 (0.00) & 0.214 \ensuremath{\pm} 0.001 (0.000) & 0.499 \ensuremath{\pm} 0.003 (0.000) & 0.7944 \ensuremath{\pm} 0.0001 (0.0000) & 0.9266 \ensuremath{\pm} 0.0000 (0.0000) & 0.9646 \ensuremath{\pm} 0.0000 (0.0000) & -0.15 \ensuremath{\pm} 0.01 (0.00) \\
+A_shape1.0 & 3 / 3 & 0.428 \ensuremath{\pm} 0.000 (0.000) & 0.487 \ensuremath{\pm} 0.001 (0.031) & 1.95 \ensuremath{\pm} 0.00 (0.12) & 0.335 \ensuremath{\pm} 0.000 (0.004) & 0.769 \ensuremath{\pm} 0.000 (0.009) & 0.7853 \ensuremath{\pm} 0.0003 (0.0023) & 0.9273 \ensuremath{\pm} 0.0001 (0.0010) & 0.9658 \ensuremath{\pm} 0.0001 (0.0003) & -0.23 \ensuremath{\pm} 0.00 (0.03) \\
+B_aspect0.6 & 3 / 3 & 0.423 \ensuremath{\pm} 0.000 (0.000) & 0.755 \ensuremath{\pm} 0.000 (0.013) & 4.08 \ensuremath{\pm} 0.00 (0.24) & 0.294 \ensuremath{\pm} 0.001 (0.009) & 0.686 \ensuremath{\pm} 0.002 (0.021) & 0.7994 \ensuremath{\pm} 0.0002 (0.0001) & 0.9328 \ensuremath{\pm} 0.0001 (0.0003) & 0.9677 \ensuremath{\pm} 0.0001 (0.0001) & -0.19 \ensuremath{\pm} 0.01 (0.01) \\
+C_jitter0.3 & 3 / 3 & 0.420 \ensuremath{\pm} 0.000 (0.000) & 0.714 \ensuremath{\pm} 0.001 (0.008) & 3.50 \ensuremath{\pm} 0.01 (0.10) & 0.298 \ensuremath{\pm} 0.000 (0.003) & 0.699 \ensuremath{\pm} 0.001 (0.006) & 0.7979 \ensuremath{\pm} 0.0001 (0.0005) & 0.9323 \ensuremath{\pm} 0.0001 (0.0002) & 0.9661 \ensuremath{\pm} 0.0000 (0.0000) & -0.20 \ensuremath{\pm} 0.00 (0.01) \\
+W_slope0.2 & 3 / 3 & 0.402 \ensuremath{\pm} 0.000 (0.000) & 0.539 \ensuremath{\pm} 0.003 (0.002) & 2.17 \ensuremath{\pm} 0.01 (0.01) & 0.142 \ensuremath{\pm} 0.000 (0.001) & 0.345 \ensuremath{\pm} 0.001 (0.001) & 0.6084 \ensuremath{\pm} 0.0006 (0.0008) & 0.8154 \ensuremath{\pm} 0.0005 (0.0007) & 0.9331 \ensuremath{\pm} 0.0002 (0.0002) & -2.71 \ensuremath{\pm} 0.01 (0.02) \\
+W_slope1.0 & 3 / 3 & 0.422 \ensuremath{\pm} 0.000 (0.001) & 0.115 \ensuremath{\pm} 0.001 (0.007) & 1.13 \ensuremath{\pm} 0.00 (0.01) & 0.377 \ensuremath{\pm} 0.000 (0.004) & 0.871 \ensuremath{\pm} 0.001 (0.007) & 0.7924 \ensuremath{\pm} 0.0002 (0.0023) & 0.9316 \ensuremath{\pm} 0.0001 (0.0010) & 0.9675 \ensuremath{\pm} 0.0001 (0.0002) & -0.07 \ensuremath{\pm} 0.02 (0.01) \\
+scatter g0.8_t1.0 & 3 / – & 0.326 \ensuremath{\pm} 0.000 & 0.147 \ensuremath{\pm} 0.000 & 1.17 \ensuremath{\pm} 0.00 & 0.326 \ensuremath{\pm} 0.000 & 0.977 \ensuremath{\pm} 0.000 & 0.7374 \ensuremath{\pm} 0.0000 & 0.9127 \ensuremath{\pm} 0.0000 & 0.9507 \ensuremath{\pm} 0.0000 & -0.08 \ensuremath{\pm} 0.00 \\
+scatter g0.0_t0.25 & 3 / – & 0.381 \ensuremath{\pm} 0.000 & 0.555 \ensuremath{\pm} 0.001 & 2.25 \ensuremath{\pm} 0.01 & 0.212 \ensuremath{\pm} 0.000 & 0.545 \ensuremath{\pm} 0.000 & 0.6754 \ensuremath{\pm} 0.0001 & 0.8740 \ensuremath{\pm} 0.0001 & 0.9445 \ensuremath{\pm} 0.0000 & -2.07 \ensuremath{\pm} 0.01 \\
+\hline
+\end{tabular}}
+\end{table}
+
 \section*{Reproducing the figures and data}
 
 Main-text Figs. 1–4 are produced by \texttt{selectivity/oe\_figs.py}, which builds the structure library (Note S11), evaluates the full and reduced models, and writes each figure to \texttt{figures\_oe/} as PNG (300 dpi), PDF, and an Excel workbook with one sheet per panel holding exactly the plotted arrays. The random-structure return matrices are generated by \texttt{multipass\_reset/run\_random\_sweep.py} (tracer \texttt{hftrace\_gen.py}). Main-text Fig. 5 and Figs. S1–S10 come from the freeform campaign archives through \texttt{make\_figures.py} and \texttt{make\_supp\_figures\_and\_data.py}.
@@ -532,7 +554,7 @@ python3 make_supp_figures_and_data.py
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption*{Table S13. Figure files and their inputs.}
+\caption*{Table S14. Figure files and their inputs.}
 \begin{tabular}{p{0.16\linewidth}p{0.40\linewidth}p{0.40\linewidth}}
 \hline
 Figure & Output & Inputs \\
@@ -552,6 +574,7 @@ Fig. S7 & \texttt{figS5\_convergence} & \texttt{convergence\_check\_result.mat} 
 Fig. S8 & \texttt{figS6\_cost\_calibration} & \texttt{calibrate\_random\_cost.mat} \\
 Fig. S9 & \texttt{fig4\_families} & \texttt{opt\_4band\_result\_25by25.mat}, \texttt{opt\_4band\_inverted\_result.mat}, \texttt{stress\_random\_result.mat} \\
 Fig. S10 & \texttt{figS8\_angle\_reset} & \texttt{multipass\_reset/} (\texttt{hftrace.py}, \texttt{multipass.py}, \texttt{bsdfs.npz}, \texttt{fig\_reset.py}) \\
+Table S13 & \texttt{selectivity/data/uncertainty.json} & \texttt{multipass\_reset/run\_uncertainty.py} \ensuremath{\rightarrow} \texttt{random\_sweep\_unc/}, \texttt{selectivity/run\_slab\_unc.py}, \texttt{selectivity/unc\_analysis.py} \\
 \hline
 \end{tabular}
 \end{table}
