@@ -178,7 +178,7 @@ if __name__ == '__main__':
     W1 = np.diff(np.sin(np.radians(np.linspace(0, 90, 91))) ** 2)
     res = json.load(open(f'{OUT}/results.json')) if os.path.exists(f'{OUT}/results.json') else {}
     for name, (kind, P, box, hmax, lip, tag) in structures().items():
-        if name in res and 'direct' in res[name]:
+        if name in res and ('direct' in res[name] or name in ('cap60', 'paraboloid', 'cone45', 'gauss_bump', 'ring_wave1.2')):
             continue
         t0 = time.time(); f = f'{OUT}/{name}.npz'
         if tag == 'library':
@@ -193,12 +193,12 @@ if __name__ == '__main__':
             BT, BR, lost = bsdf(kind, P, box, hmax, lip, 20000 if kind != 'wave' else 10000)
             np.savez(f, BT=BT, BR=BR, lost=lost)
         BRc = BR.T; pT = BT.sum(1); lam2 = mixing.lam2_cut(BRc); pinf, pt = mixing.pinf_cut(BRc)
-        r_ = dict(tag=tag, kind=kind, p=float(pT @ (W1 / W1.sum())), lam2=lam2, N_mix=1 / (1 - lam2), p_inf=pinf, xi=pinf / pt)
+        r_ = dict(tag=tag, kind=kind, p=float(pT @ (W1 / W1.sum())), lam2=lam2, N_mix=(1 / (1 - lam2) if lam2 < 1 - 1e-9 else float('inf')), p_inf=pinf, xi=pinf / pt)
         for dev in ('Al', 'Ag', 'LL15'):
             for i, lam in ((50, 500), (75, 550), (100, 600)):
                 Pv = DV[f'{dev}_P'][i].reshape(90, 2).sum(1); R = DV[f'{dev}_R'][i].reshape(90, 2).mean(1)
-                r_[f'{dev}_{lam}'] = dict(full=mixing.full(pT, BRc, R, Pv), red=mixing.reduced(pT, W1, R, Pv, 1 - lam2),
-                                          red_w=mixing.reduced(pT, W1, R, Pv, 1 - lam2, recip=False),
+                r_[f'{dev}_{lam}'] = dict(full=mixing.full(pT, BRc, R, Pv), red=mixing.reduced(pT, W1, R, Pv, max(1 - lam2, 0.0)),
+                                          red_w=mixing.reduced(pT, W1, R, Pv, max(1 - lam2, 0.0), recip=False),
                                           memoryless=mixing.closed(pT, W1, R), m1=mixing.reduced(pT, W1, R, Pv, 1.0))
         if kind in ('hex', 'wave', 'lens') and name in ('hemi_total', 'free_40-60', 'W_slope0.2', 'W_slope1.0', 'cap35', 'cone60', 'mixed_cone_hemi', 'ring_wave0.6'):
             d0 = direct(kind, P, box, hmax, lip); d1 = direct(kind, P, box, hmax, lip, randphi=1, seed=5)
