@@ -109,7 +109,7 @@ for k, (j, lab) in enumerate(((5, 'memoryless formula'), (6, 'angle preserving, 
     ax[k].set_xlabel('η_sta, full series'); ax[k].set_ylabel('η_sta, model' if k == 0 else '')
 for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
-ax[0].legend(fontsize=4.8, frameon=False, loc='upper left')
+ax[0].legend(fontsize=4.8, frameon=False, loc='lower right')
 fig.savefig(f'{OUT}/fig2_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig2_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig2_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced', 'p_Lamb', 'lambda2_85'], rows)])
 print(f'Fig 2: {len(rows)} cases; reduced mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
@@ -123,7 +123,8 @@ for i, p in enumerate(pg):
     pT = pT0 * p / (pT0 @ (W1 / W1.sum()))
     for j, Nm in enumerate(Ng):
         Z[j, i] = mixing.reduced(np.clip(pT, 0, 1), W1, R1, P0, 1 / Nm)
-cs = ax[0].contour(pg, Ng, Z, levels=[0.6, 0.7, 0.75, 0.78, 0.8, 0.82], colors=INK2, linewidths=0.5); ax[0].clabel(cs, fontsize=5, fmt='%.2f')
+cs = ax[0].contour(pg, Ng, Z, levels=[0.6, 0.7, 0.75, 0.78, 0.8, 0.82], colors=INK2, linewidths=0.5); [ax[0].text(sg[np.argmin(np.abs(sg[:, 1] - 15)), 0], 15, f'{lv:.2f}', fontsize=5, color=INK2, ha='center', va='center', rotation=80, bbox=dict(fc='white', ec='none', pad=0.3))
+ for lv, segs in zip(cs.levels, cs.allsegs) for sg in segs[:1] if len(sg)]
 for nm, (c, BT, BR) in LIB.items():
     e = EV[(nm, 'Al', 550.0)]; Nm = 1 / max(1 - e['lam2'], 1e-9)
     col, mk, _ = CLS[c]; ax[0].plot(e['p'], min(Nm, 25), mk, color=col, ms=4, mec='white', mew=0.3)
@@ -132,7 +133,7 @@ for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
 ax[0].set_yscale('log'); ax[0].set_ylim(1, 26); ax[0].set_xlabel('escape probability p (uniform radiance)'); ax[0].set_ylabel('angular mixing number N_mix')
 ax[0].text(0.405, 24, '↑ planar: N_mix = ∞', fontsize=5, color=INK2)
-ax[0].set_title('(a) structure map (contours: η_sta, Al, 550 nm, hemisphere-shaped p(θ))', loc='left', fontsize=6.3); ax[0].legend(fontsize=4.8, frameon=False, loc='center left')
+ax[0].set_title('(a) structure map (contours: η_sta, Al, 550 nm)', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=True, framealpha=0.9, edgecolor='none', loc='lower left', bbox_to_anchor=(0.0, 0.08))
 for pre, lab, col, key in (('A_shape', 'lenslet shape spread s', '#6250d6', 'shape'), ('C_jitter', 'position jitter / pitch', '#2a78d6', 'jitter'),
                            ('W_slope', 'wavy surface, rms slope', '#e87ba4', 'slope'), ('B_aspect', 'height spread', '#eda100', 'aspect')):
     pts = sorted((float(nm.split(key)[1].split('_')[0]), 1 / max(1 - EV[(nm, 'Al', 550.0)]['lam2'], 1e-9)) for nm in LIB if nm.startswith(pre) and not nm.startswith('C2'))
@@ -141,7 +142,7 @@ for pre, lab, col, key in (('A_shape', 'lenslet shape spread s', '#6250d6', 'sha
 ns = 1 / (1 - EV[('scatter g0.8_t1.0', 'Al', 550.0)]['lam2'])
 ax[1].axhline(ns, color='#1baf7a', ls=':', lw=0.8); ax[1].text(0.02, ns * 1.06, 'scattering layer (g 0.8, τ* 1)', fontsize=5, color='#1baf7a')
 ax[1].axhline(1 / (1 - EV[('MLA hemi_total', 'Al', 550.0)]['lam2']), color='#2a78d6', ls=':', lw=0.8)
-ax[1].set_yscale('log'); ax[1].set_xlabel('randomness parameter'); ax[1].set_ylabel('N_mix'); ax[1].set_title('(b) randomness erases angle retention', loc='left')
+ax[1].set_yscale('log'); ax[1].set_yticks([1, 1.5, 2, 3, 5, 8]); ax[1].set_yticklabels(['1', '1.5', '2', '3', '5', '8']); ax[1].minorticks_off(); ax[1].set_xlabel('randomness parameter'); ax[1].set_ylabel('N_mix'); ax[1].set_title('(b) randomness erases angle retention', loc='left')
 ax[1].legend(fontsize=5, frameon=False)
 fig.savefig(f'{OUT}/fig3_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
@@ -165,7 +166,7 @@ for k, (nm, lab, col) in enumerate((('MLA hemi_total', 'hemispherical MLA', '#2a
     first = EV[(nm, 'Al', 550.0)]['first']; v = [first[a_:b_].sum() for a_, b_ in BANDS]
     ax[0].bar(x + 0.15 * k, v, 0.15, color=col, label=lab); rows.append([lab] + v + [first.sum()])
 ax[0].set_xticks(x); ax[0].set_xticklabels(['0–20°', '20–40°', '40–60°', '60–80°']); ax[0].set_ylabel('first-pass power into band / substrate power')
-ax[0].set_title('(a) band-resolved radiance bound (Al, 550 nm)', loc='left'); ax[0].legend(fontsize=4.8, frameon=False)
+ax[0].set_title('(a) band-resolved radiance bound (Al, 550 nm)', loc='left'); ax[0].set_ylim(0, 0.32); ax[0].legend(fontsize=4.8, frameon=False, ncol=2, loc='upper left')
 rows = [['uniform bound'] + UB + [1 / N_SUB ** 2], ['radiance-ordered bound'] + GB + [gbound(P05, 0, 90)]] + rows
 win = []
 for nm, (c, BT, BR) in LIB.items():

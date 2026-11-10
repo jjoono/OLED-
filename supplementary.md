@@ -304,7 +304,20 @@ The reset raises the extraction by 2.7–5.5% (Al) and 1.2–3.0% (Ag), and the 
 
 For the hemisphere the value is insensitive to the range. For the freeform 40–60° lens and for height-randomized hemispheres, the full-range value is set by grazing states, and truncation at 85° brings it to the hemisphere level. Truncation at 85° leaves the mean error of the reduced model unchanged (0.57 pp) and lowers the largest error for freeform lenses from 4.1 to 2.2 pp; truncation at 80° raises the mean error to 0.80 pp.
 
-**Validation.** The reduced model of main-text Sec. 2.3 was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm. Table S11 summarizes the errors by class. [Table S11 and the spectrally averaged comparison to be completed with the final library.]
+**Validation.** The reduced model of main-text Sec. 2.3 was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm (342 cases). Table S11 summarizes the absolute errors by class, in percentage points. The reduced model fails only for the wavy surfaces of rms slope 0.2 and 0.4: their $\lambda_2$ is low, but light beyond the critical angle is returned mostly to other angles beyond it (from 70–80°, 3–8% of the returned light reaches angles with $p(\theta) > 0.3$ after one pass at slope 0.2, against 50% for uniform redistribution), so a fast-mixing rate does not imply fast access to the escape cone.
+
+**Table S11 | Error of the reduced and memoryless models by structure class (pp).**
+
+| Class | cases | reduced mean | reduced max | memoryless mean | memoryless max |
+|---|---|---|---|---|---|
+| Planar | 9 | 0.00 | 0.00 | 44.05 | 59.89 |
+| Scattering layers | 54 | 0.96 | 4.67 | 1.83 | 11.14 |
+| Hemispherical and freeform MLAs | 81 | 0.38 | 2.22 | 3.45 | 12.33 |
+| Random lens arrays (A, B, C) | 153 | 0.44 | 1.93 | 2.41 | 10.89 |
+| Wavy, rms slope ≤ 0.4 | 18 | 5.40 | 10.51 | 8.66 | 21.73 |
+| Wavy, rms slope ≥ 0.7 | 27 | 1.11 | 3.07 | 1.61 | 5.57 |
+| All | 342 | 0.81 | 10.51 | 3.93 | 59.89 |
+
 
 ---
 
@@ -318,7 +331,49 @@ For the hemisphere the value is insensitive to the range. For the freeform 40–
 
 **Scattering layers.** Non-absorbing, index-matched slabs with a Henyey–Greenstein phase function, Monte Carlo with 20,000 rays per 0.5° incidence bin, combined with the flat exit face by the adding method.
 
-**Table S12 | Randomness sweep.** [To be completed when the sweep finishes: $p$, $|\lambda_2|$, $N_{\mathrm{mix}}$, $\eta_{\mathrm{sta}}$ (Al, Ag, low loss), $S_{40\text{–}60}$ for every random structure.]
+**Table S12 | Structure library at 550 nm.** $p$: escape probability for uniform radiance; $|\lambda_2|$ on $\theta < 85°$; $\eta$: substrate-to-air extraction (full series) for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60° share of the multi-pass output (Al); last column: reduced model minus full series (Al). Random structures: A, lenslet shape spread $s$; B, lenslet height spread ±$s$; C, position jitter (fraction of the pitch); C2, as C with ±20% radius spread; W, wavy surface of the given rms slope. Scattering layers are labelled by $g$ and $\tau^*$; MLAs by the objective of the benchmark optimum they reproduce.
+
+| Structure | p | λ₂ | N_mix | η Al | η Ag | η LL | S40–60 (Al) | reduced err. Al (pp) |
+|---|---|---|---|---|---|---|---|---|
+| planar | 0.398 | 1.000 | ∞ | 0.384 | 0.356 | 0.664 | 0.334 | -0.00 |
+| scatter g0.0_t0.25 | 0.381 | 0.555 | 2.2 | 0.675 | 0.874 | 0.945 | 0.349 | +4.21 |
+| scatter g0.0_t1.0 | 0.324 | 0.085 | 1.1 | 0.725 | 0.907 | 0.949 | 0.353 | +1.24 |
+| scatter g0.8_t0.25 | 0.386 | 0.138 | 1.2 | 0.749 | 0.914 | 0.959 | 0.359 | +3.04 |
+| scatter g0.8_t1.0 | 0.326 | 0.147 | 1.2 | 0.737 | 0.913 | 0.951 | 0.354 | +0.34 |
+| scatter g0.9_t1.0 | 0.326 | 0.171 | 1.2 | 0.738 | 0.913 | 0.951 | 0.354 | +0.29 |
+| scatter g0.8_t4.0 | 0.188 | 0.141 | 1.2 | 0.579 | 0.838 | 0.901 | 0.353 | +0.14 |
+| MLA free_20-40 | 0.429 | 0.737 | 3.8 | 0.788 | 0.925 | 0.967 | 0.352 | +0.32 |
+| MLA free_40-60 | 0.425 | 0.867 | 7.5 | 0.789 | 0.929 | 0.961 | 0.360 | -0.44 |
+| MLA free_60-80 | 0.417 | 0.671 | 3.0 | 0.785 | 0.929 | 0.966 | 0.349 | -0.21 |
+| MLA free_total | 0.424 | 0.782 | 4.6 | 0.771 | 0.914 | 0.961 | 0.341 | +0.44 |
+| MLA hemi_0-20 | 0.423 | 0.863 | 7.3 | 0.790 | 0.924 | 0.964 | 0.328 | +0.13 |
+| MLA hemi_20-40 | 0.422 | 0.857 | 7.0 | 0.793 | 0.926 | 0.964 | 0.327 | +0.23 |
+| MLA hemi_40-60 | 0.425 | 0.875 | 8.0 | 0.783 | 0.920 | 0.965 | 0.339 | -0.03 |
+| MLA hemi_60-80 | 0.420 | 0.840 | 6.2 | 0.792 | 0.926 | 0.965 | 0.331 | +0.20 |
+| MLA hemi_total | 0.422 | 0.859 | 7.1 | 0.792 | 0.925 | 0.964 | 0.327 | +0.19 |
+| A_shape0.0 | 0.422 | 0.858 | 7.0 | 0.794 | 0.927 | 0.965 | 0.328 | +0.24 |
+| A_shape0.1 | 0.421 | 0.733 | 3.8 | 0.797 | 0.931 | 0.966 | 0.336 | +0.27 |
+| A_shape0.2 | 0.421 | 0.628 | 2.7 | 0.799 | 0.934 | 0.966 | 0.349 | +0.39 |
+| A_shape0.4 | 0.422 | 0.595 | 2.5 | 0.794 | 0.932 | 0.966 | 0.358 | +0.57 |
+| A_shape0.7 | 0.426 | 0.470 | 1.9 | 0.788 | 0.929 | 0.966 | 0.358 | +1.31 |
+| A_shape1.0 | 0.428 | 0.487 | 1.9 | 0.785 | 0.927 | 0.966 | 0.354 | +1.47 |
+| B_aspect0.2 | 0.422 | 0.859 | 7.1 | 0.795 | 0.928 | 0.965 | 0.328 | +0.18 |
+| B_aspect0.4 | 0.422 | 0.835 | 6.0 | 0.797 | 0.930 | 0.966 | 0.332 | +0.20 |
+| B_aspect0.6 | 0.423 | 0.755 | 4.1 | 0.799 | 0.933 | 0.968 | 0.341 | +0.24 |
+| C2_jitter0.05_r20 | 0.421 | 0.761 | 4.2 | 0.798 | 0.931 | 0.966 | 0.331 | +0.34 |
+| C2_jitter0.1_r20 | 0.421 | 0.712 | 3.5 | 0.796 | 0.930 | 0.966 | 0.329 | +0.45 |
+| C2_jitter0.2_r20 | 0.420 | 0.731 | 3.7 | 0.799 | 0.932 | 0.966 | 0.335 | +0.35 |
+| C2_jitter0.3_r20 | 0.420 | 0.688 | 3.2 | 0.796 | 0.932 | 0.966 | 0.341 | +0.40 |
+| C_jitter0.05 | 0.421 | 0.838 | 6.2 | 0.796 | 0.928 | 0.965 | 0.328 | +0.25 |
+| C_jitter0.1 | 0.421 | 0.801 | 5.0 | 0.797 | 0.930 | 0.966 | 0.331 | +0.29 |
+| C_jitter0.2 | 0.421 | 0.744 | 3.9 | 0.798 | 0.932 | 0.966 | 0.336 | +0.32 |
+| C_jitter0.3 | 0.420 | 0.714 | 3.5 | 0.798 | 0.932 | 0.966 | 0.340 | +0.34 |
+| W_slope0.2 | 0.402 | 0.539 | 2.2 | 0.608 | 0.815 | 0.933 | 0.334 | +9.57 |
+| W_slope0.4 | 0.410 | 0.179 | 1.2 | 0.719 | 0.896 | 0.957 | 0.348 | +6.47 |
+| W_slope0.7 | 0.417 | 0.141 | 1.2 | 0.773 | 0.923 | 0.965 | 0.335 | +2.78 |
+| W_slope1.0 | 0.422 | 0.115 | 1.1 | 0.792 | 0.932 | 0.968 | 0.329 | +1.70 |
+| W_slope1.5 | 0.427 | 0.174 | 1.2 | 0.801 | 0.935 | 0.968 | 0.337 | +1.21 |
+
 
 ---
 
