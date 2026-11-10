@@ -1,7 +1,7 @@
 # Supplement 1
 
-An Angular Mixing Number for Passive Light-Extraction Structures:
-Why Microlens Shape Saturates on Extended OLED Emitters
+Reciprocity Constrains Angular Mixing in Passive Light-Extraction Structures:
+Two Spectral Metrics for OLED Outcoupling
 
 This supplement collects the material that supports the main text but is not needed to follow its argument. Notes S1–S9 document the freeform-versus-hemisphere benchmark (platform and campaign settings, statistical controls, normalization checks, convergence and cost calibrations, the inverted and randomly assembled families, the separately constrained asymmetric study, and the pass-by-pass analysis of angle retention). Notes S10 and S11 document the angular mixing number and the library of structures and return matrices. Main-text references are cited as "main ref. n".
 
