@@ -25,13 +25,13 @@ Microlens arrays, scattering layers, and textured films are widely used to extra
 
 \section{Introduction}
 
-A planar OLED loses much of its generated light. Waveguided modes, losses at the metal electrode, and total internal reflection (TIR) at the substrate/air interface all trap photons \cite{r1,r2}. External structures on the substrate extract the substrate modes without touching the electrical stack: microlens arrays (MLAs) \cite{r3,r4,r5}, scattering layers \cite{r6,r7}, and textured films \cite{r8}. Their shapes are increasingly optimized by inverse design and machine learning \cite{r9,r10}. With such structures, OLED external quantum efficiencies (EQEs) have generally plateaued near 55–60\%, a ceiling recently traced to the loss that light returned by the structure suffers on each round trip through the device \cite{r11}.
+A planar OLED loses much of its generated light. Waveguided modes, losses at the metal electrode, and total internal reflection (TIR) at the substrate/air interface all trap photons \cite{r1,r2}. External structures on the substrate extract the substrate modes without touching the electrical stack: microlens arrays (MLAs) \cite{r3,r4,r5}, scattering layers \cite{r6,r7}, and textured films \cite{r8}. Ray-tracing and experimental studies have mapped how their extraction depends on lens profile, aspect ratio, and fill factor \cite{r3,r9,r10,r11}, and their shapes are increasingly optimized by inverse design and machine learning \cite{r12,r13}. Periodic, disordered, and quasi-periodic textures have also been compared, mainly for internal, wave-optical structures \cite{r14}. With such structures, OLED external quantum efficiencies (EQEs) have generally plateaued near 55–60\%, a ceiling recently traced to the loss that light returned by the structure suffers on each round trip through the device \cite{r15}.
 
-What is missing is a common way to compare the structures themselves. Two descriptions are in use. The first is the statistical ray-optics picture, in which the light in the substrate is assumed to be fully randomized in angle on every pass \cite{r12,r13}. The extraction efficiency then depends on one escape probability $p$ and one round-trip loss $A'$, $\eta = p/[p+(1-p)A']$ \cite{r11}. The second propagates the angle-resolved power distribution from pass to pass with redistribution matrices, as in the OPTOS formalism for solar cells \cite{r14}, in models of textured LEDs \cite{r15}, and in the trans-scale model of ref. \cite{r11}. The matrix models are accurate but numerical, and the degree of randomization they contain is not extracted. Where randomization has been quantified, it has been done empirically: by a randomization fraction \cite{r16}, by the number of passes after which the internal distribution looks Lambertian \cite{r17}, or not at all, as noted for partial randomization in thin-film solar cells \cite{r18}.
+What is missing is a common way to compare the structures themselves. Two descriptions are in use. The first is the statistical ray-optics picture, in which the light in the substrate is assumed to be fully randomized in angle on every pass \cite{r16,r17}. The extraction efficiency then depends on one escape probability $p$ and one round-trip loss $A'$, $\eta = p/[p+(1-p)A']$ \cite{r15}. The second propagates the angle-resolved power distribution from pass to pass with redistribution matrices, as in the OPTOS formalism for solar cells \cite{r18}, in models of textured LEDs \cite{r19}, and in the trans-scale model of ref. \cite{r15}. The matrix models are accurate but numerical, and the degree of randomization they contain is not extracted. Where randomization has been quantified, it has been done empirically: by a randomization fraction \cite{r20}, by the number of passes after which the internal distribution looks Lambertian \cite{r21}, or not at all, as noted for partial randomization in thin-film solar cells \cite{r22}.
 
-The distinction matters for OLEDs. A hemispherical MLA returns unextracted light largely at its original angle \cite{r11}. Light at angles it transmits well leaves in the first passes, and later passes see mostly light at angles it transmits poorly. The memoryless formula then overestimates extraction, and the error depends on the structure. It also matters for the expected value of shape optimization. If a structure acts mainly through how it redistributes returned light, a freeform profile may change the redistribution without changing how much light escapes.
+The distinction matters for OLEDs. A hemispherical MLA returns unextracted light largely at its original angle \cite{r15}. Light at angles it transmits well leaves in the first passes, and later passes see mostly light at angles it transmits poorly. The memoryless formula then overestimates extraction, and the error depends on the structure. It also matters for the expected value of shape optimization. If a structure acts mainly through how it redistributes returned light, a freeform profile may change the redistribution without changing how much light escapes.
 
-Here we introduce an angular mixing number, $N_{\mathrm{mix}} = 1/(1-\lambda_2)$, defined by the second eigenvalue of a structure's return matrix. It is the per-pass counterpart of the transport factor $1/(1-g)$ of radiative transfer \cite{r19} and of the relaxation time of a reversible Markov chain \cite{r20}. We show that reciprocity fixes the form of the mixing in any reduced description, that $p(\theta)$ and $N_{\mathrm{mix}}$ then suffice to predict multi-pass extraction for planar, scattering, microlens, random-lens, and wavy structures, and that a second spectral quantity, the escape probability of the quasi-stationary distribution \cite{r21,r22}, identifies light trapped at dead angles. Both spectral quantities are standard objects of Markov-chain theory and of the theory of open, leaking dynamical systems, where the escape rate and the conditionally invariant measure describe the long-time survivors of chaotic billiards and dielectric microcavities \cite{r23,r24,r25}. What is new here is their identification for passive extraction structures, the constraints that reciprocity places on them, and their use as reporting metrics for OLED outcoupling. We place the structure classes on a common map and connect it to the radiance-ordered extraction bound \cite{r26,r27,r28}. As a case study, we use a controlled freeform-versus-hemisphere benchmark on an experimentally validated OLED platform \cite{r29,r30} to show why lens-shape freedom saturates.
+Here we introduce an angular mixing number, $N_{\mathrm{mix}} = 1/(1-\lambda_2)$, defined by the second eigenvalue of a structure's return matrix. It is the per-pass counterpart of the transport factor $1/(1-g)$ of radiative transfer \cite{r23} and of the relaxation time of a reversible Markov chain \cite{r24}. We show that reciprocity fixes the form of the mixing in any reduced description, that $p(\theta)$ and $N_{\mathrm{mix}}$ then suffice to predict multi-pass extraction for planar, scattering, microlens, random-lens, and wavy structures, and that a second spectral quantity, the escape probability of the quasi-stationary distribution \cite{r25,r26}, identifies light trapped at dead angles. Both spectral quantities are standard objects of Markov-chain theory and of the theory of open, leaking dynamical systems, where the escape rate and the conditionally invariant measure describe the long-time survivors of chaotic billiards and dielectric microcavities \cite{r27,r28,r29,r30}. What is new here is their identification for passive extraction structures, the constraints that reciprocity places on them, and their use as reporting metrics for OLED outcoupling. We place the structure classes on a common map and connect it to the radiance-ordered extraction bound \cite{r31,r32,r33}. As a case study, we use a controlled freeform-versus-hemisphere benchmark on an experimentally validated OLED platform \cite{r34,r35} to show why lens-shape freedom saturates.
 
 \section{Theory}
 
@@ -43,17 +43,17 @@ Light delivered to the substrate is described by a vector $\mathbf{v}$ of power 
 \eta_{\mathrm{sta}} = \mathbf{p}^{\mathsf T}\left(I - \mathrm{diag}\,R\; B_R\right)^{-1}\mathbf{v}^{(0)} ,
 \end{equation}
 
-the matrix form of the trans-scale model \cite{r11}. Normalizing each column of $B_R$ gives a column-stochastic matrix $M$, the transition matrix of a Markov chain on the polar angle of the returned light.
+the matrix form of the trans-scale model \cite{r15}. Normalizing each column of $B_R$ gives a column-stochastic matrix $M$, the transition matrix of a Markov chain on the polar angle of the returned light.
 
 \subsection{Reciprocity, detailed balance, and the angular mixing number}
 
-For a passive, reciprocal structure, the power scattered from bin $i$ into bin $j$ and from $j$ into $i$ obey $w_i\,B_R(i\to j) = w_j\,B_R(j\to i)$, where $w_k = \sin^2\theta_{k+1}-\sin^2\theta_k$ is the étendue of bin $k$. This is detailed balance with respect to the étendue weight. $M$ is therefore similar to a symmetric matrix, its eigenvalues are real, and for a lossless structure the uniform-radiance (Lambertian) distribution is stationary. The largest eigenvalue is one. The second, $\lambda_2$, sets how fast any other initial distribution relaxes towards the stationary one: the deviation shrinks by $\lambda_2$ per pass. We define the angular mixing number
+For a passive, reciprocal structure, the power scattered from bin $i$ into bin $j$ and from $j$ into $i$ obey $w_i\,B_R(i\to j) = w_j\,B_R(j\to i)$, where $w_k = \sin^2\theta_{k+1}-\sin^2\theta_k$ is the étendue of bin $k$; this follows from Helmholtz reciprocity of the bidirectional scattering distribution \cite{r36} and has been noted as a symmetry of the redistribution matrices of textured sheets \cite{r18}. This is detailed balance with respect to the étendue weight. $M$ is therefore similar to a symmetric matrix, its eigenvalues are real, and for a lossless structure the uniform-radiance (Lambertian) distribution is stationary. The largest eigenvalue is one. The second, $\lambda_2$, sets how fast any other initial distribution relaxes towards the stationary one: the deviation shrinks by $\lambda_2$ per pass. We define the angular mixing number
 
 \begin{equation}
 N_{\mathrm{mix}} = \frac{1}{1-|\lambda_2|},
 \end{equation}
 
-the number of passes the structure needs to forget the angle of the incident light. A planar interface has $\lambda_2 = 1$ and $N_{\mathrm{mix}} = \infty$; a Lambertian scatterer has $\lambda_2 = 0$ and $N_{\mathrm{mix}} = 1$. $N_{\mathrm{mix}}$ is the relaxation time of the chain \cite{r20} and the per-pass analogue of the $1/(1-g)$ scattering events that a photon needs to lose its direction in radiative transfer \cite{r19}. Because states at near-grazing angles carry almost no étendue but can return light at the same angle, we evaluate $\lambda_2$ on $\theta < 85\ensuremath{^\circ}$, which excludes 0.76\% of the étendue (Note S10).
+the number of passes the structure needs to forget the angle of the incident light. A planar interface has $\lambda_2 = 1$ and $N_{\mathrm{mix}} = \infty$; a Lambertian scatterer has $\lambda_2 = 0$ and $N_{\mathrm{mix}} = 1$. $N_{\mathrm{mix}}$ is the relaxation time of the chain \cite{r24} and the per-pass analogue of the $1/(1-g)$ scattering events that a photon needs to lose its direction in radiative transfer \cite{r23}. Because states at near-grazing angles carry almost no étendue but can return light at the same angle, we evaluate $\lambda_2$ on $\theta < 85\ensuremath{^\circ}$, which excludes 0.76\% of the étendue (Note S10).
 
 \subsection{Reduced model and the reciprocity constraint}
 
@@ -63,17 +63,17 @@ The reduced model keeps the angle-resolved escape probability $p(\theta)$ and re
 B_R(\theta_i\to\theta_r) = \left[1-p(\theta_i)\right]\left[(1-m)\,\delta_{ir} + m\,q(\theta_r)\right].
 \end{equation}
 
-Reciprocity fixes $q$. Detailed balance, $w_i B_R(i\to r) = w_r B_R(r\to i)$, holds for the mixing term only if $q(\theta) \propto w(\theta)\,[1-p(\theta)]$: light is redistributed into each angle in proportion to how much light that angle itself returns. The common choice $q \propto w$, a Lambertian redistribution, violates reciprocity whenever $p$ depends on angle, because it sends returned light into the escape cone of a structure that returns almost nothing from there. With the reciprocal $q$, the normalized kernel has eigenvalues 1 and $1-m$, so we set $m = 1-\lambda_2$ and the reduced model relaxes at the same rate as the full matrix. With $m = 1$, $q \propto w$, and a scalar $p$, the model reduces to the memoryless formula of ref. \cite{r11}; with $m = 0$ every ray returns at its own angle.
+Reciprocity fixes $q$. Detailed balance, $w_i B_R(i\to r) = w_r B_R(r\to i)$, holds for the mixing term only if $q(\theta) \propto w(\theta)\,[1-p(\theta)]$: light is redistributed into each angle in proportion to how much light that angle itself returns. The common choice $q \propto w$, a Lambertian redistribution, violates reciprocity whenever $p$ depends on angle, because it sends returned light into the escape cone of a structure that returns almost nothing from there. With the reciprocal $q$, the normalized kernel has eigenvalues 1 and $1-m$, so we set $m = 1-\lambda_2$ and the reduced model relaxes at the same rate as the full matrix. With $m = 1$, $q \propto w$, and a scalar $p$, the model reduces to the memoryless formula of ref. \cite{r15}; with $m = 0$ every ray returns at its own angle.
 
 \subsection{Late-pass escape probability and trapping ratio}
 
-$\lambda_2$ describes how fast the angle of the returned light is forgotten, not where the light ends up. The second quantity we use is the largest eigenvalue $\rho$ of the sub-stochastic return operator $B_R$ itself. Light that has circulated many times without escaping approaches the corresponding eigenvector, the quasi-stationary distribution of the chain \cite{r21,r22}, and escapes with probability
+$\lambda_2$ describes how fast the angle of the returned light is forgotten, not where the light ends up. The second quantity we use is the largest eigenvalue $\rho$ of the sub-stochastic return operator $B_R$ itself. Light that has circulated many times without escaping approaches the corresponding eigenvector, the quasi-stationary distribution of the chain \cite{r25,r26}, and escapes with probability
 
 \begin{equation}
 p_\infty = 1-\rho(B_R)
 \end{equation}
 
-per encounter. In the language of open dynamical systems, $p_\infty$ is the escape rate per encounter and the eigenvector is the conditionally invariant measure \cite{r23}. The same construction describes the long-time survival of rays in dielectric microcavities \cite{r24} and in systems with partial absorption \cite{r25}, to which the device reflectance $R(\theta)$ adds a further, angle-dependent loss. Because $B_R$ is self-adjoint in the étendue-weighted inner product, the Rayleigh quotient with the uniform-radiance vector gives $\rho \ge 1-p$, and the column sums give $\rho \le \max_\theta\,[1-p(\theta)]$. Hence
+per encounter. In the language of open dynamical systems, $p_\infty$ is the escape rate per encounter and the eigenvector is the conditionally invariant measure \cite{r27}. The same construction describes the long-time survival of rays in dielectric microcavities \cite{r28}, in systems with partial absorption \cite{r29}, and in systems with partial, Fresnel-type escape \cite{r30}, to which the device reflectance $R(\theta)$ adds a further, angle-dependent loss. Because $B_R$ is self-adjoint in the étendue-weighted inner product, the Rayleigh quotient with the uniform-radiance vector gives $\rho \ge 1-p$, and the column sums give $\rho \le \max_\theta\,[1-p(\theta)]$. Hence
 
 \begin{equation}
 \min_\theta p(\theta) \le p_\infty \le p .
@@ -83,13 +83,13 @@ We call $\xi = p_\infty/p$ the trapping ratio. It equals one when long-lived lig
 
 \subsection{Band-resolved radiance-ordered bound}
 
-The power that a passive structure can send into a set of output directions in one encounter is bounded by filling the corresponding output étendue with the brightest internal radiance first \cite{r26,r27,r28}. For a uniform internal radiance the bound reduces to the étendue ratio, $1/n^2$ for the full hemisphere \cite{r12} and $(\sin^2\theta_{\mathrm{hi}}-\sin^2\theta_{\mathrm{lo}})/n^2$ for a polar band in air. An OLED microcavity, however, launches an anisotropic radiance into the substrate. We resolve the bound into the four polar bands used below, with the actual first-pass radiance of the device, and use it to rate how much of the available phase space each structure uses.
+The power that a passive structure can send into a set of output directions in one encounter is bounded by filling the corresponding output étendue with the brightest internal radiance first \cite{r31,r32,r33}. For a uniform internal radiance the bound reduces to the étendue ratio, $1/n^2$ for the full hemisphere \cite{r16} and $(\sin^2\theta_{\mathrm{hi}}-\sin^2\theta_{\mathrm{lo}})/n^2$ for a polar band in air. An OLED microcavity, however, launches an anisotropic radiance into the substrate. We resolve the bound into the four polar bands used below, with the actual first-pass radiance of the device, and use it to rate how much of the available phase space each structure uses.
 
 \section{Methods}
 
 \subsection{Devices}
 
-Dipole emission and the device reflectance are computed with the Chance–Prock–Silbey model extended to birefringent layers and with transfer matrices, using measured optical constants \cite{r11,r29}. Three bottom-emitting stacks are used. The first is the platform of the freeform benchmark: Al (100 nm) / B3PyMPM / TCTA:B3PyMPM:Ir(dmppy-ph)$_2$tmd (25 nm) / TCTA (10 nm) / TAPC / ITO (150 nm) / glass ($n = 1.51$), with a horizontal dipole ratio of 0.865. Its round-trip loss for Lambertian light is $A' = 0.17$ at 530 nm. The second replaces Al by Ag ($A' = 0.049$). The third is a low-loss stack, Ag / B3PyMPM (200 nm) / EML / TAPC (180 nm) / ITO (50 nm), on glass ($A' = 0.027$) \cite{r11}. The angular distribution of the light delivered to the substrate and the device reflectance are computed per wavelength.
+Dipole emission and the device reflectance are computed with the Chance–Prock–Silbey model \cite{r37} extended to birefringent layers and with transfer matrices, using measured optical constants \cite{r15,r34}. Three bottom-emitting stacks are used. The first is the platform of the freeform benchmark: Al (100 nm) / B3PyMPM / TCTA:B3PyMPM:Ir(dmppy-ph)$_2$tmd (25 nm) / TCTA (10 nm) / TAPC / ITO (150 nm) / glass ($n = 1.51$), with a horizontal dipole ratio of 0.865. Its round-trip loss for Lambertian light is $A' = 0.17$ at 530 nm. The second replaces Al by Ag ($A' = 0.049$). The third is a low-loss stack, Ag / B3PyMPM (200 nm) / EML / TAPC (180 nm) / ITO (50 nm), on glass ($A' = 0.027$) \cite{r15}. The angular distribution of the light delivered to the substrate and the device reflectance are computed per wavelength.
 
 \subsection{Structures and their return matrices}
 
@@ -97,17 +97,17 @@ All structures are index-matched to the substrate, so the structure/air boundary
 
 \begin{itemize}
 \item \textbf{Planar interface.} Fresnel reflection, returned at the incident angle.
-\item \textbf{Scattering layers.} Index-matched, non-absorbing slabs with a Henyey–Greenstein phase function (asymmetry $g$ = 0–0.9) and transport optical thickness $\tau^* = S(1-g)$ = 0.25–4, combined with the flat exit face by the adding method; Monte Carlo with 20,000 rays per incidence bin.
+\item \textbf{Scattering layers.} Index-matched, non-absorbing slabs with a Henyey–Greenstein phase function \cite{r38} (asymmetry $g$ = 0–0.9) and transport optical thickness $\tau^* = S(1-g)$ = 0.25–4, combined with the flat exit face by the adding method; Monte Carlo with 20,000 rays per incidence bin.
 \item \textbf{Hexagonal MLAs.} Close-packed axisymmetric lenslets of the spline family of the benchmark (Table~\ref{tab:1}), traced with a height-field Monte-Carlo tracer that reproduces the LightTools return matrix of the hemispherical MLA (escape probability 0.4275 against 0.4274; Note S11). The set includes the hemispherical and freeform optima of the benchmark.
 \item \textbf{Random MLAs.} A 6 \ensuremath{\times} 6 supercell in which every lenslet carries its own profile (shape spread $s$ about the quarter circle), its own height (aspect spread), or a jittered position and radius; overlapping lenslets take the higher surface.
-\item \textbf{Wavy surfaces.} Periodic Gaussian-correlated random height fields with rms slope 0.2–1.5. Ray optics is scale-free, so only the slope distribution matters.
+\item \textbf{Wavy surfaces.} Periodic Gaussian-correlated random height fields with rms slope 0.2–1.5. Ray optics is scale-free, so only the slope distribution matters. Such surfaces resemble the spontaneously formed buckles that have been used to extract light from OLEDs \cite{r39}.
 \end{itemize}
 
 The random structures (22 in total) are listed with their parameters and results in Table S12. All return matrices are traced with 20,000 rays per incidence bin (10,000 for wavy surfaces); the fraction of rays lost to the iteration limit is below $6\times10^{-4}$ for every structure. The traced return matrices satisfy detailed balance within Monte Carlo noise: the relative asymmetry of $w_i B_R(i\to j)$ is 5–13\% on 1\ensuremath{^\circ} bins and falls to 0.2–0.7\% on 15\ensuremath{^\circ} bins (Note S10).
 
 \subsection{Freeform benchmark}
 
-The case study of Section 4.4 compares an axisymmetric freeform MLA with an equally optimized hemispherical MLA on the Al platform. LightTools ray tracing is driven from MATLAB, with the CPS source on a 1 mm-radius disc and a 1.295 mm glass substrate. The pipeline has been validated against fabricated devices with nearly the same geometry, including attached and inverted MLAs \cite{r29,r30}. Both lens classes share the material, pitch, height range, and cavity bounds (Table~\ref{tab:1}); the hemisphere is a point of the freeform design space. Total EQE and the EQE in four polar bands (0–20\ensuremath{^\circ}, 20–40\ensuremath{^\circ}, 40–60\ensuremath{^\circ}, 60–80\ensuremath{^\circ}) are optimized as separate objectives by surrogate-based global search followed by pattern search. Every optimum is re-evaluated three times with 50,000 rays and 151 wavelengths. A restart control repeats every search from the hemispherical optimum and tests the gain with a pooled $t$ statistic, with Holm correction for the five objectives (Note S2).
+The case study of Section 4.4 compares an axisymmetric freeform MLA with an equally optimized hemispherical MLA on the Al platform. LightTools ray tracing is driven from MATLAB, with the CPS source on a 1 mm-radius disc and a 1.295 mm glass substrate. The pipeline has been validated against fabricated devices with nearly the same geometry, including attached and inverted MLAs \cite{r34,r35}. Both lens classes share the material, pitch, height range, and cavity bounds (Table~\ref{tab:1}); the hemisphere is a point of the freeform design space. Total EQE and the EQE in four polar bands (0–20\ensuremath{^\circ}, 20–40\ensuremath{^\circ}, 40–60\ensuremath{^\circ}, 60–80\ensuremath{^\circ}) are optimized as separate objectives by surrogate-based global search followed by pattern search. Every optimum is re-evaluated three times with 50,000 rays and 151 wavelengths. A restart control repeats every search from the hemispherical optimum and tests the gain with a pooled $t$ statistic, with Holm correction \cite{r40} for the five objectives (Note S2).
 
 \begin{table*}[htbp]
 \centering
@@ -230,9 +230,9 @@ In the language of Section 4.2, every optimized freeform lens has the same escap
 
 \textbf{Why lens shape saturates.} The escape probability of a lens array for uniform radiance is close to the étendue bound $1/n^2$ already for a hemisphere, so profile changes cannot raise $p$ appreciably. What they can change is how the returned light is redistributed, that is, $N_{\mathrm{mix}}$, and the shape of $p(\theta)$. Along that direction the efficiency contours are flat. The anisotropy of the cavity emission would allow more, but a refractive surface that is coextensive with an extended source cannot map the bright part of the internal radiance into a chosen band; it behaves as if the radiance were uniform.
 
-\textbf{Why mixing matters little.} Reciprocity ties mixing to escape. A structure that sends trapped light into the escape cone must, by detailed balance, return light from the cone to trapped angles in the same étendue-weighted proportion, which lowers its escape probability for fresh light. This is the trade-off seen in scattering layers: they reach $\xi \approx 1$ but lose $p$ with thickness. For a structure with a given $p(\theta)$, the span between full retention and complete reciprocal mixing is 1.8–4.6 pp on the Al device, 1.7–7.0 pp on the Ag device, and 0.1–1.7 pp on the low-loss device for the lens arrays we examined, and real structures already capture part of it. The random lens arrays show that the remainder is hard to collect: the randomness that lowers $N_{\mathrm{mix}}$ and raises $\xi$ also flattens $p(\theta)$, and the effects nearly cancel. Lowering $N_{\mathrm{mix}}$ further therefore buys at most a few percentage points, and only in lossy devices. In low-loss devices the choice of outcoupling structure, and its shape in particular, matters even less, in line with ref. \cite{r11}.
+\textbf{Why mixing matters little.} Reciprocity ties mixing to escape. A structure that sends trapped light into the escape cone must, by detailed balance, return light from the cone to trapped angles in the same étendue-weighted proportion, which lowers its escape probability for fresh light. This is the trade-off seen in scattering layers: they reach $\xi \approx 1$ but lose $p$ with thickness. For a structure with a given $p(\theta)$, the span between full retention and complete reciprocal mixing is 1.8–4.6 pp on the Al device, 1.7–7.0 pp on the Ag device, and 0.1–1.7 pp on the low-loss device for the lens arrays we examined, and real structures already capture part of it. The random lens arrays show that the remainder is hard to collect: the randomness that lowers $N_{\mathrm{mix}}$ and raises $\xi$ also flattens $p(\theta)$, and the effects nearly cancel. Lowering $N_{\mathrm{mix}}$ further therefore buys at most a few percentage points, and only in lossy devices. In low-loss devices the choice of outcoupling structure, and its shape in particular, matters even less, in line with ref. \cite{r15}.
 
-\textbf{Design implications.} Three numbers are worth reporting for any new outcoupling structure: its escape probability for uniform radiance $p$, its angular mixing number $N_{\mathrm{mix}}$, and its trapping ratio $\xi$. The first sets the efficiency, the second the accuracy of any memoryless description, and the third whether light that survives many passes is still extractable. A structure that combines a high $p$ with a low $N_{\mathrm{mix}}$ and a high $\xi$, such as a random MLA or a wavy surface of rms slope one or more, avoids both the low escape probability of thick scattering layers and the angle retention of periodic lenses, without introducing absorption. Its advantage in efficiency over a periodic MLA is small (\ensuremath{\leq} 1 pp), but it is obtained with a structure that is easier to fabricate than a precisely shaped lens array, and its output is free of the diffraction and moiré that periodic arrays can produce. Optimizers, including machine-learning ones \cite{r9,r10}, can then be benchmarked against the $(p, N_{\mathrm{mix}})$ map and the band-resolved bound rather than against each other.
+\textbf{Design implications.} Three numbers are worth reporting for any new outcoupling structure: its escape probability for uniform radiance $p$, its angular mixing number $N_{\mathrm{mix}}$, and its trapping ratio $\xi$. The first sets the efficiency, the second the accuracy of any memoryless description, and the third whether light that survives many passes is still extractable. A structure that combines a high $p$ with a low $N_{\mathrm{mix}}$ and a high $\xi$, such as a random MLA or a wavy surface of rms slope one or more, avoids both the low escape probability of thick scattering layers and the angle retention of periodic lenses, without introducing absorption. Its advantage in efficiency over a periodic MLA is small (\ensuremath{\leq} 1 pp); whether it brings other practical benefits, such as weaker periodicity-related angular features, is outside the present analysis. Optimizers, including machine-learning ones \cite{r12,r13}, can then be benchmarked against the $(p, N_{\mathrm{mix}})$ map and the band-resolved bound rather than against each other.
 
 \textbf{Scope.} The analysis covers passive, angle-insensitive external structures index-matched to the substrate, in the ray-optical regime. Elements that select the angle of transmission, such as angular filters, are also passive and also obey the radiance bound per encounter, but in combination with recycling they can change the output composition; they are outside the present scope. Internal structures that act on waveguided modes, absorbing scatterers, and wavelength-converting layers are not covered either. The reduced model assumes that the device reflectance preserves the angle and that $p(\theta)$ is azimuthally symmetric. Its largest residual errors (up to 3 pp) occur for shallow surfaces with local mixing, which the trapping ratio identifies. The three wavelengths (500, 550, and 600 nm) bracket the green emission band; the conclusions hold at each of them (Table S11).
 
@@ -264,7 +264,7 @@ See Supplement 1 for supporting content.
 
 \end{backmatter}
 
-\begin{thebibliography}{30}
+\begin{thebibliography}{40}
 
 \bibitem{r1} W. Brütting, J. Frischeisen, T. D. Schmidt, B. J. Scholz, and C. Mayr, ``Device Efficiency of Organic Light-Emitting Diodes: Progress by Improved Light Outcoupling,'' Phys. Status Solidi A \textbf{210}, 44–65 (2013).
 
@@ -290,70 +290,100 @@ See Supplement 1 for supporting content.
 \bibitem{r8} M. Kovačič, ``Design of External Microtextures for Efficient Light Outcoupling in OLEDs with Different Preferential Orientation of Emission Dipoles,'' Opto-Electron. Rev. \textbf{30}, e141542 (2022). \url{https://doi.org/10.24425/opelre.2022.141542}
 
 
-\bibitem{r9} S. Kim, J. M. Shin, J. Lee, C. Park, S. Lee, J. Park, D. Seo, S. Park, C. Y. Park, and M. S. Jang, ``Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks,'' Nanophotonics \textbf{10}, 4533–4541 (2021). \url{https://doi.org/10.1515/nanoph-2021-0434}
+\bibitem{r9} Y. Sun and S. R. Forrest, ``Organic Light Emitting Devices with Enhanced Outcoupling via Microlenses Fabricated by Imprint Lithography,'' J. Appl. Phys. \textbf{100}, 073106 (2006). \url{https://doi.org/10.1063/1.2356904}
 
 
-\bibitem{r10} Z.-R. Zhao et al., ``Deep Q-Network-Guided TiO2/NOA61 Microstructures for Light Outcoupling and Angular Emission Redistribution in Blue Top-Emitting OLEDs,'' Adv. Funct. Mater. (2026), e78939. https://doi.org/10.1002/adfm.78939.
+\bibitem{r10} H. Peng, Y. L. Ho, X.-J. Yu, M. Wong, and H.-S. Kwok, ``Coupling Efficiency Enhancement in Organic Light-Emitting Devices Using Microlens Array—Theory and Experiment,'' J. Display Technol. \textbf{1}, 278–282 (2005). \url{https://doi.org/10.1109/JDT.2005.858944}
 
 
-\bibitem{r11} J. Kim, S. Lee, S. Yoo, and M. C. Gather, ``Minimizing Round-Trip Loss for Near-Unity Quantum Efficiency in Organic Light-Emitting Diodes,'' arXiv (2026), 2610.12065.
+\bibitem{r11} D. H. Hwang, O. T. Kwon, W. J. Lee, J. W. Hong, and T. W. Kim, ``Outcoupling Efficiency of Organic Light-Emitting Diodes Depending on the Fill Factor and Size of the Microlens Array,'' Phys. Status Solidi A \textbf{211}, 1773–1777 (2014). \url{https://doi.org/10.1002/pssa.201330613}
 
 
-\bibitem{r12} E. Yablonovitch, ``Statistical Ray Optics,'' J. Opt. Soc. Am. \textbf{72}, 899–907 (1982).
+\bibitem{r12} S. Kim, J. M. Shin, J. Lee, C. Park, S. Lee, J. Park, D. Seo, S. Park, C. Y. Park, and M. S. Jang, ``Inverse Design of Organic Light-Emitting Diode Structure Based on Deep Neural Networks,'' Nanophotonics \textbf{10}, 4533–4541 (2021). \url{https://doi.org/10.1515/nanoph-2021-0434}
 
 
-\bibitem{r13} I. Schnitzer, E. Yablonovitch, C. Caneau, T. J. Gmitter, and A. Scherer, ``30\% External Quantum Efficiency from Surface Textured, Thin-Film Light-Emitting Diodes,'' Appl. Phys. Lett. \textbf{63}, 2174–2176 (1993). \url{https://doi.org/10.1063/1.110575}
+\bibitem{r13} Z.-R. Zhao et al., ``Deep Q-Network-Guided TiO2/NOA61 Microstructures for Light Outcoupling and Angular Emission Redistribution in Blue Top-Emitting OLEDs,'' Adv. Funct. Mater. (2026), e78939. https://doi.org/10.1002/adfm.78939.
 
 
-\bibitem{r14} J. Eisenlohr, N. Tucher, O. Höhn, H. Hauser, M. Peters, P. Kiefel, J. C. Goldschmidt, and B. Bläsi, ``Matrix Formalism for Light Propagation and Absorption in Thick Textured Optical Sheets,'' Opt. Express \textbf{23}, A502–A518 (2015). \url{https://doi.org/10.1364/OE.23.00A502}
+\bibitem{r14} Y. Zhang, R. Biswas, R. Shinar, and J. Shinar, ``Simulation of Enhanced Light Extraction from Periodic, Disordered, and Quasi-Periodic OLED Structures,'' J. Opt. Soc. Am. B \textbf{38}, C144 (2021). \url{https://doi.org/10.1364/JOSAB.430593}
 
 
-\bibitem{r15} A. David, ``Surface-Roughened Light-Emitting Diodes: An Accurate Model,'' J. Display Technol. \textbf{9}, 301–316 (2013). \url{https://doi.org/10.1109/JDT.2013.2240373}
+\bibitem{r15} J. Kim, S. Lee, S. Yoo, and M. C. Gather, ``Minimizing Round-Trip Loss for Near-Unity Quantum Efficiency in Organic Light-Emitting Diodes,'' arXiv (2026), 2610.12065.
 
 
-\bibitem{r16} H. W. Deckman, C. B. Roxlo, and E. Yablonovitch, ``Maximum Statistical Increase of Optical Absorption in Textured Semiconductor Films,'' Opt. Lett. \textbf{8}, 491–493 (1983). \url{https://doi.org/10.1364/OL.8.000491}
+\bibitem{r16} E. Yablonovitch, ``Statistical Ray Optics,'' J. Opt. Soc. Am. \textbf{72}, 899–907 (1982).
 
 
-\bibitem{r17} S. Manzoor, M. Filipič, A. Onno, M. Topič, and Z. C. Holman, ``Visualizing Light Trapping within Textured Silicon Solar Cells,'' J. Appl. Phys. \textbf{127}, 063104 (2020). \url{https://doi.org/10.1063/1.5131173}
+\bibitem{r17} I. Schnitzer, E. Yablonovitch, C. Caneau, T. J. Gmitter, and A. Scherer, ``30\% External Quantum Efficiency from Surface Textured, Thin-Film Light-Emitting Diodes,'' Appl. Phys. Lett. \textbf{63}, 2174–2176 (1993). \url{https://doi.org/10.1063/1.110575}
 
 
-\bibitem{r18} C. Battaglia, M. Boccard, F.-J. Haug, and C. Ballif, ``Light Trapping in Solar Cells: When Does a Lambertian Scatterer Scatter Lambertianly?,'' J. Appl. Phys. \textbf{112}, 094504 (2012). \url{https://doi.org/10.1063/1.4761988}
+\bibitem{r18} J. Eisenlohr, N. Tucher, O. Höhn, H. Hauser, M. Peters, P. Kiefel, J. C. Goldschmidt, and B. Bläsi, ``Matrix Formalism for Light Propagation and Absorption in Thick Textured Optical Sheets,'' Opt. Express \textbf{23}, A502–A518 (2015). \url{https://doi.org/10.1364/OE.23.00A502}
 
 
-\bibitem{r19} M. C. W. van Rossum and T. M. Nieuwenhuizen, ``Multiple Scattering of Classical Waves: Microscopy, Mesoscopy, and Diffusion,'' Rev. Mod. Phys. \textbf{71}, 313–371 (1999). \url{https://doi.org/10.1103/RevModPhys.71.313}
+\bibitem{r19} A. David, ``Surface-Roughened Light-Emitting Diodes: An Accurate Model,'' J. Display Technol. \textbf{9}, 301–316 (2013). \url{https://doi.org/10.1109/JDT.2013.2240373}
 
 
-\bibitem{r20} D. A. Levin and Y. Peres, ``Markov Chains and Mixing Times,'' , 2nd ed.; American Mathematical Society: Providence, RI, (2017). https://doi.org/10.1090/mbk/107.
+\bibitem{r20} H. W. Deckman, C. B. Roxlo, and E. Yablonovitch, ``Maximum Statistical Increase of Optical Absorption in Textured Semiconductor Films,'' Opt. Lett. \textbf{8}, 491–493 (1983). \url{https://doi.org/10.1364/OL.8.000491}
 
 
-\bibitem{r21} J. N. Darroch and E. Seneta, ``On Quasi-Stationary Distributions in Absorbing Discrete-Time Finite Markov Chains,'' J. Appl. Probab. \textbf{2}, 88–100 (1965). \url{https://doi.org/10.2307/3211876}
+\bibitem{r21} S. Manzoor, M. Filipič, A. Onno, M. Topič, and Z. C. Holman, ``Visualizing Light Trapping within Textured Silicon Solar Cells,'' J. Appl. Phys. \textbf{127}, 063104 (2020). \url{https://doi.org/10.1063/1.5131173}
 
 
-\bibitem{r22} P. Collet, S. Martínez, and J. San Martín, ``Quasi-Stationary Distributions: Markov Chains, Diffusions and Dynamical Systems,'' ; Springer: Berlin, Heidelberg, (2013). https://doi.org/10.1007/978-3-642-33131-2.
+\bibitem{r22} C. Battaglia, M. Boccard, F.-J. Haug, and C. Ballif, ``Light Trapping in Solar Cells: When Does a Lambertian Scatterer Scatter Lambertianly?,'' J. Appl. Phys. \textbf{112}, 094504 (2012). \url{https://doi.org/10.1063/1.4761988}
 
 
-\bibitem{r23} E. G. Altmann, J. S. E. Portela, and T. Tél, ``Leaking Chaotic Systems,'' Rev. Mod. Phys. \textbf{85}, 869–918 (2013). \url{https://doi.org/10.1103/RevModPhys.85.869}
+\bibitem{r23} M. C. W. van Rossum and T. M. Nieuwenhuizen, ``Multiple Scattering of Classical Waves: Microscopy, Mesoscopy, and Diffusion,'' Rev. Mod. Phys. \textbf{71}, 313–371 (1999). \url{https://doi.org/10.1103/RevModPhys.71.313}
 
 
-\bibitem{r24} J.-W. Ryu, S.-Y. Lee, C.-M. Kim, and Y.-J. Park, ``Survival Probability Time Distribution in Dielectric Cavities,'' Phys. Rev. E \textbf{73}, 036207 (2006). \url{https://doi.org/10.1103/PhysRevE.73.036207}
+\bibitem{r24} D. A. Levin and Y. Peres, ``Markov Chains and Mixing Times,'' , 2nd ed.; American Mathematical Society: Providence, RI, (2017). https://doi.org/10.1090/mbk/107.
 
 
-\bibitem{r25} E. G. Altmann, J. S. E. Portela, and T. Tél, ``Chaotic Systems with Absorption,'' Phys. Rev. Lett. \textbf{111}, 144101 (2013). \url{https://doi.org/10.1103/PhysRevLett.111.144101}
+\bibitem{r25} J. N. Darroch and E. Seneta, ``On Quasi-Stationary Distributions in Absorbing Discrete-Time Finite Markov Chains,'' J. Appl. Probab. \textbf{2}, 88–100 (1965). \url{https://doi.org/10.2307/3211876}
 
 
-\bibitem{r26} J. C. Bortz, N. E. Shatz, H. Ries, and R. Winston, ``Consequences of Étendue and Skewness Conservation for Nonimaging Devices with Inhomogeneous Sources and Targets,'' Proc. SPIE \textbf{3139}, 59–75 (1997). \url{https://doi.org/10.1117/12.290222}
+\bibitem{r26} P. Collet, S. Martínez, and J. San Martín, ``Quasi-Stationary Distributions: Markov Chains, Diffusions and Dynamical Systems,'' ; Springer: Berlin, Heidelberg, (2013). https://doi.org/10.1007/978-3-642-33131-2.
 
 
-\bibitem{r27} J. Muschaweck and C. Wiesmann, ``Extracting Light out of LEDs,'' Adv. Opt. Technol. \textbf{2}, 291–300 (2013). \url{https://doi.org/10.1515/aot-2013-0027}
+\bibitem{r27} E. G. Altmann, J. S. E. Portela, and T. Tél, ``Leaking Chaotic Systems,'' Rev. Mod. Phys. \textbf{85}, 869–918 (2013). \url{https://doi.org/10.1103/RevModPhys.85.869}
 
 
-\bibitem{r28} A. Lenef, A. Piquette, and J. Kelso, ``Thermodynamics of Light Extraction from Luminescent Materials,'' ECS J. Solid State Sci. Technol. \textbf{7}, R3211–R3226 (2018). \url{https://doi.org/10.1149/2.0271801jss}
+\bibitem{r28} J.-W. Ryu, S.-Y. Lee, C.-M. Kim, and Y.-J. Park, ``Survival Probability Time Distribution in Dielectric Cavities,'' Phys. Rev. E \textbf{73}, 036207 (2006). \url{https://doi.org/10.1103/PhysRevE.73.036207}
 
 
-\bibitem{r29} M. Kim, J. Kim, and S. Yoo, ``Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays,'' Nat. Commun. \textbf{16}, 11606 (2025). \url{https://doi.org/10.1038/s41467-025-66538-6}
+\bibitem{r29} E. G. Altmann, J. S. E. Portela, and T. Tél, ``Chaotic Systems with Absorption,'' Phys. Rev. Lett. \textbf{111}, 144101 (2013). \url{https://doi.org/10.1103/PhysRevLett.111.144101}
 
 
-\bibitem{r30} J. Kim, E. Kim, J. Park, J. Song, S. Kim, H. Moon, and S. Yoo, ``Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays,'' ACS Photonics \textbf{10}, 1775–1782 (2023). \url{https://doi.org/10.1021/acsphotonics.3c00017}
+\bibitem{r30} K. Clauß, E. G. Altmann, A. Bäcker, and R. Ketzmerick, ``Structure of Resonance Eigenfunctions for Chaotic Systems with Partial Escape,'' Phys. Rev. E \textbf{100}, 052205 (2019). \url{https://doi.org/10.1103/PhysRevE.100.052205}
+
+
+\bibitem{r31} J. C. Bortz, N. E. Shatz, H. Ries, and R. Winston, ``Consequences of Étendue and Skewness Conservation for Nonimaging Devices with Inhomogeneous Sources and Targets,'' Proc. SPIE \textbf{3139}, 59–75 (1997). \url{https://doi.org/10.1117/12.290222}
+
+
+\bibitem{r32} J. Muschaweck and C. Wiesmann, ``Extracting Light out of LEDs,'' Adv. Opt. Technol. \textbf{2}, 291–300 (2013). \url{https://doi.org/10.1515/aot-2013-0027}
+
+
+\bibitem{r33} A. Lenef, A. Piquette, and J. Kelso, ``Thermodynamics of Light Extraction from Luminescent Materials,'' ECS J. Solid State Sci. Technol. \textbf{7}, R3211–R3226 (2018). \url{https://doi.org/10.1149/2.0271801jss}
+
+
+\bibitem{r34} M. Kim, J. Kim, and S. Yoo, ``Near-Planar Light Outcoupling Structures with Finite Lateral Dimensions for Ultra-Efficient and Optical Crosstalk-Free OLED Displays,'' Nat. Commun. \textbf{16}, 11606 (2025). \url{https://doi.org/10.1038/s41467-025-66538-6}
+
+
+\bibitem{r35} J. Kim, E. Kim, J. Park, J. Song, S. Kim, H. Moon, and S. Yoo, ``Toward Near-Foldable Surface Light Sources with Ultimate Efficiency: Ultrathin Substrates Embedded with Micron-Scale Inverted Lens Arrays,'' ACS Photonics \textbf{10}, 1775–1782 (2023). \url{https://doi.org/10.1021/acsphotonics.3c00017}
+
+
+\bibitem{r36} F. J. J. Clarke and D. J. Parry, ``Helmholtz Reciprocity: Its Validity and Application to Reflectometry,'' Light. Res. Technol. \textbf{17}, 1–11 (1985). \url{https://doi.org/10.1177/14771535850170010301}
+
+
+\bibitem{r37} R. R. Chance, A. Prock, and R. Silbey, ``Molecular Fluorescence and Energy Transfer Near Interfaces,'' Adv. Chem. Phys. \textbf{37}, 1–65 (1978). \url{https://doi.org/10.1002/9780470142561.ch1}
+
+
+\bibitem{r38} L. G. Henyey and J. L. Greenstein, ``Diffuse Radiation in the Galaxy,'' Astrophys. J. \textbf{93}, 70–83 (1941). \url{https://doi.org/10.1086/144246}
+
+
+\bibitem{r39} W. H. Koo, S. M. Jeong, F. Araoka, K. Ishikawa, S. Nishimura, T. Toyooka, and H. Takezoe, ``Light Extraction from Organic Light-Emitting Diodes Enhanced by Spontaneously Formed Buckles,'' Nat. Photonics \textbf{4}, 222–226 (2010). \url{https://doi.org/10.1038/nphoton.2010.7}
+
+
+\bibitem{r40} S. Holm, ``A Simple Sequentially Rejective Multiple Test Procedure,'' Scand. J. Stat. \textbf{6}, 65–70 (1979).
 
 
 \end{thebibliography}
