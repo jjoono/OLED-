@@ -222,3 +222,41 @@ with open('results/optimized_filters.csv', 'w', newline='') as f:
         w.writerow([o['stack'], o['spec'], b, o['mat'], o['M'], o['eqe'], mf[f'EQE_{b:g}'], ms[f'EQE_{b:g}'], ms['EQE_total'], ms['EQE_fwd'],
                     ide, edg, sum(o['ds']), ' '.join(f'{d:.1f}' for d in o['ds'])])
 print(open('results/optimized_filters.csv').read())
+
+# =========================================================== Fig Sel5: display metrics beyond on-axis efficiency
+if os.path.exists('data/display_refs.json') and os.path.exists('data/display_dbrcav.json'):
+    REF = json.load(open('data/display_refs.json')); DC = json.load(open('data/display_dbrcav.json')); ang = np.array(REF['angles'])
+    fig, ax = plt.subplots(1, 3, figsize=(7.2, 2.5), gridspec_kw=dict(wspace=0.4)); sh = []
+    sp = 'G30'
+    pick = [('Al planar (ITO 150)', 'Al planar', '#b5b4ad'), ('low-loss n1.8 + MLA', 'low-loss + MLA', '#7d7c76'),
+            ('thin-Ag strong cavity', 'thin-Ag cavity', '#6250d6'), ('DBR cavity N6', 'DBR cavity, 6 pairs', '#1baf7a'),
+            ('DBR cavity N10', 'DBR cavity, 10 pairs', '#eda100'), ('scatterer + edge DBR', 'low-loss + scatterer + edge DBR', '#2a78d6')]
+    allc = {**{k.split('|', 1)[1]: v for k, v in REF['configs'].items() if k.startswith(sp + '|')},
+            **{k.split('|', 1)[1]: v for k, v in DC.items() if k.startswith(sp + '|')}}
+    for key, lab, c in pick:
+        k = next((kk for kk in allc if key in kk), None)
+        if k is None:
+            continue
+        m = allc[k]
+        ax[0].plot(ang, np.array(m['lum_rel']), color=c, label=lab); ax[1].plot(ang, m['duv'], color=c, label=lab)
+        sh.append((lab[:28], ['angle_deg', 'luminance_rel', 'du_v'], list(zip(ang, m['lum_rel'], m['duv']))))
+    ax[0].set_xlim(0, 80); ax[0].set_xlabel('viewing angle (deg)'); ax[0].set_ylabel('luminance / on-axis luminance')
+    ax[0].set_title('(a) angular luminance, 530/30 nm', loc='left'); ax[0].legend(fontsize=4.8, frameon=False)
+    ax[1].set_xlim(0, 60); ax[1].set_xlabel('viewing angle (deg)'); ax[1].set_ylabel("colour shift Δu'v' from on-axis")
+    ax[1].axhline(0.02, color=INK2, lw=0.6, ls=':'); ax[1].text(1, 0.021, "0.02", fontsize=5, color=INK2)
+    ax[1].set_title('(b) colour shift, 530/30 nm', loc='left')
+    rows = []
+    for spn, mk in (('G30', 'o'), ('Ir(ppy)2acac', 's'), ('G10', '^')):
+        cc = {**{k.split('|', 1)[1]: v for k, v in REF['configs'].items() if k.startswith(spn + '|')},
+              **{k.split('|', 1)[1]: v for k, v in DC.items() if k.startswith(spn + '|')}}
+        for key, lab, c in pick + [('ideal 20 deg', 'ideal 20° filter', '#0b0b0b')]:
+            k = next((kk for kk in cc if key in kk), None)
+            if k is None:
+                continue
+            m = cc[k]; ax[2].plot(m['EQE'], m['cdA0'], mk, color=c, ms=4, mec='white', mew=0.4); rows.append([spn, lab, m['EQE'], m['cdA0'], m['duv30'], m['duv60'], m['half_lum_angle']])
+    for spn, mk in (('G30', 'o'), ('Ir(ppy)2acac', 's'), ('G10', '^')):
+        ax[2].plot([], [], mk, color='#7d7c76', label={'G30': 'Gaussian 530/30 nm', 'G10': 'Gaussian 530/10 nm', 'Ir(ppy)2acac': 'Ir(ppy)2acac'}[spn])
+    ax[2].set_xlabel('total EQE'); ax[2].set_ylabel('on-axis current efficiency (cd/A)'); ax[2].set_yscale('log')
+    ax[2].set_title('(c) on-axis cd/A vs total EQE', loc='left'); ax[2].legend(fontsize=5, frameon=False, loc='lower right')
+    sh.append(('c_summary', ['spectrum', 'configuration', 'EQE_total', 'cdA_on_axis', 'du_v_30', 'du_v_60', 'half_luminance_angle'], rows))
+    save(fig, 'figSel5_display', sh)
