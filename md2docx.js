@@ -50,7 +50,14 @@ const SYM = {
   '\\max': 'max', '\\min': 'min', '\\log': 'log', '\\sin': 'sin', '\\cos': 'cos', '\\tan': 'tan',
   '\\quad': '  ', '\\,': ' ', '\\;': ' ', '\\!': '', '\\ ': ' ',
   '\\{': '{', '\\}': '}', '\\%': '%', '\\&': '&',
+  '\\xi': 'ξ', '\\rho': 'ρ', '\\propto': '∝', '\\to': '→', '\\delta': 'δ', '\\alpha': 'α',
+  '\\beta': 'β', '\\pi': 'π', '\\tau': 'τ', '\\kappa': 'κ', '\\nu': 'ν', '\\omega': 'ω',
+  '\\Omega': 'Ω', '\\epsilon': 'ε', '\\varepsilon': 'ε', '\\chi': 'χ', '\\psi': 'ψ', '\\Lambda': 'Λ',
+  '\\Sigma': 'Σ', '\\sum': 'Σ', '\\Theta': 'Θ', '\\Phi': 'Φ', '\\partial': '∂', '\\nabla': '∇',
+  '\\neq': '≠', '\\gtrsim': '≳', '\\ll': '≪', '\\gg': '≫', '\\langle': '⟨', '\\rangle': '⟩',
+  '\\cdots': '⋯', '\\ldots': '…', '\\dots': '…', '\\prime': '′', '\\leftarrow': '←', '\\rho': 'ρ',
 };
+const SYM_KEYS = Object.keys(SYM).sort((a, b) => b.length - a.length);   // longest first: \le must not eat \lesssim
 
 // read a {...} group starting at s[i] === '{', return [content, indexAfter]
 function takeGroup(s, i) {
@@ -74,7 +81,8 @@ function expandFrac(s) {
         let m = a2; while (s[m] === ' ') m++;
         if (s[m] === '{') {
           const [den, b2] = takeGroup(s, m);
-          out += '(' + expandFrac(num) + ')/(' + expandFrac(den) + ')';
+          const wrap = t => (/^[\\\w|{}^_]+$/.test(t.trim()) ? t.trim() : '(' + t + ')');
+          out += wrap(expandFrac(num)) + '/' + wrap(expandFrac(den));
           i = b2; continue;
         }
       }
@@ -92,7 +100,9 @@ function mathRuns(src, base = {}) {
   }
   s = s.replace(/\\left|\\right/g, '');
   s = expandFrac(s);
-  for (const [k, v] of Object.entries(SYM)) s = s.split(k).join(v);
+  s = s.replace(/\\mathsf\s*\{?([A-Za-z])\}?/g, '$1');
+  for (const k of SYM_KEYS) s = s.split(k).join(SYM[k]);
+  s = s.replace(/(^|[^a-zA-Z])-(?=[^>])/g, '$1\u2212');      // true minus sign
   s = s.replace(/\\[a-zA-Z]+/g, '');            // drop any remaining macro
   const runs = [];
   let buf = '';
