@@ -149,7 +149,7 @@ ax[1].set_yscale('log'); ax[1].set_yticks([1, 1.5, 2, 3, 5, 8]); ax[1].set_ytick
 ax[1].legend(fontsize=4.6, frameon=False, loc='center right')
 ax[2].set_xscale('log'); ax[2].set_xlim(1, 30); ax[2].set_ylim(-0.03, 1.08); ax[2].set_xticks([1, 2, 5, 10, 25]); ax[2].set_xticklabels(['1', '2', '5', '10', '∞'])
 ax[2].minorticks_off(); ax[2].axhline(1, color=INK2, lw=0.5, ls=':')
-ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('trapping ratio ξ = p∞ / p'); ax[2].set_title('(c) late-pass escape', loc='left')
+ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('late-pass escape ratio ξ = p∞ / p'); ax[2].set_title('(c) late-pass escape', loc='left')
 ax[2].text(1.05, 0.03, 'planar (ξ = 0)', fontsize=5, color=INK2); ax[2].text(1.05, 1.01, 'no dead-angle trapping', fontsize=5, color=INK2)
 fig.savefig(f'{OUT}/fig3_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'p_inf', 'xi', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
