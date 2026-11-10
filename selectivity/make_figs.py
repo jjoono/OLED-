@@ -207,3 +207,18 @@ for p_, metric in enumerate(('EQE into 20° cone', 'on-axis luminance (Lambertia
 h, l = ax[0].get_legend_handles_labels(); hs = dict(zip(l, h))
 fig.legend([hs[c] for c in CATS if c in hs], [c for c in CATS if c in hs], ncol=7, fontsize=5, frameon=False, loc='lower center', bbox_to_anchor=(0.5, -0.06))
 save(fig, 'figSel4_comparison', [('comparison', ['metric', 'stack', 'configuration', 'value'], rows)])
+
+# =========================================================== optimized filters: full-model check
+import csv
+with open('results/optimized_filters.csv', 'w', newline='') as f:
+    w = csv.writer(f)
+    w.writerow(['stack', 'spectrum', 'beta', 'material', 'layers', 'EQE_beta_fast', 'EQE_beta_full_randomizer', 'EQE_beta_slab_g0.8_tau1',
+                'EQE_total_slab', 'EQE_fwd_slab', 'ideal_EQE_beta_slab', 'edge16_EQE_beta_slab', 'total_thickness_nm', 'thicknesses_nm'])
+    for o in OPT:
+        spec = common.SPECTRA[o['spec']]; flt = layers_from(o['ds'], o['mat']); b = o['beta']
+        mf = eval_filter(o['stack'], spec, flt, 'full'); ms = eval_filter(o['stack'], spec, flt, 'scat')
+        ide = SW.ref(o['stack'], 'scat', spec, ('ideal', b))[common.BI[b]]
+        edg = SW.best_edge(o['stack'], 'scat', spec, b, mat=o['mat'], N=16)[1][common.BI[b]]
+        w.writerow([o['stack'], o['spec'], b, o['mat'], o['M'], o['eqe'], mf[f'EQE_{b:g}'], ms[f'EQE_{b:g}'], ms['EQE_total'], ms['EQE_fwd'],
+                    ide, edg, sum(o['ds']), ' '.join(f'{d:.1f}' for d in o['ds'])])
+print(open('results/optimized_filters.csv').read())

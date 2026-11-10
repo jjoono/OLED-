@@ -101,8 +101,9 @@ def tmm_RT(layers, lam, th_deg, n_in, n_out=1.0):
     R = np.zeros(th_deg.size); T = np.zeros(th_deg.size)
     for pol in ('s', 'p'):
         def eta(n):
+            n = np.conj(n)                     # characteristic-matrix convention N = n - ik (library stores n + ik)
             c = np.sqrt(n ** 2 - kx ** 2 + 0j)
-            c = np.where(c.imag < 0, -c, c)
+            c = np.where(c.imag > 0, -c, c)
             return c if pol == 's' else n ** 2 / c, c
         M = np.tile(np.eye(2, dtype=complex), (th_deg.size, 1, 1))
         for n, d in layers:

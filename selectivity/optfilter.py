@@ -21,7 +21,8 @@ def tmm_grid(nH, nL, ds, lam, n_in, th):
     R = 0.0; T = 0.0
     for pol in ('s', 'p'):
         def eta(n):
-            c = np.sqrt(n ** 2 - kx ** 2 + 0j); c = np.where(c.imag < 0, -c, c)
+            n = np.conj(n)                     # characteristic-matrix convention N = n - ik (library stores n + ik)
+            c = np.sqrt(n ** 2 - kx ** 2 + 0j); c = np.where(c.imag > 0, -c, c)
             return (c if pol == 's' else n ** 2 / c), c
         m00 = np.ones(kx.shape, complex) * np.ones(lam.shape); m01 = np.zeros_like(m00); m10 = np.zeros_like(m00); m11 = np.ones_like(m00)
         for k, d in enumerate(ds):
