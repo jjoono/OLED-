@@ -96,7 +96,7 @@ Dipole emission and the device reflectance are computed with the Chance–Prock�
 
 ### 3.2 Structures and their return matrices
 
-All structures are index-matched to the substrate, so the structure/air boundary sets the escape condition. Their transmission and return matrices are computed on 1° (microlenses) or 0.5° (others) polar bins.
+All structures are index-matched to the substrate, so the structure/air boundary sets the escape condition. Their transmission and return matrices are computed on 1° polar bins (microlenses and wavy surfaces) or 0.5° bins (planar interface and scattering layers); the latter are merged into 1° bins, assuming uniform radiance within each 1° bin, so that all structures are evaluated on the same grid.
 
 - **Planar interface.** Fresnel reflection, returned at the incident angle.
 - **Scattering layers.** Index-matched, non-absorbing slabs with a Henyey–Greenstein phase function [58] (asymmetry $g$ = 0–0.9) and transport optical thickness $\tau^* = S(1-g)$ = 0.25–4, combined with the flat exit face by the adding method [59], the interface entering as a layer with its own Fresnel reflection and transmission operators [60]; Monte Carlo with 20,000 rays per incidence bin.

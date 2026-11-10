@@ -105,7 +105,7 @@ Dipole emission and the device reflectance are computed with the Chanceâ€“Prockâ
 
 \subsection{Structures and their return matrices}
 
-All structures are index-matched to the substrate, so the structure/air boundary sets the escape condition. Their transmission and return matrices are computed on 1\ensuremath{^\circ} (microlenses) or 0.5\ensuremath{^\circ} (others) polar bins.
+All structures are index-matched to the substrate, so the structure/air boundary sets the escape condition. Their transmission and return matrices are computed on 1\ensuremath{^\circ} polar bins (microlenses and wavy surfaces) or 0.5\ensuremath{^\circ} bins (planar interface and scattering layers); the latter are merged into 1\ensuremath{^\circ} bins, assuming uniform radiance within each 1\ensuremath{^\circ} bin, so that all structures are evaluated on the same grid.
 
 \begin{itemize}
 \item \textbf{Planar interface.} Fresnel reflection, returned at the incident angle.
