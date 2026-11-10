@@ -132,7 +132,7 @@ save_xlsx('fig2_reduced_model', [('cases', ['structure', 'class', 'device', 'lam
 print(f'Fig 2: {len(rows)} cases; reduced(w) mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; recip mean {np.mean([abs(r[8]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[8]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
 
 # ------------------------------------------------------------------ Fig. 3
-fig, ax = plt.subplots(1, 3, figsize=(7.2, 2.5), gridspec_kw=dict(wspace=0.42, width_ratios=[1.25, 1, 1])); rows = []
+fig, ax = plt.subplots(2, 2, figsize=(7.2, 5.4), gridspec_kw=dict(wspace=0.3, hspace=0.62)); ax = ax.ravel(); rows = []
 P0 = DV['Al_P'][75].reshape(90, 2).sum(1); R1 = DV['Al_R'][75].reshape(90, 2).mean(1)
 pT0 = LIB['MLA hemi_total'][1].sum(1)
 pg = np.linspace(0.18, 0.47, 30); Ng = np.logspace(0, 1.4, 30); Z = np.zeros((30, 30))
@@ -169,9 +169,24 @@ ax[2].set_xscale('log'); ax[2].set_xlim(1, 30); ax[2].set_ylim(-0.03, 1.08); ax[
 ax[2].minorticks_off(); ax[2].axhline(1, color=INK2, lw=0.5, ls=':')
 ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('late-pass escape ratio ξ = p∞ / p̃'); ax[2].set_xlabel('N_mix (log scale)'); ax[2].set_title('(c) late-pass escape', loc='left')
 ax[2].text(9.5, 0.06, 'planar (N_mix = ∞, ξ = 0),\ndrawn off-scale', fontsize=4.6, color=INK2, ha='left'); ax[2].text(1.05, 1.01, 'no dead-angle trapping', fontsize=5, color=INK2)
+hd = []
+for nm, (c, BT, BR) in LIB.items():
+    e = EV[(nm, 'Al', 550.0)]; Nm = min(1 / max(1 - e['lam2'], 1e-9), 25); col, mk, _ = CLS[c]
+    g_mix = (e['m1'] - e['eta']) * 100; g_mem = (e['closed'] - e['eta']) * 100; hd.append([nm, c, Nm, e['eta'], e['m1'], e['closed'], g_mix, g_mem])
+    if c == 'planar':
+        continue
+    ax[3].plot([Nm, Nm], [g_mix, g_mem], color=col, lw=0.4, alpha=0.5)
+    ax[3].plot(Nm, g_mix, mk, color=col, ms=4, mec='white', mew=0.3); ax[3].plot(Nm, g_mem, mk, mfc='none', mec=col, ms=4, mew=0.6)
+pl = [h for h in hd if h[1] == 'planar'][0]
+ax[3].text(25, 19.3, f'planar (off-scale):\nmixing +{pl[6]:.0f} pp, memoryless +{pl[7]:.0f} pp', fontsize=4.6, color=INK2, ha='right', va='top')
+ax[3].plot([], [], 'o', color=INK2, ms=4, label='complete reciprocal mixing'); ax[3].plot([], [], 'o', mfc='none', mec=INK2, ms=4, label='memoryless formula')
+ax[3].axhline(0, color=INK2, lw=0.5); ax[3].set_xscale('log'); ax[3].set_xlim(1, 30); ax[3].set_xticks([1, 2, 5, 10, 25]); ax[3].set_xticklabels(['1', '2', '5', '10', '∞']); ax[3].minorticks_off()
+ax[3].set_ylim(-1.5, 20); ax[3].set_xlabel('N_mix (log scale)'); ax[3].set_ylabel('predicted gain over actual η_sta (pp)')
+ax[3].legend(fontsize=5, frameon=False, loc='upper left'); ax[3].set_title('(d) what mixing can gain (Al, 550 nm)', loc='left')
 fig.savefig(f'{OUT}/fig3_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'p_inf', 'xi', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
-                                 ('contours', ['N_mix \\ p'] + list(pg), [[Ng[j]] + list(Z[j]) for j in range(30)])])
+                                 ('contours', ['N_mix \\ p'] + list(pg), [[Ng[j]] + list(Z[j]) for j in range(30)]),
+                                 ('mixing gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_memoryless', 'gain_mixing_pp', 'gain_memoryless_pp'], hd)])
 
 # ------------------------------------------------------------------ Fig. 4
 fig, ax = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw=dict(wspace=0.35)); rows = []
