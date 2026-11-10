@@ -17,8 +17,9 @@ const {
 
 const LANG = (process.argv[2] || 'en').toLowerCase();
 const KO = LANG === 'ko';
-const SRC = KO ? 'manuscript_draft_ko.md' : 'manuscript_draft.md';
-const OUT = KO ? 'Manuscript_KO.docx' : 'Manuscript_EN.docx';
+const SUPP = LANG === 'supp';
+const SRC = SUPP ? 'supplementary.md' : (KO ? 'manuscript_draft_ko.md' : 'manuscript_draft.md');
+const OUT = SUPP ? 'Supplement_EN.docx' : (KO ? 'Manuscript_KO.docx' : 'Manuscript_EN.docx');
 
 const BODY_FONT = KO ? 'Malgun Gothic' : 'Cambria';
 const HEAD_FONT = KO ? 'Malgun Gothic' : 'Calibri';
@@ -31,6 +32,10 @@ const FIGS = {
   '3': 'figures_oe/fig3_structure_map.png',
   '4': 'figures_oe/fig4_bound_window.png',
   '5': 'figures_oe/fig5_hemisphere_benchmark.png',
+  'S1': 'fig1_platform.png', 'S2': 'figS1_restart_control.png', 'S3': 'figS2_patch_dependence.png',
+  'S4': 'figS3_gain_decomposition.png', 'S5': 'figS4_selectivity_map.png', 'S6': 'fig3_efficiency_composition.png',
+  'S7': 'figS5_convergence.png', 'S8': 'figS6_cost_calibration.png', 'S9': 'fig4_families.png',
+  'S10': 'figS8_angle_reset.png', 'S11': 'figures_oe/figS11_device_inputs.png',
 };
 
 // ---------- PNG size from IHDR ----------
@@ -148,7 +153,7 @@ function inlineRuns(text, base = {}) {
   while ((m = re.exec(text)) !== null) {
     plain(text.slice(last, m.index));
     const tok = m[0];
-    if (tok.startsWith('**')) plain(tok.slice(2, -2), { bold: true });
+    if (tok.startsWith('**')) runs.push(...inlineRuns(tok.slice(2, -2), { ...base, bold: true }));
     else if (tok.startsWith('`')) plain(tok.slice(1, -1), { font: 'Consolas', size: 18 });
     else if (tok.startsWith('$')) runs.push(...mathRuns(tok.slice(1, -1), base));
     else plain(tok.slice(1, -1), { italics: true });
@@ -167,7 +172,11 @@ const P = (text, opts = {}) => new Paragraph({
 
 // ---------- build ----------
 const src = fs.readFileSync(SRC, 'utf8');
-const title = src.match(/^# (.+)/m)[1];
+let title = src.match(/^# (.+)/m)[1];
+if (SUPP) {
+  const tl = src.split('\n').slice(1).filter((l) => l.trim()).slice(0, 2).join(' ');
+  title = 'Supplement 1: ' + tl;
+}
 const kids = [];
 
 // title block
@@ -177,7 +186,7 @@ kids.push(new Paragraph({
 }));
 kids.push(new Paragraph({
   children: [new TextRun({
-    text: KO ? '저자 — [TBD]   |   소속 — [TBD]' : 'Authors — [TBD]   |   Affiliation — [TBD]',
+    text: SUPP ? 'Supporting information for the main manuscript' : (KO ? '저자 — [TBD]   |   소속 — [TBD]' : 'Authors — [TBD]   |   Affiliation — [TBD]'),
     size: 20, color: '666666', font: HEAD_FONT,
   })],
   alignment: AlignmentType.CENTER, spacing: { after: 60 },
@@ -190,14 +199,15 @@ let i = 0;
 let inRefs = false;
 
 // find where the body starts (after the title line)
-while (i < lines.length && !lines[i].startsWith('## ')) i++;
+if (SUPP) { i = 1; while (i < lines.length && !lines[i].trim()) i++; while (i < lines.length && lines[i].trim()) i++; }  // skip the two title lines
+else while (i < lines.length && !lines[i].startsWith('## ')) i++;
 
 const flushPara = (buf) => {
   const t = buf.join(' ').trim();
   if (!t) return;
 
   // figure caption block
-  const fm = t.match(/^\*\*Fig\.\s*(\d)\s*\|/);
+  const fm = t.match(/^\*\*Fig\.\s*(S?\d+)\s*\|/);
   if (fm && FIGS[fm[1]]) {
     const f = FIGS[fm[1]];
     const { w, h } = pngSize(f);
@@ -238,6 +248,16 @@ let buf = [];
 for (; i < lines.length; i++) {
   const L = lines[i];
   if (L.trim() === '---') { flushPara(buf); buf = []; continue; }
+  if (L.trim().startsWith('```')) {          // code block
+    flushPara(buf); buf = [];
+    i++;
+    while (i < lines.length && !lines[i].trim().startsWith('```')) {
+      kids.push(new Paragraph({ children: [new TextRun({ text: lines[i], font: 'Consolas', size: 17 })], spacing: { after: 0 }, indent: { left: convertInchesToTwip(0.3) } }));
+      i++;
+    }
+    kids.push(new Paragraph({ text: '', spacing: { after: 120 } }));
+    continue;
+  }
 
   if (L.startsWith('## ')) {
     flushPara(buf); buf = [];
@@ -288,7 +308,7 @@ for (; i < lines.length; i++) {
           shading: ri === 0 ? { type: ShadingType.CLEAR, color: 'auto', fill: 'DCE3EF' } : undefined,
           margins: { top: 40, bottom: 40, left: 80, right: 80 },
           children: [new Paragraph({
-            children: inlineRuns(r[ci] || '', { size: 17, bold: ri === 0 }),
+            children: inlineRuns(r[ci] || '', { size: ncol > 9 ? 13 : (ncol > 6 ? 15 : 17), bold: ri === 0 }),
           })],
         })),
       })),
