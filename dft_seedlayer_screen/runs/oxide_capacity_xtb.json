@@ -1,0 +1,78 @@
+{
+ "ZnO": {
+  "1": {
+   "q_total": 0.6999,
+   "q_per_atom": 0.6999,
+   "Ag_sub_min_A": 2.475
+  },
+  "2": {
+   "q_total_solutions": [
+    0.5837,
+    1.002
+   ],
+   "q_per_atom_solutions": [
+    0.2918,
+    0.501
+   ],
+   "Ag_sub_min_A": 2.255,
+   "note": "Bistable at GFN2: the 5000 K relaxation ended on a +0.584 e solution; a fresh SCF on the same geometry gives +1.00 e at 1000 K (+0.96 at 5000 K). A 1000 K re-relaxation lost SCF convergence. Both are reported; Ag3/Ag4 not computed."
+  }
+ },
+ "V2O5": {
+  "1": {
+   "q_total": 0.9419,
+   "q_per_atom": 0.9419,
+   "Ag_sub_min_A": 2.528
+  },
+  "2": {
+   "q_total": 1.789,
+   "q_per_atom": 0.8945,
+   "Ag_sub_min_A": 2.409
+  },
+  "3": {
+   "q_total": 2.0449,
+   "q_per_atom": 0.6816,
+   "Ag_sub_min_A": 2.216
+  },
+  "4": {
+   "q_total": 0.4759,
+   "q_per_atom": 0.119,
+   "Ag_sub_min_A": 1.692,
+   "rejected": "unphysical Ag-O contacts 1.69/1.88/1.97 A; geometry not used"
+  }
+ },
+ "Cu2O": {
+  "1": {
+   "q_total": -0.1414,
+   "q_per_atom": -0.1414,
+   "Ag_sub_min_A": 2.508
+  },
+  "2": {
+   "q_total": -0.3062,
+   "q_per_atom": -0.1531,
+   "Ag_sub_min_A": 2.485
+  },
+  "3": {
+   "q_total": -0.4102,
+   "q_per_atom": -0.1367,
+   "Ag_sub_min_A": 2.492
+  },
+  "4": {
+   "q_total": -0.4443,
+   "q_per_atom": -0.1111,
+   "Ag_sub_min_A": 2.501
+  }
+ },
+ "TiO2": {
+  "1": {
+   "q_total": 1.1676,
+   "q_per_atom": 1.1676,
+   "Ag_sub_min_A": 2.172
+  },
+  "2": {
+   "q_total": 2.357,
+   "q_per_atom": 1.1785,
+   "Ag_sub_min_A": 2.262
+  }
+ }
+}

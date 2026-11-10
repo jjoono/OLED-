@@ -1,0 +1,18 @@
+{
+  "functional": "wb97x",
+  "basis": "def2-tzvp",
+  "EA_gas_eV": {
+    "F4TCNQ": 4.0197271655389155,
+    "HATCN": 3.3779893486071964,
+    "TCNQ": 3.5357694001599103
+  },
+  "EA_basis_check": 4.028017890953352,
+  "E_pol_assumed_eV": 1.3,
+  "dE_salt_eV": {
+    "F4TCNQ": 0.9334293029272009,
+    "HATCN": 2.2119220166771068
+  },
+  "gap_eV": 1.2784927137499058,
+  "differential_check_passed": true,
+  "absolute_EA_reference_verified": false
+}

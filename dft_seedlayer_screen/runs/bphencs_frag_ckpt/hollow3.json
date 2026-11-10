@@ -1,0 +1,19 @@
+{
+ "start": [
+  -6.2793,
+  0.3611,
+  -0.083
+ ],
+ "steps": 6,
+ "best": {
+  "E": -26348.58302811267,
+  "pos": [
+   -7.07929991273234,
+   -0.43889992689463786,
+   0.19902976576141454
+  ],
+  "g": 0.1405579411581094
+ },
+ "relaxed": true,
+ "note": "stopped: line search repeated the step-2 point (steps 2,5,6 identical); best point used"
+}

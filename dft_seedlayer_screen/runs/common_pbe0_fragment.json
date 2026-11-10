@@ -1,0 +1,431 @@
+{
+ "_validation": {
+  "HATCN aza": {
+   "E_b": 1.631,
+   "elec": 1.4558,
+   "D3": -0.1752,
+   "q_mulliken": 0.5723,
+   "frag_atoms": 30,
+   "caps": 0,
+   "mol_atoms": 30,
+   "reference_full_pbe0": 1.631,
+   "error": 0.0,
+   "seconds": 10625,
+   "d3_sign_fixed": true
+  },
+  "Bphen chelate": {
+   "E_b": 0.6085,
+   "elec": 0.4748,
+   "D3": -0.1337,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0849,
+   "frag_atoms": 22,
+   "caps": 2,
+   "mol_atoms": 42,
+   "reference_full_pbe0": 0.621,
+   "error": -0.0125,
+   "seconds": 856
+  },
+  "B3PyMPM": {
+   "E_b": 0.416,
+   "elec": 0.1947,
+   "D3": -0.2213,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0714,
+   "frag_atoms": 32,
+   "caps": 2,
+   "mol_atoms": 69,
+   "reference_full_pbe0": 0.416,
+   "error": 0.0,
+   "seconds": 1439
+  },
+  "p-bPPhenB": {
+   "E_b": 0.7842,
+   "elec": 0.5888,
+   "D3": -0.1953,
+   "d3_sign_fixed": true,
+   "q_mulliken": 0.1477,
+   "frag_atoms": 32,
+   "caps": 1,
+   "mol_atoms": 72,
+   "reference_full_pbe0": 0.785,
+   "error": -0.0008,
+   "seconds": 3012
+  }
+ },
+ "BCP": {
+  "atop24": {
+   "E_b": 0.4683,
+   "elec": 0.2906,
+   "D3": -0.1777,
+   "q_mulliken": -0.0783,
+   "frag_atoms": 28,
+   "caps": 2,
+   "mol_atoms": 48,
+   "seconds": 3590,
+   "near": "N27",
+   "R_cut": 5.0,
+   "d3_sign_fixed": true
+  },
+  "hollow25": {
+   "E_b": 0.1951,
+   "elec": -0.0231,
+   "D3": -0.2182,
+   "q_mulliken": -0.0518,
+   "frag_atoms": 28,
+   "caps": 2,
+   "mol_atoms": 48,
+   "seconds": 1187,
+   "near": "C25",
+   "R_cut": 5.0,
+   "d3_sign_fixed": true
+  },
+  "_deepest": "atop24",
+  "_E_b_deepest": 0.4683
+ },
+ "F6-TCNNQ": {
+  "lpF14": {
+   "E_b": 1.202,
+   "elec": 1.1046,
+   "D3": -0.0974,
+   "q_mulliken": 0.6382,
+   "frag_atoms": 26,
+   "caps": 0,
+   "mol_atoms": 26,
+   "seconds": 2375,
+   "near": "N9",
+   "R_cut": 5.0,
+   "d3_sign_fixed": true
+  },
+  "_deepest": "lpF14",
+  "_E_b_deepest": 1.202
+ },
+ "3TPYMB": {
+  "lpN27": {
+   "E_b": 0.3738,
+   "elec": 0.2806,
+   "D3": -0.0932,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1149,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 88,
+   "seconds": 153,
+   "near": "N27",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN27",
+  "_E_b_deepest": 0.3738
+ },
+ "TPBi": {
+  "lpN22": {
+   "E_b": 0.461,
+   "elec": 0.2185,
+   "D3": -0.2425,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1145,
+   "frag_atoms": 60,
+   "caps": 3,
+   "mol_atoms": 81,
+   "seconds": 7968,
+   "near": "N22",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN22",
+  "_E_b_deepest": 0.461
+ },
+ "TmPyPB": {
+  "bridge7": {
+   "E_b": 0.3121,
+   "elec": 0.2191,
+   "D3": -0.0931,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1142,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 69,
+   "seconds": 216,
+   "near": "N7",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN40",
+  "_E_b_deepest": 0.3712,
+  "lpN40": {
+   "E_b": 0.3712,
+   "elec": 0.2826,
+   "D3": -0.0886,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1162,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 69,
+   "seconds": 224,
+   "near": "N40",
+   "R_cut": 5.0
+  },
+  "lpN7": {
+   "E_b": 0.3705,
+   "elec": 0.2821,
+   "D3": -0.0884,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1159,
+   "frag_atoms": 11,
+   "caps": 1,
+   "mol_atoms": 69,
+   "seconds": 222,
+   "near": "N7",
+   "R_cut": 5.0
+  }
+ },
+ "T2T": {
+  "lpN13": {
+   "E_b": 0.0744,
+   "elec": -0.1571,
+   "D3": -0.2315,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0356,
+   "frag_atoms": 39,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 3125,
+   "near": "H63",
+   "R_cut": 5.0
+  },
+  "_deepest": "lpN13_pbe0relax",
+  "_E_b_deepest": 0.3244,
+  "lpN13_pbe0relax": {
+   "E_b": 0.3244,
+   "elec": 0.077,
+   "D3": -0.2474,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.045,
+   "frag_atoms": 39,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 7808,
+   "relax_steps": 4,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -3.2974,
+    -0.788,
+    -2.1182
+   ],
+   "near": "H63",
+   "d_near": 2.718,
+   "d_H_min": 2.718
+  },
+  "lpN13_pbe0relax_v2": {
+   "E_b": 0.2932,
+   "elec": 0.0564,
+   "D3": -0.2368,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0403,
+   "frag_atoms": 39,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 5351,
+   "relax_steps": 5,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -2.4934,
+    -2.0173,
+    2.2042
+   ],
+   "near": "H49",
+   "d_near": 2.684,
+   "d_H_min": 2.684
+  }
+ },
+ "TSPO1": {
+  "hollow14": {
+   "E_b": 0.2742,
+   "elec": 0.0334,
+   "D3": -0.2408,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.107,
+   "frag_atoms": 48,
+   "caps": 2,
+   "mol_atoms": 68,
+   "seconds": 4388,
+   "near": "H43",
+   "R_cut": 5.0
+  },
+  "atop0": {
+   "E_b": 0.3805,
+   "elec": 0.2682,
+   "D3": -0.1123,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1055,
+   "frag_atoms": 28,
+   "caps": 4,
+   "mol_atoms": 68,
+   "seconds": 1447,
+   "near": "O0",
+   "R_cut": 5.0
+  },
+  "_deepest": "atop0",
+  "_E_b_deepest": 0.3805
+ },
+ "Alq3": {
+  "pocketN15N26": {
+   "E_b": 0.137,
+   "frag_atoms": 52,
+   "seconds": 12624,
+   "near": "O8",
+   "R_cut": 5.0,
+   "d3_sign_fixed": true,
+   "note": "E_b read from the run log (pbe0_run7); runner stopped during the second site to move Alq3 to script 151"
+  },
+  "_deepest": "pocketN15N26_pbe0relax",
+  "_E_b_deepest": 0.4293,
+  "pocketN15N26_pbe0relax": {
+   "E_b": 0.4293,
+   "elec": 0.1888,
+   "D3": -0.2405,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0878,
+   "frag_atoms": 52,
+   "caps": 0,
+   "mol_atoms": 52,
+   "seconds": 20999,
+   "relax_steps": 5,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -1.4102,
+    -0.4443,
+    -3.5241
+   ],
+   "near": "O8",
+   "d_near": 2.716,
+   "d_H_min": 2.87
+  }
+ },
+ "NBphen": {
+  "pocketN19N44_pbe0relax": {
+   "E_b": 0.4599,
+   "elec": 0.1808,
+   "D3": -0.2791,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0046,
+   "frag_atoms": 54,
+   "caps": 2,
+   "mol_atoms": 74,
+   "seconds": 25627,
+   "relax_steps": 8,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -0.728,
+    1.6484,
+    -1.4049
+   ],
+   "near": "H58",
+   "d_near": 2.193,
+   "d_H_min": 2.193
+  },
+  "_deepest": "pocketN19N44_pbe0relax",
+  "_E_b_deepest": 0.4599
+ },
+ "DPEPO": {
+  "lpO20_pbe0relax": {
+   "E_b": 0.4508,
+   "elec": 0.1735,
+   "D3": -0.2773,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.1122,
+   "frag_atoms": 49,
+   "caps": 2,
+   "mol_atoms": 69,
+   "seconds": 6487,
+   "relax_steps": 5,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -0.2459,
+    -0.1063,
+    -4.1959
+   ],
+   "near": "O28",
+   "d_near": 2.61,
+   "d_H_min": 2.718
+  },
+  "_deepest": "lpO20_pbe0relax",
+  "_E_b_deepest": 0.4508
+ },
+ "PO-T2T": {
+  "lpN21_pbe0relax": {
+   "E_b": 0.4778,
+   "elec": 0.0578,
+   "D3": -0.42,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.075,
+   "frag_atoms": 65,
+   "caps": 2,
+   "mol_atoms": 108,
+   "seconds": 18497,
+   "relax_steps": 4,
+   "R_cut": 5.0,
+   "R_relax": 4.0,
+   "pos": [
+    -0.5698,
+    2.0157,
+    1.6248
+   ],
+   "near": "N21",
+   "d_near": 2.709,
+   "d_H_min": 2.71
+  },
+  "_deepest": "lpN21_pbe0relax",
+  "_E_b_deepest": 0.4778
+ },
+ "mCP": {
+  "hollow0": {
+   "E_b": 0.2048,
+   "elec": 0.0147,
+   "D3": -0.1902,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0465,
+   "frag_atoms": 32,
+   "caps": 1,
+   "mol_atoms": 52,
+   "seconds": 1912,
+   "near": "H36",
+   "R_cut": 5.0
+  },
+  "hollow13": {
+   "E_b": 0.2668,
+   "elec": 0.043,
+   "D3": -0.2238,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0312,
+   "frag_atoms": 32,
+   "caps": 1,
+   "mol_atoms": 52,
+   "seconds": 1292,
+   "near": "C12",
+   "R_cut": 5.0
+  },
+  "_deepest": "hollow13",
+  "_E_b_deepest": 0.2668
+ },
+ "NPB": {
+  "bridge6": {
+   "E_b": 0.2537,
+   "elec": -0.0043,
+   "D3": -0.258,
+   "d3_sign_fixed": true,
+   "q_mulliken": -0.0598,
+   "frag_atoms": 40,
+   "caps": 1,
+   "mol_atoms": 78,
+   "seconds": 2503,
+   "near": "H71",
+   "R_cut": 5.0
+  },
+  "_deepest": "bridge6",
+  "_E_b_deepest": 0.2537
+ }
+}

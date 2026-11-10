@@ -1,0 +1,58 @@
+{
+ "DMABN": {
+  "deepest_xtb": "atop0",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.2246,
+   "q_mulliken": -0.1181,
+   "converged": true
+  },
+  "atop0": {
+   "E_b_pbe0_at_xtb_geom": 0.2,
+   "q_mulliken": -0.106,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": -0.0246
+ },
+ "Liq": {
+  "deepest_xtb": "atop1",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.3951,
+   "q_mulliken": -0.1039,
+   "converged": true
+  },
+  "atop1": {
+   "E_b_pbe0_at_xtb_geom": 0.2835,
+   "q_mulliken": -0.0438,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": -0.1116
+ },
+ "Cu4I4": {
+  "deepest_xtb": "atop0",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.1601,
+   "q_mulliken": -0.0746,
+   "converged": true
+  },
+  "atop0": {
+   "E_b_pbe0_at_xtb_geom": 0.7378,
+   "q_mulliken": -0.0204,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": 0.5777
+ },
+ "Al4O6": {
+  "deepest_xtb": "pocketO5O6",
+  "stage1": {
+   "E_b_pbe0_at_xtb_geom": 0.4046,
+   "q_mulliken": 0.0419,
+   "converged": true
+  },
+  "pocketO5O6": {
+   "E_b_pbe0_at_xtb_geom": 0.6962,
+   "q_mulliken": 0.1133,
+   "converged": true
+  },
+  "delta_deep_minus_stage1": 0.2916
+ }
+}

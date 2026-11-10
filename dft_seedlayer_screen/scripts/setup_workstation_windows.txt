@@ -1,0 +1,64 @@
+Running the E_d campaign on a Windows workstation
+=================================================
+
+No admin rights needed. Miniforge installs per-user and everything lives inside
+it. psi4 on Windows is pinned to 1.9.1 rather than the 1.11 used elsewhere in
+this project; the SCF options this campaign uses all exist in 1.9, so the
+numbers are comparable, but note the version in anything you report.
+
+If you have WSL, prefer it -- `bash scripts/setup_cluster.sh` then works
+unchanged and you get psi4 1.11. Install with `wsl --install` from an
+administrator prompt. The steps below are for plain Windows without WSL.
+
+
+1. Install Miniforge
+--------------------
+Download and run, accepting the defaults (install "just for me"):
+
+  https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe
+
+Then open "Miniforge Prompt" from the Start menu. Use that window for
+everything below -- not PowerShell, which avoids the module problem you hit.
+
+
+2. Create the environment
+-------------------------
+  conda create -y -n qc -c conda-forge python=3.11 psi4 xtb numpy scipy matplotlib openpyxl
+  conda activate qc
+
+Check it actually computes, rather than only imports:
+
+  python -c "import psi4; psi4.set_memory('2 GB'); psi4.core.be_quiet(); psi4.set_options({'basis':'def2-svp','scf_type':'df','reference':'uks'}); print(psi4.energy('pbe-d3bj', molecule=psi4.geometry('0 2\nAg 0 0 0\nsymmetry c1\n')))"
+
+A number near -146 Eh means the DFT stack works end to end.
+
+
+3. Get the code
+---------------
+Download and unzip in Explorer:
+
+  https://github.com/jjoono/OLED-/archive/refs/heads/claude/project-setup-conda-ftxhnl.zip
+
+Then in the Miniforge Prompt, cd into it, e.g.
+
+  cd %USERPROFILE%\Downloads\OLED--claude-project-setup-conda-ftxhnl\dft_seedlayer_screen
+
+
+4. Run
+------
+One system first, to see it working:
+
+  python scripts\97_diffusion_barriers.py pyridine
+
+Then the whole set:
+
+  python scripts\97_diffusion_barriers.py
+
+Thread count comes from the machine automatically. To cap memory, set it before
+running -- the default is 10 GB:
+
+  set PSI4_MEM_GB=32
+
+Results accumulate in runs\diffusion_barriers_all.json, checkpointed after every
+system. Closing the window stops the run; starting it again skips what is
+already done. Send that one file back and it can be turned into the table.

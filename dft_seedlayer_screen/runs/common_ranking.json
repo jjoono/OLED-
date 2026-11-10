@@ -1,0 +1,295 @@
+[
+ {
+  "name": "HATCN",
+  "role": "HIL (CGL)",
+  "E_b": 1.631,
+  "site": "aza N",
+  "dq": -0.197,
+  "source": "pbe0",
+  "elec": 1.4558,
+  "disp": 0.1752,
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "F4TCNQ",
+  "role": "p-dopant",
+  "E_b": 1.208,
+  "site": "nitrile N",
+  "dq": -0.268,
+  "source": "pbe0",
+  "elec": 1.1472,
+  "disp": 0.0608,
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "F6-TCNNQ",
+  "role": "p-dopant",
+  "dq": -0.2551,
+  "E_b": 1.202,
+  "site": "lpF14 (near N9)",
+  "source": "pbe0_frag",
+  "elec": 1.1046,
+  "disp": 0.0974,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "p-bPPhenB",
+  "role": "ETL (n-host)",
+  "E_b": 0.785,
+  "site": "phen chelate",
+  "dq": -0.314,
+  "source": "pbe0",
+  "elec": 0.5888,
+  "disp": 0.1953,
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "Bphen",
+  "role": "ETL",
+  "E_b": 0.621,
+  "site": "phen chelate",
+  "dq": -0.353,
+  "source": "pbe0",
+  "elec": 0.4748,
+  "disp": 0.1337,
+  "veto": "pass",
+  "gate_0.5": true
+ },
+ {
+  "name": "PO-T2T",
+  "role": "ETL / exciplex acceptor",
+  "dq": -0.2324,
+  "E_b": 0.4778,
+  "site": "lpN21_pbe0relax (near N21)",
+  "source": "pbe0_frag",
+  "elec": 0.0578,
+  "disp": 0.42,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "BCP",
+  "role": "HBL / ETL",
+  "dq": -0.3655,
+  "E_b": 0.4683,
+  "site": "atop24 (near N27)",
+  "source": "pbe0_frag",
+  "elec": 0.2906,
+  "disp": 0.1777,
+  "other": {
+   "hollow25": 0.1951
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TPBi",
+  "role": "ETL / HBL",
+  "dq": -0.2061,
+  "E_b": 0.461,
+  "site": "lpN22 (near N22)",
+  "source": "pbe0_frag",
+  "elec": 0.2185,
+  "disp": 0.2425,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "NBphen",
+  "role": "ETL",
+  "dq": -0.3165,
+  "E_b": 0.4599,
+  "site": "pocketN19N44_pbe0relax (near H58)",
+  "source": "pbe0_frag",
+  "elec": 0.1808,
+  "disp": 0.2791,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "DPEPO",
+  "role": "blue host / HBL",
+  "dq": -0.5055,
+  "E_b": 0.4508,
+  "site": "lpO20_pbe0relax (near O28)",
+  "source": "pbe0_frag",
+  "elec": 0.1735,
+  "disp": 0.2773,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "Alq3",
+  "role": "ETL / green host",
+  "dq": -0.2751,
+  "E_b": 0.4293,
+  "site": "pocketN15N26_pbe0relax (near O8)",
+  "source": "pbe0_frag",
+  "elec": 0.1888,
+  "disp": 0.2405,
+  "other": {
+   "pocketN15N26": 0.137
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "B3PyMPM",
+  "role": "ETL",
+  "E_b": 0.416,
+  "site": "pyrimidine/pyridyl N",
+  "dq": -0.238,
+  "source": "pbe0",
+  "elec": 0.1947,
+  "disp": 0.2213,
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "Liq",
+  "role": "EIL / ETL co-dep",
+  "E_b": 0.398,
+  "site": "Li-O",
+  "dq": -0.07,
+  "source": "pbe0",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TSPO1",
+  "role": "blue host / HBL",
+  "dq": -0.0169,
+  "E_b": 0.3805,
+  "site": "atop0 (near O0)",
+  "source": "pbe0_frag",
+  "elec": 0.2682,
+  "disp": 0.1123,
+  "other": {
+   "hollow14": 0.2742
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "3TPYMB",
+  "role": "ETL / HBL",
+  "dq": -0.1313,
+  "E_b": 0.3738,
+  "site": "lpN27 (near N27)",
+  "source": "pbe0_frag",
+  "elec": 0.2806,
+  "disp": 0.0932,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TmPyPB",
+  "role": "ETL / HBL",
+  "dq": -0.1123,
+  "E_b": 0.3712,
+  "site": "lpN40 (near N40)",
+  "source": "pbe0_frag",
+  "elec": 0.2826,
+  "disp": 0.0886,
+  "other": {
+   "bridge7": 0.3121,
+   "lpN7": 0.3705
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "T2T",
+  "role": "ETL / host",
+  "dq": -0.2318,
+  "E_b": 0.3244,
+  "site": "lpN13_pbe0relax (near H63)",
+  "source": "pbe0_frag",
+  "elec": 0.077,
+  "disp": 0.2474,
+  "other": {
+   "lpN13": 0.0744,
+   "lpN13_pbe0relax_v2": 0.2932
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "CBP",
+  "role": "host",
+  "dq": -0.0012,
+  "E_b": 0.279,
+  "site": "hollow45 (GFN2)",
+  "source": "analog: PhCz",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TCTA",
+  "role": "HTL / host",
+  "dq": -0.0313,
+  "E_b": 0.279,
+  "site": "hollow86 (GFN2)",
+  "source": "analog: PhCz / TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "mCP",
+  "role": "host / EBL",
+  "dq": 0.0076,
+  "E_b": 0.2668,
+  "site": "hollow13 (near C12)",
+  "source": "pbe0_frag",
+  "elec": 0.043,
+  "disp": 0.2238,
+  "other": {
+   "hollow0": 0.2048
+  },
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TPD",
+  "role": "HTL",
+  "dq": -0.0192,
+  "E_b": 0.259,
+  "site": "hollow46 (GFN2)",
+  "source": "analog: TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "TAPC",
+  "role": "HTL / EBL",
+  "dq": 0.0178,
+  "E_b": 0.259,
+  "site": "hollow31 (GFN2)",
+  "source": "analog: TPA",
+  "veto": "pass",
+  "gate_0.5": false
+ },
+ {
+  "name": "NPB",
+  "role": "HTL",
+  "dq": -0.0175,
+  "E_b": 0.2537,
+  "site": "bridge6 (near H71)",
+  "source": "pbe0_frag",
+  "elec": -0.0043,
+  "disp": 0.258,
+  "other": {},
+  "veto": "pass",
+  "gate_0.5": false
+ }
+]

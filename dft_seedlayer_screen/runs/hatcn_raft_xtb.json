@@ -1,0 +1,26 @@
+{
+ "center_distance_A": 13.318,
+ "sites": {
+  "aza_inward": {
+   "E": -6089.4379,
+   "q_Ag": 0.4592
+  },
+  "aza_outward": {
+   "E": -6091.5112,
+   "q_Ag": 0.3163
+  },
+  "raft_hollow": {
+   "E": -6092.7938,
+   "q_Ag": 0.2438
+  }
+ },
+ "deepest": "raft_hollow",
+ "q_Ag1": 0.2438,
+ "q_Ag2_per_atom": 0.0047,
+ "Ag2_Ag_Ag_A": 2.582,
+ "single_molecule_reference": {
+  "q_Ag1": 0.308,
+  "q_Ag2_per_atom": 0.055,
+  "source": "GFN2 on structures/clusters/HATCN_Ag1,2"
+ }
+}

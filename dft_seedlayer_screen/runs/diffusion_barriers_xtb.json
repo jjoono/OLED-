@@ -1,0 +1,204 @@
+{
+ "HATCN": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "N",
+  "n_atoms": 30,
+  "path_A": 3.426,
+  "n_points": 5
+ },
+ "F4TCNQ": {
+  "E_d_eV": 0.1716,
+  "class": "site2site",
+  "anchor": "N",
+  "n_atoms": 20,
+  "path_A": 4.149,
+  "n_points": 5
+ },
+ "TPBi": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "N",
+  "n_atoms": 81,
+  "path_A": 2.244,
+  "n_points": 5
+ },
+ "p-bPPhenB": {
+  "E_d_eV": null,
+  "class": "toface",
+  "note": "out of range (240.91 eV) -- rejected"
+ },
+ "Cs2CO3": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "O",
+  "n_atoms": 6,
+  "path_A": 2.216,
+  "n_points": 5
+ },
+ "B3PyMPM": {
+  "E_d_eV": 0.8137,
+  "class": "site2site",
+  "anchor": "H",
+  "n_atoms": 69,
+  "path_A": 2.382,
+  "n_points": 5
+ },
+ "Bphen": {
+  "E_d_eV": 1.5492,
+  "class": "toface",
+  "anchor": "N",
+  "n_atoms": 42,
+  "path_A": 3.323,
+  "n_points": 5
+ },
+ "pyridine": {
+  "E_d_eV": 0.0101,
+  "class": "toface",
+  "anchor": "N",
+  "n_atoms": 11,
+  "path_A": 1.377,
+  "n_points": 5
+ },
+ "triazine": {
+  "E_d_eV": 0.4362,
+  "class": "site2site",
+  "anchor": "N",
+  "n_atoms": 9,
+  "path_A": 2.382,
+  "n_points": 5
+ },
+ "BTD": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "N",
+  "n_atoms": 13,
+  "path_A": 2.497,
+  "n_points": 5
+ },
+ "Me3P=O": {
+  "E_d_eV": 0.0017,
+  "class": "toface",
+  "anchor": "O",
+  "n_atoms": 14,
+  "path_A": 1.604,
+  "n_points": 5
+ },
+ "Ph3P=O": {
+  "E_d_eV": 0.0,
+  "class": "toface",
+  "anchor": "O",
+  "n_atoms": 35,
+  "path_A": 2.478,
+  "n_points": 5
+ },
+ "thiophene": {
+  "E_d_eV": 0.0475,
+  "class": "toface",
+  "anchor": "S",
+  "n_atoms": 9,
+  "path_A": 1.466,
+  "n_points": 5
+ },
+ "benzene": {
+  "E_d_eV": 0.0213,
+  "class": "toface",
+  "anchor": "C",
+  "n_atoms": 12,
+  "path_A": 1.385,
+  "n_points": 5
+ },
+ "PhCN": {
+  "E_d_eV": 0.0055,
+  "class": "toface",
+  "anchor": "N",
+  "n_atoms": 13,
+  "path_A": 3.103,
+  "n_points": 5
+ },
+ "DMABN": {
+  "E_d_eV": 0.0022,
+  "class": "toface",
+  "anchor": "N",
+  "n_atoms": 21,
+  "path_A": 4.234,
+  "n_points": 5
+ },
+ "pDCNB": {
+  "E_d_eV": null,
+  "class": "site2site",
+  "note": "out of range (19.82 eV) -- rejected"
+ },
+ "oDCNB": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "N",
+  "n_atoms": 14,
+  "path_A": 4.025,
+  "n_points": 5
+ },
+ "PhCz": {
+  "E_d_eV": 0.1765,
+  "class": "toface",
+  "anchor": "H",
+  "n_atoms": 32,
+  "path_A": 2.808,
+  "n_points": 5
+ },
+ "TPA": {
+  "E_d_eV": 0.0,
+  "class": "toface",
+  "anchor": "N",
+  "n_atoms": 34,
+  "path_A": 0.0,
+  "n_points": 5
+ },
+ "Liq": {
+  "E_d_eV": 0.1779,
+  "class": "toface",
+  "anchor": "Li",
+  "n_atoms": 18,
+  "path_A": 2.772,
+  "n_points": 5
+ },
+ "Al4O6": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "O",
+  "n_atoms": 10,
+  "path_A": 2.832,
+  "n_points": 5
+ },
+ "Mo3O9": {
+  "E_d_eV": 1.0939,
+  "class": "site2site",
+  "anchor": "Mo",
+  "n_atoms": 12,
+  "path_A": 3.464,
+  "n_points": 5
+ },
+ "Mo3O8": {
+  "E_d_eV": 0.0,
+  "class": "site2site",
+  "anchor": "Mo",
+  "n_atoms": 11,
+  "path_A": 2.906,
+  "n_points": 5
+ },
+ "Cu4I4": {
+  "E_d_eV": 0.668,
+  "class": "site2site",
+  "anchor": "I",
+  "n_atoms": 8,
+  "path_A": 4.208,
+  "n_points": 5
+ },
+ "LiF32": {
+  "E_d_eV": 0.0532,
+  "class": "site2site",
+  "anchor": "F",
+  "n_atoms": 32,
+  "path_A": 2.847,
+  "n_points": 5
+ }
+}
