@@ -1,0 +1,778 @@
+
+<!DOCTYPE article
+  PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Archiving and Interchange DTD with MathML3 v1.4 20241031//EN" "JATS-archivearticle1-4-mathml3.dtd">
+<article id="advs78013" xml:lang="en" article-type="research-article" dtd-version="1.4"><?da-xref-anchor-style superscripted?><processing-meta base-tagset="archiving" mathml-version="3.0" table-model="xhtml" tagset-family="jats"><restricted-by>pmc</restricted-by></processing-meta><front><journal-meta><journal-id journal-id-type="nlm-ta">Adv Sci (Weinh)</journal-id><journal-id journal-id-type="iso-abbrev">Adv Sci (Weinh)</journal-id><journal-id journal-id-type="pmc-domain-id">2933</journal-id><journal-id journal-id-type="pmc-domain">advsci</journal-id><journal-id journal-id-type="nlm-id">101664569</journal-id><journal-id journal-id-type="publisher-id">ADVS</journal-id><journal-title-group><journal-title>Advanced Science</journal-title></journal-title-group><issn pub-type="epub">2198-3844</issn><?publisher_abbrev blackwell?><publisher><publisher-name>Wiley</publisher-name></publisher></journal-meta><article-meta><article-id pub-id-type="pmcid">PMC13618774</article-id><article-id pub-id-type="pmcid-ver">PMC13618774.1</article-id><article-id pub-id-type="pmcaid">13618774</article-id><article-id pub-id-type="pmcaiid">13618774</article-id><article-id pub-id-type="pmid">42804220</article-id><article-id pub-id-type="doi">10.1002/advs.78013</article-id><article-id pub-id-type="publisher-id">ADVS78013</article-id><article-version article-version-type="pmc-version">1</article-version><article-categories><subj-group subj-group-type="overline"><subject>Research Article</subject></subj-group><subj-group subj-group-type="heading"><subject>Research Article</subject></subj-group></article-categories><title-group><article-title>Cavity‐Compatible Light Extraction in Top‐Emitting Microcavity OLEDs via a Gentle Internal Corrugation Layer and Resonance‐Matched Narrowband Emission</article-title></title-group><contrib-group><contrib id="advs78013-cr-0001" contrib-type="author"><name name-style="western"><surname>Kim</surname><given-names initials="YR">Young Rok</given-names></name><contrib-id contrib-id-type="orcid" authenticated="false">https://orcid.org/0009-0002-0901-3097</contrib-id><xref rid="advs78013-aff-0001" ref-type="aff">
+<sup>1</sup>
+</xref></contrib><contrib id="advs78013-cr-0002" contrib-type="author"><name name-style="western"><surname>Nimbalkar</surname><given-names initials="A">Ajay</given-names></name><contrib-id contrib-id-type="orcid" authenticated="false">https://orcid.org/0009-0009-0305-5385</contrib-id><xref rid="advs78013-aff-0001" ref-type="aff">
+<sup>1</sup>
+</xref></contrib><contrib id="advs78013-cr-0003" contrib-type="author" corresp="yes"><name name-style="western"><surname>Suh</surname><given-names initials="MC">Min Chul</given-names></name><contrib-id contrib-id-type="orcid" authenticated="false">https://orcid.org/0000-0002-1295-1693</contrib-id><xref rid="advs78013-aff-0001" ref-type="aff">
+<sup>1</sup>
+</xref><address><email>mcsuh@khu.ac.kr</email></address></contrib></contrib-group><aff id="advs78013-aff-0001">
+<label>
+<sup>1</sup>
+</label>
+<named-content content-type="organisation-division">Department of Information Display</named-content>
+<institution>Kyung Hee University</institution>
+<city>Seoul</city>
+<named-content content-type="country-part">Dongdaemun‐Gu</named-content>
+<country country="KR">Republic of Korea</country>
+</aff><pub-date pub-type="epub"><day>28</day><month>9</month><year>2026</year></pub-date><issue-id pub-id-type="pmc-issue-id">516819</issue-id><elocation-id>e78013</elocation-id><history>
+<date date-type="rev-recd"><day>17</day><month>9</month><year>2026</year></date>
+<date date-type="received"><day>22</day><month>5</month><year>2026</year></date>
+<date date-type="accepted"><day>19</day><month>9</month><year>2026</year></date>
+</history><pub-history><event event-type="pmc-release"><date><day>28</day><month>09</month><year>2026</year></date></event><event event-type="pmc-live"><date><day>29</day><month>09</month><year>2026</year></date></event><event event-type="pmc-last-change"><date iso-8601-date="2026-09-29 10:10:11.860"><day>29</day><month>09</month><year>2026</year></date></event></pub-history><permissions><copyright-statement content-type="article-copyright">© 2026 The Author(s). <italic toggle="yes">Advanced Science</italic> published by Wiley‐VCH GmbH</copyright-statement><license><ali:license_ref xmlns:ali="http://www.niso.org/schemas/ali/1.0/" specific-use="textmining" content-type="ccbylicense">https://creativecommons.org/licenses/by/4.0/</ali:license_ref><license-p>This is an open access article under the terms of the <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" ext-link-type="uri" xlink:href="https://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</ext-link> License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.</license-p></license></permissions><self-uri xmlns:xlink="http://www.w3.org/1999/xlink" content-type="pmc-pdf" xlink:href="ADVS-9999-e78013.pdf"><?pdf-name ADVS-9999-e78013.pdf?><?pdf-size 6572528?><?pdf-md5 b45fa73397a95327fcadf1d3d1491f69?><?pdf-image-server-status NEVER_LOAD?><?pdf-cloudpmc-urn urn:app:9b72/13618774/b45fa73397a9/ADVS-9999-e78013.pdf?></self-uri><self-uri xmlns:xlink="http://www.w3.org/1999/xlink" content-type="pdf" xlink:href="file:ADVS-9999-e78013.pdf"/><abstract><title>ABSTRACT</title><p>Top‐emitting microcavity organic light‐emitting diodes (TE‐OLEDs) use a Fabry–Perot cavity to concentrate emission in the forward direction and narrow the electroluminescence spectrum, improving frontal efficiency and color purity. However, internal light extraction remains difficult because steep outcoupling textures can release confined optical modes while increasing local optical‐thickness variation, degrading step coverage, and perturbing the cavity‐defined angular and spectral response. Here, we introduce a gentle internal corrugation layer (GICL) as a cavity‐compatible light‐extraction structure for TE‐OLEDs and combine it with a tCzphB‐Fl‐based phosphor‐assisted thermally activated delayed fluorescence (TADF)‐sensitized fluorescence (pTSF) emissive system. GICL enhances the extraction of confined optical modes while reducing the risk of severe cavity perturbation associated with steep internal textures. The narrowband pTSF emissive system further reinforces the device‐level gain because a larger spectral fraction remains aligned with the microcavity resonance band. Under the same optical clear resin (OCR) condition, GICL increases the current efficiency from 302.7 to 378.4 cd/A, the power efficiency from 199.3 to 396.7 lm/W, and the external quantum efficiency from 34.8% to 69.2%, while reducing the angular color shift at 60° from Δu′v′ = 0.0197 to 0.0086. These results support GICL as a cavity‐compatible light‐extraction route for microcavity TE‐OLEDs.</p></abstract><abstract id="advs78013-abs-0001" abstract-type="graphical"><p>A gentle internal corrugation layer conformally reshapes the microcavity OLED stack, redistributing confined optical power toward extractable channels while preserving cavity‐controlled emission. Combined with optical clear resin and a resonance‐matched narrowband pTSF emissive system, this cavity‐compatible architecture delivers an external quantum efficiency of 69.2% with reduced angular color variation over wide viewing angles.
+<boxed-text position="anchor" content-type="graphic" orientation="portrait"><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-1" orientation="portrait" xlink:href="ADVS-9999-e78013-g002.webp"><?image-name ADVS-9999-e78013-g002.webp?><?image-size 17240?><?image-md5 69707e2c87c74cdf22c4a6344ff446a8?><?image-image-server-status NEVER_LOAD?><?image-original-height 444?><?image-original-width 400?><?image-scaled-height 444?><?image-scaled-width 400?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/69707e2c87c7/ADVS-9999-e78013-g002.webp?></graphic></boxed-text>
+</p></abstract><kwd-group kwd-group-type="author-generated"><kwd id="advs78013-kwd-0001">internal outcoupling structures</kwd><kwd id="advs78013-kwd-0002">light‐extraction strategies</kwd><kwd id="advs78013-kwd-0003">microcavity OLEDs</kwd><kwd id="advs78013-kwd-0004">narrowband emitters</kwd><kwd id="advs78013-kwd-0005">top‐emitting OLEDs</kwd><kwd id="advs78013-kwd-0006">viewing‐angle stability</kwd></kwd-group><funding-group><award-group id="funding-0001"><funding-source>
+<institution-wrap><institution>National Research Foundation of Korea (NRF)</institution></institution-wrap>
+</funding-source><award-id>RS‐2026‐25542348</award-id></award-group><award-group id="funding-0002"><funding-source>
+<institution-wrap><institution>Ministry of Trade, Industry and Resources (MOTIR, Korea)</institution></institution-wrap>
+</funding-source><award-id>RS‐2025‐25452683</award-id><award-id>RS‐2026‐25526873</award-id><award-id>RS‐2026‐25529892</award-id></award-group><award-group id="funding-0003"><funding-source>
+<institution-wrap><institution>BK21 FOUR program of Graduate School, Kyung Hee University</institution></institution-wrap>
+</funding-source><award-id>20240380</award-id></award-group></funding-group><counts><fig-count count="7"/><table-count count="3"/><page-count count="16"/><word-count count="9715"/></counts><custom-meta-group><custom-meta><meta-name>pmc-status-qastatus</meta-name><meta-value>0</meta-value></custom-meta><custom-meta><meta-name>pmc-status-live</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-status-embargo</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-status-released</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-open-access</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-olf</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-manuscript</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-legally-suppressed</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-has-pdf</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-has-supplement</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-pdf-only</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-suppress-copyright</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-is-real-version</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-is-scanned-article</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-preprint</meta-name><meta-value>no</meta-value></custom-meta><custom-meta><meta-name>pmc-prop-in-epmc</meta-name><meta-value>yes</meta-value></custom-meta><custom-meta><meta-name>pmc-license-ref</meta-name><meta-value>CC BY</meta-value></custom-meta><custom-meta><meta-name>source-schema-version-number</meta-name><meta-value>2.0</meta-value></custom-meta><custom-meta><meta-name>edited-state</meta-name><meta-value>corrected-proof</meta-value></custom-meta><custom-meta><meta-name>details-of-publishers-convertor</meta-name><meta-value>Converter:WILEY_ML3GV2_TO_JATSPMC version:6.8.8 mode:remove_FC converted:28.09.2026</meta-value></custom-meta></custom-meta-group></article-meta></front><body><sec id="advs78013-sec-0010"><label>1</label><title>Introduction</title><p>Among active‐matrix organic light‐emitting diode (AMOLED) architectures, top‐emitting organic light‐emitting diodes (TE‐OLEDs) are widely used in high‐resolution displays because the emission is directed away from the substrate and the aperture ratio can be decoupled from the backplane layout [<xref rid="advs78013-bib-0001" ref-type="bibr">1</xref>, <xref rid="advs78013-bib-0002" ref-type="bibr">2</xref>, <xref rid="advs78013-bib-0003" ref-type="bibr">3</xref>, <xref rid="advs78013-bib-0004" ref-type="bibr">4</xref>, <xref rid="advs78013-bib-0005" ref-type="bibr">5</xref>, <xref rid="advs78013-bib-0006" ref-type="bibr">6</xref>, <xref rid="advs78013-bib-0007" ref-type="bibr">7</xref>, <xref rid="advs78013-bib-0008" ref-type="bibr">8</xref>, <xref rid="advs78013-bib-0009" ref-type="bibr">9</xref>, <xref rid="advs78013-bib-0010" ref-type="bibr">10</xref>, <xref rid="advs78013-bib-0011" ref-type="bibr">11</xref>, <xref rid="advs78013-bib-0012" ref-type="bibr">12</xref>]. TE‐OLEDs also readily incorporate a Fabry–Perot microcavity, which narrows the electroluminescence (EL) spectrum and concentrates emission near the forward direction. These characteristics improve frontal efficiency and color purity, but they also increase viewing‐angle‐dependent color shift and make light‐extraction design more restrictive [<xref rid="advs78013-bib-0013" ref-type="bibr">13</xref>, <xref rid="advs78013-bib-0014" ref-type="bibr">14</xref>, <xref rid="advs78013-bib-0015" ref-type="bibr">15</xref>, <xref rid="advs78013-bib-0016" ref-type="bibr">16</xref>, <xref rid="advs78013-bib-0017" ref-type="bibr">17</xref>, <xref rid="advs78013-bib-0018" ref-type="bibr">18</xref>].</p><p>A second‐order microcavity was adopted with consideration of fabrication reliability and the optical environment of the emitter. The thicker organic stack was selected to reduce susceptibility to particle‐related leakage and deposition nonuniformity, while the emitter–electrode separation was designed with consideration of the Purcell effect and coupling to metal‐related optical modes. The additional thickness was primarily allocated to the HTL, taking advantage of the favorable hole‐transport characteristics of the selected materials while limiting the ETL thickness and maintaining the intended cavity resonance. OLED multilayer structures can support confined optical channels, including waveguide (WG)‐ and surface plasmon polariton (SPP)‐related modes, whose relative contributions depend on the electrode configuration, multilayer optical thickness, emission wavelength, and cavity order. Improving only the outer optical interface is therefore insufficient because these internal loss channels cannot be fully recovered by controlling the air‐side interface alone. A practical light‐extraction strategy must address confined optical modes inside the device while maintaining the angular and spectral characteristics imposed by the microcavity [<xref rid="advs78013-bib-0019" ref-type="bibr">19</xref>, <xref rid="advs78013-bib-0020" ref-type="bibr">20</xref>, <xref rid="advs78013-bib-0021" ref-type="bibr">21</xref>, <xref rid="advs78013-bib-0022" ref-type="bibr">22</xref>, <xref rid="advs78013-bib-0023" ref-type="bibr">23</xref>, <xref rid="advs78013-bib-0024" ref-type="bibr">24</xref>, <xref rid="advs78013-bib-0025" ref-type="bibr">25</xref>, <xref rid="advs78013-bib-0026" ref-type="bibr">26</xref>, <xref rid="advs78013-bib-0027" ref-type="bibr">27</xref>, <xref rid="advs78013-bib-0028" ref-type="bibr">28</xref>, <xref rid="advs78013-bib-0029" ref-type="bibr">29</xref>, <xref rid="advs78013-bib-0030" ref-type="bibr">30</xref>].</p><p>Conventional internal outcoupling structures based on wrinkles, corrugations, and strongly curved textures can enhance light extraction by scattering trapped optical modes. However, strong internal textures can also broaden the angular emission profile, disturb the narrow cavity‐shaped spectrum, and reduce deposition uniformity in the overlying layers [<xref rid="advs78013-bib-0031" ref-type="bibr">31</xref>, <xref rid="advs78013-bib-0032" ref-type="bibr">32</xref>, <xref rid="advs78013-bib-0033" ref-type="bibr">33</xref>, <xref rid="advs78013-bib-0034" ref-type="bibr">34</xref>, <xref rid="advs78013-bib-0035" ref-type="bibr">35</xref>, <xref rid="advs78013-bib-0036" ref-type="bibr">36</xref>, <xref rid="advs78013-bib-0037" ref-type="bibr">37</xref>]. The key geometric issue is local optical‐thickness variation across the cavity stack. When the underlying texture is steep, subsequently deposited layers are more likely to deviate from conformal coverage, producing spatial variation in the local resonance condition. Under this condition, stronger scattering does not necessarily lead to a useful device‐level gain because the cavity‐defined forward‐emission benefit can be weakened at the same time.</p><p>This trade‐off requires an internal structure that provides optical perturbation for trapped‐mode extraction while limiting local resonance distortion. In this work, we define a gentle internal corrugation layer (GICL) as an internal light‐extraction structure with a lower representative surface angle and broader lateral modulation than the steeper reference textures. The purpose of GICL is not to maximize scattering strength, but to provide cavity‐compatible light extraction by increasing the extraction of confined optical modes while mitigating the severe optical‐thickness variation associated with steep internal textures.</p><p>The device‐level benefit of such a structure also depends on the spectral properties of the emitter. In a microcavity device, only the spectral fraction overlapping with the microcavity resonance band contributes efficiently to cavity‐enhanced external output. Broad emitters retain a larger off‐resonant fraction and therefore undergo stronger spectral reshaping during cavity formation. By contrast, narrowband emitters retain a larger usable spectral fraction within the microcavity resonance band. In the present study, the narrowband emitter platform was implemented using a phosphor‐assisted thermally activated delayed fluorescence (TADF)‐sensitized fluorescence (pTSF) emissive system. Its emissive layer (EML) consists of DMIC‐TRZ as the TADF sensitizing host, Ir(ppy)<sub>2</sub>acac as the phosphorescent assistant, and tCzphB‐Fl as the terminal multi‐resonance TADF (MR‐TADF) emitter. In the previously reported pTSF strategy, the TADF host and phosphorescent assistant provide complementary sensitization pathways to the terminal emitter, combining efficient exciton utilization with narrowband emission. We employed this pTSF system to utilize the narrow emission of tCzphB‐Fl when investigating the effects of emitter bandwidth, microcavity resonance matching, and GICL‐induced optical extraction [<xref rid="advs78013-bib-0038" ref-type="bibr">38</xref>, <xref rid="advs78013-bib-0039" ref-type="bibr">39</xref>, <xref rid="advs78013-bib-0040" ref-type="bibr">40</xref>, <xref rid="advs78013-bib-0041" ref-type="bibr">41</xref>].</p><p>Here, we introduce GICL as a cavity‐compatible light‐extraction structure for top‐emitting microcavity OLEDs and combine it with resonance‐matched narrowband emission. We examine the structural morphology and step coverage of GICL, compare its optical response with steeper reference structures using finite‐difference time‐domain analysis, and evaluate device performance under matched optical clear resin (OCR) conditions [<xref rid="advs78013-bib-0042" ref-type="bibr">42</xref>, <xref rid="advs78013-bib-0043" ref-type="bibr">43</xref>, <xref rid="advs78013-bib-0044" ref-type="bibr">44</xref>, <xref rid="advs78013-bib-0045" ref-type="bibr">45</xref>, <xref rid="advs78013-bib-0046" ref-type="bibr">46</xref>]. We further use polarization‐resolved angle‐dependent electroluminescence and emitter‐system comparison to assess whether the observed gain is consistent with enhanced extraction of confined optical modes and improved spectral overlap with the microcavity resonance band. These results support a design strategy in which internal geometry and emitter–microcavity spectral matching are jointly optimized for cavity‐compatible light extraction in TE‐OLEDs.</p></sec><sec id="advs78013-sec-0020"><label>2</label><title>Results</title><sec id="advs78013-sec-0030"><label>2.1</label><title>Role of Emitter Bandwidth and Spectral Overlap in Microcavity Resonance Matching</title><p>In a Fabry–Perot microcavity, cavity‐assisted optical gain is effective mainly for spectral components that overlap with the microcavity resonance band. The device‐relevant gain is therefore limited by the microcavity resonance band, as discussed in Note <xref rid="advs78013-supinfo-0001" ref-type="">S1</xref>. Emitter full width at half maximum (FWHM) is an important spectral parameter in this context because it affects how much of the original emission overlaps with the microcavity resonance band after cavity formation. A broad emitter contains a larger off‐resonant fraction outside the microcavity resonance band, whereas a narrowband emitter retains a larger fraction of its emission within the microcavity resonance band. This relationship was evaluated using the Bepp<sub>2</sub>: Ir(ppy)<sub>2</sub>acac phosphorescent system and the DMIC‐TRZ: Ir(ppy)<sub>2</sub>acac: tCzphB‐Fl pTSF system as representative broad and narrowband emission systems, respectively.</p><p>Here, <bold>R</bold> denotes a reference rather than a completely cavity‐free device. The ITO‐based <bold>R</bold> architecture was not intentionally tuned to a specific cavity order but can retain residual optical interference arising from the electrodes, refractive‐index contrasts, and multilayer optical thickness. <bold>R1</bold> and <bold>R2</bold> were used to establish the baseline responses of the phosphorescent and pTSF emitter systems, respectively, before introducing the intentionally designed Ag‐based microcavity and light‐extraction structures.</p><p>Figure <xref rid="advs78013-fig-0001" ref-type="fig">1a,b</xref> compares the electroluminescence spectra of the phosphorescent and pTSF devices under reference and microcavity conditions. In the phosphorescent system, the peak wavelength shifts from 521 to 534 nm and the FWHM narrows from 65 to 25 nm from <bold>R1</bold> to <bold>P‐O1</bold>. This large spectral change indicates that the cavity selects only a limited spectral fraction from the original broad emission band. In contrast, the pTSF system shows a smaller spectral change during cavity formation. From <bold>R2</bold> to <bold>P‐O2</bold>, the peak wavelength changes from 530 to 532 nm and the FWHM narrows only from 22 to 19 nm. This smaller spectral change suggests that a larger fraction of the narrowband emission already overlaps with the microcavity resonance band before cavity formation.</p><fig position="float" fig-type="FIGURE" id="advs78013-fig-0001" orientation="portrait"><label>FIGURE 1</label><caption><p>Role of emitter bandwidth and spectral overlap in microcavity resonance matching. (a,b) Radiance spectra of <bold>R1</bold> and <bold>P‐O1</bold> in the phosphorescent system and <bold>R2</bold> and <bold>P‐O2</bold> in the pTSF system, respectively, together with the corresponding cavity resonance. (c) Current density–voltage–luminance characteristics of <bold>R1</bold>, <bold>R2</bold>, <bold>P‐O1</bold>, and <bold>P‐O2</bold>. (d) Current efficiency and power efficiency as functions of luminance. (e) External quantum efficiency as a function of luminance. (f) Comparison of the maximum current efficiencies of the <bold>R</bold> and <bold>P‐O</bold> configurations in the phosphorescent and pTSF systems. (g) Normalized EL spectra measured at 0° for <bold>R1</bold>, <bold>R2</bold>, <bold>P‐O1</bold>, and <bold>P‐O2</bold>. (h) Angular luminance distributions of <bold>R1</bold>, <bold>R2</bold>, <bold>P‐O1</bold>, and <bold>P‐O2</bold> compared with the Lambertian distribution. (i) Angular color shifts (Δu′v′) of <bold>R1</bold>, <bold>R2</bold>, <bold>P‐O1</bold>, and <bold>P‐O2</bold>.</p></caption><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-3" orientation="portrait" xlink:href="ADVS-9999-e78013-g001.webp"><?image-name ADVS-9999-e78013-g001.webp?><?image-size 55912?><?image-md5 f650d8ba0093ea14ffc856c8b69fa286?><?image-image-server-status NEED_LOADING?><?image-original-height 593?><?image-original-width 820?><?image-scaled-height 593?><?image-scaled-width 820?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/f650d8ba0093/ADVS-9999-e78013-g001.webp?><?thumb-name ADVS-9999-e78013-g001.gif?><?thumb-size 9779?><?thumb-md5 e33d36ce4d7380ea2d8147e47e2f92ef?><?thumb-image-server-status NEVER_LOAD?><?thumb-scaled-height 145?><?thumb-scaled-width 200?><?thumb-cloudpmc-urn urn:cdn:blobs/9b72/13618774/e33d36ce4d73/ADVS-9999-e78013-g001.gif?></graphic></fig><p>Figure <xref rid="advs78013-fig-0001" ref-type="fig">1c–f</xref> and Table <xref rid="advs78013-tbl-0001" ref-type="table">1</xref> show how these differences in emitter system and spectral condition are reflected in device performance. Although Ir(ppy)<sub>2</sub>acac and tCzphB‐Fl exhibit relatively similar green emission peak wavelengths, their corresponding devices show different turn‐on voltages of 3.0 and 2.25 V, respectively. The emission peak represents the radiative transition energy of the final emitting species, whereas the turn‐on voltage is governed by the combined device‐level processes of charge injection, charge transport, carrier recombination, energy transfer, and conversion of the injected current into detectable luminance. The phosphorescent and pTSF devices employ different EML compositions, Bepp<sub>2</sub>: Ir(ppy)<sub>2</sub>acac and DMIC‐TRZ: Ir(ppy)<sub>2</sub>acac: tCzphB‐Fl, respectively, and the latter additionally involves a sensitized emission pathway terminating at tCzphB‐Fl. A related pTSF architecture has recently demonstrated narrowband emission with high external quantum efficiency and power efficiency, supporting pTSF as an efficient narrowband emissive platform. Therefore, the lower turn‐on voltage and higher current efficiency of the pTSF device cannot be inferred from its emission peak alone and are attributed to the combined electrical, photophysical, spectral, and angular‐emission characteristics of the different EML systems. The individual contributions of these factors were not independently isolated in the present study.</p><table-wrap position="float" id="advs78013-tbl-0001" content-type="TABLE" orientation="portrait"><label>TABLE 1</label><caption><p>Electrical and optical characteristics of reference and microcavity devices in phosphorescent and pTSF systems.</p></caption><table frame="hsides" rules="groups"><col align="left" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><thead><tr><th rowspan="2" align="left" colspan="1">Device</th><th rowspan="2" align="center" colspan="1">Turn‐on voltage (V)</th><th rowspan="2" align="center" colspan="1">J (mA/cm<sup>2</sup>)<xref rid="advs78013-tbl1-note-0001" ref-type="table-fn">
+<sup>a</sup>
+</xref>
+</th><th colspan="3" style="border-bottom:solid 1px #000000" align="center" rowspan="1">Maximum efficiency</th><th rowspan="2" align="center" colspan="1">Peak λ (nm)<xref rid="advs78013-tbl1-note-0005" ref-type="table-fn">
+<sup>e</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">FWHM(nm)<xref rid="advs78013-tbl1-note-0006" ref-type="table-fn">
+<sup>f</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">Maximum luminance (cd/m<sup>2</sup>)</th><th rowspan="2" align="center" colspan="1">LCF<xref rid="advs78013-tbl1-note-0007" ref-type="table-fn">
+<sup>g</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">CIE 1931 (x,y)<xref rid="advs78013-tbl1-note-0008" ref-type="table-fn">
+<sup>h</sup>
+</xref>
+</th></tr><tr style="border-bottom:solid 1px #000000"><th align="center" rowspan="1" colspan="1">C.E (cd/A)<xref rid="advs78013-tbl1-note-0002" ref-type="table-fn">
+<sup>b</sup>
+</xref>
+</th><th align="center" rowspan="1" colspan="1">P.E (lm/W)<xref rid="advs78013-tbl1-note-0003" ref-type="table-fn">
+<sup>c</sup>
+</xref>
+</th><th align="center" rowspan="1" colspan="1">E.Q.E(%)<xref rid="advs78013-tbl1-note-0004" ref-type="table-fn">
+<sup>d</sup>
+</xref>
+</th></tr></thead><tbody><tr><td align="left" rowspan="1" colspan="1">
+<bold>R1</bold>
+</td><td align="center" rowspan="1" colspan="1">3.0</td><td align="center" rowspan="1" colspan="1">62.8</td><td align="center" rowspan="1" colspan="1">62.1</td><td align="center" rowspan="1" colspan="1">63.9</td><td align="center" rowspan="1" colspan="1">19.4</td><td align="center" rowspan="1" colspan="1">521</td><td align="center" rowspan="1" colspan="1">65</td><td align="center" rowspan="1" colspan="1">15,603</td><td align="center" rowspan="1" colspan="1">1.1448 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.3264, 0.6188)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>R2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">25.1</td><td align="center" rowspan="1" colspan="1">109.0</td><td align="center" rowspan="1" colspan="1">117.0</td><td align="center" rowspan="1" colspan="1">26.1</td><td align="center" rowspan="1" colspan="1">530</td><td align="center" rowspan="1" colspan="1">22</td><td align="center" rowspan="1" colspan="1">20,946</td><td align="center" rowspan="1" colspan="1">1.1895 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.3068, 0.6664)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>P‐O1</bold>
+</td><td align="center" rowspan="1" colspan="1">3.0</td><td align="center" rowspan="1" colspan="1">22.4</td><td align="center" rowspan="1" colspan="1">140.9</td><td align="center" rowspan="1" colspan="1">67.4</td><td align="center" rowspan="1" colspan="1">18.5</td><td align="center" rowspan="1" colspan="1">534</td><td align="center" rowspan="1" colspan="1">25</td><td align="center" rowspan="1" colspan="1">27,985</td><td align="center" rowspan="1" colspan="1">0.5306 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2064, 0.7472)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>P‐O2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">46.6</td><td align="center" rowspan="1" colspan="1">302.7</td><td align="center" rowspan="1" colspan="1">199.3</td><td align="center" rowspan="1" colspan="1">34.8</td><td align="center" rowspan="1" colspan="1">532</td><td align="center" rowspan="1" colspan="1">19</td><td align="center" rowspan="1" colspan="1">108,659</td><td align="center" rowspan="1" colspan="1">0.5238 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2008, 0.7473)</td></tr></tbody></table><table-wrap-foot><fn id="advs78013-tbl1-note-0001"><label>
+<sup>a</sup>
+</label><p>Current density at 6 V.</p></fn><fn id="advs78013-tbl1-note-0002"><label>
+<sup>b</sup>
+</label><p>Current efficiency.</p></fn><fn id="advs78013-tbl1-note-0003"><label>
+<sup>c</sup>
+</label><p>Power efficiency after Lambertian correction factor (LCF) correction.</p></fn><fn id="advs78013-tbl1-note-0004"><label>
+<sup>d</sup>
+</label><p>External quantum efficiency after LCF correction.</p></fn><fn id="advs78013-tbl1-note-0005"><label>
+<sup>e</sup>
+</label><p>Peak wavelength.</p></fn><fn id="advs78013-tbl1-note-0006"><label>
+<sup>f</sup>
+</label><p>Full width at half maximum of the electroluminescence spectral intensity.</p></fn><fn id="advs78013-tbl1-note-0007"><label>
+<sup>g</sup>
+</label><p>Lambertian correction factor obtained from JALS.</p></fn><fn id="advs78013-tbl1-note-0008"><label>
+<sup>h</sup>
+</label><p>CIE 1931 color coordinates.</p></fn></table-wrap-foot><permissions><copyright-holder>John Wiley &amp; Sons, Ltd.</copyright-holder></permissions></table-wrap><p>In the phosphorescent system, cavity formation increases the current efficiency from 62.1 to 140.9 cd/A and the power efficiency from 63.9 to 67.4 lm/W, whereas the external quantum efficiency changes from 19.4% to 5.5%. Thus, strong spectral reshaping does not necessarily produce a corresponding external quantum efficiency increase. In the pTSF system, the current efficiency increases from 109.0 to 302.7 cd/A, the power efficiency from 117.0 to 199.3 lm/W, and the external quantum efficiency from 26.1% to 34.8%. The maximum luminance also increases from 20,946 to 108,659 cd/m<sup>2</sup> in the pTSF system, whereas it increases from 15,603 to 27,985 cd/m<sup>2</sup> in the phosphorescent system.</p><p>These results indicate that the response to the <bold>R‐to‐P‐O</bold> device conversion depends not only on the introduction of the microcavity configuration but also on the spectral relationship between the emitter and the microcavity resonance band. In the phosphorescent system employing a Bepp<sub>2</sub>: Ir(ppy)<sub>2</sub>acac EML, the maximum current efficiency increases from 62.1 cd/A for <bold>R1</bold> to 140.9 cd/A for <bold>P‐O1</bold>, corresponding to a 2.27‐fold enhancement. In the narrowband pTSF system employing a DMIC‐TRZ: Ir(ppy)<sub>2</sub>acac: tCzphB‐Fl EML, the maximum current efficiency increases from 109.0 cd/A for <bold>R2</bold> to 302.7 cd/A for <bold>P‐O2</bold>, corresponding to a larger 2.78‐fold enhancement. Within each pair, the EML composition is maintained, and the principal intended change is the conversion from the R configuration to the corresponding P‐O microcavity configuration. Thus, the central comparison is the relative <bold>R‐to‐P‐O</bold> enhancement within each emitter system rather than the absolute efficiency difference between the two emitter systems.</p><p>The larger relative enhancement observed in the pTSF system is consistent with its narrower emission bandwidth and more favorable spectral overlap with the corresponding microcavity resonance band. From a spectral perspective, a smaller emitter FWHM may increase the fraction of emission that remains matched to the cavity resonance, allowing the cavity‐assisted optical gain to be translated more effectively into forward device output. However, the absolute efficiency difference between the phosphorescent and pTSF systems cannot be attributed to FWHM because the two systems also differ in their material composition and electrical and photophysical characteristics. The observed <bold>R‐to‐P‐O</bold> enhancement trend therefore suggests that emitter FWHM can be considered an important spectral factor in the response of an emitter system to microcavity formation, rather than establishing FWHM as the sole determinant of device efficiency. The detailed layer structures and thicknesses of <bold>R1</bold>, <bold>R2</bold>, <bold>P‐O1</bold>, and <bold>P‐O2</bold> are provided in Table <xref rid="advs78013-supinfo-0001" ref-type="">S1</xref>. The normalized EL spectra, angular luminance distributions, and viewing‐angle‐dependent color‐coordinate variations of <bold>R1</bold>, <bold>P‐O1</bold>, <bold>R2</bold>, and <bold>P‐O2</bold> are shown in Figure <xref rid="advs78013-fig-0001" ref-type="fig">1g–i</xref>.</p></sec><sec id="advs78013-sec-0040"><label>2.2</label><title>Surface Geometry Required for Cavity‐Compatible Internal Outcoupling</title><p>A light‐extraction structure for microcavity TE‐OLEDs must satisfy two requirements simultaneously. It must perturb confined WG‐ and SPP‐related optical modes inside the device, and it must do so without introducing excessive local optical‐thickness variation into the cavity stack. Figure <xref rid="advs78013-fig-0002" ref-type="fig">2a,b</xref> illustrates this geometric and optical requirement. When the surface profile changes gradually, the subsequently deposited layers can follow the underlying corrugation more conformally, which helps maintain a more uniform optical thickness across the cavity stack. When the profile is steep or abrupt, by contrast, conformal coverage becomes more difficult and the local resonance condition can vary more strongly across the device.</p><fig position="float" fig-type="FIGURE" id="advs78013-fig-0002" orientation="portrait"><label>FIGURE 2</label><caption><p>Surface morphology and conformal deposition of GICL. (a) Conformal deposition on GICL. (b) Schematic illustration of internal optical outcoupling by GICL. (c) Three‐dimensional atomic force microscopy (AFM) image. (d) Top‐view AFM image. (e) X‐direction line profile. (f) Y‐direction line profile. (g) Surface scanning electron microscopy (SEM) image. (h) Cross‐sectional SEM image.</p></caption><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-5" orientation="portrait" xlink:href="ADVS-9999-e78013-g004.webp"><?image-name ADVS-9999-e78013-g004.webp?><?image-size 48112?><?image-md5 a6344353ea33cb9378a9966b319ef219?><?image-image-server-status NEED_LOADING?><?image-original-height 760?><?image-original-width 820?><?image-scaled-height 760?><?image-scaled-width 820?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/a6344353ea33/ADVS-9999-e78013-g004.webp?><?thumb-name ADVS-9999-e78013-g004.gif?><?thumb-size 13459?><?thumb-md5 e9e15bc2bada82e380d91b4722fe3568?><?thumb-image-server-status NEVER_LOAD?><?thumb-scaled-height 185?><?thumb-scaled-width 200?><?thumb-cloudpmc-urn urn:cdn:blobs/9b72/13618774/e9e15bc2bada/ADVS-9999-e78013-g004.gif?></graphic></fig><p>The GICL surface exhibits microscale height modulation with a peak‐to‐valley height (R<sub>pv</sub>) of 1118.0 nm, a root‐mean‐square roughness (R<sub>q</sub>) of 144.5 nm, and an arithmetic‐average roughness (R<sub>a</sub>) of 116.6 nm over a 50 × 50 µm<sup>2</sup> atomic force microscopy (AFM) scan area. Its representative surface angles are 2.1–6.9° and 1.8–3.5° along the x‐ and y‐direction profiles, respectively, and the corresponding representative peak‐to‐valley lateral spans are 8.88 and 8.87 µm. These parameters show that the measurable height modulation is distributed gradually over a micrometer‐scale lateral distance. The key geometric parameters of GICL and the reference outcoupling structures are comparatively summarized in Table <xref rid="advs78013-supinfo-0001" ref-type="">S2a</xref>.</p><p>The reference structures clarify why roughness alone is insufficient for evaluating geometric severity in a microcavity stack. Wrinkle 1 has low roughness, with R<sub>q</sub> = 20.6 nm, and low representative surface angles of 1.5° and 2.2°, but it functions as a shallow wrinkle reference rather than a microscale internal corrugation layer. Wrinkle 2 also has a modest R<sub>q</sub> of 48.4 nm, but its representative surface angles increase to 55.7° and 53.1°, showing that low roughness amplitude does not necessarily correspond to gradual local geometry. The imprinted random microlens array (IRMLA) exhibits much larger topographic modulation, with R<sub>q</sub> = 1359.0 nm, R<sub>pv</sub> = 7867.0 nm, and a representative surface angle of 25.3°. These comparisons show that both roughness amplitude and representative surface angle should be considered when assessing whether an internal texture can be integrated into a microcavity stack without severe local geometric discontinuity.</p><p>The AFM and scanning electron microscopy (SEM) data in Figure <xref rid="advs78013-fig-0002" ref-type="fig">2c–h</xref> identify GICL as a continuous corrugated surface rather than a planar interlayer. The enlarged x‐ and y‐direction line profiles are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S1</xref>. The corresponding profiles exhibit smooth, broadly sinusoidal‐like undulations; however, their nonuniform amplitudes and lateral spacings indicate that GICL should not be interpreted as an ideal periodic sinusoidal grating. Together with the roughness and angle analysis, these morphology data establish the structural basis of GICL as a gentle internal corrugation layer that provides measurable height modulation while avoiding abrupt local discontinuities.</p><p>The cross‐sectional SEM image in Figure <xref rid="advs78013-fig-0002" ref-type="fig">2h</xref> shows the deposited multilayer stack following the underlying GICL profile without severe local discontinuity. This conformal coverage is important because local discontinuities in the deposited stack can introduce spatial variation in optical thickness and local resonance condition. The cross‐sectional SEM comparison of <bold>P2</bold> and <bold>G2</bold> in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S2</xref> further supports this structural interpretation. Therefore, Figures <xref rid="advs78013-fig-0002" ref-type="fig">2h</xref> and <xref rid="advs78013-supinfo-0001" ref-type="">S2</xref> are interpreted as structural evidence for multilayer conformality, not as direct optical evidence of cavity preservation. The geometric rationale linking internal texture geometry to possible local optical‐thickness variation is provided in Note <xref rid="advs78013-supinfo-0001" ref-type="">S2</xref>.</p><p>The electrical and optical characteristics of the anode‐coated substrates are summarized in Table <xref rid="advs78013-supinfo-0001" ref-type="">S2b</xref>. The average sheet resistances of the planar and GICL substrates are 0.3757 and 0.2453 Ω/sq, respectively, corresponding to calculated voltage drops of only 1.69 and 1.10 mV at 50 mA/cm<sup>2</sup> for the 3 × 3 mm<sup>2</sup> active pixel. Their average visible reflectances over 520–550 nm are 98.8% and 98.6%, respectively. These small differences in substrate series resistance and bottom‐anode reflectance cannot account for the observed device‐performance enhancement, supporting its association with GICL‐induced optical redistribution.</p></sec><sec id="advs78013-sec-0050"><label>2.3</label><title>Structure‐Dependent Optical Extraction and Angular Emission Analysis</title><p>The finite‐difference time‐domain (FDTD) analysis in Figure <xref rid="advs78013-fig-0003" ref-type="fig">3</xref> was used to examine whether internal corrugation in a microcavity device should be evaluated only by the increase in total extracted power or also by the angular form of the extracted output. A structure can increase total extracted power while still providing limited useful gain if the angular distribution broadens too strongly. The FDTD theory and simulation procedure are described in Note <xref rid="advs78013-supinfo-0001" ref-type="">S3</xref>.</p><fig position="float" fig-type="FIGURE" id="advs78013-fig-0003" orientation="portrait"><label>FIGURE 3</label><caption><p>FDTD analysis of optical power extraction and far‐field emission in IRMLA‐ and GICL‐based microcavity OLEDs with OCR. (a,b) xz‐plane scattered electric‐field distributions of GICL‐ and IRMLA‐based structures. (c) Relative total simulated power for wrinkle, IRMLA, and GICL structures. (d–f) Far‐field emission distributions of the IRMLA‐based device for non‐polarized, s‐polarized, and p‐polarized components. (g–i) Far‐field emission distributions of the GICL‐based device for non‐polarized, s‐polarized, and p‐polarized components.</p></caption><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-7" orientation="portrait" xlink:href="ADVS-9999-e78013-g003.webp"><?image-name ADVS-9999-e78013-g003.webp?><?image-size 79834?><?image-md5 4c37a355d78d9351d700a2a4a84f0020?><?image-image-server-status NEED_LOADING?><?image-original-height 613?><?image-original-width 820?><?image-scaled-height 613?><?image-scaled-width 820?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/4c37a355d78d/ADVS-9999-e78013-g003.webp?><?thumb-name ADVS-9999-e78013-g003.gif?><?thumb-size 14983?><?thumb-md5 169d5d12ae8c95bc9d598372d1386725?><?thumb-image-server-status NEVER_LOAD?><?thumb-scaled-height 150?><?thumb-scaled-width 200?><?thumb-cloudpmc-urn urn:cdn:blobs/9b72/13618774/169d5d12ae8c/ADVS-9999-e78013-g003.gif?></graphic></fig><p>In this comparison, wrinkle 1 and wrinkle 2 serve as shallow and deep wrinkle references, respectively, IRMLA represents a steep large‐scale modulation, and GICL represents a gentle internal corrugation with gradual height variation and limited abrupt local discontinuities. The simulation was designed to compare these structure classes in terms of field redistribution, total extracted power, and forward‐directed optical output. The corresponding reference morphologies are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S3</xref>, where Figure <xref rid="advs78013-supinfo-0001" ref-type="">S3a,d,g</xref> shows the SEM images of wrinkle 1, wrinkle 2, and IRMLA, respectively, and Figure <xref rid="advs78013-supinfo-0001" ref-type="">S3b,e,h</xref> shows their representative surface profiles and surface‐angle measurements.</p><p>OCR was introduced as an intermediate‐index auxiliary layer at the outer interface. The refractive index of OCR is 1.59, which lies between that of air and that of the organic‐side outcoupling structure. Because the extraction structure redistributes light over a broader angular range, the large refractive‐index discontinuity at the air interface would otherwise cause reflection‐related loss of the angularly scattered light. By inserting OCR between air and the extraction structure, this discontinuity is reduced and a larger fraction of the redistributed light can escape from the device. OCR therefore does not determine the internal redistribution itself but reduces the optical loss that occurs when the redistributed light reaches the outer interface. Figure <xref rid="advs78013-fig-0003" ref-type="fig">3a</xref> is consistent with this interpretation, showing stronger field extension toward the air region after OCR is introduced. The planar reference and the corresponding OCR‐induced far‐field change are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S4</xref> and <xref rid="advs78013-supinfo-0001" ref-type="">S5</xref>.</p><p>Figure <xref rid="advs78013-fig-0003" ref-type="fig">3b</xref> compares the xz‐plane scattered electric‐field distributions of the IRMLA and GICL structures. The FDTD simulations were used as a geometry‐based optical analysis to compare how each surface structure redistributes and extracts optical power, rather than to model a specific EML or emitter system. IRMLA produces stronger local field perturbation, whereas GICL redistributes the field more gradually while still coupling optical power toward the outer region. This difference indicates that the optical consequence of internal corrugation depends on geometric severity rather than on the mere presence of scattering.</p><p>Figure <xref rid="advs78013-fig-0003" ref-type="fig">3c</xref> shows that GICL gives the highest relative total simulated power among the structures compared, followed by wrinkle 1, IRMLA, and wrinkle 2. Together with the structural references in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S3</xref> and the roughness parameters in Table <xref rid="advs78013-supinfo-0001" ref-type="">S2</xref>, this result shows that increasing depth and local slope does not produce a monotonic increase in extracted optical power. The deeper wrinkle reference gives lower transmitted power than the shallower wrinkle reference, and the steep IRMLA structure also remains below GICL. In this comparison, stronger perturbation alone is therefore not sufficient to improve the simulated optical response.</p><p>Complementary FDTD calculations were performed at 532 nm using identical dipole‐source conditions within a 30 nm EML. LEE was defined as the fraction of total dipole‐emitted optical power reaching the external air hemisphere. Under the same CPL and OCR conditions, the calculated LEE increases from 37.6% for <bold>P‐O2</bold> to 74.1% for <bold>G‐O2</bold>, corresponding to a 1.97‐fold enhancement. This comparison supports an additional light‐extraction contribution from GICL within the optical model.</p><p>The geometry‐dependent optical‐power trend in Figure <xref rid="advs78013-fig-0003" ref-type="fig">3c</xref> is consistent with the geometric rationale in Note <xref rid="advs78013-supinfo-0001" ref-type="">S2</xref>. Structural corrugation can perturb confined optical components through local scattering and momentum redistribution, but the resulting extraction depends on the height and slope of the surface rather than on scattering strength alone. As summarized in Table <xref rid="advs78013-supinfo-0001" ref-type="">S2</xref>, IRMLA exhibits a substantially larger peak‐to‐valley height of approximately 7.87 µm and a representative surface angle of approximately 25.3°, whereas GICL has a peak‐to‐valley height of 1.12 µm and gradual surface angles below 7°. The steep and strongly varying local surface normals of IRMLA therefore produce broader and less selective angular redirection.</p><p>The 3D ray‐tracing results in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S6</xref> further clarify the consequence of this difference. Under identical simulation conditions, GICL directs 77.3% of the input power into the defined forward collection region, compared with 43.5% for IRMLA. The wide‐angle component increases from 11.4% for GICL to 43.6% for IRMLA. IRMLA also produces substantially more total‐internal‐reflection and back‐reflection events. Thus, stronger scattering in IRMLA does not directly represent absorptive loss, but instead reduces useful forward extraction by redirecting light toward extreme off‐axis, internally reflected, and backward‐propagating trajectories. GICL provides a more gradual optical perturbation that redistributes confined power while limiting excessive angular broadening and internal reflection.</p><p>Figure <xref rid="advs78013-fig-0003" ref-type="fig">3d–i</xref> further indicate why this distinction matters for a microcavity device. In the IRMLA structure, the non‐polarized, s‐polarized, and p‐polarized responses are broadly redistributed over angle and become more irregular, indicating strong scattering accompanied by substantial loss of directional control. In the GICL structure, angular redistribution also occurs, but the far‐field profiles are less broadly redistributed than in the IRMLA case. The corresponding far‐field comparison is provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S6</xref>.</p><p>OCR and GICL therefore play complementary optical roles. OCR reduces reflection‐related loss at the outer interface after light has been redistributed toward the air side, whereas the internal corrugation influences both the amount of scattered optical power and the angular form of that extracted output. In the present comparison, GICL shows the highest relative simulated power and less severe angular redistribution than the steep reference structures. These FDTD results provide the optical basis for the device‐level comparison in the following section, where the effects of GICL and OCR are evaluated using electrical and optical device characteristics.</p></sec><sec id="advs78013-sec-0060"><label>2.4</label><title>Device performance of GICL microcavity OLEDs</title><p>GICL was introduced to improve optical extraction from microcavity TE‐OLEDs without relying on a steep internal texture. OCR was additionally applied to reduce outer‐interface optical loss associated with refractive‐index mismatch and unintended air‐gap formation during encapsulation. Within this device set, the transition from <bold>P2</bold> to <bold>G2</bold> reflects the effect of GICL without OCR, the transition from <bold>G2</bold> to <bold>G‐O2</bold> reflects the additional effect of OCR on the GICL structure, and the comparison between <bold>P‐O2</bold> and <bold>G‐O2</bold> provides a more direct assessment of the GICL effect under the same OCR condition. The nominal layer structures and thicknesses of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold> are provided in Table <xref rid="advs78013-supinfo-0001" ref-type="">S3</xref>.</p><p>The corresponding angle‐dependent normalized EL spectra are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S7</xref>. Figure <xref rid="advs78013-supinfo-0001" ref-type="">S8a,b</xref> examine whether GICL causes macroscopic emission non‐uniformity or pixel‐scale instability. The optical microscope images of the pixel region and the EL images of <bold>P‐O2</bold> and <bold>G‐O2</bold> were recorded at 1.75 mA/cm<sup>2</sup>. Both devices maintain stable pixel emission without severe local non‐uniformity. This observation indicates that the GICL structure does not break the emitting region into isolated bright spots or introduce obvious structural discontinuities at the pixel scale.</p><p>Figure <xref rid="advs78013-fig-0004" ref-type="fig">4a</xref> shows that <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold> exhibit the same turn‐on voltage of 2.25 V, and their current‐density characteristics remain broadly comparable over the measured driving range. The low‐bias region also does not show a clear increase in leakage current after introducing GICL. This trend is further supported by the current density at 6 V listed in Table <xref rid="advs78013-tbl-0002" ref-type="table">2</xref>, which changes only from 42.5 to 42.9 mA/cm<sup>2</sup> from <bold>P2</bold> to <bold>G2</bold> and from 46.6 to 50.7 mA/cm<sup>2</sup> from <bold>P‐O2</bold> to <bold>G‐O2</bold>. In Figure <xref rid="advs78013-fig-0004" ref-type="fig">4c</xref>, these current‐density changes are much smaller than the corresponding efficiency changes, especially the external quantum efficiency increase from 26.1% to 49.4% for <bold>P2</bold> to <bold>G2</bold> and from 34.8% to 69.2% for <bold>P‐O2</bold> to <bold>G‐O2</bold>. Therefore, the efficiency enhancement is not mainly explained by current‐flow variation or leakage current. It is more appropriately interpreted as an optical change associated with GICL‐induced extraction and OCR‐assisted outer‐interface outcoupling.</p><fig position="float" fig-type="FIGURE" id="advs78013-fig-0004" orientation="portrait"><label>FIGURE 4</label><caption><p>Device performance and angular emission characteristics of GICL microcavity OLEDs. (a) Current density‐voltage‐luminance characteristics of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold>. (b,c) Current efficiency, power efficiency, external quantum efficiency, and luminance of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold>. (d) Normalized EL spectra measured at 0° for <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold>. (e,f) Angular luminance distribution and angular color shift of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold>.</p></caption><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-9" orientation="portrait" xlink:href="ADVS-9999-e78013-g007.webp"><?image-name ADVS-9999-e78013-g007.webp?><?image-size 44648?><?image-md5 de150e089f9a81a96144e7f0bf4d6562?><?image-image-server-status NEED_LOADING?><?image-original-height 416?><?image-original-width 820?><?image-scaled-height 416?><?image-scaled-width 820?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/de150e089f9a/ADVS-9999-e78013-g007.webp?><?thumb-name ADVS-9999-e78013-g007.gif?><?thumb-size 7831?><?thumb-md5 2a12b2c14671a0a24fa305aebf82cd09?><?thumb-image-server-status NEVER_LOAD?><?thumb-scaled-height 101?><?thumb-scaled-width 200?><?thumb-cloudpmc-urn urn:cdn:blobs/9b72/13618774/2a12b2c14671/ADVS-9999-e78013-g007.gif?></graphic></fig><table-wrap position="float" id="advs78013-tbl-0002" content-type="TABLE" orientation="portrait"><label>TABLE 2</label><caption><p>Electrical and optical characteristics of planar, OCR, GICL, and GICL/OCR devices in the pTSF microcavity system.</p></caption><table frame="hsides" rules="groups"><col align="left" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><thead><tr><th rowspan="2" align="left" colspan="1">Device</th><th rowspan="2" align="center" colspan="1">Turn‐on voltage (V)</th><th rowspan="2" align="center" colspan="1">J (mA/cm<sup>2</sup>)<xref rid="advs78013-tbl2-note-0001" ref-type="table-fn">
+<sup>a</sup>
+</xref>
+</th><th colspan="3" style="border-bottom:solid 1px #000000" align="center" rowspan="1">Maximum efficiency</th><th rowspan="2" align="center" colspan="1">Peak λ (nm)<xref rid="advs78013-tbl2-note-0005" ref-type="table-fn">
+<sup>e</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">FWHM(nm)<xref rid="advs78013-tbl2-note-0006" ref-type="table-fn">
+<sup>f</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">Maximum luminance (cd/m<sup>2</sup>)</th><th rowspan="2" align="center" colspan="1">LCF<xref rid="advs78013-tbl2-note-0007" ref-type="table-fn">
+<sup>g</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">CIE 1931 (x,y)<xref rid="advs78013-tbl2-note-0008" ref-type="table-fn">
+<sup>h</sup>
+</xref>
+</th></tr><tr style="border-bottom:solid 1px #000000"><th align="center" rowspan="1" colspan="1">C.E (cd/A)<xref rid="advs78013-tbl2-note-0002" ref-type="table-fn">
+<sup>b</sup>
+</xref>
+</th><th align="center" rowspan="1" colspan="1">P.E (lm/W)<xref rid="advs78013-tbl2-note-0003" ref-type="table-fn">
+<sup>c</sup>
+</xref>
+</th><th align="center" rowspan="1" colspan="1">E.Q.E (%)<xref rid="advs78013-tbl2-note-0004" ref-type="table-fn">
+<sup>d</sup>
+</xref>
+</th></tr></thead><tbody><tr><td align="left" rowspan="1" colspan="1">
+<bold>P2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">42.5</td><td align="center" rowspan="1" colspan="1">260.7</td><td align="center" rowspan="1" colspan="1">145.8</td><td align="center" rowspan="1" colspan="1">26.1</td><td align="center" rowspan="1" colspan="1">534</td><td align="center" rowspan="1" colspan="1">19</td><td align="center" rowspan="1" colspan="1">97,174</td><td align="center" rowspan="1" colspan="1">0.4407 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.1987, 0.7634)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>P‐O2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">46.6</td><td align="center" rowspan="1" colspan="1">302.7</td><td align="center" rowspan="1" colspan="1">199.3</td><td align="center" rowspan="1" colspan="1">34.8</td><td align="center" rowspan="1" colspan="1">532</td><td align="center" rowspan="1" colspan="1">19</td><td align="center" rowspan="1" colspan="1">108,659</td><td align="center" rowspan="1" colspan="1">0.5238 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2008, 0.7473)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>G2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">42.9</td><td align="center" rowspan="1" colspan="1">296.1</td><td align="center" rowspan="1" colspan="1">281.9</td><td align="center" rowspan="1" colspan="1">49.4</td><td align="center" rowspan="1" colspan="1">540</td><td align="center" rowspan="1" colspan="1">21</td><td align="center" rowspan="1" colspan="1">97,666</td><td align="center" rowspan="1" colspan="1">0.7576 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2305, 0.7417)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>G‐O2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">50.7</td><td align="center" rowspan="1" colspan="1">378.4</td><td align="center" rowspan="1" colspan="1">396.7</td><td align="center" rowspan="1" colspan="1">69.2</td><td align="center" rowspan="1" colspan="1">537</td><td align="center" rowspan="1" colspan="1">22</td><td align="center" rowspan="1" colspan="1">119,889</td><td align="center" rowspan="1" colspan="1">0.8343 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2271, 0.7459)</td></tr></tbody></table><table-wrap-foot><fn id="advs78013-tbl2-note-0001"><label>
+<sup>a</sup>
+</label><p>Current density at 6 V.</p></fn><fn id="advs78013-tbl2-note-0002"><label>
+<sup>b</sup>
+</label><p>Current efficiency.</p></fn><fn id="advs78013-tbl2-note-0003"><label>
+<sup>c</sup>
+</label><p>Power efficiency after LCF correction.</p></fn><fn id="advs78013-tbl2-note-0004"><label>
+<sup>d</sup>
+</label><p>External quantum efficiency after LCF correction.</p></fn><fn id="advs78013-tbl2-note-0005"><label>
+<sup>e</sup>
+</label><p>Peak wavelength.</p></fn><fn id="advs78013-tbl2-note-0006"><label>
+<sup>f</sup>
+</label><p>Full width at half maximum of the electroluminescence spectral intensity.</p></fn><fn id="advs78013-tbl2-note-0007"><label>
+<sup>g</sup>
+</label><p>Lambertian correction factor obtained from JALS.</p></fn><fn id="advs78013-tbl2-note-0008"><label>
+<sup>h</sup>
+</label><p>CIE 1931 color coordinates.</p></fn></table-wrap-foot><permissions><copyright-holder>John Wiley &amp; Sons, Ltd.</copyright-holder></permissions></table-wrap><p>The efficiency comparison supports this optical interpretation. As shown in Figure <xref rid="advs78013-fig-0004" ref-type="fig">4b</xref>, <bold>G2</bold> increases the external quantum efficiency from 26.1% to 49.4% relative to <bold>P2</bold>, indicating that the internal corrugation contributes to device output even before the addition of OCR. When OCR is added to the planar device, <bold>P‐O2</bold> reaches a current efficiency of 302.7 cd/A, a power efficiency of 199.3 lm/W, and an external quantum efficiency of 34.8%. When OCR is added to the GICL device, <bold>G‐O2</bold> reaches 378.4 cd/A, 396.7 lm/W, and 69.2%, respectively. Under the same OCR condition, the comparison between <bold>P‐O2</bold> and <bold>G‐O2</bold> shows that GICL increases the current efficiency by 75.7 cd/A, the power efficiency by 197.4 lm/W, and the external quantum efficiency by 34.4 percentage points. This matched comparison supports that GICL provides an additional extraction contribution under the same outer‐interface condition. Across five samples, <bold>P‐O2</bold> and <bold>G‐O2</bold> exhibited average maximum external quantum efficiency (EQE<sub>max</sub>) values of 34.2 ± 0.6% and 68.2 ± 0.7%, respectively, with limited variation among the measured samples. The EQE initially increases with current density, which is most likely associated with progressive trap filling and improved electron–hole balance. After reaching its maximum, the EQE decreases as the carrier and exciton densities increase, enhancing density‐dependent losses such as exciton–exciton annihilation and exciton–polaron quenching. At 10<sup>3</sup> cd/m<sup>2</sup>, the relative EQE roll‐offs of <bold>P‐O1</bold>, <bold>G‐O1</bold>, <bold>P‐O2</bold>, and <bold>G‐O2</bold> are approximately 0.5%, 1.9%, 2.7%, and 4.6%, respectively. Thus, the GICL devices show moderately larger roll‐off than their corresponding planar devices. Because each P‐O/G‐O pair has the same EML composition and nominal organic multilayer structure, the larger roll‐off of <bold>G‐O2</bold> may be related to local current nonuniformity introduced by the corrugated internal geometry. A locally concentrated current and recombination distribution would increase the exciton and polaron densities and thereby enhance density‐dependent quenching.</p><p>Figure <xref rid="advs78013-fig-0004" ref-type="fig">4d</xref> shows that the 0°EL spectra of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold> exhibit only minor spectral changes after introducing GICL and OCR. The efficiency enhancement is therefore not accompanied by severe spectral distortion, supporting the interpretation that the main change originates from optical extraction rather than spectral reshaping.</p><p>Figure <xref rid="advs78013-fig-0004" ref-type="fig">4e</xref> shows that <bold>G‐O2</bold> approaches a more Lambertian luminance distribution than <bold>P‐O2</bold>, and this angular redistribution is reflected in the Lambertian correction factor, which increases from 0.5238 to 0.8343. In Figure <xref rid="advs78013-fig-0004" ref-type="fig">4f</xref>, the angular color shift at 60° also decreases from Δu′v′ = 0.0197 to 0.0086. These results indicate that the device‐level gain is accompanied by a more balanced angular luminance distribution and reduced viewing‐angle‐dependent color variation.</p><p>The angle‐dependent normalized EL spectra of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold> are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S7</xref>, and the viewing‐angle EL images of the <bold>G‐O2</bold> pixel are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S8c</xref>. These supporting data show that the GICL/OCR device maintains stable visible emission over the measured viewing angles. The device results are also consistent with the structural and FDTD analyses. GICL provides an internal corrugation pathway for optical extraction, while OCR reduces outer‐interface optical loss after light is redistributed toward the air side. The polarization‐resolved angular emission analysis in the following section further examines whether the gain is consistent with extraction of WG‐ and SPP‐related optical components. To assess the GICL‐induced extraction response under directly comparable conditions, <bold>P‐O2</bold> and <bold>G‐O2</bold> were compared because they have the same 30 nm pTSF EML, organic multilayer structure, Ag‐based microcavity, and OCR and differ only in the presence of GICL. The EQE<sub>max</sub> increases from 34.76% for <bold>P‐O2</bold> to 69.23% for <bold>G‐O2</bold>, corresponding to a 1.99‐fold increase in EQE‐based extracted output. Because the internal quantum efficiency (IQE) was not independently determined, this value represents a relative device‐level extraction enhancement rather than an absolute light‐extraction efficiency.</p></sec><sec id="advs78013-sec-0070"><label>2.5</label><title>Polarization‐Resolved Support for GICL‐Induced Light Extraction</title><p>Following the device‐level gain observed in Section <xref rid="advs78013-sec-0060" ref-type="sec">2.4</xref>, polarization‐resolved angular EL analysis was performed for <bold>P‐O2</bold> and <bold>G‐O2</bold> under the same OCR condition. A linear polarizer was used to separate the p‐ and s‐polarized far‐field components because these components respond differently to the optical modes confined within a microcavity stack. The p‐polarized component represents the transverse‐magnetic TM‐like far‐field response and can contain signatures associated with SPP‐related coupling, whereas the s‐polarized component represents the transverse‐electric TE‐like response and is more closely related to WG propagation. This polarization‐resolved analysis is not by itself a direct modal decomposition of WG and SPP modes, but it provides a mode‐sensitive experimental comparison of the GICL‐induced change in extracted emission.</p><p>Figure <xref rid="advs78013-fig-0005" ref-type="fig">5a–c</xref> shows the p‐polarized angular EL response of <bold>P‐O2</bold> and <bold>G‐O2</bold>. Compared with <bold>P‐O2</bold>, <bold>G‐O2</bold> exhibits higher angular EL intensity over the measured viewing‐angle range while maintaining a similar cavity‐shaped spectral profile. Because SPP modes at planar metal/organic interfaces are TM polarized, this enhancement is consistent with increased extraction or redistribution of TM‐like confined optical components that can include an SPP‐related contribution. However, the p‐polarized far‐field emission also contains radiative TM‐like cavity and waveguided components and therefore cannot be interpreted as a direct quantitative measurement of the SPP power fraction.</p><fig position="float" fig-type="FIGURE" id="advs78013-fig-0005" orientation="portrait"><label>FIGURE 5</label><caption><p>Polarization‐resolved angular emission analysis of <bold>P‐O2</bold> and <bold>G‐O2</bold> measured at 1.75 mA/cm<sup>2</sup>. (a,b) Angle‐resolved p‐polarized EL spectra of <bold>P‐O2</bold> and <bold>G‐O2</bold>, respectively. (c) Corresponding p‐polarized angular EL intensities. (d,e) Angle‐resolved s‐polarized EL spectra of <bold>P‐O2</bold> and <bold>G‐O2</bold>, respectively. (f) Corresponding s‐polarized angular EL intensities. (g,h) Angle‐resolved non‐polarized EL spectra of <bold>P‐O2</bold> and <bold>G‐O2</bold>, respectively. (i) Corresponding non‐polarized angular EL intensities.</p></caption><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-11" orientation="portrait" xlink:href="ADVS-9999-e78013-g006.webp"><?image-name ADVS-9999-e78013-g006.webp?><?image-size 54682?><?image-md5 542640cc719b0fe63fc97c67ac86a825?><?image-image-server-status NEED_LOADING?><?image-original-height 584?><?image-original-width 820?><?image-scaled-height 584?><?image-scaled-width 820?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/542640cc719b/ADVS-9999-e78013-g006.webp?><?thumb-name ADVS-9999-e78013-g006.gif?><?thumb-size 13455?><?thumb-md5 10219d7ffde99a89a5cb53469bbcfe5d?><?thumb-image-server-status NEVER_LOAD?><?thumb-scaled-height 142?><?thumb-scaled-width 200?><?thumb-cloudpmc-urn urn:cdn:blobs/9b72/13618774/10219d7ffde9/ADVS-9999-e78013-g006.gif?></graphic></fig><p>Figure <xref rid="advs78013-fig-0005" ref-type="fig">5d–f</xref> shows the corresponding s‐polarized angular EL response. <bold>G‐O2</bold> again exhibits higher EL intensity than <bold>P‐O2</bold> over the measured angular range while maintaining a similar cavity‐controlled spectral profile. Since s‐polarized emission represents TE‐like optical components and does not couple directly to an SPP mode at a planar metal interface, its enhancement supports the extraction or redistribution of WG‐related and other TE‐like cavity‐confined components. The simultaneous enhancement under p‐ and s‐polarized detection indicates that the GICL‐induced gain is not confined to a single polarization channel.</p><p>Figure <xref rid="advs78013-fig-0005" ref-type="fig">5g–i</xref> provides the non‐polarized angular EL comparison. The non‐polarized EL intensity of <bold>G‐O2</bold> remains higher than that of <bold>P‐O2</bold> over the measured viewing‐angle range. This result confirms that the increases observed under p‐ and s‐polarized detection are accompanied by an increase in total extracted emission rather than arising solely from redistribution between the two polarization components.</p><p>Figure <xref rid="advs78013-supinfo-0001" ref-type="">S9</xref> provides the complementary wavelength‐ and in‐plane‐wavevector‐resolved optical‐mode distributions of <bold>P‐O2</bold> and <bold>G‐O2</bold>. Because the devices investigated here are top‐emitting OLEDs employing a reflective Al/Ag bottom anode, a substrate‐output channel equivalent to that of a bottom‐emitting OLED is not independently defined. The low‐u radiative components directed toward the external optical region are therefore treated together as the outcoupling‐related fraction, while the confined optical power is classified into the WG and SPP‐related high‐k regions, where u = k∥/k<sub>0</sub>. For <bold>P‐O2</bold>, the calculated outcoupling‐related, WG, and SPP‐related high‐k fractions are 29.7%, 40.0%, and 30.4%, respectively. For <bold>G‐O2</bold>, the corresponding fractions are 38.6%, 32.0%, and 29.4%, respectively. The outcoupling‐related fraction therefore increases by 30.0%, while the WG fraction decreases from 40.0% to 32.0% and the SPP‐related high‐k fraction decreases more modestly from 30.4% to 29.4%. The calculated redistribution is therefore dominated by recovery of WG‐related optical power, with a smaller change in the SPP‐related high‐k component. This result is consistent with the pronounced enhancement of the s‐polarized emission. The simultaneous increase in p‐polarized emission is also reasonable because the measured p‐polarized far‐field signal contains radiative TM‐like cavity and waveguided components in addition to any SPP‐related contribution.</p><p>The magnitude of the calculated optical redistribution is quantitatively consistent with the experimentally observed device‐output enhancement before Lambertian correction factor (LCF) correction. The current efficiency increases from 302.7 cd/A for <bold>P‐O2</bold> to 378.4 cd/A for <bold>G‐O2</bold>, corresponding to a 25.0% increase. Based on the reported EQE and LCF values, the J–V–L‐derived EQE before LCF correction is 34.8% divided by 0.5238, or 66.4%, for <bold>P‐O2</bold> and 69.2% divided by 0.8343, or 82.9%, for <bold>G‐O2</bold>. This corresponds to an increase of approximately 24.8%, which is comparable in magnitude to the 25.0% increase in current efficiency and the 30.0% increase in the simulated outcoupling‐related fraction.</p><p>The larger difference in the reported LCF‐corrected EQE, from 34.8% for <bold>P‐O2</bold> to 69.2% for <bold>G‐O2</bold>, results from applying the device‐specific LCF values that account for their different measured angular emission distributions. The LCF is a measurement correction and should not be interpreted as an additional GICL‐induced light‐extraction mechanism. The non‐polarized angular EL results in Figure <xref rid="advs78013-fig-0005" ref-type="fig">5g–i</xref> provides the experimental angular emission data associated with this correction. Taken together, the polarization‐resolved measurements, non‐polarized angular emission, and quantitative modal simulation consistently support that GICL enhances device output mainly by redistributing WG‐related optical power toward outcoupling‐related channels, with a smaller contribution from changes in the SPP‐related high‐k component.</p></sec><sec id="advs78013-sec-0080"><label>2.6</label><title>Importance of Emitter FWHM in GICL‐Induced Device Performance</title><p>The device‐level response to GICL is not determined by internal geometry alone. As discussed in Section <xref rid="advs78013-sec-0030" ref-type="sec">2.1</xref>, microcavity optical gain depends on how much of the emitter spectrum overlaps with the microcavity resonance band after cavity formation. The same internal corrugation is therefore not expected to produce the same device response in broad and narrowband emitter systems. This point was examined by comparing planar and GICL devices in phosphorescent and pTSF microcavity systems. The detailed layer structures and thicknesses of <bold>P‐O1</bold>, <bold>G‐O1</bold>, <bold>P‐O2</bold>, and <bold>G‐O2</bold> are provided in Table <xref rid="advs78013-supinfo-0001" ref-type="">S4</xref>.</p><p>Figure <xref rid="advs78013-fig-0006" ref-type="fig">6a–c</xref> and Table <xref rid="advs78013-tbl-0003" ref-type="table">3</xref> show that GICL affects both emitter systems, but the magnitude of the device response differs substantially. In the phosphorescent system, the current efficiency increases from 140.9 cd/A in <bold>P‐O1</bold> to 163.0 cd/A in <bold>G‐O1</bold>. In the pTSF system, the corresponding increase is larger, from 302.7 cd/A in <bold>P‐O2</bold> to 378.4 cd/A in <bold>G‐O2</bold>. The same tendency is observed in the efficiency‐luminance and EQE‐luminance characteristics, where the separation between planar and GICL devices is smaller in the phosphorescent system and larger in the pTSF system. These results indicate that the same internal corrugation does not produce the same device‐level response in the two microcavity platforms.</p><fig position="float" fig-type="FIGURE" id="advs78013-fig-0006" orientation="portrait"><label>FIGURE 6</label><caption><p>Importance of emitter FWHM in GICL‐induced device performance of microcavity OLEDs. (a–c) Current density‐voltage‐luminance characteristics, efficiency‐luminance characteristics, and EQE‐luminance characteristics of <bold>P‐O1</bold>, <bold>G‐O1</bold>, <bold>P‐O2</bold>, and <bold>G‐O2</bold>. (d) Normalized EL spectra measured at 0°. (e) Radiance spectra of <bold>R1</bold>, <bold>P‐O1</bold>, and <bold>G‐O1</bold> with the microcavity resonance band. (f) Radiance spectra of <bold>R2</bold>, <bold>P‐O2</bold>, and <bold>G‐O2</bold> with the microcavity resonance band. (g) Current efficiency comparison of <bold>R</bold>, <bold>P‐O</bold>, and <bold>G‐O</bold> structures. (h) External quantum efficiency summary of representative single‐stack green microcavity OLEDs.</p></caption><graphic xmlns:xlink="http://www.w3.org/1999/xlink" position="anchor" id="jats-graphic-13" orientation="portrait" xlink:href="ADVS-9999-e78013-g005.webp"><?image-name ADVS-9999-e78013-g005.webp?><?image-size 55586?><?image-md5 868583d0a20a3045012e5084c2453caf?><?image-image-server-status NEED_LOADING?><?image-original-height 610?><?image-original-width 820?><?image-scaled-height 610?><?image-scaled-width 820?><?image-cloudpmc-urn urn:cdn:blobs/9b72/13618774/868583d0a20a/ADVS-9999-e78013-g005.webp?><?thumb-name ADVS-9999-e78013-g005.gif?><?thumb-size 9665?><?thumb-md5 b3e9858cb37dc4eb74403d9c5652ebcd?><?thumb-image-server-status NEVER_LOAD?><?thumb-scaled-height 149?><?thumb-scaled-width 200?><?thumb-cloudpmc-urn urn:cdn:blobs/9b72/13618774/b3e9858cb37d/ADVS-9999-e78013-g005.gif?></graphic></fig><table-wrap position="float" id="advs78013-tbl-0003" content-type="TABLE" orientation="portrait"><label>TABLE 3</label><caption><p>Electrical and optical characteristics of planar and GICL devices in phosphorescent and pTSF microcavity systems.</p></caption><table frame="hsides" rules="groups"><col align="left" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><col align="center" span="1"/><thead><tr><th rowspan="2" align="left" colspan="1">Device</th><th rowspan="2" align="center" colspan="1">Turn‐on voltage (V)</th><th rowspan="2" align="center" colspan="1">J (mA/cm<sup>2</sup>)<xref rid="advs78013-tbl3-note-0001" ref-type="table-fn">
+<sup>a</sup>
+</xref>
+</th><th colspan="3" style="border-bottom:solid 1px #000000" align="center" rowspan="1">Maximum efficiency</th><th rowspan="2" align="center" colspan="1">Peak λ (nm)<xref rid="advs78013-tbl3-note-0005" ref-type="table-fn">
+<sup>e</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">FWHM(nm)<xref rid="advs78013-tbl3-note-0006" ref-type="table-fn">
+<sup>f</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">Maximum luminance (cd/m<sup>2</sup>)</th><th rowspan="2" align="center" colspan="1">LCF<xref rid="advs78013-tbl3-note-0007" ref-type="table-fn">
+<sup>g</sup>
+</xref>
+</th><th rowspan="2" align="center" colspan="1">CIE 1931 (x,y)<xref rid="advs78013-tbl3-note-0008" ref-type="table-fn">
+<sup>h</sup>
+</xref>
+</th></tr><tr style="border-bottom:solid 1px #000000"><th align="center" rowspan="1" colspan="1">C.E (cd/A)<xref rid="advs78013-tbl3-note-0002" ref-type="table-fn">
+<sup>b</sup>
+</xref>
+</th><th align="center" rowspan="1" colspan="1">P.E (lm/W)<xref rid="advs78013-tbl3-note-0003" ref-type="table-fn">
+<sup>c</sup>
+</xref>
+</th><th align="center" rowspan="1" colspan="1">E.Q.E (%)<xref rid="advs78013-tbl3-note-0004" ref-type="table-fn">
+<sup>d</sup>
+</xref>
+</th></tr></thead><tbody><tr><td align="left" rowspan="1" colspan="1">
+<bold>P‐O1</bold>
+</td><td align="center" rowspan="1" colspan="1">3.0</td><td align="center" rowspan="1" colspan="1">22.4</td><td align="center" rowspan="1" colspan="1">140.9</td><td align="center" rowspan="1" colspan="1">67.4</td><td align="center" rowspan="1" colspan="1">18.5</td><td align="center" rowspan="1" colspan="1">534</td><td align="center" rowspan="1" colspan="1">25</td><td align="center" rowspan="1" colspan="1">27,985</td><td align="center" rowspan="1" colspan="1">0.5306 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2064, 0.7472)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>P‐O2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">46.6</td><td align="center" rowspan="1" colspan="1">302.7</td><td align="center" rowspan="1" colspan="1">199.3</td><td align="center" rowspan="1" colspan="1">34.8</td><td align="center" rowspan="1" colspan="1">532</td><td align="center" rowspan="1" colspan="1">19</td><td align="center" rowspan="1" colspan="1">108,659</td><td align="center" rowspan="1" colspan="1">0.5238 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2008, 0.7473)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>G‐O1</bold>
+</td><td align="center" rowspan="1" colspan="1">3.0</td><td align="center" rowspan="1" colspan="1">35.6</td><td align="center" rowspan="1" colspan="1">163.0</td><td align="center" rowspan="1" colspan="1">130.6</td><td align="center" rowspan="1" colspan="1">30.9</td><td align="center" rowspan="1" colspan="1">534</td><td align="center" rowspan="1" colspan="1">25</td><td align="center" rowspan="1" colspan="1">29,222</td><td align="center" rowspan="1" colspan="1">0.8264 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2064, 0.7472)</td></tr><tr><td align="left" rowspan="1" colspan="1">
+<bold>G‐O2</bold>
+</td><td align="center" rowspan="1" colspan="1">2.25</td><td align="center" rowspan="1" colspan="1">50.7</td><td align="center" rowspan="1" colspan="1">378.4</td><td align="center" rowspan="1" colspan="1">396.7</td><td align="center" rowspan="1" colspan="1">69.2</td><td align="center" rowspan="1" colspan="1">537</td><td align="center" rowspan="1" colspan="1">22</td><td align="center" rowspan="1" colspan="1">119,889</td><td align="center" rowspan="1" colspan="1">0.8343 (± 2%)</td><td align="center" rowspan="1" colspan="1">(0.2271, 0.7459)</td></tr></tbody></table><table-wrap-foot><fn id="advs78013-tbl3-note-0001"><label>
+<sup>a</sup>
+</label><p>Current density at 6 V.</p></fn><fn id="advs78013-tbl3-note-0002"><label>
+<sup>b</sup>
+</label><p>Current efficiency.</p></fn><fn id="advs78013-tbl3-note-0003"><label>
+<sup>c</sup>
+</label><p>Power efficiency after LCF correction.</p></fn><fn id="advs78013-tbl3-note-0004"><label>
+<sup>d</sup>
+</label><p>External quantum efficiency after LCF correction.</p></fn><fn id="advs78013-tbl3-note-0005"><label>
+<sup>e</sup>
+</label><p>Peak wavelength.</p></fn><fn id="advs78013-tbl3-note-0006"><label>
+<sup>f</sup>
+</label><p>Full width at half maximum of the electroluminescence spectral intensity.</p></fn><fn id="advs78013-tbl3-note-0007"><label>
+<sup>g</sup>
+</label><p>Lambertian correction factor obtained from JALS.</p></fn><fn id="advs78013-tbl3-note-0008"><label>
+<sup>h</sup>
+</label><p>CIE 1931 color coordinates.</p></fn></table-wrap-foot><permissions><copyright-holder>John Wiley &amp; Sons, Ltd.</copyright-holder></permissions></table-wrap><p>Figure <xref rid="advs78013-fig-0006" ref-type="fig">6d–f</xref> provides spectral context for this difference. The normalized EL spectra measured at 0° show only minor spectral changes between the planar and GICL devices within each emitter system. Therefore, the different device response is not mainly associated with severe reshaping of the forward EL spectrum after introducing GICL. The more relevant difference appears in the radiance spectra. In the phosphorescent system, the broad emission band extends beyond the microcavity resonance band, so only a limited spectral fraction is efficiently reinforced by the cavity. In the pTSF system, a larger fraction of the narrowband emission remains aligned with the microcavity resonance band. Under this spectral condition, the larger GICL‐induced response observed in the narrowband system is consistent with more effective translation of the optical gain into the measured device characteristics.</p><p>Figure <xref rid="advs78013-fig-0006" ref-type="fig">6g,h</xref> further show that this emitter dependence remains visible in both current‐efficiency evolution and device‐level benchmarking. In the phosphorescent system, the current efficiency changes from 62.1 to 140.9 and then to 163.0 cd/A along the <bold>R</bold>, <bold>P‐O</bold>, and <bold>G‐O</bold> sequence. In the pTSF system, the corresponding sequence is 109.0, 302.7, and 378.4 cd/A. The increment from P‐O to G‐O is therefore 22.1 cd/A in the phosphorescent system and 75.7 cd/A in the pTSF system. Relative to the corresponding P‐O devices, these increments represent increases of approximately 15.7% and 25.0%, respectively. The larger relative <bold>P‐O‐to‐G‐O</bold> enhancement in the pTSF system is consistent with its narrower emission bandwidth and closer spectral alignment with the microcavity resonance band. However, because the two emitter systems also differ in EML composition and other electrical and photophysical characteristics, the difference in their GICL‐induced responses cannot be attributed exclusively to FWHM. The external quantum efficiency summary in Figure <xref rid="advs78013-fig-0006" ref-type="fig">6h</xref> further places the <bold>G‐O2</bold> device in the context of representative single‐stack green microcavity OLEDs reported in the literature.</p><p>The viewing‐angle‐dependent normalized EL spectra of <bold>P2</bold>, <bold>P‐O2</bold>, <bold>G2</bold>, and <bold>G‐O2</bold> are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S7</xref>. The peak shifts measured from 0° to 60° decrease from approximately 13 nm for <bold>P2</bold> to 10 nm for <bold>P‐O2</bold>, 6 nm for <bold>G2</bold>, and 3 nm for <bold>G‐O2</bold>. These results confirm that the cavity emission remains angle dependent but that its observable angular spectral variation is progressively reduced after introducing GICL and OCR. The angular stability of <bold>G‐O2</bold> is therefore attributed to the combined effects of the narrow pTSF emission bandwidth, its overlap with the angle‐dependent cavity resonance, and the redistribution and extraction of confined optical power by GICL and OCR, rather than to emitter FWHM alone. The broader planar/GICL spectral comparison for both emitter systems is provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S10</xref>. The corresponding angular luminance distributions and color shifts are summarized in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S11</xref>, and viewing‐angle EL images of <bold>G‐O2</bold> are provided in Figure <xref rid="advs78013-supinfo-0001" ref-type="">S8c</xref>. Figure <xref rid="advs78013-supinfo-0001" ref-type="">S11c</xref> further compares the operational stability of <bold>P‐O2</bold> and <bold>G‐O2</bold> at an initial luminance of 1,000 cd/m<sup>2</sup>. The LT<sub>95</sub> values (times to 95% of the initial luminance) are 111.3 h for <bold>P‐O2</bold> and 100.9 h for <bold>G‐O2</bold>, indicating comparable operational stability under the tested condition.</p><p>These results indicate that the device‐level consequence of GICL is closely related to emitter FWHM and spectral overlap with the microcavity resonance band. GICL does not determine the final device response independently of the emitter spectrum. Although the phosphorescent and pTSF systems differ in more than FWHM alone, the observed trend is consistent with the spectral‐overlap argument that a smaller FWHM leaves a larger fraction of emission within the microcavity resonance band. This condition allows the GICL‐induced optical gain to be converted more effectively into efficiency and luminance.</p></sec></sec><sec id="advs78013-sec-0090"><label>3</label><title>Conclusion</title><p>Microcavity TE‐OLEDs require internal light extraction without excessive disturbance of the cavity‐defined optical response. This requirement was addressed by introducing GICL as a gentle internal corrugation layer and combining it with OCR and a resonance‐matched narrowband emitter. GICL provides measurable internal height modulation with gradual height variation and limited abrupt local discontinuities, while OCR reduces outer‐interface optical loss after scattered light reaches the air side. This combination separates the role of internal optical redistribution from outer‐interface escape and provides a practical route for improving extraction in a microcavity device.</p><p>The GICL/OCR device based on the pTSF emissive system reached a current efficiency of 378.4 cd/A, a power efficiency of 396.7 lm/W, and an external quantum efficiency of 69.2%. Under the same OCR condition, the EQE increased from 34.8% in <bold>P‐O2</bold> to 69.2% in <bold>G‐O2</bold>, while the angular color shift at 60° decreased to Δu′v′ = 0.0086. The comparable current‐density characteristics and the limited change in the 0°EL spectra indicate that the efficiency enhancement is more appropriately interpreted as an optical extraction effect rather than a current‐flow or spectral‐reshaping effect. Polarization‐resolved angular EL analysis and the quantitative modal decomposition further indicate that the GICL‐induced gain is dominated by redistribution of WG‐related optical power toward outcoupling‐related channels, while the SPP‐related high‐k component changes more modestly.</p><p>The comparison between phosphorescent and pTSF microcavity systems shows that the device‐level response to GICL depends on emitter FWHM and spectral overlap with the microcavity resonance band. Although the two emitter systems differ in more than FWHM alone, the narrowband pTSF emissive system provides a more favorable spectral condition for translating GICL‐induced optical gain into device efficiency and luminance. These results indicate that internal corrugation geometry, outer‐interface index matching, and emitter‐resonance matching should be designed together for efficient microcavity TE‐OLEDs. High‐luminance efficiencies, EQE values before and after LCF correction, and five‐device reproducibility data are summarized in Table <xref rid="advs78013-supinfo-0001" ref-type="">S5a–c</xref>.</p></sec><sec id="advs78013-sec-0100"><label>4</label><title>Experimental Methods</title><sec id="advs78013-sec-0110"><label>4.1</label><title>OLED Fabrication</title><p>Planar glass, ITO‐coated glass, and externally supplied corrugated GICL substrates were sequentially cleaned by ultrasonication in acetone, isopropyl alcohol, and deionized water for 10 min. The corrugated GICL substrates were used as received without additional surface patterning or replication. All metal and organic layers were deposited by vacuum thermal evaporation under a base pressure of approximately 10<sup>−</sup>
+<sup>7</sup> Torr.</p><p>For the reflective bottom electrode of the microcavity OLEDs, Al (50 nm) and Ag (50 nm) were sequentially deposited at 2 Å/s. The Al underlayer assisted the adhesion and continuous formation of Ag on the substrate and also formed part of the reflective electrode. The organic layers were deposited at rates of 0.5–2 Å/s. The semitransparent Ag cathode was deposited at 0.5 Å/s.</p><p>1,4,5,8,9,11‐Hexaazatriphenylenehexacarbonitrile (HAT‐CN) and <italic toggle="yes">N,N</italic>′‐bis(naphthalen‐1‐yl)‐<italic toggle="yes">N,N</italic>′‐bis(phenyl)benzidine (NPB) were used as the hole‐injection and hole‐transport materials, respectively. In the microcavity devices, repeated HAT‐CN/NPB layers were employed to provide the optical thickness required for cavity formation while maintaining carrier injection through the thick hole‐transport region. 4,4′,4″‐Tris(carbazol‐9‐yl)triphenylamine (TCTA) was inserted adjacent to the EML as a hole‐transporting and exciton‐confining layer.</p><p>The phosphorescent EML consisted of bis[2‐(2‐hydroxyphenyl)pyridinato]beryllium (Bepp<sub>2</sub>) as the host and bis(2‐phenylpyridine)(acetylacetonate)iridium(III) [Ir(ppy)<sub>2</sub>acac] as the phosphorescent emitter. The Ir(ppy)<sub>2</sub>acac concentration was 5 wt%, and the EML thickness was 30 nm. The pTSF EML consisted of 1,3‐dihydro‐1,1‐dimethyl‐3‐[3‐(4,6‐diphenyl‐1,3,5‐triazin‐2‐yl)phenyl]indeno[2,1‐b]carbazole (DMIC‐TRZ) as the TADF sensitizing host, Ir(ppy)<sub>2</sub>acac as the phosphorescent assistant, and tCzphB‐Fl as the terminal multi‐resonance TADF (MR‐TADF) emitter. The concentrations of Ir(ppy)<sub>2</sub>acac and tCzphB‐Fl were 10 and 2 wt%, respectively, and the total EML thickness was 30 nm.</p><p>4,7‐Diphenyl‐1,10‐phenanthroline (Bphen) was used as the electron‐transport layer. Lithium fluoride (LiF, 0.6 nm) and a thin Al layer (1 nm) were sequentially deposited as the electron‐injection layers. For the microcavity devices, Ag (20 nm) was subsequently deposited at 0.5 Å/s as the semitransparent cathode, followed by NPB (60 nm) as the optical capping layer. For the OCR‐containing devices, OCR with a refractive index of 1.59 was applied to the outer device surface at a nominal thickness of 1,000 nm to eliminate the interfacial air gap.</p><p>The complete device structures were as follows:
+<list list-type="simple" id="advs78013-list-0001"><list-item><p>
+<bold>R1</bold>: Glass/ITO (150 nm)/HAT‐CN (15 nm)/NPB (40 nm)/TCTA (15 nm)/Bepp<sub>2</sub>: 5 wt% Ir(ppy)<sub>2</sub>acac (30 nm)/Bphen (30 nm)/LiF (0.6 nm)/Al (1 nm)/Al (100 nm).</p></list-item><list-item><p>
+<bold>R2</bold>: Glass/ITO (150 nm)/HAT‐CN (15 nm)/NPB (40 nm)/TCTA (15 nm)/DMIC‐TRZ: 10 wt% Ir(ppy)<sub>2</sub>acac: 2 wt% tCzphB‐Fl (30 nm)/Bphen (30 nm)/LiF (0.6 nm)/Al (1 nm)/Al (100 nm).</p></list-item><list-item><p>
+<bold>P‐O1</bold>: Planar glass/Al (50 nm)/Ag (50 nm)/HAT‐CN (7 nm)/NPB (75 nm)/HAT‐CN (7 nm)/NPB (75 nm)/TCTA (15 nm)/Bepp<sub>2</sub>: 5 wt% Ir(ppy)<sub>2</sub>acac (30 nm)/Bphen (42 nm)/LiF (0.6 nm)/Al (1 nm)/Ag (20 nm)/NPB (60 nm)/OCR (1,000 nm).</p></list-item><list-item><p>
+<bold>G‐O1</bold>: Corrugated GICL substrate/Al (50 nm)/Ag (50 nm)/HAT‐CN (7 nm)/NPB (75 nm)/HAT‐CN (7 nm)/NPB (75 nm)/TCTA (15 nm)/Bepp<sub>2</sub>: 5 wt% Ir(ppy)<sub>2</sub>acac (30 nm)/Bphen (42 nm)/LiF (0.6 nm)/Al (1 nm)/Ag (20 nm)/NPB (60 nm)/OCR (1,000 nm).</p></list-item><list-item><p>
+<bold>P2</bold>: Planar glass/Al (50 nm)/Ag (50 nm)/HAT‐CN (7 nm)/NPB (75 nm)/HAT‐CN (7 nm)/NPB (75 nm)/TCTA (15 nm)/DMIC‐TRZ: 10 wt% Ir(ppy)<sub>2</sub>acac: 2 wt% tCzphB‐Fl (30 nm)/Bphen (42 nm)/LiF (0.6 nm)/Al (1 nm)/Ag (20 nm)/NPB (60 nm).</p></list-item><list-item><p>
+<bold>P‐O2</bold>: Planar glass/Al (50 nm)/Ag (50 nm)/HAT‐CN (7 nm)/NPB (75 nm)/HAT‐CN (7 nm)/NPB (75 nm)/TCTA (15 nm)/DMIC‐TRZ: 10 wt% Ir(ppy)<sub>2</sub>acac: 2 wt% tCzphB‐Fl (30 nm)/Bphen (42 nm)/LiF (0.6 nm)/Al (1 nm)/Ag (20 nm)/NPB (60 nm)/OCR (1,000 nm).</p></list-item><list-item><p>
+<bold>G2</bold>: Corrugated GICL substrate/Al (50 nm)/Ag (50 nm)/HAT‐CN (7 nm)/NPB (75 nm)/HAT‐CN (7 nm)/NPB (75 nm)/TCTA (15 nm)/DMIC‐TRZ: 10 wt% Ir(ppy)<sub>2</sub>acac: 2 wt% tCzphB‐Fl (30 nm)/Bphen (42 nm)/LiF (0.6 nm)/Al (1 nm)/Ag (20 nm)/NPB (60 nm).</p></list-item><list-item><p>
+<bold>G‐O2</bold>: Corrugated GICL substrate/Al (50 nm)/Ag (50 nm)/HAT‐CN (7 nm)/NPB (75 nm)/HAT‐CN (7 nm)/NPB (75 nm)/TCTA (15 nm)/DMIC‐TRZ: 10 wt% Ir(ppy)<sub>2</sub>acac: 2 wt% tCzphB‐Fl (30 nm)/Bphen (42 nm)/LiF (0.6 nm)/Al (1 nm)/Ag (20 nm)/NPB (60 nm)/OCR (1,000 nm).</p></list-item></list>
+</p></sec><sec id="advs78013-sec-0120"><label>4.2</label><title>Corrugated Substrate and Device Fabrication</title><p>The corrugated substrate used to form the GICL was provided by an external supplier and used as received. The OLED electrode and subsequent organic multilayer stack were deposited directly onto the supplied corrugated surface.</p></sec><sec id="advs78013-sec-0130"><label>4.3</label><title>Optical Simulation Analysis</title><p>Optical mode analysis and optical power‐fraction calculations were performed using SETFOS to evaluate the optical behavior of the pristine microcavity top‐emitting OLED stacks. The simulations were used to examine the dependence of optical mode distribution on hole‐transport layer (HTL) and electron‐transport layer (ETL) thickness, the power‐dissipation spectrum as a function of normalized in‐plane wavevector and wavelength, and the outcoupled radiance of the reference microcavity devices. The emission wavelength was swept from 380 to 700 nm in 1 nm steps. The simulated layer structures followed the microcavity OLED stacks used in this work.</p></sec><sec id="advs78013-sec-0140"><label>4.4</label><title>FDTD simulations</title><p>Three‐dimensional finite‐difference time‐domain simulations were performed using commercial software (Lumerical Solutions Inc.) to analyze optical power extraction and far‐field emission from planar, wrinkle, IRMLA, and GICL‐based microcavity OLED structures. The simulation geometries were constructed from measured surface‐profile data obtained from the morphological characterization of the outcoupling structures. Emitting dipoles oriented along the x, y, and z directions were placed in the emitting layer to represent isotropic emission. The z direction was defined normal to the substrate surface. The refractive indices of all materials used in the simulations were based on experimentally determined values obtained from ellipsometry. Near‐field distributions, relative total simulated power, and far‐field emission profiles were extracted from the simulations.</p></sec><sec id="advs78013-sec-0150"><label>4.5</label><title>OLED Characterization</title><p>Current density‐voltage‐luminance characteristics were measured using <italic toggle="yes">a J–V–L</italic> measurement system equipped with a spectroradiometer (CS‐2000, Konica Minolta). External quantum efficiency, current efficiency, power efficiency, electroluminescence spectra, and CIE 1931 color coordinates were measured using the same spectroradiometric system with a Keithley 2400 source meter. Luminous intensity and Lambertian correction factors were measured using a JALS system (JooAm Co.). The Lambertian correction factor (LCF) for each device was obtained from the JALS measurement. The reported LCF‐corrected EQE and power efficiency were calculated by multiplying the corresponding values obtained from the <italic toggle="yes">J–V–L</italic> system by the experimentally determined device‐specific LCF. All planar and GICL devices were characterized using the same projected emitting area of 3 mm × 3 mm. Although the corrugated GICL geometry increases the actual microscopic interfacial area, the current density and luminance of both device configurations were calculated using the identical projected pixel area.</p></sec><sec id="advs78013-sec-0160"><label>4.6</label><title>Surface Morphology and Roughness Analysis</title><p>Surface morphologies of the films and devices were examined using an ultra‐high‐resolution field‐emission scanning electron microscope (UHR FE‐SEM, Hitachi S‐4700) operated at an accelerating voltage of 10 kV at Kyung Hee University, Seoul, Republic of Korea. Atomic force microscopy measurements were carried out using an XE‐100 AFM system (Park Systems) to analyze surface topography, roughness, and line profiles.</p></sec><sec id="advs78013-sec-0170"><label>4.7</label><title>Optical Microscopy</title><p>Optical microscope images of the devices were obtained using an Olympus BX51M metallurgical microscope equipped with a U‐LH100HG lamp and U‐RFL‐T power supply to evaluate pixel morphology and emission uniformity.</p></sec></sec><sec id="advs78013-sec-0180"><title>Author Contributions</title><p>
+<bold>Young Rok Kim</bold>: methodology, conceptualization, investigation, validation, formal analysis, data curation, visualization, writing – original draft, writing – review and editing. <bold>Ajay Nimbalkar</bold>: methodology, software, formal analysis, validation, writing – original draft, writing – review and editing. <bold>Min Chul Suh</bold>: conceptualization, supervision, funding acquisition, project administration, resources, writing – review and editing.</p></sec><sec id="advs78013-sec-0200"><title>Funding</title><p>This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korean government (MSIT) (RS‐2026‐25542348) and by the Technology Innovation Program (RS‐2025‐25452683, RS‐2026‐25526873, and RS‐2026‐25529892) funded by the Ministry of Trade, Industry and Resources (MOTIR, Korea) through the Korea Planning &amp; Evaluation Institute of Industrial Technology (KEIT). This research is partially funded by the BK21 FOUR program of Graduate School, Kyung Hee University (20240380).</p></sec><sec sec-type="COI-statement" id="advs78013-sec-0210"><title>Conflicts of Interest</title><p>The authors declare no conflicts of interest.</p></sec><sec sec-type="supplementary-material"><title>Supporting information</title><supplementary-material id="advs78013-supinfo-0001" position="float" content-type="local-data" orientation="portrait"/><supplementary-material id="advs78013-supitem-0001" position="float" content-type="local-data" orientation="portrait"><caption><p>
+<bold>Supporting File</bold>: advs78013‐sup‐0001‐SuppMat.docx.</p></caption><media xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="ADVS-9999-e78013-s001.docx" position="float" orientation="portrait"><?suppdata-name ADVS-9999-e78013-s001.docx?><?suppdata-size 74543527?><?suppdata-md5 03c3b5748f06c14d9b97af4406856234?><?suppdata-image-server-status NEVER_LOAD?><?suppdata-mime-type application?><?suppdata-mime-sub-type vnd.openxmlformats-officedocument.wordprocessingml.document?><?suppdata-cloudpmc-urn urn:app:9b72/13618774/03c3b5748f06/ADVS-9999-e78013-s001.docx?></media></supplementary-material></sec></body><back><ack id="advs78013-sec-0190"><title>Acknowledgements</title><p>This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korean government (MSIT) (RS‐2026‐25542348) and by the Technology Innovation Program (RS‐2025‐25452683, RS‐2026‐25526873, and RS‐2026‐25529892) funded by the Ministry of Trade, Industry and Resources (MOTIR, Korea) through the Korea Planning &amp; Evaluation Institute of Industrial Technology (KEIT). This research is partially funded by the BK21 FOUR program of Graduate School, Kyung Hee University (20240380).</p></ack><sec sec-type="data-availability" id="advs78013-sec-0230"><title>Data Availability Statement</title><p>The data that support the findings of this study are available from the corresponding author upon reasonable request.</p></sec><ref-list id="advs78013-bibl-0001"><title>References</title><ref id="advs78013-bib-0001"><label>1</label><mixed-citation publication-type="journal" id="advs78013-cite-0001">
+<string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Dodabalapur</surname>
+</string-name>, “<article-title>Organic Light Emitting Diodes</article-title>,” <source>Solid State Communications</source>
+<volume>102</volume>, no. <issue>2‐3</issue> (<year>1997</year>): <fpage>259</fpage>–<lpage>267</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0002"><label>2</label><mixed-citation publication-type="journal" id="advs78013-cite-0002">
+<string-name name-style="western">
+<given-names>H.‐W.</given-names>
+<surname>Chen</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.‐H.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>B.‐Y.</given-names>
+<surname>Lin</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Chen</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>S.‐T.</given-names>
+<surname>Wu</surname>
+</string-name>, “<article-title>Liquid Crystal Display and Organic Light‐Emitting Diode Display: Present Status and Future Perspectives</article-title>,” <source>Light: Science &amp; Applications</source>
+<volume>7</volume>, no. <issue>3</issue> (<year>2018</year>): <elocation-id>17168</elocation-id>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1038/lsa.2017.168</pub-id><pub-id pub-id-type="pmcid">PMC6060049</pub-id><pub-id pub-id-type="pmid">30839536</pub-id></mixed-citation></ref><ref id="advs78013-bib-0003"><label>3</label><mixed-citation publication-type="journal" id="advs78013-cite-0003">
+<string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Chen</surname>
+</string-name>, <string-name name-style="western">
+<given-names>L.</given-names>
+<surname>Deng</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Xie</surname>
+</string-name>, et al., “<article-title>Recent Developments in Top‐Emitting Organic Light‐Emitting Diodes</article-title>,” <source>Advanced Materials</source>
+<volume>22</volume>, no. <issue>46</issue> (<year>2010</year>): <fpage>5227</fpage>–<lpage>5239</lpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1002/adma.201001167</pub-id><pub-id pub-id-type="pmid">20842657</pub-id></mixed-citation></ref><ref id="advs78013-bib-0004"><label>4</label><mixed-citation publication-type="journal" id="advs78013-cite-0004">
+<string-name name-style="western">
+<given-names>C.</given-names>
+<surname>Fuchs</surname>
+</string-name>, <string-name name-style="western">
+<given-names>P.‐A.</given-names>
+<surname>Will</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Wieczorek</surname>
+</string-name>, et al., “<article-title>Enhanced Light Emission From Top‐Emitting Organic Light‐Emitting Diodes by Optimizing Surface Plasmon Polariton Losses</article-title>,” <source>Physical Review B</source>
+<volume>92</volume>, no. <issue>24</issue> (<year>2015</year>): <elocation-id>245306</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0005"><label>5</label><mixed-citation publication-type="journal" id="advs78013-cite-0005">
+<string-name name-style="western">
+<given-names>A. P.</given-names>
+<surname>Kulkarni</surname>
+</string-name>, <string-name name-style="western">
+<given-names>C. J.</given-names>
+<surname>Tonzola</surname>
+</string-name>, <string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Babel</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>S. A.</given-names>
+<surname>Jenekhe</surname>
+</string-name>, “<article-title>Electron Transport Materials for Organic Light‐Emitting Diodes</article-title>,” <source>Chemistry of Materials</source>
+<volume>16</volume>, no. <issue>23</issue> (<year>2004</year>): <fpage>4556</fpage>–<lpage>4573</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0006"><label>6</label><mixed-citation publication-type="journal" id="advs78013-cite-0006">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Song</surname>
+</string-name>, <string-name name-style="western">
+<given-names>H.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>E. G.</given-names>
+<surname>Jeong</surname>
+</string-name>, <string-name name-style="western">
+<given-names>K. C.</given-names>
+<surname>Choi</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Yoo</surname>
+</string-name>, “<article-title>Organic Light‐Emitting Diodes: Pushing Toward the Limits and Beyond</article-title>,” <source>Advanced Materials</source>
+<volume>32</volume>, no. <issue>35</issue> (<year>2020</year>): <elocation-id>1907539</elocation-id>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1002/adma.201907539</pub-id><pub-id pub-id-type="pmid">32142190</pub-id></mixed-citation></ref><ref id="advs78013-bib-0007"><label>7</label><mixed-citation publication-type="journal" id="advs78013-cite-0007">
+<string-name name-style="western">
+<given-names>M. Y.</given-names>
+<surname>Wong</surname>
+</string-name> and <string-name name-style="western">
+<given-names>E.</given-names>
+<surname>Zysman‐Colman</surname>
+</string-name>, “<article-title>Purely Organic Thermally Activated Delayed Fluorescence Materials for Organic Light‐Emitting Diodes</article-title>,” <source>Advanced Materials</source>
+<volume>29</volume>, no. <issue>22</issue> (<year>2017</year>): <elocation-id>1605444</elocation-id>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1002/adma.201605444</pub-id><pub-id pub-id-type="pmid">28256751</pub-id></mixed-citation></ref><ref id="advs78013-bib-0008"><label>8</label><mixed-citation publication-type="journal" id="advs78013-cite-0008">
+<string-name name-style="western">
+<given-names>H. T.</given-names>
+<surname>Yang</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y. J.</given-names>
+<surname>Hyeon</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T. N.</given-names>
+<surname>Le</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J. E.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.‐H.</given-names>
+<surname>Kim</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, “<article-title>Impact of Donor and Acceptor Modification on TADF and Roll‐Off Behaviors in Solution Processed OLED</article-title>,” <source>Advanced Optical Materials</source>
+<volume>12</volume>, no. <issue>35</issue> (<year>2024</year>): <elocation-id>2401881</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0009"><label>9</label><mixed-citation publication-type="journal" id="advs78013-cite-0009">
+<string-name name-style="western">
+<given-names>J.‐H.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>C.‐H.</given-names>
+<surname>Chen</surname>
+</string-name>, <string-name name-style="western">
+<given-names>P.‐H.</given-names>
+<surname>Lee</surname>
+</string-name>, et al., “<article-title>Blue Organic Light‐Emitting Diodes: Current Status, Challenges, and Future Outlook</article-title>,” <source>Journal of Materials Chemistry C</source>
+<volume>7</volume>, no. <issue>20</issue> (<year>2019</year>): <fpage>5874</fpage>–<lpage>5888</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0010"><label>10</label><mixed-citation publication-type="journal" id="advs78013-cite-0010">
+<string-name name-style="western">
+<given-names>C. W.</given-names>
+<surname>Tang</surname>
+</string-name> and <string-name name-style="western">
+<given-names>S. A.</given-names>
+<surname>VanSlyke</surname>
+</string-name>, “<article-title>Organic Electroluminescent Diodes</article-title>,” <source>Applied Physics Letters</source>
+<volume>51</volume>, no. <issue>12</issue> (<year>1987</year>): <fpage>913</fpage>–<lpage>915</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0011"><label>11</label><mixed-citation publication-type="journal" id="advs78013-cite-0011">
+<string-name name-style="western">
+<given-names>K. T.</given-names>
+<surname>Kang</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Kim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T. N.</given-names>
+<surname>Le</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Choi</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Lee</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, “<article-title>Thermal Cross‐linked Electron Transport Polymers for Suppressing Efficiency Roll‐off in Green Solution‐Processed Inverted OLEDs</article-title>,” <source>ACS Applied Materials &amp; Interfaces</source>
+<volume>17</volume>, no. <issue>38</issue> (<year>2025</year>): <fpage>53816</fpage>–<lpage>53825</lpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1021/acsami.5c11689</pub-id><pub-id pub-id-type="pmid">40928033</pub-id></mixed-citation></ref><ref id="advs78013-bib-0012"><label>12</label><mixed-citation publication-type="journal" id="advs78013-cite-0012">
+<string-name name-style="western">
+<given-names>M. G.</given-names>
+<surname>Jun</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J. W.</given-names>
+<surname>Seo</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.‐A.</given-names>
+<surname>Hong</surname>
+</string-name>, <string-name name-style="western">
+<given-names>K.‐M.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Park</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, “<article-title>Degradation of Blue MR‐TADF OLEDs: Host‐dependent Effects of mCBP and MADN Revealed by Fragmentation Profiling</article-title>,” <source>Advanced Optical Materials</source>
+<volume>14</volume>, no. <issue>17</issue> (<year>2026</year>): <elocation-id>03852</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0013"><label>13</label><mixed-citation publication-type="journal" id="advs78013-cite-0013">
+<string-name name-style="western">
+<given-names>C.</given-names>
+<surname>Murawski</surname>
+</string-name>, <string-name name-style="western">
+<given-names>P.</given-names>
+<surname>Liehm</surname>
+</string-name>, <string-name name-style="western">
+<given-names>K.</given-names>
+<surname>Leo</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Gather</surname>
+</string-name>, “<article-title>Influence of Cavity Thickness and Emitter Orientation on the Efficiency Roll‐Off of Phosphorescent Organic Light‐Emitting Diodes</article-title>,” <source>Advanced Functional Materials</source>
+<volume>24</volume>, no. <issue>8</issue> (<year>2014</year>): <fpage>1117</fpage>–<lpage>1124</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0014"><label>14</label><mixed-citation publication-type="journal" id="advs78013-cite-0014">
+<string-name name-style="western">
+<given-names>S. J.</given-names>
+<surname>Ok</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T. N.</given-names>
+<surname>Le</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J. H.</given-names>
+<surname>Son</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S. Y.</given-names>
+<surname>Song</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, “<article-title>Addressing Thermal Stability Challenges in Top‐Emission OLEDs: The Role of Buffer Layer in Preventing Pixel Shrinkage</article-title>,” <source>Advanced Optical Materials</source>
+<volume>13</volume>, no. <issue>9</issue> (<year>2025</year>): <elocation-id>2402832</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0015"><label>15</label><mixed-citation publication-type="journal" id="advs78013-cite-0015">
+<string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Hofmann</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Thomschke</surname>
+</string-name>, <string-name name-style="western">
+<given-names>P.</given-names>
+<surname>Freitag</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Furno</surname>
+</string-name>, <string-name name-style="western">
+<given-names>B.</given-names>
+<surname>Lüssem</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>K.</given-names>
+<surname>Leo</surname>
+</string-name>, “<article-title>Top‐Emitting Organic Light‐Emitting Diodes: Influence of Cavity Design</article-title>,” <source>Applied Physics Letters</source>
+<volume>97</volume>, no. <issue>25</issue> (<year>2010</year>): <elocation-id>253308</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0016"><label>16</label><mixed-citation publication-type="journal" id="advs78013-cite-0016">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>N.</given-names>
+<surname>Chopra</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>F.</given-names>
+<surname>So</surname>
+</string-name>, “<article-title>Cavity Effects on Light Extraction in Organic Light Emitting Devices</article-title>,” <source>Applied Physics Letters</source>
+<volume>92</volume>, no. <issue>3</issue> (<year>2008</year>): <elocation-id>033303</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0017"><label>17</label><mixed-citation publication-type="journal" id="advs78013-cite-0017">
+<string-name name-style="western">
+<given-names>T.</given-names>
+<surname>Shiga</surname>
+</string-name>, <string-name name-style="western">
+<given-names>H.</given-names>
+<surname>Fujikawa</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Taga</surname>
+</string-name>, “<article-title>Design of Multiwavelength Resonant Cavities for White Organic Light‐Emitting Diodes</article-title>,” <source>Journal of Applied Physics</source>
+<volume>93</volume>, no. <issue>1</issue> (<year>2003</year>): <fpage>19</fpage>–<lpage>22</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0018"><label>18</label><mixed-citation publication-type="book" id="advs78013-cite-0018">
+<string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Vaughan</surname>
+</string-name>, <source>The Fabry–Perot Interferometer: History, Theory, Practice and Applications</source> (<publisher-name>Routledge</publisher-name>, <year>2017</year>).</mixed-citation></ref><ref id="advs78013-bib-0019"><label>19</label><mixed-citation publication-type="journal" id="advs78013-cite-0019">
+<string-name name-style="western">
+<given-names>R.</given-names>
+<surname>Bathelt</surname>
+</string-name>, <string-name name-style="western">
+<given-names>D.</given-names>
+<surname>Buchhauser</surname>
+</string-name>, <string-name name-style="western">
+<given-names>C.</given-names>
+<surname>Gärditz</surname>
+</string-name>, <string-name name-style="western">
+<given-names>R.</given-names>
+<surname>Paetzold</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>P.</given-names>
+<surname>Wellmann</surname>
+</string-name>, “<article-title>Light Extraction From OLEDs for Lighting Applications Through Light Scattering</article-title>,” <source>Organic Electronics</source>
+<volume>8</volume>, no. <issue>4</issue> (<year>2007</year>): <fpage>293</fpage>–<lpage>299</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0020"><label>20</label><mixed-citation publication-type="journal" id="advs78013-cite-0020">
+<string-name name-style="western">
+<given-names>K.</given-names>
+<surname>Hong</surname>
+</string-name> and <string-name name-style="western">
+<given-names>J.‐L.</given-names>
+<surname>Lee</surname>
+</string-name>, “<article-title>Review Paper: Recent Developments in Light Extraction Technologies of Organic Light Emitting Diodes</article-title>,” <source>Electronic Materials Letters</source>
+<volume>7</volume>, no. <issue>2</issue> (<year>2011</year>): <fpage>77</fpage>–<lpage>91</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0021"><label>21</label><mixed-citation publication-type="journal" id="advs78013-cite-0021">
+<string-name name-style="western">
+<given-names>J.‐W.</given-names>
+<surname>Kim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.‐H.</given-names>
+<surname>Jang</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M.‐C.</given-names>
+<surname>Oh</surname>
+</string-name>, et al., “<article-title>FDTD Analysis of the Light Extraction Efficiency of OLEDs With a Random Scattering Layer</article-title>,” <source>Optics Express</source>
+<volume>22</volume>, no. <issue>1</issue> (<year>2014</year>): <fpage>498</fpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1364/OE.22.000498</pub-id><pub-id pub-id-type="pmid">24515010</pub-id></mixed-citation></ref><ref id="advs78013-bib-0022"><label>22</label><mixed-citation publication-type="journal" id="advs78013-cite-0022">
+<string-name name-style="western">
+<given-names>Y. R.</given-names>
+<surname>Kim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Nimbalkar</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, “<article-title>Nanotextured Light Modulation for Flexible OLEDs With 370% Enhanced EQE and Angular Color Stability</article-title>,” <source>Scientific Reports</source>
+<volume>15</volume>, no. <issue>1</issue> (<year>2025</year>): <elocation-id>44371</elocation-id>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1038/s41598-025-28107-1</pub-id><pub-id pub-id-type="pmcid">PMC12728227</pub-id><pub-id pub-id-type="pmid">41436750</pub-id></mixed-citation></ref><ref id="advs78013-bib-0023"><label>23</label><mixed-citation publication-type="journal" id="advs78013-cite-0023">
+<string-name name-style="western">
+<given-names>Y. R.</given-names>
+<surname>Kim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S. J.</given-names>
+<surname>Ok</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T. N.</given-names>
+<surname>Le</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>S. I. D.</given-names>
+<surname>Symp</surname>
+</string-name>, “<article-title>P‐191: Enhancing Light Extraction and Viewing‐Angle Characteristics in Microcavity TEOLEDs Through Refractive Index Modulation for Surface Plasmon Polaritons Suppression</article-title>,” <source>SID Symposium Digest of Technical Papers</source>
+<volume>56</volume>, no. <issue>1</issue> (<year>2025</year>): <fpage>2197</fpage>–<lpage>2201</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0024"><label>24</label><mixed-citation publication-type="journal" id="advs78013-cite-0024">
+<string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Nimbalkar</surname>
+</string-name>, <string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Irfan</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, <source>npj Flexible Electronics</source>
+<volume>8</volume> (<year>2024</year>): <fpage>57</fpage>.</mixed-citation></ref><ref id="advs78013-bib-0025"><label>25</label><mixed-citation publication-type="journal" id="advs78013-cite-0025">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Roh</surname>
+</string-name>, <string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Nimbalkar</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, “<article-title>Improving Viewing Angle Characteristics of Top‐Emission Micro‐Cavity OLEDs With Randomly Distributed Micro Lens Arrays</article-title>,” <source>ACS Photonics</source>
+<volume>11</volume>, no. <issue>11</issue> (<year>2024</year>): <fpage>4606</fpage>–<lpage>4615</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0026"><label>26</label><mixed-citation publication-type="journal" id="advs78013-cite-0026">
+<string-name name-style="western">
+<given-names>A.</given-names>
+<surname>Salehi</surname>
+</string-name>, <string-name name-style="western">
+<given-names>X.</given-names>
+<surname>Fu</surname>
+</string-name>, <string-name name-style="western">
+<given-names>D.‐H.</given-names>
+<surname>Shin</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>F.</given-names>
+<surname>So</surname>
+</string-name>, “<article-title>Recent Advances in OLED Optical Design</article-title>,” <source>Advanced Functional Materials</source>
+<volume>29</volume>, no. <issue>15</issue> (<year>2019</year>): <elocation-id>1808803</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0027"><label>27</label><mixed-citation publication-type="journal" id="advs78013-cite-0027">
+<string-name name-style="western">
+<given-names>K.</given-names>
+<surname>Saxena</surname>
+</string-name>, <string-name name-style="western">
+<given-names>V. K.</given-names>
+<surname>Jain</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>D. S.</given-names>
+<surname>Mehta</surname>
+</string-name>, “<article-title>A Review on the Light Extraction Techniques in Organic Electroluminescent Devices</article-title>,” <source>Optical Materials</source>
+<volume>32</volume>, no. <issue>1</issue> (<year>2009</year>): <fpage>221</fpage>–<lpage>233</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0028"><label>28</label><mixed-citation publication-type="journal" id="advs78013-cite-0028">
+<string-name name-style="western">
+<given-names>I. Y.</given-names>
+<surname>Chung</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T. W.</given-names>
+<surname>Kang</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>G. H.</given-names>
+<surname>Jin</surname>
+</string-name>, “<article-title>73‐3: A Study on WAD Improvement of a Large‐Size AMOLED Panel</article-title>,” <source>SID Symposium Digest of Technical Papers</source>
+<volume>54</volume>, no. <issue>1</issue> (<year>2023</year>): <fpage>1034</fpage>–<lpage>1037</lpage>, <pub-id pub-id-type="doi">10.1002/sdtp.16746</pub-id>.</mixed-citation></ref><ref id="advs78013-bib-0029"><label>29</label><mixed-citation publication-type="journal" id="advs78013-cite-0029">
+<string-name name-style="western">
+<given-names>H.</given-names>
+<surname>Greiner</surname>
+</string-name>, “<article-title>Light Extraction From Organic Light Emitting Diode Substrates: Simulation and Experiment</article-title>,” <source>Japanese Journal of Applied Physics</source>
+<volume>46</volume>, no. <issue>7R</issue> (<year>2007</year>): <fpage>4125</fpage>.</mixed-citation></ref><ref id="advs78013-bib-0030"><label>30</label><mixed-citation publication-type="journal" id="advs78013-cite-0030">
+<string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Furno</surname>
+</string-name>, <string-name name-style="western">
+<given-names>R.</given-names>
+<surname>Meerheim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Thomschke</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Hofmann</surname>
+</string-name>, <string-name name-style="western">
+<given-names>B.</given-names>
+<surname>Lüssem</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>K.</given-names>
+<surname>Leo</surname>
+</string-name>, “<article-title>Outcoupling Efficiency in Small‐Molecule OLEDs: From Theory to Experiment</article-title>,” <source>Light‐Emitting Diodes: Materials, Devices, and Applications for Solid State Lighting XIV</source>
+<volume>7617</volume> (<year>2010</year>): <fpage>127</fpage>–<lpage>138</lpage>, <pub-id pub-id-type="doi">10.1117/12.840043</pub-id>.</mixed-citation></ref><ref id="advs78013-bib-0031"><label>31</label><mixed-citation publication-type="journal" id="advs78013-cite-0031">
+<string-name name-style="western">
+<given-names>C.</given-names>
+<surname>Hippola</surname>
+</string-name>, <string-name name-style="western">
+<given-names>R.</given-names>
+<surname>Kaudal</surname>
+</string-name>, <string-name name-style="western">
+<given-names>E.</given-names>
+<surname>Manna</surname>
+</string-name>, et al., “<article-title>Enhanced Light Extraction From OLEDs Fabricated on Patterned Plastic Substrates</article-title>,” <source>Advanced Optical Materials</source>
+<volume>6</volume>, no. <issue>4</issue> (<year>2018</year>): <elocation-id>1701244</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0032"><label>32</label><mixed-citation publication-type="journal" id="advs78013-cite-0032">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Moon</surname>
+</string-name>, <string-name name-style="western">
+<given-names>E.</given-names>
+<surname>Kim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S. K.</given-names>
+<surname>Park</surname>
+</string-name>, et al., “<article-title>Organic Wrinkles for Energy Efficient Organic Light Emitting Diodes</article-title>,” <source>Organic Electronics</source>
+<volume>26</volume> (<year>2015</year>): <fpage>273</fpage>–<lpage>278</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0033"><label>33</label><mixed-citation publication-type="journal" id="advs78013-cite-0033">
+<string-name name-style="western">
+<given-names>M. C.</given-names>
+<surname>Suh</surname>
+</string-name>, <string-name name-style="western">
+<given-names>D. Y.</given-names>
+<surname>Kim</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S. H.</given-names>
+<surname>Jung</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>N. S.</given-names>
+<surname>Kim</surname>
+</string-name>, “<article-title>Suppression of Viewing Angle Dependence of TEOLED Devices with Internal Nano‐Wrinkle Structure</article-title>,” <source>Organic Electronics</source>
+<volume>77</volume> (<year>2020</year>): <elocation-id>105493</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0034"><label>34</label><mixed-citation publication-type="journal" id="advs78013-cite-0034">
+<string-name name-style="western">
+<given-names>Y.‐G.</given-names>
+<surname>Bi</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Feng</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.‐F.</given-names>
+<surname>Li</surname>
+</string-name>, et al., “<article-title>Enhanced Efficiency of Organic Light‐Emitting Devices With Metallic Electrodes by Integrating Periodically Corrugated Structure</article-title>,” <source>Applied Physics Letters</source>
+<volume>100</volume>, no. <issue>5</issue> (<year>2012</year>): <elocation-id>053304</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0035"><label>35</label><mixed-citation publication-type="journal" id="advs78013-cite-0035">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Feng</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T.</given-names>
+<surname>Okamoto</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Kawata</surname>
+</string-name>, “<article-title>Enhancement of Electroluminescence Through a Two‐Dimensional Corrugated Metal Film by Grating‐Induced Surface‐Plasmon Cross Coupling</article-title>,” <source>Optics Letters</source>
+<volume>30</volume>, no. <issue>17</issue> (<year>2005</year>): <fpage>2302</fpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1364/ol.30.002302</pub-id><pub-id pub-id-type="pmid">16190451</pub-id></mixed-citation></ref><ref id="advs78013-bib-0036"><label>36</label><mixed-citation publication-type="journal" id="advs78013-cite-0036">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Moon</surname>
+</string-name>, <string-name name-style="western">
+<given-names>K.</given-names>
+<surname>Lee</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S. K.</given-names>
+<surname>Park</surname>
+</string-name>, et al., “<article-title>Random Wrinkle Structures for Spectrum Preserved Warm White Organic Light Emitting Diodes</article-title>,” <source>Journal of Industrial and Engineering Chemistry</source>
+<volume>117</volume> (<year>2023</year>): <fpage>298</fpage>–<lpage>306</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0037"><label>37</label><mixed-citation publication-type="journal" id="advs78013-cite-0037">
+<string-name name-style="western">
+<given-names>B. J.</given-names>
+<surname>Matterson</surname>
+</string-name>, <string-name name-style="western">
+<given-names>J. M.</given-names>
+<surname>Lupton</surname>
+</string-name>, <string-name name-style="western">
+<given-names>A. F.</given-names>
+<surname>Safonov</surname>
+</string-name>, <string-name name-style="western">
+<given-names>M. G.</given-names>
+<surname>Salt</surname>
+</string-name>, <string-name name-style="western">
+<given-names>W. L.</given-names>
+<surname>Barnes</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>I. D. W.</given-names>
+<surname>Samuel</surname>
+</string-name>, “<article-title>Increased Efficiency and Controlled Light Output From a Microstructured Light‐Emitting Diode</article-title>,” <source>Advanced Materials</source>
+<volume>13</volume>, no. <issue>2</issue> (<year>2001</year>): <fpage>123</fpage>–<lpage>127</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0038"><label>38</label><mixed-citation publication-type="journal" id="advs78013-cite-0038">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Liu</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Zhu</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T.</given-names>
+<surname>Tsuboi</surname>
+</string-name>, et al., “<article-title>Toward a BT.2020 Green Emitter Through a Combined Multiple Resonance Effect and Multi‐Lock Strategy</article-title>,” <source>Nature Communications</source>
+<volume>13</volume>, no. <issue>1</issue> (<year>2022</year>): <fpage>4876</fpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1038/s41467-022-32607-3</pub-id><pub-id pub-id-type="pmcid">PMC9391368</pub-id><pub-id pub-id-type="pmid">35985994</pub-id></mixed-citation></ref><ref id="advs78013-bib-0039"><label>39</label><mixed-citation publication-type="journal" id="advs78013-cite-0039">
+<string-name name-style="western">
+<given-names>H.</given-names>
+<surname>Nakanotani</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Tsuchiya</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>C.</given-names>
+<surname>Adachi</surname>
+</string-name>, “<article-title>Thermally‐Activated Delayed Fluorescence for Light‐Emitting Devices</article-title>,” <source>Chemistry Letters</source>
+<volume>50</volume>, no. <issue>5</issue> (<year>2021</year>): <fpage>938</fpage>–<lpage>948</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0040"><label>40</label><mixed-citation publication-type="journal" id="advs78013-cite-0040">
+<string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Zeng</surname>
+</string-name>, <string-name name-style="western">
+<given-names>S.</given-names>
+<surname>Song</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Fu</surname>
+</string-name>, <string-name name-style="western">
+<given-names>X.</given-names>
+<surname>Peng</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>B. Z.</given-names>
+<surname>Tang</surname>
+</string-name>, “<article-title>Purely Organic Room‐Temperature Phosphorescence Sensitizers for Highly Efficient Hyperfluorescence OLEDs</article-title>,” <source>Science Advances</source>
+<volume>11</volume>, no. <issue>12</issue> (<year>2025</year>): <elocation-id>adt7899</elocation-id>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1126/sciadv.adt7899</pub-id><pub-id pub-id-type="pmcid">PMC11927617</pub-id><pub-id pub-id-type="pmid">40117348</pub-id></mixed-citation></ref><ref id="advs78013-bib-0041"><label>41</label><mixed-citation publication-type="journal" id="advs78013-cite-0041">
+<string-name name-style="western">
+<given-names>C.</given-names>
+<surname>Yin</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Xin</surname>
+</string-name>, <string-name name-style="western">
+<given-names>T.</given-names>
+<surname>Huang</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Q.</given-names>
+<surname>Zhang</surname>
+</string-name>, <string-name name-style="western">
+<given-names>L.</given-names>
+<surname>Duan</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>D.</given-names>
+<surname>Zhang</surname>
+</string-name>, “<article-title>Ultra‐Low Power‐Consumption OLEDs via Phosphor‐Assisted Thermally‐Activated‐Delayed‐Fluorescence‐Sensitized Narrowband Emission</article-title>,” <source>Nature Communications</source>
+<volume>16</volume>, no. <issue>1</issue> (<year>2025</year>): <fpage>30</fpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1038/s41467-024-55564-5</pub-id><pub-id pub-id-type="pmcid">PMC11696376</pub-id><pub-id pub-id-type="pmid">39747087</pub-id></mixed-citation></ref><ref id="advs78013-bib-0042"><label>42</label><mixed-citation publication-type="book" id="advs78013-cite-0042">
+<string-name name-style="western">
+<given-names>M.</given-names>
+<surname>Edwards</surname>
+</string-name> and <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Zhou</surname>
+</string-name>, <source>Wave‐Optical Systems Engineering</source>, Proc. SPIE, ed. <person-group person-group-type="editor">
+<string-name name-style="western">
+<given-names>F.</given-names>
+<surname>Wyrowski</surname>
+</string-name>
+</person-group> (<publisher-name>SPIE</publisher-name>, <year>2001</year>), <fpage>190</fpage>–<lpage>197</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0043"><label>43</label><mixed-citation publication-type="journal" id="advs78013-cite-0043">
+<string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Gan</surname>
+</string-name>, <string-name name-style="western">
+<given-names>X.</given-names>
+<surname>Jiang</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>J.</given-names>
+<surname>Yin</surname>
+</string-name>, “<article-title>Thiol–ene Photo‐Curable Hybrid Silicone Resin for LED Encapsulation: Enhancement of Light Extraction Efficiency by Facile Self‐Keeping Hemisphere Coating</article-title>,” <source>Journal of Materials Chemistry C</source>
+<volume>2</volume>, no. <issue>28</issue> (<year>2014</year>): <fpage>5533</fpage>–<lpage>5539</lpage>.</mixed-citation></ref><ref id="advs78013-bib-0044"><label>44</label><mixed-citation publication-type="journal" id="advs78013-cite-0044">
+<string-name name-style="western">
+<given-names>M. D.</given-names>
+<surname>Crall</surname>
+</string-name> and <string-name name-style="western">
+<given-names>M. W.</given-names>
+<surname>Keller</surname>
+</string-name>, “<article-title>Microfluidic Encapsulation of Aqueous Solutions for Use in Magnetic Self‐Sensing Composite Materials</article-title>,” <source>Advanced Engineering Materials</source>
+<volume>23</volume>, no. <issue>9</issue> (<year>2021</year>): <elocation-id>2100207</elocation-id>.</mixed-citation></ref><ref id="advs78013-bib-0045"><label>45</label><mixed-citation publication-type="journal" id="advs78013-cite-0045">
+<string-name name-style="western">
+<given-names>A. P.</given-names>
+<surname>Sommer</surname>
+</string-name> and <string-name name-style="western">
+<given-names>R.‐P.</given-names>
+<surname>Franke</surname>
+</string-name>, “<article-title>Hydrophobic Optical Elements for Near‐Field Optical Analysis (NOA) in Liquid Environment—a Preliminary Study</article-title>,” <source>Micron</source>
+<volume>33</volume>, no. <issue>3</issue> (<year>2002</year>): <fpage>227</fpage>–<lpage>231</lpage>.<pub-id pub-id-type="doi" assigning-authority="pmc">10.1016/s0968-4328(01)00021-x</pub-id><pub-id pub-id-type="pmid">11742746</pub-id></mixed-citation></ref><ref id="advs78013-bib-0046"><label>46</label><mixed-citation publication-type="journal" id="advs78013-cite-0046">
+<string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>Zhou</surname>
+</string-name>, <string-name name-style="western">
+<given-names>N.</given-names>
+<surname>Tran</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.‐C.</given-names>
+<surname>Lin</surname>
+</string-name>, <string-name name-style="western">
+<given-names>Y.</given-names>
+<surname>He</surname>
+</string-name>, and <string-name name-style="western">
+<given-names>F. G.</given-names>
+<surname>Shi</surname>
+</string-name>, “<article-title>One‐Component, Low‐Temperature, and Fast Cure Epoxy Encapsulant with High Refractive Index for LED Applications</article-title>,” <source>IEEE Transactions on Advanced Packaging</source>
+<volume>31</volume>, no. <issue>3</issue> (<year>2008</year>): <fpage>484</fpage>–<lpage>489</lpage>.</mixed-citation></ref></ref-list></back></article>
