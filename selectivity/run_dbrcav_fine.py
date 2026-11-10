@@ -61,26 +61,22 @@ def metrics(air, idx, spec):
 
 
 if __name__ == '__main__':
-    t0 = time.time(); z = np.load('data/display_scan.npz', allow_pickle=True); res = list(z['res'])
-    out = {}
+    t0 = time.time(); F5 = sel.cone_frac(1.51)[0]
+    path = 'data/display_dbrcav.json'
     for sp in sys.argv[1:] or ('G30', 'Ir(ppy)2acac', 'G10'):
-        spec = spec_fine(sp); idx = np.where(spec > 1e-3 * spec.max())[0]
-        s4 = common.SPECTRA[sp][::2]
+        spec = spec_fine(sp); idx = np.where(spec > 1e-3 * spec.max())[0]; ic = idx[::2]
         for N in (3, 6, 10):
-            e = max((r for r in res if r[0][0] == N), key=lambda r: s4 @ (r[1] * r[2][:, 0]))[0][1]
-            H = np.arange(20.0, 201.0, 2.0)
             onax = {}
-            F5 = sel.cone_frac(1.51)[0]
+            jobs = [(N, e, h, ic) for e in (40.0, 60.0, 200.0) for h in np.arange(20.0, 201.0, 2.0)]
             with Pool(4) as p:
-                for (n_, e_, h), air in p.imap_unordered(air_spectrum, [(N, e, h, idx[::2]) for h in H]):
-                    onax[h] = float((spec[idx[::2]] * (air @ F5)).sum() / spec[idx[::2]].sum())
-            hb = max(onax, key=onax.get)
-            hs = [hh for hh in H if abs(hh - hb) <= 4]
+                for (n_, e, h), air in p.imap_unordered(air_spectrum, jobs, chunksize=2):
+                    onax[(e, h)] = float((spec[ic] * (air @ F5)).sum() / spec[ic].sum())
+            top = sorted(onax, key=onax.get)[-3:]
+            cand = sorted({(e, h + dh) for e, h in top for dh in (-2, -1, 0, 1, 2)})
             with Pool(4) as p:
-                fine = dict(((r[0][2], r[1]) for r in p.imap_unordered(air_spectrum, [(N, e, hh, idx) for hh in hs])))
-            best = max(fine, key=lambda hh: metrics(fine[hh], idx, spec)['cdA0'])
-            m = metrics(fine[best], idx, spec); m.update(N=N, ETL=e, HTL=float(best))
-            out[f'{sp}|DBR cavity N{N}'] = m
-            print(f"{sp:13s} N {N:2d} ETL {e:.0f} HTL {best:.0f}: cd/A {m['cdA0']:6.0f}  EQE {m['EQE']:.3f}  half-lum {m['half_lum_angle']:.1f}  du'v' <=30 {m['duv30']:.4f} <=60 {m['duv60']:.4f}  [{time.time() - t0:.0f}s]", flush=True)
-    old = json.load(open('data/display_dbrcav.json')) if os.path.exists('data/display_dbrcav.json') else {}
-    old.update(out); json.dump(old, open('data/display_dbrcav.json', 'w'))
+                fine = {r[0][1:]: r[1] for r in p.imap_unordered(air_spectrum, [(N, e, h, idx) for e, h in cand])}
+            best = max(fine, key=lambda k: metrics(fine[k], idx, spec)['cdA0'])
+            m = metrics(fine[best], idx, spec); m.update(N=N, ETL=best[0], HTL=float(best[1]))
+            old = json.load(open(path)) if os.path.exists(path) else {}
+            old[f'{sp}|DBR cavity N{N}'] = m; json.dump(old, open(path, 'w'))
+            print(f"{sp:13s} N {N:2d} ETL {best[0]:.0f} HTL {best[1]:.0f}: cd/A {m['cdA0']:6.0f}  EQE {m['EQE']:.3f}  half-lum {m['half_lum_angle']:.1f}  du'v' <=30 {m['duv30']:.4f} <=60 {m['duv60']:.4f}  [{time.time() - t0:.0f}s]", flush=True)
