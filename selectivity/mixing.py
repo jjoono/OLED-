@@ -55,12 +55,12 @@ def pinf_cut(BR, cut_deg=85.0):
     """Late-pass escape probability p_inf = 1 - rho(B_R) on theta < cut_deg: the per-encounter escape probability of
     the quasi-stationary distribution of light that has circulated many times (Perron root of the sub-stochastic
     return operator).  By reciprocity B_R is self-adjoint in the etendue-weighted inner product, so the Rayleigh
-    quotient with the Lambertian vector gives rho >= 1 - p and hence  min p(theta) <= p_inf <= p  (p: uniform-radiance
-    escape probability on the same range).  Returns (p_inf, p_on_range)."""
+    quotient with the Lambertian vector gives rho >= 1 - p~ and hence  min p(theta) <= p_inf <= p~, where p~ is the
+    uniform-radiance probability of leaving the truncated chain (escape plus leakage beyond cut_deg).  Returns (p_inf, p~)."""
     nb = BR.shape[0]; th = (np.arange(nb) + 0.5) * 90.0 / nb; k = th < cut_deg
     B = BR[np.ix_(k, k)]; rho = float(np.max(np.abs(np.linalg.eigvals(B))))
     w = np.diff(np.sin(np.radians(np.linspace(0, 90, nb + 1))) ** 2)[k]
-    p = 1 - float((B.sum(0) * w).sum() / w.sum())
+    p = 1 - float((B.sum(0) * w).sum() / w.sum())          # escape plus leakage beyond the cutoff (truncated chain)
     return 1 - rho, p
 
 

@@ -79,7 +79,7 @@ EV = {(nm, dev, lam): evaluate(BT, BR, dev, i) for nm, (c, BT, BR) in LIB.items(
 # ------------------------------------------------------------------ Fig. 1
 fig = plt.figure(figsize=(7.2, 2.7)); gs = fig.add_gridspec(1, 4, width_ratios=[1.35, 1, 1, 1], wspace=0.5)
 a = fig.add_subplot(gs[0]); a.axis('off'); a.set_xlim(0, 10); a.set_ylim(0, 10)
-a.add_patch(Rectangle((0.5, 0.6), 9, 1.0, color='#d9d8d3')); a.text(5, 1.1, "OLED: R(θ), round-trip loss A'", ha='center', va='center', fontsize=6)
+a.add_patch(Rectangle((0.5, 0.6), 9, 1.0, color='#d9d8d3')); a.text(5, 1.1, "OLED: angle-resolved reflectance R(θ)", ha='center', va='center', fontsize=5.6)
 a.add_patch(Rectangle((0.5, 1.6), 9, 4.6, color='#eef4fb')); a.text(9.15, 3.9, 'substrate', rotation=90, ha='center', va='center', fontsize=6, color=INK2)
 for x0 in np.linspace(0.5, 8.5, 9):
     t = np.linspace(0, np.pi, 30); a.fill_between(x0 + 0.5 + 0.5 * np.cos(t)[::-1], 6.2, 6.2 + 0.9 * np.sin(t), color='#bcd3ef', lw=0)
@@ -90,16 +90,19 @@ a.set_title('(a) multi-pass extraction as a\nMarkov chain on angle', loc='left',
 sh = []
 for k, (nm, lab) in enumerate((('planar', 'planar'), ('MLA hemi_total', 'hemispherical MLA'), ('scatter g0.8_t1.0', 'scattering layer'))):
     ax = fig.add_subplot(gs[k + 1]); BR = LIB[nm][2]; M = kernel = BR / np.maximum(BR.sum(0, keepdims=True), 1e-12)
-    ax.imshow(np.log10(M + 1e-4), origin='lower', extent=[0, 90, 0, 90], cmap='Blues', vmin=-3, vmax=0, aspect='auto')
+    im = ax.imshow(np.log10(np.maximum(M, 1e-3)), origin='lower', extent=[0, 90, 0, 90], cmap='Blues', vmin=-3, vmax=0, aspect='auto')
     l2 = mixing.lam2_cut(BR)
     ax.set_title(f"({'bcd'[k]}) {lab}\n" + (f"λ₂ = {l2:.2f},  N_mix = {1 / (1 - l2):.1f}" if l2 < 0.999 else "λ₂ = 1,  N_mix = ∞"), loc='left', fontsize=6.5)
     ax.set_xlabel('incident angle θᵢ (deg)'); ax.set_ylabel('returned angle θᵣ (deg)' if k == 0 else '')
     sh.append((f'{lab} M', ['row = returned bin, col = incident bin (1 deg)'], M.tolist()))
+cb = fig.colorbar(im, ax=fig.axes[1:], fraction=0.025, pad=0.02, ticks=[-3, -2, -1, 0]); cb.ax.set_yticklabels(['≤10⁻³', '10⁻²', '10⁻¹', '1']); cb.ax.tick_params(labelsize=5)
+cb.set_label('M(θᵣ ← θᵢ), per 1° bin (log₁₀, floor 10⁻³)', fontsize=5)
 fig.savefig(f'{OUT}/fig1_mixing_concept.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig1_mixing_concept.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig1_mixing_concept', sh)
 
 # ------------------------------------------------------------------ Fig. 2
-fig, ax = plt.subplots(1, 4, figsize=(7.2, 2.1), gridspec_kw=dict(wspace=0.38)); rows = []
+fig = plt.figure(figsize=(7.2, 3.6)); gs2 = fig.add_gridspec(2, 4, height_ratios=[1, 0.62], wspace=0.38, hspace=0.62)
+ax = [fig.add_subplot(gs2[0, k]) for k in range(4)]; rows = []
 for (nm, dev, lam), e in EV.items():
     rows.append([nm, LIB[nm][0], dev, lam, e['eta'], e['closed'], e['m0'], e['red_w'], e['red'], e['p'], e['lam2'], e['pinf']])
 for k, (j, lab) in enumerate(((5, 'memoryless formula'), (6, 'angle preserving, m = 0'), (7, 'm = 1 − λ₂, q ∝ w'), (8, 'reciprocal, q ∝ w(1 − p)'))):
@@ -112,6 +115,18 @@ for k, (j, lab) in enumerate(((5, 'memoryless formula'), (6, 'angle preserving, 
 for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
 ax[0].legend(fontsize=4.8, frameon=False, loc='lower right')
+ae = fig.add_subplot(gs2[1, :]); xt = []; DCOL = {'Al': '#52514e', 'Ag': '#2a78d6', 'LL15': '#1baf7a'}; DLAB = {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'low loss'}
+for gi, (dv, (_, lam)) in enumerate([(d, w) for d in DEVS for w in WLS]):
+    for r in rows:
+        if r[2] != dv or r[3] != lam: continue
+        col, mk, _ = CLS[r[1]]; xj = gi + 0.32 * (np.random.default_rng(hash(r[0]) % 2**32).random() - 0.5)
+        ae.plot(xj, (r[8] - r[4]) * 100, mk, color=col, ms=2.2, mew=0, alpha=0.8)
+    er = np.array([(r[8] - r[4]) * 100 for r in rows if r[2] == dv and r[3] == lam])
+    ae.plot([gi - 0.25, gi + 0.25], [np.mean(np.abs(er))] * 2, color=DCOL[dv], lw=1.2)
+    xt.append(f'{DLAB[dv]}\n{lam:.0f} nm')
+ae.axhline(0, color=INK2, lw=0.5); ae.set_xticks(range(len(xt))); ae.set_xticklabels(xt, fontsize=5); ae.set_xlim(-0.6, len(xt) - 0.4)
+for b in (2.5, 5.5): ae.axvline(b, color='#d9d8d3', lw=0.6)
+ae.set_ylabel('reciprocal model − full (pp)'); ae.set_title('(e) error of the reciprocal reduced model by device and wavelength (bar: mean |err|)', loc='left', fontsize=5.8)
 fig.savefig(f'{OUT}/fig2_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig2_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig2_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
 print(f'Fig 2: {len(rows)} cases; reduced(w) mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; recip mean {np.mean([abs(r[8]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[8]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
@@ -134,23 +149,26 @@ for nm, (c, BT, BR) in LIB.items():
     ax[2].plot(min(Nm, 25), e['pinf'] / e['p85'], mk, color=col, ms=4, mec='white', mew=0.3)
 for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
-ax[0].set_yscale('log'); ax[0].set_ylim(1, 26); ax[0].set_xlabel('escape probability p (uniform radiance)'); ax[0].set_ylabel('angular mixing number N_mix')
+ax[0].set_yscale('log'); ax[0].set_ylim(1, 26); ax[0].set_xlabel('escape probability p (uniform radiance)'); ax[0].set_ylabel('angular mixing number N_mix (log scale)')
 ax[0].text(0.405, 24, '↑ planar: N_mix = ∞', fontsize=5, color=INK2)
 ax[0].set_title('(a) structure map (η_sta, Al, 550 nm)', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=True, framealpha=0.9, edgecolor='none', loc='lower left', bbox_to_anchor=(0.0, 0.08))
 for pre, lab, col, key in (('A_shape', 'lenslet shape spread s', '#6250d6', 'shape'), ('C_jitter', 'position jitter / pitch', '#2a78d6', 'jitter'),
                            ('W_slope', 'wavy surface, rms slope', '#e87ba4', 'slope'), ('B_aspect', 'height spread', '#eda100', 'aspect')):
     pts = sorted((float(nm.split(key)[1].split('_')[0]), 1 / max(1 - EV[(nm, 'Al', 550.0)]['lam2'], 1e-9)) for nm in LIB if nm.startswith(pre) and not nm.startswith('C2'))
+    if pre == 'A_shape' or pre == 'C_jitter':
+        pts = [(0.0, 1 / (1 - EV[('A_shape0.0', 'Al', 550.0)]['lam2']))] + [q for q in pts if q[0] > 0] if pre == 'C_jitter' else pts
+    if pre == 'B_aspect':
+        pts = [(0.0, 1 / (1 - EV[('A_shape0.0', 'Al', 550.0)]['lam2']))] + pts
     if pts:
-        x, y = zip(*pts); ax[1].plot(x, y, 'o-', color=col, ms=3, label=lab)
+        x, y = zip(*pts); xm = max(x); ax[1].plot(np.array(x) / xm, y, 'o-', color=col, ms=3, label=f'{lab} (0–{xm:g})')
 ns = 1 / (1 - EV[('scatter g0.8_t1.0', 'Al', 550.0)]['lam2'])
-ax[1].axhline(ns, color='#1baf7a', ls=':', lw=0.8); ax[1].text(0.02, ns * 1.06, 'scattering layer (g 0.8, τ* 1)', fontsize=5, color='#1baf7a')
+ax[1].axhline(ns, color='#1baf7a', ls=':', lw=0.8); ax[1].text(0.02, ns * 1.06, 'scattering layer (g 0.8, τ* 1)', fontsize=5, color='#1baf7a'); ax[1].set_xlim(-0.03, 1.03)
 ax[1].axhline(1 / (1 - EV[('MLA hemi_total', 'Al', 550.0)]['lam2']), color='#2a78d6', ls=':', lw=0.8)
-ax[1].set_yscale('log'); ax[1].set_yticks([1, 1.5, 2, 3, 5, 8]); ax[1].set_yticklabels(['1', '1.5', '2', '3', '5', '8']); ax[1].minorticks_off(); ax[1].set_xlabel('randomness parameter'); ax[1].set_ylabel('N_mix'); ax[1].set_title('(b) randomness vs angle retention', loc='left')
-ax[1].legend(fontsize=4.6, frameon=False, loc='center right')
+ax[1].set_yscale('log'); ax[1].set_yticks([1, 1.5, 2, 3, 5, 8]); ax[1].set_yticklabels(['1', '1.5', '2', '3', '5', '8']); ax[1].minorticks_off(); ax[1].set_xlabel('randomness parameter / its maximum'); ax[1].legend(fontsize=4.6, frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=2, handlelength=1.5); ax[1].set_ylabel('N_mix'); ax[1].set_title('(b) randomness vs angle retention', loc='left')
 ax[2].set_xscale('log'); ax[2].set_xlim(1, 30); ax[2].set_ylim(-0.03, 1.08); ax[2].set_xticks([1, 2, 5, 10, 25]); ax[2].set_xticklabels(['1', '2', '5', '10', '∞'])
 ax[2].minorticks_off(); ax[2].axhline(1, color=INK2, lw=0.5, ls=':')
-ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('late-pass escape ratio ξ = p∞ / p'); ax[2].set_title('(c) late-pass escape', loc='left')
-ax[2].text(1.05, 0.03, 'planar (ξ = 0)', fontsize=5, color=INK2); ax[2].text(1.05, 1.01, 'no dead-angle trapping', fontsize=5, color=INK2)
+ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('late-pass escape ratio ξ = p∞ / p̃'); ax[2].set_xlabel('N_mix (log scale)'); ax[2].set_title('(c) late-pass escape', loc='left')
+ax[2].text(9.5, 0.06, 'planar (N_mix = ∞, ξ = 0),\ndrawn off-scale', fontsize=4.6, color=INK2, ha='left'); ax[2].text(1.05, 1.01, 'no dead-angle trapping', fontsize=5, color=INK2)
 fig.savefig(f'{OUT}/fig3_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'p_inf', 'xi', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
                                  ('contours', ['N_mix \\ p'] + list(pg), [[Ng[j]] + list(Z[j]) for j in range(30)])])

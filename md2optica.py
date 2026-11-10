@@ -32,6 +32,7 @@ FIGFILES = {
     'S8': 'figures/figS6_cost_calibration.pdf',
     'S9': 'figures/fig4_families.pdf',
     'S10': 'figures/figS8_angle_reset.pdf',
+    'S11': 'figures/figS11_device_inputs.pdf',
 }
 # source of every figure PDF (copied into oe_submission/figures/ on each run)
 import shutil

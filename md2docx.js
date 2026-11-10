@@ -48,7 +48,7 @@ const SYM = {
   '\\phi': 'φ', '\\gamma': 'γ', '\\Delta': 'Δ', '\\sigma': 'σ',
   '\\in': '∈', '\\cdot': '·', '\\mid': '|', '\\circ': '°',
   '\\max': 'max', '\\min': 'min', '\\log': 'log', '\\sin': 'sin', '\\cos': 'cos', '\\tan': 'tan',
-  '\\quad': '  ', '\\,': ' ', '\\;': ' ', '\\!': '', '\\ ': ' ',
+  '\\qquad': '    ', '\\quad': '  ', '\\,': ' ', '\\;': ' ', '\\!': '', '\\ ': ' ',
   '\\{': '{', '\\}': '}', '\\%': '%', '\\&': '&',
   '\\xi': 'ξ', '\\rho': 'ρ', '\\propto': '∝', '\\to': '→', '\\delta': 'δ', '\\alpha': 'α',
   '\\beta': 'β', '\\pi': 'π', '\\tau': 'τ', '\\kappa': 'κ', '\\nu': 'ν', '\\omega': 'ω',
@@ -101,6 +101,8 @@ function mathRuns(src, base = {}) {
   s = s.replace(/\\left|\\right/g, '');
   s = expandFrac(s);
   s = s.replace(/\\mathsf\s*\{?([A-Za-z])\}?/g, '$1');
+  s = s.replace(/\\(?:tilde|widetilde)\s*\{?([A-Za-z])\}?/g, '$1\u0303');
+  s = s.replace(/\\hat\s*\{?([A-Za-z])\}?/g, '$1\u0302');
   for (const k of SYM_KEYS) s = s.split(k).join(SYM[k]);
   s = s.replace(/(^|[^a-zA-Z])-(?=[^>])/g, '$1\u2212');      // true minus sign
   s = s.replace(/\\[a-zA-Z]+/g, '');            // drop any remaining macro

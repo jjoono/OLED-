@@ -326,6 +326,17 @@ We also tested two scalar uses of $p_\infty$. Fitting a two-parameter reciprocal
 | Wavy, rms slope ≤ 0.4 | 18 | 1.40 | 2.99 | 5.40 | 10.51 | 8.66 | 21.73 |
 | All | 342 | 0.30 | 2.99 | 0.81 | 10.51 | 3.93 | 59.89 |
 
+The reciprocal-model errors stratified by device and by wavelength (all structures; in parentheses without the two shallowest wavy surfaces):
+
+| Stratum | cases | mean | max |
+|---|---|---|---|
+| Al device | 114 | 0.41 (0.33) | 2.71 (2.27) |
+| Ag device | 114 | 0.33 (0.25) | 2.99 (2.49) |
+| low-loss device | 114 | 0.16 (0.13) | 1.78 (1.01) |
+| 500 nm | 114 | 0.38 (0.31) | 2.49 (2.49) |
+| 550 nm | 114 | 0.29 (0.23) | 2.99 (2.07) |
+| 600 nm | 114 | 0.23 (0.18) | 2.58 (1.64) |
+
 ---
 
 ## Note S11 | Library of structures and return matrices
@@ -398,6 +409,131 @@ We also tested two scalar uses of $p_\infty$. Fitting a two-parameter reciprocal
 
 ---
 
+## Note S12 | Device inputs and robustness of the spectral metrics
+
+**Device inputs.** Table S14 lists the three stacks; Fig. S11 shows the first-pass radiance launched into the substrate and the angle-resolved reflectance at 550 nm. The emitters form a single dipole sheet at the centre of the 25 nm birefringent EML (ordinary and extraordinary indices from measured data), with a horizontal dipole ratio of 0.865. Dipole emission and reflectance are computed for s and p polarization; $R(\theta)$ is their average and $\mathbf{v}^{(0)}$ their sum.
+
+**Table S14 | Device stacks (from the cathode to the substrate).**
+
+| Device | Cathode | ETL | EML | HTL-side layers | Anode | Substrate | $A'$ at 550 nm |
+|---|---|---|---|---|---|---|---|
+| Al | Al 100 nm | B3PyMPM 61.3 nm | TCTA:B3PyMPM:Ir(dmppy-ph)$_2$tmd 25 nm | TCTA 10 nm / TAPC 97.5 nm | ITO 150 nm | glass, $n$ = 1.51 | 0.167 |
+| Ag | Ag 100 nm | B3PyMPM 61.3 nm | as Al | TCTA 10 nm / TAPC 97.5 nm | ITO 150 nm | glass, $n$ = 1.51 | 0.044 |
+| Low loss | Ag 100 nm | B3PyMPM 200 nm | as Al | TAPC 180 nm | ITO 50 nm | glass, $n$ = 1.51 | 0.026 |
+
+**Fig. S11 | Device inputs at 550 nm.** (a) Radiance launched into the substrate on the first pass, $v^{(0)}_k/w_k$, relative to its mean over 0–20°. (b) Angle-resolved reflectance $R(\theta)$ of the stack seen from the substrate, with the uniform-radiance round-trip loss $A'$. The dotted line marks the critical angle of the glass/air interface. *(`figS11_device_inputs.png`)*
+
+**Discretization, cutoff, ray count, and domain size.** Table S15 reports $N_{\mathrm{mix}}$, $\xi$, $\eta_{\mathrm{sta}}$ and the reciprocal reduced-model error (Al, 550 nm) for representative structures under changes of the polar bin width, of the cutoff angle of the spectral metrics, of the number of rays per incidence bin, and of the size of the periodic simulation domain. Bin widths above 1° are obtained by étendue-weighted merging; the scattering layer is also evaluated on its native 0.5° grid. $\eta_{\mathrm{sta}}$ is insensitive to all of these choices. $N_{\mathrm{mix}}$ and $\xi$ change with the cutoff because the near-grazing states, which carry little étendue, can retain angle; the ranking of the structures is preserved (rank correlation with the 85° values: $N_{\mathrm{mix}}$ 0.959, 0.991, 0.962 and $\xi$ 0.902, 0.979, 0.908 for 80°, 88°, 90°).
+
+**Table S15 | Convergence of the metrics (Al, 550 nm).**
+
+| Structure | Variant | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ | reduced − full (pp) |
+|---|---|---|---|---|---|
+| planar | 1° bins, cutoff 85° (reference) | ∞ | 0.000 | 0.3841 | +0.00 |
+| planar | 2° bins, cutoff 85° | ∞ | 0.000 | 0.3858 | +0.00 |
+| planar | 3° bins, cutoff 85° | ∞ | 0.000 | 0.3864 | +0.00 |
+| planar | 1° bins, cutoff 80° | ∞ | 0.000 | 0.3841 | +0.00 |
+| planar | 1° bins, cutoff 88° | ∞ | 0.000 | 0.3841 | +0.00 |
+| planar | 1° bins, no cutoff | ∞ | 0.000 | 0.3841 | +0.00 |
+| hemispherical MLA | 1° bins, cutoff 85° (reference) | 7.10 | 0.468 | 0.7918 | -0.27 |
+| hemispherical MLA | 2° bins, cutoff 85° | 6.89 | 0.512 | 0.7919 | -0.26 |
+| hemispherical MLA | 3° bins, cutoff 85° | 6.81 | 0.519 | 0.7920 | -0.25 |
+| hemispherical MLA | 1° bins, cutoff 80° | 6.49 | 0.651 | 0.7918 | -0.22 |
+| hemispherical MLA | 1° bins, cutoff 88° | 7.70 | 0.382 | 0.7918 | -0.33 |
+| hemispherical MLA | 1° bins, no cutoff | 8.08 | 0.306 | 0.7918 | -0.35 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 0.5° bins (native), cutoff 85° | 1.17 | 0.995 | 0.7374 | -0.08 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 1° bins, cutoff 85° (reference) | 1.17 | 0.995 | 0.7374 | -0.08 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 2° bins, cutoff 85° | 1.16 | 1.004 | 0.7374 | -0.07 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 3° bins, cutoff 85° | 1.16 | 1.004 | 0.7374 | -0.07 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 1° bins, cutoff 80° | 1.12 | 1.051 | 0.7374 | -0.04 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 1° bins, cutoff 88° | 1.21 | 0.976 | 0.7374 | -0.10 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 1° bins, no cutoff | 1.23 | 0.971 | 0.7374 | -0.11 |
+| random lenslet shapes, $s$ = 1 | 1° bins, cutoff 85° (reference) | 1.95 | 0.777 | 0.7853 | -0.23 |
+| random lenslet shapes, $s$ = 1 | 2° bins, cutoff 85° | 1.90 | 0.794 | 0.7854 | -0.20 |
+| random lenslet shapes, $s$ = 1 | 3° bins, cutoff 85° | 1.89 | 0.795 | 0.7854 | -0.19 |
+| random lenslet shapes, $s$ = 1 | 1° bins, cutoff 80° | 1.78 | 0.859 | 0.7853 | -0.11 |
+| random lenslet shapes, $s$ = 1 | 1° bins, cutoff 88° | 2.10 | 0.731 | 0.7853 | -0.32 |
+| random lenslet shapes, $s$ = 1 | 1° bins, no cutoff | 2.13 | 0.720 | 0.7853 | -0.34 |
+| wavy, rms slope 0.2 | 1° bins, cutoff 85° (reference) | 2.17 | 0.351 | 0.6084 | -2.71 |
+| wavy, rms slope 0.2 | 2° bins, cutoff 85° | 2.16 | 0.368 | 0.6086 | -2.69 |
+| wavy, rms slope 0.2 | 3° bins, cutoff 85° | 2.16 | 0.369 | 0.6090 | -2.67 |
+| wavy, rms slope 0.2 | 1° bins, cutoff 80° | 2.15 | 0.452 | 0.6084 | -2.66 |
+| wavy, rms slope 0.2 | 1° bins, cutoff 88° | 2.18 | 0.314 | 0.6084 | -2.74 |
+| wavy, rms slope 0.2 | 1° bins, no cutoff | 2.18 | 0.307 | 0.6084 | -2.75 |
+| wavy, rms slope 1.0 | 1° bins, cutoff 85° (reference) | 1.13 | 0.886 | 0.7924 | -0.07 |
+| wavy, rms slope 1.0 | 2° bins, cutoff 85° | 1.13 | 0.895 | 0.7924 | -0.07 |
+| wavy, rms slope 1.0 | 3° bins, cutoff 85° | 1.13 | 0.896 | 0.7924 | -0.07 |
+| wavy, rms slope 1.0 | 1° bins, cutoff 80° | 1.14 | 0.952 | 0.7924 | -0.08 |
+| wavy, rms slope 1.0 | 1° bins, cutoff 88° | 1.13 | 0.871 | 0.7924 | -0.08 |
+| wavy, rms slope 1.0 | 1° bins, no cutoff | 1.14 | 0.868 | 0.7924 | -0.08 |
+| hemispherical array ($s$ = 0) | 5,000 rays per bin | 7.08 | 0.502 | 0.7944 | -0.17 |
+| hemispherical array ($s$ = 0) | 10,000 rays per bin | 7.03 | 0.502 | 0.7941 | -0.16 |
+| hemispherical array ($s$ = 0) | 20,000 rays per bin (library) | 7.05 | 0.499 | 0.7944 | -0.15 |
+| hemispherical array ($s$ = 0) | 40,000 rays per bin | 7.02 | 0.497 | 0.7943 | -0.14 |
+| wavy, rms slope 0.2 | 2,500 rays per bin | 2.17 | 0.345 | 0.6094 | -2.76 |
+| wavy, rms slope 0.2 | 5,000 rays per bin | 2.17 | 0.345 | 0.6088 | -2.71 |
+| wavy, rms slope 0.2 | 10,000 rays per bin (library) | 2.17 | 0.345 | 0.6084 | -2.71 |
+| wavy, rms slope 0.2 | 20,000 rays per bin | 2.15 | 0.346 | 0.6090 | -2.68 |
+| random lenslet shapes, $s$ = 1 | 6 × 6 supercell (library) | 1.95 | 0.769 | 0.7853 | -0.23 |
+| random lenslet shapes, $s$ = 1 | 10 × 10 supercell, new realization | 1.89 | 0.794 | 0.7887 | -0.17 |
+| position jitter 0.3 | 6 × 6 supercell (library) | 3.50 | 0.699 | 0.7979 | -0.20 |
+| position jitter 0.3 | 10 × 10 supercell, new realization | 3.46 | 0.703 | 0.7962 | -0.21 |
+| wavy, rms slope 0.2 | 12 × 12 box (library) | 2.17 | 0.345 | 0.6084 | -2.71 |
+| wavy, rms slope 0.2 | 24 × 24 box, new realization | 2.17 | 0.347 | 0.6098 | -2.76 |
+| wavy, rms slope 1.0 | 12 × 12 box (library) | 1.13 | 0.871 | 0.7924 | -0.07 |
+| wavy, rms slope 1.0 | 24 × 24 box, new realization | 1.13 | 0.867 | 0.7912 | -0.04 |
+
+**Detailed balance and bounds.** Symmetrizing $F_{ji} = w_i B_R(i\to j)$ to $(F+F^{\mathsf T})/2$ and rescaling each column to its traced return fraction, which keeps $p(\theta)$, changes $N_{\mathrm{mix}}$ by at most 0.20 (2.7%), $\xi$ by at most 0.005, $\eta_{\mathrm{sta}}$ by at most 0.04 pp, and the reduced-model error by at most 0.04 pp over all 37 non-planar structures and three devices. The bounds $\min_\theta p(\theta) \le p_\infty \le \tilde p$ hold for every structure, with smallest margins of 0.0014 (upper) and 0.106 (lower, thick scattering layer); the planar interface meets the lower bound with equality ($p_\infty$ = 0). With $p$ in place of $\tilde p$ the upper bound would fail for the thick scattering layer ($\tau^*$ = 4) by 0.005, because return beyond the cutoff then counts as neither escape nor return. The device-aware variant $1-\rho(\mathrm{diag}\,\mathbf{R}\,B_R)$ (Al, 550 nm) ranks the structures like $p_\infty$ (Spearman 0.956). The full-series solve is well conditioned: the largest spectral radius of $\mathrm{diag}\,\mathbf{R}\,B_R$ is 0.9991, the largest residual 7e-17, and a pass-by-pass sum agrees with the solve to 9e-15.
+
+**Contour templates.** Fig. 3a scales the angular shape of $p(\theta)$ of the hemispherical MLA. Table S16 repeats the calculation with the shapes of a scattering layer and of a wavy surface (Al, 550 nm).
+
+**Table S16 | Sensitivity of $\eta_{\mathrm{sta}}$ to mixing and to escape for three $p(\theta)$ templates.** Span: change of $\eta_{\mathrm{sta}}$ when $N_{\mathrm{mix}}$ varies from 1 to 16 at fixed $p$. Slope: change of $\eta_{\mathrm{sta}}$ per 0.01 in $p$ at $N_{\mathrm{mix}}$ = 4.
+
+| Template | span at $p$ = 0.30 (pp) | at 0.38 | at 0.42 | slope per 0.01 in $p$ (pp) |
+|---|---|---|---|---|
+| hemispherical MLA | 2.05 | 2.10 | 2.09 | 0.61 |
+| scattering layer ($g$ 0.8, $\tau^*$ 1) | 1.40 | 1.30 | 1.23 | 0.62 |
+| wavy surface, rms slope 1.0 | 3.22 | 3.23 | 3.17 | 0.59 |
+
+**Counterfactual decomposition.** Along the lenslet-shape sweep, the change of $\eta_{\mathrm{sta}}$ relative to the hemispherical array ($s$ = 0) is split in the reciprocal reduced model into a mixing part (mixing $m$ of the randomized array, $p(\theta)$ of the hemisphere), an escape-shape part ($p(\theta)$ of the randomized array, $m$ of the hemisphere), and their interaction (Table S17).
+
+**Table S17 | Decomposition of the change in $\eta_{\mathrm{sta}}$ along the shape sweep (550 nm, pp).**
+
+| $s$ | Device | mixing only | $p(\theta)$ only | interaction | total (reduced) | total (full series) |
+|---|---|---|---|---|---|---|
+| 0.1 | Al | +0.40 | -0.27 | +0.00 | +0.13 | +0.27 |
+| 0.1 | Ag | +0.45 | -0.05 | -0.02 | +0.38 | +0.44 |
+| 0.1 | low loss | +0.06 | +0.13 | -0.01 | +0.17 | +0.13 |
+| 0.2 | Al | +0.65 | -0.22 | -0.08 | +0.35 | +0.48 |
+| 0.2 | Ag | +0.68 | +0.15 | -0.15 | +0.68 | +0.71 |
+| 0.2 | low loss | +0.09 | +0.13 | -0.02 | +0.20 | +0.15 |
+| 0.4 | Al | +0.72 | -0.99 | -0.07 | -0.34 | -0.09 |
+| 0.4 | Ag | +0.74 | -0.11 | -0.19 | +0.44 | +0.52 |
+| 0.4 | low loss | +0.09 | +0.05 | -0.02 | +0.13 | +0.10 |
+| 0.7 | Al | +0.94 | -1.94 | +0.23 | -0.77 | -0.66 |
+| 0.7 | Ag | +0.93 | -0.74 | +0.05 | +0.24 | +0.23 |
+| 0.7 | low loss | +0.12 | +0.10 | -0.02 | +0.19 | +0.15 |
+| 1.0 | Al | +0.91 | -2.20 | +0.30 | -0.98 | -0.91 |
+| 1.0 | Ag | +0.91 | -0.94 | +0.13 | +0.10 | +0.07 |
+| 1.0 | low loss | +0.11 | +0.07 | -0.01 | +0.18 | +0.13 |
+
+**Composition window.** Table S18 gives the range of the selectivity $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$ over all 38 structures for each device and wavelength.
+
+**Table S18 | Range of $S_{40\text{–}60}$ over all structures.**
+
+| Device, wavelength | min | max |
+|---|---|---|
+| Al, 500 nm | 0.320 | 0.364 |
+| Al, 550 nm | 0.327 | 0.360 |
+| Al, 600 nm | 0.339 | 0.361 |
+| Ag, 550 nm | 0.322 | 0.361 |
+| low loss, 550 nm | 0.274 | 0.366 |
+
+In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
+
+
+---
+
 ## Reproducing the figures and data
 
 Main-text Figs. 1–4 are produced by `selectivity/oe_figs.py`, which builds the structure library (Note S11), evaluates the full and reduced models, and writes each figure to `figures_oe/` as PNG (300 dpi), PDF, and an Excel workbook with one sheet per panel holding exactly the plotted arrays. The random-structure return matrices are generated by `multipass_reset/run_random_sweep.py` (tracer `hftrace_gen.py`). Main-text Fig. 5 and Figs. S1–S10 come from the freeform campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`.
@@ -409,7 +545,7 @@ python3 make_figures.py
 python3 make_supp_figures_and_data.py
 ```
 
-**Table S14 | Figure files and their inputs.**
+**Table S19 | Figure files and their inputs.**
 
 | Figure | Output | Inputs |
 |---|---|---|
@@ -429,6 +565,8 @@ python3 make_supp_figures_and_data.py
 | Fig. S9 | `fig4_families` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
 | Fig. S10 | `figS8_angle_reset` | `multipass_reset/` (`hftrace.py`, `multipass.py`, `bsdfs.npz`, `fig_reset.py`) |
 | Table S13 | `selectivity/data/uncertainty.json` | `multipass_reset/run_uncertainty.py` → `random_sweep_unc/`, `selectivity/run_slab_unc.py`, `selectivity/unc_analysis.py` |
+| Fig. S11, Table S14 | `figures_oe/figS11_device_inputs` | `selectivity/fig_devices.py`, `devices.npz` |
+| Tables S15–S18 | `selectivity/data/review_checks.json`, `review_traces.json` | `selectivity/review_checks.py`, `multipass_reset/run_review_traces.py` → `review_traces/`, `selectivity/review_traces_analysis.py`, `selectivity/make_note_s12.py` |
 
 Each output exists as `.png`, `.pdf`, and `.xlsx`.
 
