@@ -68,10 +68,12 @@ def evaluate(BTair, BR, dev, i):
     lam2 = mixing.lam2_cut(BR)
     return dict(eta=float(air.sum()), S=[float(air[a:b].sum() / air.sum()) for a, b in BANDS],
                 closed=mixing.closed(pT, W1, R), m0=mixing.reduced(pT, W1, R, P, 0.0), m1=mixing.reduced(pT, W1, R, P, 1.0), red=mixing.reduced(pT, W1, R, P, 1 - lam2),
+                red_w=mixing.reduced(pT, W1, R, P, 1 - lam2, recip=False), pinf=PINF[id(BR)][0], p85=PINF[id(BR)][1],
                 p=float(pT @ (W1 / W1.sum())), lam2=lam2, first=P @ BTair)
 
 
 LIB = library()
+PINF = {id(v[2]): mixing.pinf_cut(v[2]) for v in LIB.values()}
 EV = {(nm, dev, lam): evaluate(BT, BR, dev, i) for nm, (c, BT, BR) in LIB.items() for dev in DEVS for i, lam in WLS}
 
 # ------------------------------------------------------------------ Fig. 1
@@ -97,25 +99,25 @@ fig.savefig(f'{OUT}/fig1_mixing_concept.png', dpi=300, bbox_inches='tight'); fig
 save_xlsx('fig1_mixing_concept', sh)
 
 # ------------------------------------------------------------------ Fig. 2
-fig, ax = plt.subplots(1, 3, figsize=(7.2, 2.45), gridspec_kw=dict(wspace=0.4)); rows = []
+fig, ax = plt.subplots(1, 4, figsize=(7.2, 2.1), gridspec_kw=dict(wspace=0.38)); rows = []
 for (nm, dev, lam), e in EV.items():
-    rows.append([nm, LIB[nm][0], dev, lam, e['eta'], e['closed'], e['m0'], e['red'], e['p'], e['lam2']])
-for k, (j, lab) in enumerate(((5, 'memoryless formula'), (6, 'angle preserving, m = 0'), (7, 'reduced model, m = 1 − λ₂'))):
+    rows.append([nm, LIB[nm][0], dev, lam, e['eta'], e['closed'], e['m0'], e['red_w'], e['red'], e['p'], e['lam2'], e['pinf']])
+for k, (j, lab) in enumerate(((5, 'memoryless formula'), (6, 'angle preserving, m = 0'), (7, 'm = 1 − λ₂, q ∝ w'), (8, 'reciprocal, q ∝ w(1 − p)'))):
     for r in rows:
         col, mk, _ = CLS[r[1]]; ax[k].plot(r[4], r[j], mk, color=col, ms=2.4, mew=0, alpha=0.8)
     err = np.array([abs(r[j] - r[4]) for r in rows]) * 100
     ax[k].plot([0.3, 1], [0.3, 1], color=INK2, lw=0.6); ax[k].set_xlim(0.3, 1); ax[k].set_ylim(0.3, 1)
-    ax[k].set_title(f"({'abc'[k]}) {lab}\nmean |err| {err.mean():.2f} pp, max {err.max():.1f} pp", loc='left', fontsize=6.5)
+    ax[k].set_title(f"({'abcd'[k]}) {lab}\nmean |err| {err.mean():.2f} pp, max {err.max():.1f} pp", loc='left', fontsize=5.6)
     ax[k].set_xlabel('η_sta, full series'); ax[k].set_ylabel('η_sta, model' if k == 0 else '')
 for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
 ax[0].legend(fontsize=4.8, frameon=False, loc='lower right')
 fig.savefig(f'{OUT}/fig2_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig2_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
-save_xlsx('fig2_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced', 'p_Lamb', 'lambda2_85'], rows)])
-print(f'Fig 2: {len(rows)} cases; reduced mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
+save_xlsx('fig2_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
+print(f'Fig 2: {len(rows)} cases; reduced(w) mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; recip mean {np.mean([abs(r[8]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[8]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
 
 # ------------------------------------------------------------------ Fig. 3
-fig, ax = plt.subplots(1, 2, figsize=(7.2, 2.75), gridspec_kw=dict(wspace=0.35)); rows = []
+fig, ax = plt.subplots(1, 3, figsize=(7.2, 2.5), gridspec_kw=dict(wspace=0.42, width_ratios=[1.25, 1, 1])); rows = []
 P0 = DV['Al_P'][75].reshape(90, 2).sum(1); R1 = DV['Al_R'][75].reshape(90, 2).mean(1)
 pT0 = LIB['MLA hemi_total'][1].sum(1)
 pg = np.linspace(0.18, 0.47, 30); Ng = np.logspace(0, 1.4, 30); Z = np.zeros((30, 30))
@@ -128,12 +130,13 @@ cs = ax[0].contour(pg, Ng, Z, levels=[0.6, 0.7, 0.75, 0.78, 0.8, 0.82], colors=I
 for nm, (c, BT, BR) in LIB.items():
     e = EV[(nm, 'Al', 550.0)]; Nm = 1 / max(1 - e['lam2'], 1e-9)
     col, mk, _ = CLS[c]; ax[0].plot(e['p'], min(Nm, 25), mk, color=col, ms=4, mec='white', mew=0.3)
-    rows.append([nm, c, e['p'], e['lam2'], Nm, e['eta'], EV[(nm, 'Ag', 550.0)]['eta'], EV[(nm, 'LL15', 550.0)]['eta']])
+    rows.append([nm, c, e['p'], e['lam2'], Nm, e['pinf'], e['pinf'] / e['p85'], e['eta'], EV[(nm, 'Ag', 550.0)]['eta'], EV[(nm, 'LL15', 550.0)]['eta']])
+    ax[2].plot(min(Nm, 25), e['pinf'] / e['p85'], mk, color=col, ms=4, mec='white', mew=0.3)
 for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
 ax[0].set_yscale('log'); ax[0].set_ylim(1, 26); ax[0].set_xlabel('escape probability p (uniform radiance)'); ax[0].set_ylabel('angular mixing number N_mix')
 ax[0].text(0.405, 24, '↑ planar: N_mix = ∞', fontsize=5, color=INK2)
-ax[0].set_title('(a) structure map (contours: η_sta, Al, 550 nm)', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=True, framealpha=0.9, edgecolor='none', loc='lower left', bbox_to_anchor=(0.0, 0.08))
+ax[0].set_title('(a) structure map (η_sta, Al, 550 nm)', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=True, framealpha=0.9, edgecolor='none', loc='lower left', bbox_to_anchor=(0.0, 0.08))
 for pre, lab, col, key in (('A_shape', 'lenslet shape spread s', '#6250d6', 'shape'), ('C_jitter', 'position jitter / pitch', '#2a78d6', 'jitter'),
                            ('W_slope', 'wavy surface, rms slope', '#e87ba4', 'slope'), ('B_aspect', 'height spread', '#eda100', 'aspect')):
     pts = sorted((float(nm.split(key)[1].split('_')[0]), 1 / max(1 - EV[(nm, 'Al', 550.0)]['lam2'], 1e-9)) for nm in LIB if nm.startswith(pre) and not nm.startswith('C2'))
@@ -142,10 +145,14 @@ for pre, lab, col, key in (('A_shape', 'lenslet shape spread s', '#6250d6', 'sha
 ns = 1 / (1 - EV[('scatter g0.8_t1.0', 'Al', 550.0)]['lam2'])
 ax[1].axhline(ns, color='#1baf7a', ls=':', lw=0.8); ax[1].text(0.02, ns * 1.06, 'scattering layer (g 0.8, τ* 1)', fontsize=5, color='#1baf7a')
 ax[1].axhline(1 / (1 - EV[('MLA hemi_total', 'Al', 550.0)]['lam2']), color='#2a78d6', ls=':', lw=0.8)
-ax[1].set_yscale('log'); ax[1].set_yticks([1, 1.5, 2, 3, 5, 8]); ax[1].set_yticklabels(['1', '1.5', '2', '3', '5', '8']); ax[1].minorticks_off(); ax[1].set_xlabel('randomness parameter'); ax[1].set_ylabel('N_mix'); ax[1].set_title('(b) randomness erases angle retention', loc='left')
-ax[1].legend(fontsize=5, frameon=False)
+ax[1].set_yscale('log'); ax[1].set_yticks([1, 1.5, 2, 3, 5, 8]); ax[1].set_yticklabels(['1', '1.5', '2', '3', '5', '8']); ax[1].minorticks_off(); ax[1].set_xlabel('randomness parameter'); ax[1].set_ylabel('N_mix'); ax[1].set_title('(b) randomness vs angle retention', loc='left')
+ax[1].legend(fontsize=4.6, frameon=False, loc='center right')
+ax[2].set_xscale('log'); ax[2].set_xlim(1, 30); ax[2].set_ylim(-0.03, 1.08); ax[2].set_xticks([1, 2, 5, 10, 25]); ax[2].set_xticklabels(['1', '2', '5', '10', '∞'])
+ax[2].minorticks_off(); ax[2].axhline(1, color=INK2, lw=0.5, ls=':')
+ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('trapping ratio ξ = p∞ / p'); ax[2].set_title('(c) late-pass escape', loc='left')
+ax[2].text(1.05, 0.03, 'planar (ξ = 0)', fontsize=5, color=INK2); ax[2].text(1.05, 1.01, 'no dead-angle trapping', fontsize=5, color=INK2)
 fig.savefig(f'{OUT}/fig3_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
-save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
+save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'p_inf', 'xi', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
                                  ('contours', ['N_mix \\ p'] + list(pg), [[Ng[j]] + list(Z[j]) for j in range(30)])])
 
 # ------------------------------------------------------------------ Fig. 4

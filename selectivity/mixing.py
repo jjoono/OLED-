@@ -26,9 +26,14 @@ def full(BT, BR, R, P0):
     return float(BT @ x)
 
 
-def reduced(pT, w, R, P0, m):
-    wn = w / w.sum(); n = len(P0)
-    BR = (1 - pT)[None, :] * ((1 - m) * np.eye(n) + m * wn[:, None])
+def reduced(pT, w, R, P0, m, recip=True):
+    """Reduced model: returned light = (1 - p_in) [ (1 - m) same angle + m q_out ].
+    recip=True : q ∝ w (1 - p), the only rank-one mixing term compatible with reciprocity (detailed balance
+                 w_i B(i->j) = w_j B(j->i)); light is mixed preferentially into the angles that also return light.
+    recip=False: q ∝ w (Lambertian redistribution, violates reciprocity when p depends on angle; kept for comparison)."""
+    q = w * (1 - pT) if recip else w.astype(float)
+    q = q / q.sum(); n = len(P0)
+    BR = (1 - pT)[None, :] * ((1 - m) * np.eye(n) + m * q[:, None])
     return full(pT, BR, R, P0)
 
 
@@ -44,6 +49,19 @@ def lam2_cut(BR, cut_deg=85.0):
     B = BR[np.ix_(k, k)]; M = B / np.maximum(B.sum(0, keepdims=True), 1e-12)
     ev = np.linalg.eigvals(M); ev = ev[np.argsort(-np.abs(ev))]
     return float(np.abs(ev[1]))
+
+
+def pinf_cut(BR, cut_deg=85.0):
+    """Late-pass escape probability p_inf = 1 - rho(B_R) on theta < cut_deg: the per-encounter escape probability of
+    the quasi-stationary distribution of light that has circulated many times (Perron root of the sub-stochastic
+    return operator).  By reciprocity B_R is self-adjoint in the etendue-weighted inner product, so the Rayleigh
+    quotient with the Lambertian vector gives rho >= 1 - p and hence  min p(theta) <= p_inf <= p  (p: uniform-radiance
+    escape probability on the same range).  Returns (p_inf, p_on_range)."""
+    nb = BR.shape[0]; th = (np.arange(nb) + 0.5) * 90.0 / nb; k = th < cut_deg
+    B = BR[np.ix_(k, k)]; rho = float(np.max(np.abs(np.linalg.eigvals(B))))
+    w = np.diff(np.sin(np.radians(np.linspace(0, 90, nb + 1))) ** 2)[k]
+    p = 1 - float((B.sum(0) * w).sum() / w.sum())
+    return 1 - rho, p
 
 
 def mixing_defs(BR, w, P0):

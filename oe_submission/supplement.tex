@@ -405,7 +405,7 @@ The reset raises the extraction by 2.7–5.5\% (Al) and 1.2–3.0\% (Ag), and th
 \caption*{\textbf{Fig. S10.} \textbf{Angle-preserving versus Lambertian-reset device reflection.} (a) Escape probability per pass for the hemispherical total-EQE design with the Al cathode. (b) Extraction efficiency of nine optimized lenses at a common cavity, with Al and Ag cathodes. (c) Range of the output composition over the nine lenses (Al), with the Lambertian partition for reference.}
 \end{figure}
 
-\section*{Note S10 | Angular mixing number: definition, robustness, and validation}
+\section*{Note S10 | Angular mixing number and trapping ratio: definition, robustness, and validation}
 
 \textbf{Definition.} The return matrix $B_R(\theta_i\to\theta_r)$ of a structure gives the fraction of the power incident in polar bin $i$ that re-enters the substrate in bin $r$. Normalizing every column by the returned fraction $1-p(\theta_i)$ gives the column-stochastic kernel $M$ of the conditional Markov chain of the returned light. When transmission or absorption removes light, the surviving light relaxes to a quasi-stationary distribution; normalizing the columns separates this escape from the redistribution itself. For a reciprocal structure $w_i B_R(i\to r) = w_r B_R(r\to i)$ with the étendue weight $w_k = \sin^2\theta_{k+1}-\sin^2\theta_k$, so $D^{1/2} M D^{-1/2}$ is symmetric for a suitable diagonal $D$, and the spectrum of $M$ is real. We define $N_{\mathrm{mix}} = 1/(1-|\lambda_2|)$, with $\lambda_2$ the eigenvalue of second-largest modulus (the absolute spectral gap of main ref. 20). For every structure in this work the second eigenvalue was real and positive and also the second largest in modulus. $N_{\mathrm{mix}}$ is the relaxation time, not the e-folding pass number $-1/\ln|\lambda_2|$; for $\lambda_2$ = 0.5 the two are 2 and 1.44.
 
@@ -427,25 +427,33 @@ random lenslet heights, spread 0.2 & 0.935 & 0.859 & 0.826 & 0.787 & 0.46 \\
 \end{tabular}}
 \end{table}
 
-For the hemisphere the value is insensitive to the range. For the freeform 40–60\ensuremath{^\circ} lens and for height-randomized hemispheres, the full-range value is set by grazing states, and truncation at 85\ensuremath{^\circ} brings it to the hemisphere level. Truncation at 85\ensuremath{^\circ} leaves the mean error of the reduced model unchanged (0.57 pp) and lowers the largest error for freeform lenses from 4.1 to 2.2 pp; truncation at 80\ensuremath{^\circ} raises the mean error to 0.80 pp.
+For the hemisphere the value is insensitive to the range. For the freeform 40–60\ensuremath{^\circ} lens and for height-randomized hemispheres, the full-range value is set by grazing states, and truncation at 85\ensuremath{^\circ} brings it to the hemisphere level. With the reciprocal reduced model (main-text Sec. 2.3), truncation at 85\ensuremath{^\circ} lowers the mean error over all 342 cases from 0.55 to 0.30 pp and the largest error from 4.7 to 3.0 pp; for freeform lenses the largest error falls from 4.7 to 2.1 pp.
 
-\textbf{Validation.} The reduced model of main-text Sec. 2.3 was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm (342 cases). Table S11 summarizes the absolute errors by class, in percentage points. The reduced model fails only for the wavy surfaces of rms slope 0.2 and 0.4: their $\lambda_2$ is low, but light beyond the critical angle is returned mostly to other angles beyond it (from 70–80\ensuremath{^\circ}, 3–8\% of the returned light reaches angles with $p(\theta) > 0.3$ after one pass at slope 0.2, against 50\% for uniform redistribution), so a fast-mixing rate does not imply fast access to the escape cone.
+\textbf{Reciprocity of the traced matrices.} Detailed balance requires $F_{ji} = w_i B_R(i\to j)$ to be symmetric. The relative asymmetry $\sum|F-F^{\mathsf T}|/\sum|F|$ is 0.05 (scattering layer, $g$ = 0.8, $\tau^*$ = 1), 0.06 (hemispherical MLA), 0.08 (random lenslet shapes, $s$ = 1.0), 0.10 and 0.13 (wavy surfaces of rms slope 0.2 and 1.0) on 1\ensuremath{^\circ} bins. On 5\ensuremath{^\circ} bins it is 0.009–0.024 and on 15\ensuremath{^\circ} bins 0.002–0.007, falling as expected for Monte Carlo noise; the planar matrix is exactly symmetric.
+
+\textbf{Reciprocal redistribution.} For the reduced kernel $B_R(i\to r) = (1-p_i)[(1-m)\delta_{ir} + m q_r]$, detailed balance of the mixing term requires $w_i(1-p_i)q_r = w_r(1-p_r)q_i$ for all $i, r$, i.e. $q \propto w(1-p)$. The normalized kernel is $(1-m)I + m\,q\mathbf{1}^{\mathsf T}$, with eigenvalues 1 (eigenvector $q$) and $1-m$ ($n-1$-fold), so $m = 1-\lambda_2$ matches the relaxation rate for either choice of $q$.
+
+\textbf{Late-pass escape probability.} With $D = \mathrm{diag}(w)$, detailed balance means that $D^{-1/2}B_R D^{1/2}$ is symmetric, so $\rho(B_R)$ is the maximum of the Rayleigh quotient $x^{\mathsf T} D^{-1/2}B_R D^{1/2} x / x^{\mathsf T}x$. With $x = D^{1/2}\mathbf{1}$ the quotient is $\sum_i w_i(1-p_i)/\sum_i w_i = 1-p$, which gives $p_\infty \le p$. The column sums of $B_R$ are $1-p(\theta_i)$, so $\rho \le \max(1-p)$ and $p_\infty \ge \min p$. Both are evaluated on $\theta < 85\ensuremath{^\circ}$.
+
+We also tested two scalar uses of $p_\infty$. Fitting a two-parameter reciprocal family ($B_R = \mathrm{diag}(a) + c\,(w g)\,g^{\mathsf T}$ with $g = (1-p)^{\gamma}$, which is reciprocal for any $\gamma$ and reduces to the one-parameter model at $\gamma = 1$) to both $\lambda_2$ and $\rho$ lowers the error for the shallow wavy surfaces (mean 0.5 pp) and scattering layers (0.17 pp) but raises it for MLAs (0.43–0.65 pp); averaged over all cases (0.32 pp) it is no better than the one-parameter reciprocal model. A scalar two-rate formula, with the per-pass escape probability relaxing from its first-pass value to $p_\infty$ at rate $\lambda_2$, reaches 0.5–0.9 pp for lens arrays but fails for the planar interface. Neither is used in the main text, where $p_\infty$ serves as a diagnostic through $\xi$.
+
+\textbf{Validation.} The reduced model was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm (342 cases). Table S11 summarizes the absolute errors by class, in percentage points, for the reciprocal ($q \propto w(1-p)$) and Lambertian ($q \propto w$) redistribution, both with $m = 1-\lambda_2$, and for the memoryless formula. With Lambertian redistribution the model fails for the wavy surfaces of rms slope 0.2 and 0.4: their $\lambda_2$ is low, but light beyond the critical angle is returned mostly to other angles beyond it (from 70–80\ensuremath{^\circ}, 3–8\% of the returned light reaches angles with $p(\theta) > 0.3$ after one pass at slope 0.2, against 50\% for Lambertian redistribution). The reciprocal redistribution captures most of this effect.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
 \caption*{Table S11. Error of the reduced and memoryless models by structure class (pp).}
-\resizebox{\linewidth}{!}{\begin{tabular}{llllll}
+\resizebox{\linewidth}{!}{\begin{tabular}{llllllll}
 \hline
-Class & cases & reduced mean & reduced max & memoryless mean & memoryless max \\
+Class & cases & reciprocal mean & reciprocal max & q ∝ w mean & q ∝ w max & memoryless mean & memoryless max \\
 \hline
-Planar & 9 & 0.00 & 0.00 & 44.05 & 59.89 \\
-Scattering layers & 54 & 0.96 & 4.67 & 1.83 & 11.14 \\
-Hemispherical and freeform MLAs & 81 & 0.38 & 2.22 & 3.45 & 12.33 \\
-Random lens arrays (A, B, C) & 153 & 0.44 & 1.93 & 2.41 & 10.89 \\
-Wavy, rms slope \ensuremath{\leq} 0.4 & 18 & 5.40 & 10.51 & 8.66 & 21.73 \\
-Wavy, rms slope \ensuremath{\geq} 0.7 & 27 & 1.11 & 3.07 & 1.61 & 5.57 \\
-All & 342 & 0.81 & 10.51 & 3.93 & 59.89 \\
+Planar & 9 & 0.00 & 0.00 & 0.00 & 0.00 & 44.05 & 59.89 \\
+Scattering layers & 54 & 0.29 & 2.49 & 0.96 & 4.67 & 1.83 & 11.14 \\
+Hemispherical and freeform MLAs & 81 & 0.41 & 2.09 & 0.38 & 2.22 & 3.45 & 12.33 \\
+Random lens arrays (A, B, C) & 153 & 0.16 & 0.51 & 0.44 & 1.93 & 2.41 & 10.89 \\
+Wavy, rms slope \ensuremath{\geq} 0.7 & 27 & 0.19 & 1.06 & 1.11 & 3.07 & 1.61 & 5.57 \\
+Wavy, rms slope \ensuremath{\leq} 0.4 & 18 & 1.40 & 2.99 & 5.40 & 10.51 & 8.66 & 21.73 \\
+All & 342 & 0.30 & 2.99 & 0.81 & 10.51 & 3.93 & 59.89 \\
 \hline
 \end{tabular}}
 \end{table}
@@ -463,49 +471,49 @@ All & 342 & 0.81 & 10.51 & 3.93 & 59.89 \\
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption*{\textbf{Table S12 | Structure library at 550 nm.} $p$: escape probability for uniform radiance; $|\lambda_2|$ on $\theta < 85\ensuremath{^\circ}$; $\eta$: substrate-to-air extraction (full series) for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60\ensuremath{^\circ} share of the multi-pass output (Al); last column: reduced model minus full series (Al). Random structures: A, lenslet shape spread $s$; B, lenslet height spread \ensuremath{\pm}$s$; C, position jitter (fraction of the pitch); C2, as C with \ensuremath{\pm}20\% radius spread; W, wavy surface of the given rms slope. Scattering layers are labelled by $g$ and $\tau^*$; MLAs by the objective of the benchmark optimum they reproduce.}
-\resizebox{\linewidth}{!}{\begin{tabular}{lllllllll}
+\caption*{\textbf{Table S12 | Structure library at 550 nm.} $p$: escape probability for uniform radiance; $\lambda_2$ (absolute value) and $p_\infty = 1-\rho(B_R)$ on $\theta < 85\ensuremath{^\circ}$; $\xi = p_\infty/p$ with $p$ on the same range; $\eta$: substrate-to-air extraction (full series) for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60\ensuremath{^\circ} share of the multi-pass output (Al); last two columns: reciprocal and Lambertian reduced model minus full series (Al). Random structures: A, lenslet shape spread $s$; B, lenslet height spread \ensuremath{\pm}$s$; C, position jitter (fraction of the pitch); C2, as C with \ensuremath{\pm}20\% radius spread; W, wavy surface of the given rms slope. Scattering layers are labelled by $g$ and $\tau^*$; MLAs by the objective of the benchmark optimum they reproduce.}
+\resizebox{\linewidth}{!}{\begin{tabular}{llllllllllll}
 \hline
-Structure & p & \ensuremath{\lambda}₂ & N_mix & η Al & η Ag & η LL & S40–60 (Al) & reduced err. Al (pp) \\
+Structure & p & \ensuremath{\lambda}₂ & N_mix & p∞ & ξ & η Al & η Ag & η LL & S40–60 (Al) & err. recip. Al (pp) & err. q∝w Al (pp) \\
 \hline
-planar & 0.398 & 1.000 & ∞ & 0.384 & 0.356 & 0.664 & 0.334 & -0.00 \\
-scatter g0.0_t0.25 & 0.381 & 0.555 & 2.2 & 0.675 & 0.874 & 0.945 & 0.349 & +4.21 \\
-scatter g0.0_t1.0 & 0.324 & 0.085 & 1.1 & 0.725 & 0.907 & 0.949 & 0.353 & +1.24 \\
-scatter g0.8_t0.25 & 0.386 & 0.138 & 1.2 & 0.749 & 0.914 & 0.959 & 0.359 & +3.04 \\
-scatter g0.8_t1.0 & 0.326 & 0.147 & 1.2 & 0.737 & 0.913 & 0.951 & 0.354 & +0.34 \\
-scatter g0.9_t1.0 & 0.326 & 0.171 & 1.2 & 0.738 & 0.913 & 0.951 & 0.354 & +0.29 \\
-scatter g0.8_t4.0 & 0.188 & 0.141 & 1.2 & 0.579 & 0.838 & 0.901 & 0.353 & +0.14 \\
-MLA free_20-40 & 0.429 & 0.737 & 3.8 & 0.788 & 0.925 & 0.967 & 0.352 & +0.32 \\
-MLA free_40-60 & 0.425 & 0.867 & 7.5 & 0.789 & 0.929 & 0.961 & 0.360 & -0.44 \\
-MLA free_60-80 & 0.417 & 0.671 & 3.0 & 0.785 & 0.929 & 0.966 & 0.349 & -0.21 \\
-MLA free_total & 0.424 & 0.782 & 4.6 & 0.771 & 0.914 & 0.961 & 0.341 & +0.44 \\
-MLA hemi_0-20 & 0.423 & 0.863 & 7.3 & 0.790 & 0.924 & 0.964 & 0.328 & +0.13 \\
-MLA hemi_20-40 & 0.422 & 0.857 & 7.0 & 0.793 & 0.926 & 0.964 & 0.327 & +0.23 \\
-MLA hemi_40-60 & 0.425 & 0.875 & 8.0 & 0.783 & 0.920 & 0.965 & 0.339 & -0.03 \\
-MLA hemi_60-80 & 0.420 & 0.840 & 6.2 & 0.792 & 0.926 & 0.965 & 0.331 & +0.20 \\
-MLA hemi_total & 0.422 & 0.859 & 7.1 & 0.792 & 0.925 & 0.964 & 0.327 & +0.19 \\
-A_shape0.0 & 0.422 & 0.858 & 7.0 & 0.794 & 0.927 & 0.965 & 0.328 & +0.24 \\
-A_shape0.1 & 0.421 & 0.733 & 3.8 & 0.797 & 0.931 & 0.966 & 0.336 & +0.27 \\
-A_shape0.2 & 0.421 & 0.628 & 2.7 & 0.799 & 0.934 & 0.966 & 0.349 & +0.39 \\
-A_shape0.4 & 0.422 & 0.595 & 2.5 & 0.794 & 0.932 & 0.966 & 0.358 & +0.57 \\
-A_shape0.7 & 0.426 & 0.470 & 1.9 & 0.788 & 0.929 & 0.966 & 0.358 & +1.31 \\
-A_shape1.0 & 0.428 & 0.487 & 1.9 & 0.785 & 0.927 & 0.966 & 0.354 & +1.47 \\
-B_aspect0.2 & 0.422 & 0.859 & 7.1 & 0.795 & 0.928 & 0.965 & 0.328 & +0.18 \\
-B_aspect0.4 & 0.422 & 0.835 & 6.0 & 0.797 & 0.930 & 0.966 & 0.332 & +0.20 \\
-B_aspect0.6 & 0.423 & 0.755 & 4.1 & 0.799 & 0.933 & 0.968 & 0.341 & +0.24 \\
-C2_jitter0.05_r20 & 0.421 & 0.761 & 4.2 & 0.798 & 0.931 & 0.966 & 0.331 & +0.34 \\
-C2_jitter0.1_r20 & 0.421 & 0.712 & 3.5 & 0.796 & 0.930 & 0.966 & 0.329 & +0.45 \\
-C2_jitter0.2_r20 & 0.420 & 0.731 & 3.7 & 0.799 & 0.932 & 0.966 & 0.335 & +0.35 \\
-C2_jitter0.3_r20 & 0.420 & 0.688 & 3.2 & 0.796 & 0.932 & 0.966 & 0.341 & +0.40 \\
-C_jitter0.05 & 0.421 & 0.838 & 6.2 & 0.796 & 0.928 & 0.965 & 0.328 & +0.25 \\
-C_jitter0.1 & 0.421 & 0.801 & 5.0 & 0.797 & 0.930 & 0.966 & 0.331 & +0.29 \\
-C_jitter0.2 & 0.421 & 0.744 & 3.9 & 0.798 & 0.932 & 0.966 & 0.336 & +0.32 \\
-C_jitter0.3 & 0.420 & 0.714 & 3.5 & 0.798 & 0.932 & 0.966 & 0.340 & +0.34 \\
-W_slope0.2 & 0.402 & 0.539 & 2.2 & 0.608 & 0.815 & 0.933 & 0.334 & +9.57 \\
-W_slope0.4 & 0.410 & 0.179 & 1.2 & 0.719 & 0.896 & 0.957 & 0.348 & +6.47 \\
-W_slope0.7 & 0.417 & 0.141 & 1.2 & 0.773 & 0.923 & 0.965 & 0.335 & +2.78 \\
-W_slope1.0 & 0.422 & 0.115 & 1.1 & 0.792 & 0.932 & 0.968 & 0.329 & +1.70 \\
-W_slope1.5 & 0.427 & 0.174 & 1.2 & 0.801 & 0.935 & 0.968 & 0.337 & +1.21 \\
+planar & 0.398 & 1.000 & ∞ & 0.000 & 0.00 & 0.384 & 0.356 & 0.664 & 0.334 & -0.00 & -0.00 \\
+scatter g0.0_t0.25 & 0.381 & 0.555 & 2.2 & 0.212 & 0.54 & 0.675 & 0.874 & 0.945 & 0.349 & -2.07 & +4.21 \\
+scatter g0.0_t1.0 & 0.324 & 0.085 & 1.1 & 0.309 & 0.93 & 0.725 & 0.907 & 0.949 & 0.353 & -0.10 & +1.24 \\
+scatter g0.8_t0.25 & 0.386 & 0.138 & 1.2 & 0.320 & 0.81 & 0.749 & 0.914 & 0.959 & 0.359 & -0.19 & +3.04 \\
+scatter g0.8_t1.0 & 0.326 & 0.147 & 1.2 & 0.326 & 0.98 & 0.737 & 0.913 & 0.951 & 0.354 & -0.08 & +0.34 \\
+scatter g0.9_t1.0 & 0.326 & 0.171 & 1.2 & 0.326 & 0.98 & 0.738 & 0.913 & 0.951 & 0.354 & -0.10 & +0.29 \\
+scatter g0.8_t4.0 & 0.188 & 0.141 & 1.2 & 0.194 & 0.99 & 0.579 & 0.838 & 0.901 & 0.353 & -0.06 & +0.14 \\
+MLA free_20-40 & 0.429 & 0.737 & 3.8 & 0.251 & 0.58 & 0.788 & 0.925 & 0.967 & 0.352 & -0.69 & +0.32 \\
+MLA free_40-60 & 0.425 & 0.867 & 7.5 & 0.167 & 0.39 & 0.789 & 0.929 & 0.961 & 0.360 & -1.11 & -0.44 \\
+MLA free_60-80 & 0.417 & 0.671 & 3.0 & 0.337 & 0.79 & 0.785 & 0.929 & 0.966 & 0.349 & -1.46 & -0.21 \\
+MLA free_total & 0.424 & 0.782 & 4.6 & 0.199 & 0.46 & 0.771 & 0.914 & 0.961 & 0.341 & -0.89 & +0.44 \\
+MLA hemi_0-20 & 0.423 & 0.863 & 7.3 & 0.190 & 0.44 & 0.790 & 0.924 & 0.964 & 0.328 & -0.38 & +0.13 \\
+MLA hemi_20-40 & 0.422 & 0.857 & 7.0 & 0.203 & 0.47 & 0.793 & 0.926 & 0.964 & 0.327 & -0.21 & +0.23 \\
+MLA hemi_40-60 & 0.425 & 0.875 & 8.0 & 0.181 & 0.42 & 0.783 & 0.920 & 0.965 & 0.339 & -0.64 & -0.03 \\
+MLA hemi_60-80 & 0.420 & 0.840 & 6.2 & 0.214 & 0.50 & 0.792 & 0.926 & 0.965 & 0.331 & -0.24 & +0.20 \\
+MLA hemi_total & 0.422 & 0.859 & 7.1 & 0.199 & 0.47 & 0.792 & 0.925 & 0.964 & 0.327 & -0.27 & +0.19 \\
+A_shape0.0 & 0.422 & 0.858 & 7.0 & 0.214 & 0.50 & 0.794 & 0.927 & 0.965 & 0.328 & -0.15 & +0.24 \\
+A_shape0.1 & 0.421 & 0.733 & 3.8 & 0.279 & 0.65 & 0.797 & 0.931 & 0.966 & 0.336 & -0.30 & +0.27 \\
+A_shape0.2 & 0.421 & 0.628 & 2.7 & 0.334 & 0.78 & 0.799 & 0.934 & 0.966 & 0.349 & -0.28 & +0.39 \\
+A_shape0.4 & 0.422 & 0.595 & 2.5 & 0.343 & 0.80 & 0.794 & 0.932 & 0.966 & 0.358 & -0.40 & +0.57 \\
+A_shape0.7 & 0.426 & 0.470 & 1.9 & 0.344 & 0.79 & 0.788 & 0.929 & 0.966 & 0.358 & -0.27 & +1.31 \\
+A_shape1.0 & 0.428 & 0.487 & 1.9 & 0.335 & 0.77 & 0.785 & 0.927 & 0.966 & 0.354 & -0.23 & +1.47 \\
+B_aspect0.2 & 0.422 & 0.859 & 7.1 & 0.184 & 0.43 & 0.795 & 0.928 & 0.965 & 0.328 & -0.20 & +0.18 \\
+B_aspect0.4 & 0.422 & 0.835 & 6.0 & 0.215 & 0.50 & 0.797 & 0.930 & 0.966 & 0.332 & -0.18 & +0.20 \\
+B_aspect0.6 & 0.423 & 0.755 & 4.1 & 0.294 & 0.69 & 0.799 & 0.933 & 0.968 & 0.341 & -0.19 & +0.24 \\
+C2_jitter0.05_r20 & 0.421 & 0.761 & 4.2 & 0.281 & 0.66 & 0.798 & 0.931 & 0.966 & 0.331 & -0.12 & +0.34 \\
+C2_jitter0.1_r20 & 0.421 & 0.712 & 3.5 & 0.300 & 0.70 & 0.796 & 0.930 & 0.966 & 0.329 & -0.15 & +0.45 \\
+C2_jitter0.2_r20 & 0.420 & 0.731 & 3.7 & 0.294 & 0.69 & 0.799 & 0.932 & 0.966 & 0.335 & -0.13 & +0.35 \\
+C2_jitter0.3_r20 & 0.420 & 0.688 & 3.2 & 0.314 & 0.74 & 0.796 & 0.932 & 0.966 & 0.341 & -0.21 & +0.40 \\
+C_jitter0.05 & 0.421 & 0.838 & 6.2 & 0.215 & 0.50 & 0.796 & 0.928 & 0.965 & 0.328 & -0.15 & +0.25 \\
+C_jitter0.1 & 0.421 & 0.801 & 5.0 & 0.245 & 0.57 & 0.797 & 0.930 & 0.966 & 0.331 & -0.15 & +0.29 \\
+C_jitter0.2 & 0.421 & 0.744 & 3.9 & 0.281 & 0.66 & 0.798 & 0.932 & 0.966 & 0.336 & -0.18 & +0.32 \\
+C_jitter0.3 & 0.420 & 0.714 & 3.5 & 0.298 & 0.70 & 0.798 & 0.932 & 0.966 & 0.340 & -0.20 & +0.34 \\
+W_slope0.2 & 0.402 & 0.539 & 2.2 & 0.142 & 0.35 & 0.608 & 0.815 & 0.933 & 0.334 & -2.71 & +9.57 \\
+W_slope0.4 & 0.410 & 0.179 & 1.2 & 0.264 & 0.63 & 0.719 & 0.896 & 0.957 & 0.348 & -1.27 & +6.47 \\
+W_slope0.7 & 0.417 & 0.141 & 1.2 & 0.348 & 0.81 & 0.773 & 0.923 & 0.965 & 0.335 & -0.37 & +2.78 \\
+W_slope1.0 & 0.422 & 0.115 & 1.1 & 0.377 & 0.87 & 0.792 & 0.932 & 0.968 & 0.329 & -0.07 & +1.70 \\
+W_slope1.5 & 0.427 & 0.174 & 1.2 & 0.387 & 0.88 & 0.801 & 0.935 & 0.968 & 0.337 & -0.09 & +1.21 \\
 \hline
 \end{tabular}}
 \end{table}
