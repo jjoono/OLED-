@@ -49,7 +49,7 @@ The inverted family uses a model file identical to the convex one except for the
 
 ---
 
-**Fig. S9 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture: CPS microcavity dipole source (emitting radius 1 mm), glass substrate ($d_{\mathrm{sub}} = 1.295$ mm), hexagonal lenslet array (~10 μm lens radius, 25 × 25 mm). (b) The two lens classes under identical constraints, in units of the lens radius: the hemispherical reference (3 free variables) and the axisymmetric freeform (13 variables). Open circles are the five free spline control points; the freeform shown is the 40–60° optimum. (c) The four polar bands and the band selectivity $S_j$, taken over the full azimuth. (d) Optimization workflow: CPS source, LightTools ray tracing through the MATLAB COM interface, surrogate-based global search, pattern-search polishing, and high-ray re-evaluation. *(`fig1_platform.png`)*
+**Fig. S1 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture: CPS microcavity dipole source (emitting radius 1 mm), glass substrate ($d_{\mathrm{sub}} = 1.295$ mm), hexagonal lenslet array (~10 μm lens radius, 25 × 25 mm). (b) The two lens classes under identical constraints, in units of the lens radius: the hemispherical reference (3 free variables) and the axisymmetric freeform (13 variables). Open circles are the five free spline control points; the freeform shown is the 40–60° optimum. (c) The four polar bands and the band selectivity $S_j$, taken over the full azimuth. (d) Optimization workflow: CPS source, LightTools ray tracing through the MATLAB COM interface, surrogate-based global search, pattern-search polishing, and high-ray re-evaluation. *(`fig1_platform.png`)*
 
 ---
 
@@ -91,7 +91,7 @@ Uncertainties are the standard deviation over three high-precision repeats.
 
 **Reading the control.** The control is one-sided: the hemisphere is among the screened candidates, so the result cannot fall meaningfully below it. It is also biased toward reporting a gain, because the winner is the maximum over roughly seventy noisy search evaluations per arm. The near-zero outcomes are therefore conservative. The two groups differ in scale: residues of +0.29% to +0.32%, against margins of +1.01% to +4.70% at $t = 30$ to 115. This separation shows that the residues reflect an essentially absent margin rather than a weak search. In the 60–80° arm the restart also beat the original campaign's own optimum, so starting at the hemisphere is simply a better search protocol in this design space. The two original sub-unity values were a search artifact, and the corrected values are 1.003 and 1.002.
 
-**Fig. S1 | Restart control.** (a) Hemisphere baseline (re-measured in the same session) and restarted optimum for every arm, with standard deviations over three repeats and the $t$ value of each difference. (b) Five-repeat confirmation of the 20–40° arm: individual repeats and means for both designs ($t = 4.1$, +0.29%). *(`figS1_restart_control.png`)*
+**Fig. S2 | Restart control.** (a) Hemisphere baseline (re-measured in the same session) and restarted optimum for every arm, with standard deviations over three repeats and the $t$ value of each difference. (b) Five-repeat confirmation of the 20–40° arm: individual repeats and means for both designs ($t = 4.1$, +0.29%). *(`figS1_restart_control.png`)*
 
 ---
 
@@ -114,7 +114,7 @@ Three observations follow.
 2. The angular composition is converged with respect to patch size. While the total gains 3.8% from 25 to 100 mm, no band selectivity changes by more than 0.24 pp (0.11 pp between 25 and 35 mm). All ratios, correlations, and class comparisons are evaluated at equal patch and are unaffected.
 3. The weighted-sweep campaign's archived best total, 0.5556, falls between the 35 mm and 100 mm values of the same design, while the design re-measures at 0.5428 on the 25 mm patch. That campaign's absolute normalization therefore corresponds to a larger effective patch. Its absolute totals are excluded from the $G_j$ comparison (Table S3). Its compositions and correlations, being ratios, are used. Its coarse-fidelity log maximum (0.5591 at 10,000 rays) is not used anywhere.
 
-**Fig. S2 | Patch-size dependence.** (a) Total EQE of one fixed design versus textured patch size, with the hemisphere baseline at 25 mm for scale. (b) Band selectivity of the same design versus patch size: the composition does not move. *(`figS2_patch_dependence.png`)*
+**Fig. S3 | Patch-size dependence.** (a) Total EQE of one fixed design versus textured patch size, with the hemisphere baseline at 25 mm for scale. (b) Band selectivity of the same design versus patch size: the composition does not move. *(`figS2_patch_dependence.png`)*
 
 ---
 
@@ -135,11 +135,11 @@ Three observations follow.
 
 The choices differ by at most 0.003 in any band.
 
-**Dedicated versus natural.** The band-dedicated optima of the per-band campaign reach selectivities of 0.119 / 0.300 / 0.364 / 0.283. These are +27%, +8%, +1%, and +20% above the natural medians. The same designs lose total EQE: 3%, 2%, 1%, and 11% below that campaign's best total of 0.548. The net band-power gain is the product of the selectivity gain and the total-EQE ratio: 1.22, 1.05, 1.00, and 1.07 (Fig. S3). A stricter benchmark compares each dedicated optimum with the best value of the same band reached incidentally while another band was being optimized. Against that benchmark the dedicated optima win by only 6.3%, 0.6%, 4.5%, and 5.8%.
+**Dedicated versus natural.** The band-dedicated optima of the per-band campaign reach selectivities of 0.119 / 0.300 / 0.364 / 0.283. These are +27%, +8%, +1%, and +20% above the natural medians. The same designs lose total EQE: 3%, 2%, 1%, and 11% below that campaign's best total of 0.548. The net band-power gain is the product of the selectivity gain and the total-EQE ratio: 1.22, 1.05, 1.00, and 1.07 (Fig. S4). A stricter benchmark compares each dedicated optimum with the best value of the same band reached incidentally while another band was being optimized. Against that benchmark the dedicated optima win by only 6.3%, 0.6%, 4.5%, and 5.8%.
 
-**Fig. S3 | Gain decomposition of the band-dedicated optima.** Selectivity gain $S_{\mathrm{win}}/S_{\mathrm{nat}}$, total-EQE ratio $E_{\mathrm{win}}/E_{\max}$, and their product, the net band-power gain (labelled). *(`figS3_gain_decomposition.png`)*
+**Fig. S4 | Gain decomposition of the band-dedicated optima.** Selectivity gain $S_{\mathrm{win}}/S_{\mathrm{nat}}$, total-EQE ratio $E_{\mathrm{win}}/E_{\max}$, and their product, the net band-power gain (labelled). *(`figS3_gain_decomposition.png`)*
 
-**Selectivity across the design space.** Fig. S4 shows the four bands separately, over all 606 usable evaluations of the weighted-sum campaign. The log holds 691 evaluations. The remaining 85 traces failed to return a positive total EQE. The correlations between total EQE and $S_j$ are +0.60, +0.55, −0.12, and −0.57. With the bands normalized to 0–80° instead of 0–90° they become +0.60, +0.55, −0.23, and −0.59. The 80–90° remainder is 3.1% for the median design (2.1–8.2% over all designs) and falls as efficiency rises (correlation −0.63).
+**Selectivity across the design space.** Fig. S5 shows the four bands separately, over all 606 usable evaluations of the weighted-sum campaign. The log holds 691 evaluations. The remaining 85 traces failed to return a positive total EQE. The correlations between total EQE and $S_j$ are +0.60, +0.55, −0.12, and −0.57. With the bands normalized to 0–80° instead of 0–90° they become +0.60, +0.55, −0.23, and −0.59. The 80–90° remainder is 3.1% for the median design (2.1–8.2% over all designs) and falls as efficiency rises (correlation −0.63).
 
 **Collapse statistics.** Least-squares fits of $\mathrm{EQE}_j$ against $\mathrm{EQE}_{\mathrm{total}}$ over the 606 usable designs (95% intervals):
 
@@ -163,11 +163,11 @@ The random designs alone reproduce the collapse, so it is not produced by correl
 
 The same count in the other logs follows. The 40–60° band is the largest in 100% of the convex per-band designs, 99.4% of the concave designs, and 100% of the randomly assembled designs. The 60–80° share exceeds the 20–40° share in 19.2%, 28.8%, and 4.6% of them, respectively.
 
-**Fig. S4 | Band selectivity across the design space.** $S_j$ versus total EQE over all 606 usable evaluations of the weighted-sum campaign, separated into random feasible designs (grey) and optimizer-visited designs (colored), one panel per band. Black lines are least-squares fits; red dashed lines mark the Lambertian partition. Each vertical axis spans only a few percentage points. *(`figS4_selectivity_map.png`)*
+**Fig. S5 | Band selectivity across the design space.** $S_j$ versus total EQE over all 606 usable evaluations of the weighted-sum campaign, separated into random feasible designs (grey) and optimizer-visited designs (colored), one panel per band. Black lines are least-squares fits; red dashed lines mark the Lambertian partition. Each vertical axis spans only a few percentage points. *(`figS4_selectivity_map.png`)*
 
 **Family comparison.** Two statistics are given for each family, both computed from the family's own log: the top-twenty median and the population mean over every usable evaluation. Both are needed. The gap between them within one family is comparable to the gap between families under either statistic. A table with only one statistic would suggest family differences that the data do not support.
 
-**Table S6 | Family comparison.**
+**Table S6c | Family comparison.**
 
 | Family | best total EQE | top-20 median (0–20 / 20–40 / 40–60 / 60–80) | population mean |
 |---|---|---|---|
@@ -185,7 +185,7 @@ Every entry lies within 0.094–0.113 (0–20°), 0.274–0.303 (20–40°), 0.3
 
 ---
 
-**Fig. S10 | Total efficiency fixes the angular composition.** (a) Total EQE versus 40–60° band EQE for random feasible designs (grey) and optimizer-visited designs (green) of the weighted-sum campaign. All points collapse onto one near-linear locus (black line, $R^2 = 0.968$, $n = 606$). (b) Selectivity of each band-dedicated optimum (red) against the natural composition of the twenty most efficient designs (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity versus total EQE for all four bands, with least-squares fits and the correlation $R$ in the legend. Among designs with total EQE ≥ 0.40 the 40–60° band is always the largest; the 20–40° and 60–80° fits cross only in the inefficient region. *(`fig3_efficiency_composition.png`)*
+**Fig. S6 | Total efficiency fixes the angular composition.** (a) Total EQE versus 40–60° band EQE for random feasible designs (grey) and optimizer-visited designs (green) of the weighted-sum campaign. All points collapse onto one near-linear locus (black line, $R^2 = 0.968$, $n = 606$). (b) Selectivity of each band-dedicated optimum (red) against the natural composition of the twenty most efficient designs (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity versus total EQE for all four bands, with least-squares fits and the correlation $R$ in the legend. Among designs with total EQE ≥ 0.40 the 40–60° band is always the largest; the 20–40° and 60–80° fits cross only in the inefficient region. *(`fig3_efficiency_composition.png`)*
 
 ---
 
@@ -204,7 +204,7 @@ Twenty designs stratified across the efficiency range were re-evaluated under th
 
 The drift is therefore neither Monte-Carlo noise nor a narrowband artifact.
 
-**Fig. S5 | Convergence of the drift.** Correlation between total EQE and $S_j$ for the stratified 20-design subset under the three evaluation conditions of Table S7. *(`figS5_convergence.png`)*
+**Fig. S7 | Convergence of the drift.** Correlation between total EQE and $S_j$ for the stratified 20-design subset under the three evaluation conditions of Table S7. *(`figS5_convergence.png`)*
 
 ---
 
@@ -227,23 +227,23 @@ One fixed geometry (seed 7777, mid-range assembly statistics) was re-evaluated u
 
 The adopted combination is 4.3× faster and shifts selectivity by 0.39 pp. This equals the Monte-Carlo spread measured by repeating one design (0.5% relative on total EQE). Two individual reductions exceed 0.5 pp on their own, but their effects do not accumulate. This indicates that the deviations are noise rather than bias. The accuracy columns are exactly reproducible because the seed is fixed. The wall-clock times vary by a few percent with machine load. The supercell carries 6 × 6 lenslets on a 141 × 141 height grid. The disorder correlation length is one lenslet pitch, a sixth of the supercell.
 
-**Fig. S6 | Supercell cost calibration.** Evaluation time (bars, with speed-up) and largest selectivity deviation from the reference (red markers) for each sampling reduction and for the adopted combination. *(`figS6_cost_calibration.png`)*
+**Fig. S8 | Supercell cost calibration.** Evaluation time (bars, with speed-up) and largest selectivity deviation from the reference (red markers) for each sampling reduction and for the adopted combination. *(`figS6_cost_calibration.png`)*
 
 ---
 
 ## Note S7 | Inverted and randomly assembled MLA families
 
-We next ask whether the result depends on the array construction. We repeat the analysis for the inverted (concave) and the randomly assembled families (Fig. S7), using the same statistics, each computed from the family's own evaluation log. The concave family uses exactly the variable bounds and feasibility rules of main-text Table 1. Three signatures of saturation recur in all three families:
+We next ask whether the result depends on the array construction. We repeat the analysis for the inverted (concave) and the randomly assembled families (Fig. S9), using the same statistics, each computed from the family's own evaluation log. The concave family uses exactly the variable bounds and feasibility rules of main-text Table 1. Three signatures of saturation recur in all three families:
 
-- **Collapse.** The (total EQE, 40–60° EQE) points again collapse onto a line. $R^2$ is 0.94 for the convex per-band campaign, 0.94 for the concave family, and 0.84 for the random family (Fig. S7, left column). The logs differ in sampling density and, for the random family, in fidelity, so we read these values only as evidence that the collapse recurs, not as a ranking of the families.
+- **Collapse.** The (total EQE, 40–60° EQE) points again collapse onto a line. $R^2$ is 0.94 for the convex per-band campaign, 0.94 for the concave family, and 0.84 for the random family (Fig. S9, left column). The logs differ in sampling density and, for the random family, in fidelity, so we read these values only as evidence that the collapse recurs, not as a ranking of the families.
 - **Narrow composition.** The concave family's best total EQE is 0.517, 6% below the convex 0.548, as expected for a recessed rather than protruding surface. Its natural composition is 0.113 / 0.303 / 0.340 / 0.215. The random family reaches 0.522 ± 0.001 over three disorder realizations, a coefficient of variation of 0.2%. Only the assembly statistics matter, not the particular realization. Its natural composition is 0.111 / 0.299 / 0.347 / 0.213. Band-dedicated optimization of the concave family gives a largest net band-power gain of 1.19, in the 60–80° band, close to the convex family's 1.22.
-- **Same direction of tilt.** Selectivity again rises with efficiency at 0–40° and falls at 60–80° (Fig. S7, right column). The 40–60° correlation is weak in the two periodic families and negative in the random one. In every family the 40–60° band remains the largest in at least 99% of sampled designs.
+- **Same direction of tilt.** Selectivity again rises with efficiency at 0–40° and falls at 60–80° (Fig. S9, right column). The 40–60° correlation is weak in the two periodic families and negative in the random one. In every family the 40–60° band remains the largest in at least 99% of sampled designs.
 
-The families also bound how far the composition can be moved at all. Every high-efficiency composition we obtained lies within 0.09–0.11 (0–20°), 0.28–0.30 (20–40°), 0.34–0.36 (40–60°), and 0.21–0.24 (60–80°). This spans three constructions, four single-band objectives, and two averaging conventions (top-twenty median and population mean). The change from convex to concave lenslets moves the composition to the edge of this window. The shift is at most 0.02 in any band, about the same as switching the averaging convention within one family (Note S4, Table S6). Positional disorder and per-lenslet shape disorder leave the composition inside the window. The composition is therefore set by the platform—extended source, thick substrate, coextensive external film—not by any design variable within it.
+The families also bound how far the composition can be moved at all. Every high-efficiency composition we obtained lies within 0.09–0.11 (0–20°), 0.28–0.30 (20–40°), 0.34–0.36 (40–60°), and 0.21–0.24 (60–80°). This spans three constructions, four single-band objectives, and two averaging conventions (top-twenty median and population mean). The change from convex to concave lenslets moves the composition to the edge of this window. The shift is at most 0.02 in any band, about the same as switching the averaging convention within one family (Note S4, Table S6c). Positional disorder and per-lenslet shape disorder leave the composition inside the window. The composition is therefore set by the platform—extended source, thick substrate, coextensive external film—not by any design variable within it.
 
 The randomly assembled MLA should not be confused with a volumetric scattering layer. Each lenslet remains a refractive surface with deterministic local normals and a single index step. A scattering layer instead redirects light by multiple volumetric scattering. Its behaviour depends on the particle–matrix index contrast and loading, which are not parameters of this study. Our conclusions apply to refractive external films and make no comparison with scattering layers.
 
-**Fig. S7 | Generality across external-film MLA families.** Rows: convex freeform (reference, per-band campaign), inverted (concave), and randomly assembled (pseudo-random supercell). Every statistic is computed from each family's own evaluation log. (a1–c1) Total EQE versus 40–60° band EQE with a least-squares line; the near-linear collapse recurs in all three families. (a2–c2) Natural composition (top-twenty median, colored) against the convex reference (grey) and the Lambertian partition (dashed outline). The open circle is the population mean of the same family; the spread between statistics is comparable to the spread between families. (a3–c3) Correlation $R$ between total EQE and $S_j$, per band, against the convex reference. *(`fig4_families.png`)*
+**Fig. S9 | Generality across external-film MLA families.** Rows: convex freeform (reference, per-band campaign), inverted (concave), and randomly assembled (pseudo-random supercell). Every statistic is computed from each family's own evaluation log. (a1–c1) Total EQE versus 40–60° band EQE with a least-squares line; the near-linear collapse recurs in all three families. (a2–c2) Natural composition (top-twenty median, colored) against the convex reference (grey) and the Lambertian partition (dashed outline). The open circle is the population mean of the same family; the spread between statistics is comparable to the spread between families. (a3–c3) Correlation $R$ between total EQE and $S_j$, per band, against the convex reference. *(`fig4_families.png`)*
 
 ---
 
@@ -269,7 +269,7 @@ The asymmetric shapes could shift the centroid and fine structure of the far fie
 
 **Depletion.** With the angle-preserving device, the escape probability of the hemispherical total-EQE design falls pass by pass: 0.43, 0.39, 0.35, 0.31, 0.27, 0.23 (Al) and 0.41, 0.37, 0.34, 0.30, 0.27, 0.24 (Ag). Light at angles the lens transmits well leaves first, and the remainder sits at angles it transmits poorly. With the Lambertian reset the escape probability stays at 0.42.
 
-**Table S10 | Extraction efficiency at a common cavity (550 nm).**
+**Table S9 | Extraction efficiency at a common cavity (550 nm).**
 
 | Lens | Al, angle-preserving | Al, reset | Ag, angle-preserving | Ag, reset |
 |---|---|---|---|---|
@@ -283,7 +283,7 @@ The reset raises the extraction by 2.7–5.5% (Al) and 1.2–3.0% (Ag), and the 
 
 **Consequences.** Breaking the angle retention of the returned light does not restore leverage to the lens shape; it removes most of what remains, because every lens then sees the same Lambertian input on every pass.
 
-**Fig. S8 | Angle-preserving versus Lambertian-reset device reflection.** (a) Escape probability per pass for the hemispherical total-EQE design with the Al cathode. (b) Extraction efficiency of nine optimized lenses at a common cavity, with Al and Ag cathodes. (c) Range of the output composition over the nine lenses (Al), with the Lambertian partition for reference. *(`figS8_angle_reset.png`)*
+**Fig. S10 | Angle-preserving versus Lambertian-reset device reflection.** (a) Escape probability per pass for the hemispherical total-EQE design with the Al cathode. (b) Extraction efficiency of nine optimized lenses at a common cavity, with Al and Ag cathodes. (c) Range of the output composition over the nine lenses (Al), with the Lambertian partition for reference. *(`figS8_angle_reset.png`)*
 
 ---
 
@@ -291,9 +291,9 @@ The reset raises the extraction by 2.7–5.5% (Al) and 1.2–3.0% (Ag), and the 
 
 **Definition.** The return matrix $B_R(\theta_i\to\theta_r)$ of a structure gives the fraction of the power incident in polar bin $i$ that re-enters the substrate in bin $r$. Normalizing every column by the returned fraction $1-p(\theta_i)$ gives the column-stochastic kernel $M$ of the conditional Markov chain of the returned light. When transmission or absorption removes light, the surviving light relaxes to a quasi-stationary distribution; normalizing the columns separates this escape from the redistribution itself. For a reciprocal structure $w_i B_R(i\to r) = w_r B_R(r\to i)$ with the étendue weight $w_k = \sin^2\theta_{k+1}-\sin^2\theta_k$, so $D^{1/2} M D^{-1/2}$ is symmetric for a suitable diagonal $D$, and the spectrum of $M$ is real. We define $N_{\mathrm{mix}} = 1/(1-|\lambda_2|)$, with $\lambda_2$ the eigenvalue of second-largest modulus (the absolute spectral gap of main ref. 20). For every structure in this work the second eigenvalue was real and positive and also the second largest in modulus. $N_{\mathrm{mix}}$ is the relaxation time, not the e-folding pass number $-1/\ln|\lambda_2|$; for $\lambda_2$ = 0.5 the two are 2 and 1.44.
 
-**Grazing-angle truncation.** Bins near 90° carry almost no étendue but can return light at their own angle; a few such states can then dominate $\lambda_2$ without affecting extraction. We therefore evaluate $\lambda_2$ on $\theta < 85°$, which excludes 0.76% of the étendue. Table S11 shows the effect.
+**Grazing-angle truncation.** Bins near 90° carry almost no étendue but can return light at their own angle; a few such states can then dominate $\lambda_2$ without affecting extraction. We therefore evaluate $\lambda_2$ on $\theta < 85°$, which excludes 0.76% of the étendue. Table S10 shows the effect.
 
-**Table S11 | Sensitivity of $|\lambda_2|$ to the angular range.**
+**Table S10 | Sensitivity of $|\lambda_2|$ to the angular range.**
 
 | Structure | 0–90° | 0–85° | 0–80° | 0–70° | weight of second eigenvector above 80° |
 |---|---|---|---|---|---|
@@ -304,7 +304,7 @@ The reset raises the extraction by 2.7–5.5% (Al) and 1.2–3.0% (Ag), and the 
 
 For the hemisphere the value is insensitive to the range. For the freeform 40–60° lens and for height-randomized hemispheres, the full-range value is set by grazing states, and truncation at 85° brings it to the hemisphere level. Truncation at 85° leaves the mean error of the reduced model unchanged (0.57 pp) and lowers the largest error for freeform lenses from 4.1 to 2.2 pp; truncation at 80° raises the mean error to 0.80 pp.
 
-**Validation.** The reduced model of main-text Sec. 2.3 was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm. Table S12 summarizes the errors by class. [Table S12 and the spectrally averaged comparison to be completed with the final library.]
+**Validation.** The reduced model of main-text Sec. 2.3 was compared with the full series for every structure of the library (Note S11), with the Al, Ag, and low-loss devices at 500, 550, and 600 nm. Table S11 summarizes the errors by class. [Table S11 and the spectrally averaged comparison to be completed with the final library.]
 
 ---
 
@@ -318,38 +318,41 @@ For the hemisphere the value is insensitive to the range. For the freeform 40–
 
 **Scattering layers.** Non-absorbing, index-matched slabs with a Henyey–Greenstein phase function, Monte Carlo with 20,000 rays per 0.5° incidence bin, combined with the flat exit face by the adding method.
 
-**Table S13 | Randomness sweep.** [To be completed when the sweep finishes: $p$, $|\lambda_2|$, $N_{\mathrm{mix}}$, $\eta_{\mathrm{sta}}$ (Al, Ag, low loss), $S_{40\text{–}60}$ for every random structure.]
+**Table S12 | Randomness sweep.** [To be completed when the sweep finishes: $p$, $|\lambda_2|$, $N_{\mathrm{mix}}$, $\eta_{\mathrm{sta}}$ (Al, Ag, low loss), $S_{40\text{–}60}$ for every random structure.]
 
 ---
 
 ## Reproducing the figures and data
 
-All main-text figures are produced by `make_figures.py`. The supplementary figures and the raw-data workbooks are produced by `make_supp_figures_and_data.py`. Run both from the repository root, in this order:
+Main-text Figs. 1–4 are produced by `selectivity/oe_figs.py`, which builds the structure library (Note S11), evaluates the full and reduced models, and writes each figure to `figures_oe/` as PNG (300 dpi), PDF, and an Excel workbook with one sheet per panel holding exactly the plotted arrays. The random-structure return matrices are generated by `multipass_reset/run_random_sweep.py` (tracer `hftrace_gen.py`). Main-text Fig. 5 and Figs. S1–S10 come from the freeform campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`.
 
 ```
+cd multipass_reset && python3 run_random_sweep.py && cd ..
+cd selectivity && python3 extract_inputs.py && python3 run_devices.py && python3 oe_figs.py && cd ..
 python3 make_figures.py
 python3 make_supp_figures_and_data.py
 ```
 
-The first script reads only the archived result files, prints every number quoted in the captions to `figure_numbers.txt`, and writes each figure as PNG (300 dpi) and PDF. The second exports an Excel workbook for every figure, main and supplementary, named after the figure (e.g. `fig2_hemisphere_benchmark.xlsx` alongside `fig2_hemisphere_benchmark.png`). Each workbook has one sheet per panel with exactly the plotted arrays, so any figure can be re-plotted or restyled without the `.mat` archives. The export script imports the plotting script, so the workbooks cannot drift from the figures.
-
-**Table S9 | Figure files and their inputs.**
+**Table S13 | Figure files and their inputs.**
 
 | Figure | Output | Inputs |
 |---|---|---|
-| Fig. 1 | `fig1_platform` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
-| Fig. 2 | `fig2_hemisphere_benchmark` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat`, `warmstart_hemisphere_result.mat`, `freeform_EQEtotal_result.mat` |
-| Fig. 3 | `fig3_efficiency_composition` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat` |
-| Fig. 4 | `fig4_families` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
-| Fig. S1 | `figS1_restart_control` | `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat` |
-| Fig. S2 | `figS2_patch_dependence` | `patch_convergence_result.mat`, `patch_convergence_100.mat` |
-| Fig. S3 | `figS3_gain_decomposition` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat` |
-| Fig. S4 | `figS4_selectivity_map` | `pareto_front_result.mat` |
-| Fig. S5 | `figS5_convergence` | `convergence_check_result.mat` |
-| Fig. S6 | `figS6_cost_calibration` | `calibrate_random_cost.mat` |
-| Fig. S7 | `figS7_recycling_model` | `angular_recycling_result.npz`, `angular_recycling_bandwidth.npz` |
-| Fig. S8 | `figS8_angle_reset` | `multipass_reset/` (`hftrace.py`, `multipass.py`, `bsdfs.npz`, `fig_reset.py`) |
+| Fig. 1 | `figures_oe/fig1_mixing_concept` | `selectivity/data/devices.npz`, `lt_hemisphere_bsdf.mat`, `multipass_reset/random_sweep/` |
+| Fig. 2 | `figures_oe/fig2_reduced_model` | structure library (Note S11), `devices.npz` |
+| Fig. 3 | `figures_oe/fig3_structure_map` | structure library, `devices.npz` |
+| Fig. 4 | `figures_oe/fig4_bound_window` | structure library, `devices.npz`, `opt_4band_result_25by25.mat` |
+| Fig. 5 | `figures_oe/fig5_hemisphere_benchmark` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat`, `warmstart_hemisphere_result.mat`, `freeform_EQEtotal_result.mat` |
+| Fig. S1 | `fig1_platform` | `opt_4band_result_25by25.mat`, `opt_hemisphere_result.mat` |
+| Fig. S2 | `figS1_restart_control` | `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat` |
+| Fig. S3 | `figS2_patch_dependence` | `patch_convergence_result.mat`, `patch_convergence_100.mat` |
+| Fig. S4 | `figS3_gain_decomposition` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat` |
+| Fig. S5 | `figS4_selectivity_map` | `pareto_front_result.mat` |
+| Fig. S6 | `fig3_efficiency_composition` | `pareto_front_result.mat`, `opt_4band_result_25by25.mat` |
+| Fig. S7 | `figS5_convergence` | `convergence_check_result.mat` |
+| Fig. S8 | `figS6_cost_calibration` | `calibrate_random_cost.mat` |
+| Fig. S9 | `fig4_families` | `opt_4band_result_25by25.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat` |
+| Fig. S10 | `figS8_angle_reset` | `multipass_reset/` (`hftrace.py`, `multipass.py`, `bsdfs.npz`, `fig_reset.py`) |
 
 Each output exists as `.png`, `.pdf`, and `.xlsx`.
 
-Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat`, `calibrate_random_cost.mat`, `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat`, `patch_convergence_result.mat`, `patch_convergence_100.mat`, `convergence_check_result.mat`, `angular_recycling_result.npz`, `angular_recycling_bandwidth.npz`.
+Result archives: `pareto_front_result.mat`, `opt_4band_result_25by25.mat`, `freeform_EQEtotal_result.mat`, `opt_hemisphere_result.mat`, `opt_4band_inverted_result.mat`, `stress_random_result.mat`, `calibrate_random_cost.mat`, `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat`, `patch_convergence_result.mat`, `patch_convergence_100.mat`, `convergence_check_result.mat`, `multipass_reset/random_sweep/*.npz`.

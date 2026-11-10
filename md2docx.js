@@ -26,10 +26,11 @@ const ACCENT = '1F3864';       // deep blue for headings
 const CAPTION_GREY = '444444';
 
 const FIGS = {
-  '1': 'fig1_platform.png',
-  '2': 'fig2_hemisphere_benchmark.png',
-  '3': 'fig3_efficiency_composition.png',
-  '4': 'fig4_families.png',
+  '1': 'figures_oe/fig1_mixing_concept.png',
+  '2': 'figures_oe/fig2_reduced_model.png',
+  '3': 'figures_oe/fig3_structure_map.png',
+  '4': 'figures_oe/fig4_bound_window.png',
+  '5': 'figures_oe/fig5_hemisphere_benchmark.png',
 };
 
 // ---------- PNG size from IHDR ----------

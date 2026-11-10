@@ -17,19 +17,32 @@ OUT = Path('oe_submission')
 OUT.mkdir(exist_ok=True)
 
 FIGFILES = {
-    '1': 'figures/fig1_platform.pdf',
-    '2': 'figures/fig2_hemisphere_benchmark.pdf',
-    '3': 'figures/fig3_efficiency_composition.pdf',
-    '4': 'figures/fig4_families.pdf',
-    'S1': 'figures/figS1_restart_control.pdf',
-    'S2': 'figures/figS2_patch_dependence.pdf',
-    'S3': 'figures/figS3_gain_decomposition.pdf',
-    'S4': 'figures/figS4_selectivity_map.pdf',
-    'S5': 'figures/figS5_convergence.pdf',
-    'S6': 'figures/figS6_cost_calibration.pdf',
-    'S7': 'figures/figS7_recycling_model.pdf',
-    'S8': 'figures/figS8_angle_reset.pdf',
+    '1': 'figures/fig1_mixing_concept.pdf',
+    '2': 'figures/fig2_reduced_model.pdf',
+    '3': 'figures/fig3_structure_map.pdf',
+    '4': 'figures/fig4_bound_window.pdf',
+    '5': 'figures/fig5_hemisphere_benchmark.pdf',
+    'S1': 'figures/fig1_platform.pdf',
+    'S2': 'figures/figS1_restart_control.pdf',
+    'S3': 'figures/figS2_patch_dependence.pdf',
+    'S4': 'figures/figS3_gain_decomposition.pdf',
+    'S5': 'figures/figS4_selectivity_map.pdf',
+    'S6': 'figures/fig3_efficiency_composition.pdf',
+    'S7': 'figures/figS5_convergence.pdf',
+    'S8': 'figures/figS6_cost_calibration.pdf',
+    'S9': 'figures/fig4_families.pdf',
+    'S10': 'figures/figS8_angle_reset.pdf',
 }
+# source of every figure PDF (copied into oe_submission/figures/ on each run)
+import shutil
+for _f in FIGFILES.values():
+    _n = Path(_f).name
+    _src = Path('figures_oe') / _n if (Path('figures_oe') / _n).exists() else Path(_n)
+    (OUT / 'figures').mkdir(exist_ok=True)
+    if _src.exists():
+        shutil.copy(_src, OUT / 'figures' / _n)
+    else:
+        print('missing figure', _src)
 
 
 # ---------------- character / inline conversions ----------------
@@ -298,10 +311,10 @@ for b in blocks:
         sout.append('\\section*{' + esc_text(b[3:]) + '}')
     elif re.match(r'\*\*Table S?\d+ \|', b):
         pend = re.sub(r'^\*\*(Table S?\d+) \|\s*(.+?)\*\*$', r'\1. \2', b)
-    elif re.match(r'\*\*Fig\. (S\d) \|', b):
-        sn = re.match(r'\*\*Fig\. (S\d) \|', b).group(1)
+    elif re.match(r'\*\*Fig\. (S\d+) \|', b):
+        sn = re.match(r'\*\*Fig\. (S\d+) \|', b).group(1)
         cap = re.sub(r'\s*\*\(`[^`]+`\)\*\s*$', '', b)
-        cap = re.sub(r'^\*\*Fig\. S\d \|\s*', '**', cap)
+        cap = re.sub(r'^\*\*Fig\. S\d+ \|\s*', '**', cap)
         sout.append(f'\\begin{{figure}}[htbp]\n\\centering\n'
                     f'\\includegraphics[width=\\linewidth]{{{FIGFILES[sn]}}}\n'
                     f'\\caption*{{\\textbf{{Fig. {sn}.}} ' + esc_text(cap) + '}\n\\end{figure}')
