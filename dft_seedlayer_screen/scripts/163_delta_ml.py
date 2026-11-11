@@ -211,7 +211,28 @@ def main():
             if s162 and "error" not in s162:
                 swapped.append((r["name"], r["eb_gfn2"], s162["E_b_gfn2"]))
                 r["eb_gfn2"], r["q1"] = s162["E_b_gfn2"], s162["q_Ag1"]
-    out = {"n_train": len(rows), "features_from_162": swapped}
+    # Active-learning anchors (script 164): PBE0 single points at the GFN2
+    # site and GFN2 geometry. That protocol puts HATCN at 1.211 eV against the
+    # production 1.631 (Ag not PBE0-relaxed: -0.42 eV, all electronic), so the
+    # anchors enter on the production scale through HATCN's offset, assumed the
+    # same for its close analogues. Flagged in the output; --no-anchors drops them.
+    anchors = []
+    ap = os.path.join(D, "pbe0_anchor.json")
+    if os.path.exists(ap) and "--no-anchors" not in sys.argv:
+        A = json.load(open(ap))
+        if "result" in A.get("HATCN", {}):
+            off = 1.631 - A["HATCN"]["result"]["E_b"]
+            props = {json.loads(l)["name"]: json.loads(l) for l in open(os.path.join(D, "props.jsonl"))}
+            sites162 = {json.loads(l)["name"]: json.loads(l) for l in open(sp) if l.strip()}
+            for n, v in A.items():
+                if n.startswith("_") or n == "HATCN" or "result" not in v:
+                    continue
+                s162 = sites162[n]
+                rows.append({"name": n, "pbe0": round(v["result"]["E_b"] + off, 4),
+                             "eb_gfn2": s162["E_b_gfn2"], "q1": s162["q_Ag1"],
+                             "EA": props[n]["EA"], "anchor_raw": v["result"]["E_b"]})
+                anchors.append((n, v["result"]["E_b"], round(v["result"]["E_b"] + off, 3)))
+    out = {"n_train": len(rows), "features_from_162": swapped, "anchors": anchors}
     yg = np.array([r["eb_gfn2"] for r in rows])
     y = np.array([r["pbe0"] for r in rows])
     out["raw_gfn2"] = {"spearman": round(float(spearmanr(yg, y)[0]), 3)}
