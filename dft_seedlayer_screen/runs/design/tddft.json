@@ -100,5 +100,56 @@
    "first_bright_f": 0.0809,
    "vis_sum_f": 0.475
   }
+ },
+ "HAT-CN-F4benzo-F4benzo": {
+  "neutral": {
+   "states": [
+    {
+     "eV": 3.169,
+     "nm": 391.3,
+     "f": 0.0076
+    },
+    {
+     "eV": 3.211,
+     "nm": 386.1,
+     "f": 0.0196
+    },
+    {
+     "eV": 3.322,
+     "nm": 373.2,
+     "f": 0.005
+    }
+   ],
+   "first_bright_eV": null,
+   "first_bright_f": null,
+   "bright_below_3p1": []
+  },
+  "anion": {
+   "states": [
+    {
+     "eV": 0.137,
+     "nm": 9028.1,
+     "f": 0.008
+    },
+    {
+     "eV": 0.67,
+     "nm": 1850.4,
+     "f": 0.0615
+    },
+    {
+     "eV": 1.648,
+     "nm": 752.4,
+     "f": 0.1587
+    },
+    {
+     "eV": 2.275,
+     "nm": 545.1,
+     "f": 0.091
+    }
+   ],
+   "first_bright_eV": 0.67,
+   "first_bright_f": 0.0615,
+   "vis_sum_f": 0.091
+  }
  }
 }

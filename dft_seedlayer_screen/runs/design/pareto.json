@@ -35,7 +35,11 @@
    "synth_class": 1,
    "route": "known",
    "fails": [],
-   "meets_Eb_target": true
+   "meets_Eb_target": true,
+   "tddft": {
+    "neutral_first_bright_eV": null,
+    "anion_vis_sum_f": 0.157
+   }
   }
  ],
  "pass": [
@@ -59,6 +63,10 @@
    "route": "A, statistical mixture",
    "fails": [],
    "meets_Eb_target": true,
+   "tddft": {
+    "neutral_first_bright_eV": null,
+    "anion_vis_sum_f": 0.091
+   },
    "pareto_front": 0
   },
   {
@@ -125,6 +133,10 @@
    "route": "A, homoleptic",
    "fails": [],
    "meets_Eb_target": true,
+   "tddft": {
+    "neutral_first_bright_eV": 3.37,
+    "anion_vis_sum_f": 0.475
+   },
    "pareto_front": 0
   },
   {

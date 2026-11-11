@@ -127,19 +127,31 @@ between molecules at the same root count.
   Only the Ag-contact monolayer is reduced, so the absolute loss is small,
   but it is the same direction as F4TCNQ's failure. The one-pot finalist
   buys +0.1 eV of E_b with a measurable optical cost.
+* HAT-CN-F4benzo-F4benzo (Pareto rank 1 on the GFN2 gap) is the warning about
+  the gap proxy: its lowest neutral states sit at 3.17-3.32 eV (391-373 nm),
+  weak but not dark, right on the 400 nm line; HATCN has nothing below
+  3.71 eV. Its anion has a band at 545 nm, in the middle of the visible where
+  HATCN's anion has none. The widest GFN2 gap among the passers did not mean
+  the most transparent molecule.
+
+Transparency verdict: **no finalist is as transparent as HATCN**, neutral or
+reduced. The fused rings that raise E_b and EA are what bring the absorption
+toward the visible. Within the HAT family E_b and transparency trade off;
+HATCN sits at the transparent end of that trade-off.
 
 | molecule | neutral lowest (eV) | neutral bright below 3.1 eV | anion visible sum f |
 |---|---|---|---|
 | HATCN | 3.71 (dark; 3.96, 4.17 dark) | none | 0.16 (1.72 eV / 720 nm, f 0.16; NIR pair 0.89 eV f 0.04 x2) |
 | HAT-CN2benzo x3 | 3.37 (368 nm, **bright** f 0.11 x2) | none | **0.48** (1.78 eV / 697 nm, f 0.24 x2; NIR pair 0.59 eV f 0.08 x2) |
-| HAT-CN-F4benzo-F4benzo | running | | |
+| HAT-CN-F4benzo-F4benzo | 3.17 (391 nm, weak f 0.008; 3.21 eV f 0.020) | none above f 0.02 (borderline) | 0.09 by the window; plus 1.65 eV / 752 nm f 0.16 on the red edge and **2.28 eV / 545 nm f 0.09 (green)** |
 
 ## What is solid and what is not
 
 Solid: the library and routes; the cheap properties; the GFN2 site survey; the
 finding that GFN2 ranks within a family but not across, and EA does not
 predict E_b; the five PBE0 anchors (same protocol); the formulation logic with
-current E_b.
+current E_b; the TD-DFT ordering (HATCN most transparent) at a conservative
+level.
 
 Not solid: production-scale E_b assumes HATCN's 0.42 eV offset for all
 analogues (one PBE0-relaxed derivative would test it); the aryl-HAT E_b is an
