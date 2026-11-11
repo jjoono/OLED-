@@ -342,27 +342,31 @@ def fig2():
     ax.grid(alpha=0.25, axis='y')
     note('G_j (best freeform / hemisphere): ' + ' '.join(f'{g:.3f}' for g in G))
 
-    # ---- (c) restart at the hemisphere ----
+    # ---- (c) independent searches: freeform / hemisphere ratio ----
     ax = axs[2]
-    rel, tval = N['rel'], N['tval']
-    T_CRIT = 2.132
-    idx = np.arange(5)[np.isfinite(rel)]
-    cols = ['#4F8F5B' if tval[j] > T_CRIT else '#9AA7B5' for j in idx]
-    ax.bar(np.arange(len(idx)), rel[idx], 0.6, color=cols, ec='k', lw=0.5)
-    for i, j in enumerate(idx):
-        ax.text(i, rel[j] + 0.15, f'{tval[j]:.0f}' if tval[j] > 10 else f'{tval[j]:.1f}',
-                ha='center', fontsize=6.0)
-    ax.axhline(0, color='k', lw=0.9)
-    ax.set_xticks(np.arange(len(idx)))
-    ax.set_xticklabels([(BANDS + ['total'])[j] for j in idx], fontsize=6.4)
-    ax.set_ylim(-0.3, 5.8)
-    ax.set_ylabel('gain over hemisphere (%)')
-    ax.set_title('(c) restarted at hemisphere', loc='left')
-    ax.text(0.03, 0.97, r'labels: $t$ value' '\n' r'green: $t>2.13$', transform=ax.transAxes,
-            fontsize=5.6, va='top')
+    hm5 = N['hm']; labs = BANDS + ['total']; rows_c = []
+    orig = list(band_eqe[:4] / hm5[:4]) + [np.nan]
+    rest = N['ws_val'] / hm5
+    from scipy.io import loadmat as _lm
+    starts = [float(s_['bestEQE']) / hm5[4] for s_ in _lm('freeform_EQEtotal_result.mat', squeeze_me=True)['start_log']]
+    for j in range(5):
+        if np.isfinite(orig[j]):
+            ax.plot(j - 0.12, orig[j], 'o', color='#C6512F', ms=4, mec='k', mew=0.4, label='original search' if j == 0 else None)
+            rows_c.append([labs[j], 'original search', float(orig[j])])
+        if np.isfinite(rest[j]):
+            ax.plot(j + 0.12, rest[j], 's', color='#4F8F5B', ms=4, mec='k', mew=0.4, label='restart from hemisphere' if j == 0 else None)
+            rows_c.append([labs[j], 'restart from hemisphere', float(rest[j])])
+    for k_, r_ in enumerate(starts):
+        ax.plot(4 - 0.12, r_, '^', color='#C6512F', ms=4, mec='k', mew=0.4, label='independent random starts' if k_ == 0 else None)
+        rows_c.append(['total', f'random start {k_ + 1}', r_])
+    ax.axhline(1.0, color='k', lw=0.9)
+    ax.set_xticks(np.arange(5)); ax.set_xticklabels(labs, fontsize=6.4)
+    ax.set_ylim(0.93, 1.09); ax.set_ylabel('freeform / hemisphere')
+    ax.set_title('(c) independent searches', loc='left')
+    ax.legend(loc='lower right', fontsize=5.4, framealpha=0.92, handlelength=1.0)
     ax.grid(alpha=0.25, axis='y')
-    note('restart vs hemisphere: ' +
-         ' '.join(f'{(BANDS+["total"])[j]} {rel[j]:+.2f}% (t={tval[j]:.1f})' for j in idx))
+    global FIG6_ROWS
+    FIG6_ROWS = dict(c=rows_c, b=[[labs[j], float(N['ff'][j]), float(hm5[j]), float(N['G'][j])] for j in range(5)])
     save(fig, 'fig2_hemisphere_benchmark')
 
 

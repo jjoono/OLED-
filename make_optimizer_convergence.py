@@ -29,7 +29,7 @@ for a, (lab, wtag, col) in enumerate(arms):
         fin = O['band_eqe_hi'].ravel()[k]; ax.axhline(fin, color='#eb6834', ls=':', lw=0.8); ax.axhline(W['ws_val'].ravel()[k], color='#1baf7a', ls=':', lw=0.8)
     ax.set_title(lab, loc='left', fontsize=6.5); ax.set_xlabel('evaluation'); ax.tick_params(labelsize=5.5)
     if a == 0: ax.set_ylabel('best EQE so far')
-h, l = axs[0].get_legend_handles_labels(); fig.legend(h, l, fontsize=5.5, frameon=False, loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.12))
+h, l = axs[0].get_legend_handles_labels(); fig.legend(h, l, fontsize=5.5, frameon=False, loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.28))
 fig.savefig('figures_oe/figS5_optimizer_convergence.png', dpi=300, bbox_inches='tight'); fig.savefig('figures_oe/figS5_optimizer_convergence.pdf', bbox_inches='tight')
 wb.save('figures_oe/figS5_optimizer_convergence.xlsx')
 for k, (lab, wtag, col) in enumerate(arms):
