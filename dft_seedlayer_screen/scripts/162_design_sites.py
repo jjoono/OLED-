@@ -178,6 +178,9 @@ def main():
     todo = [k for k, p in props.items() if "error" not in p and k not in done
             and (p["EA"] >= ea_min or k in refs)]
     todo.sort(key=lambda k: -props[k]["EA"])
+    if "--names" in a:
+        want = a[a.index("--names") + 1].split(",")
+        todo = [k for k in want if k not in done]
     if nmax:
         todo = todo[:nmax]
     print(f"{len(todo)} to do, {len(done)} done", flush=True)
