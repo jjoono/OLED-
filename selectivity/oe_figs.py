@@ -100,6 +100,35 @@ cb.set_label('M(θᵣ ← θᵢ), per 1° bin (log₁₀, floor 10⁻³)', fonts
 fig.savefig(f'{OUT}/fig1_mixing_concept.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig1_mixing_concept.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig1_mixing_concept', sh)
 
+# ------------------------------------------------------------------ Fig. 2 (complete reciprocal mixing)
+fig2, bx = plt.subplots(1, 2, figsize=(7.2, 2.7), gridspec_kw=dict(wspace=0.3))
+pr = []
+for nm, (c, BT, BR) in LIB.items():
+    pT = BT.sum(1); w_ = W1 / W1.sum(); p = float(pT @ w_); var = float(((pT - p) ** 2) @ w_); pm = p - var / (1 - p)
+    col, mk, _ = CLS[c]; bx[0].plot(p, pm, mk, color=col, ms=4, mec='white', mew=0.3); pr.append([nm, c, p, np.sqrt(var), pm])
+bx[0].plot([0, 0.5], [0, 0.5], color=INK2, lw=0.6, ls=':'); bx[0].text(0.21, 0.225, 'p_mix = p (memoryless)', fontsize=5, color=INK2, rotation=38)
+bx[0].set_xlim(0.17, 0.45); bx[0].set_ylim(0, 0.45); bx[0].set_xlabel('escape probability p (uniform radiance)'); bx[0].set_ylabel('p_mix = p − σ²/(1 − p)')
+for c, (col, mk, lab) in CLS.items():
+    bx[0].plot([], [], mk, color=col, label=lab)
+bx[0].legend(fontsize=4.8, frameon=False, loc='upper left'); bx[0].set_title('(a) escape of completely mixed light', loc='left')
+hd = []
+for nm, (c, BT, BR) in LIB.items():
+    e = EV[(nm, 'Al', 550.0)]; Nm = min(1 / max(1 - e['lam2'], 1e-9), 25); col, mk, _ = CLS[c]
+    g_mix = (e['m1'] - e['eta']) * 100; g_mem = (e['closed'] - e['eta']) * 100; hd.append([nm, c, Nm, e['eta'], e['m1'], e['closed'], g_mix, g_mem])
+    if c == 'planar':
+        continue
+    bx[1].plot([Nm, Nm], [g_mix, g_mem], color=col, lw=0.4, alpha=0.5)
+    bx[1].plot(Nm, g_mix, mk, color=col, ms=4, mec='white', mew=0.3); bx[1].plot(Nm, g_mem, mk, mfc='none', mec=col, ms=4, mew=0.6)
+pl = [h for h in hd if h[1] == 'planar'][0]
+bx[1].text(25, 19.3, f'planar (off-scale):\nmixing +{pl[6]:.0f} pp, memoryless +{pl[7]:.0f} pp', fontsize=4.6, color=INK2, ha='right', va='top')
+bx[1].plot([], [], 'o', color=INK2, ms=4, label='complete reciprocal mixing'); bx[1].plot([], [], 'o', mfc='none', mec=INK2, ms=4, label='memoryless formula')
+bx[1].axhline(0, color=INK2, lw=0.5); bx[1].set_xscale('log'); bx[1].set_xlim(1, 30); bx[1].set_xticks([1, 2, 5, 10, 25]); bx[1].set_xticklabels(['1', '2', '5', '10', '∞']); bx[1].minorticks_off()
+bx[1].set_ylim(-1.5, 20); bx[1].set_xlabel('N_mix (log scale)'); bx[1].set_ylabel('predicted gain over actual η_sta (pp)')
+bx[1].legend(fontsize=5, frameon=False, loc='upper left'); bx[1].set_title('(b) what mixing can gain (Al, 550 nm)', loc='left')
+fig2.savefig(f'{OUT}/fig2_complete_mixing.png', dpi=300, bbox_inches='tight'); fig2.savefig(f'{OUT}/fig2_complete_mixing.pdf', bbox_inches='tight'); plt.close(fig2)
+save_xlsx('fig2_complete_mixing', [('a_p_mix', ['structure', 'class', 'p', 'sigma_p', 'p_mix'], pr),
+                                   ('b_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_memoryless', 'gain_mixing_pp', 'gain_memoryless_pp'], hd)])
+
 # ------------------------------------------------------------------ Fig. 2
 fig = plt.figure(figsize=(7.2, 3.6)); gs2 = fig.add_gridspec(2, 4, height_ratios=[1, 0.62], wspace=0.38, hspace=0.62)
 ax = [fig.add_subplot(gs2[0, k]) for k in range(4)]; rows = []
@@ -127,12 +156,12 @@ for gi, (dv, (_, lam)) in enumerate([(d, w) for d in DEVS for w in WLS]):
 ae.axhline(0, color=INK2, lw=0.5); ae.set_xticks(range(len(xt))); ae.set_xticklabels(xt, fontsize=5); ae.set_xlim(-0.6, len(xt) - 0.4)
 for b in (2.5, 5.5): ae.axvline(b, color='#d9d8d3', lw=0.6)
 ae.set_ylabel('reciprocal model − full (pp)'); ae.set_title('(e) error of the reciprocal reduced model by device and wavelength (bar: mean |err|)', loc='left', fontsize=5.8)
-fig.savefig(f'{OUT}/fig2_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig2_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
-save_xlsx('fig2_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
+fig.savefig(f'{OUT}/fig3_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
+save_xlsx('fig3_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
 print(f'Fig 2: {len(rows)} cases; reduced(w) mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; recip mean {np.mean([abs(r[8]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[8]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
 
 # ------------------------------------------------------------------ Fig. 3
-fig, ax = plt.subplots(2, 2, figsize=(7.2, 5.4), gridspec_kw=dict(wspace=0.3, hspace=0.62)); ax = ax.ravel(); rows = []
+fig, ax = plt.subplots(1, 3, figsize=(7.2, 2.5), gridspec_kw=dict(wspace=0.42, width_ratios=[1.25, 1, 1])); rows = []
 P0 = DV['Al_P'][75].reshape(90, 2).sum(1); R1 = DV['Al_R'][75].reshape(90, 2).mean(1)
 pT0 = LIB['MLA hemi_total'][1].sum(1)
 pg = np.linspace(0.18, 0.47, 30); Ng = np.logspace(0, 1.4, 30); Z = np.zeros((30, 30))
@@ -169,24 +198,9 @@ ax[2].set_xscale('log'); ax[2].set_xlim(1, 30); ax[2].set_ylim(-0.03, 1.08); ax[
 ax[2].minorticks_off(); ax[2].axhline(1, color=INK2, lw=0.5, ls=':')
 ax[2].set_xlabel('N_mix'); ax[2].set_ylabel('late-pass escape ratio ξ = p∞ / p̃'); ax[2].set_xlabel('N_mix (log scale)'); ax[2].set_title('(c) late-pass escape', loc='left')
 ax[2].text(9.5, 0.06, 'planar (N_mix = ∞, ξ = 0),\ndrawn off-scale', fontsize=4.6, color=INK2, ha='left'); ax[2].text(1.05, 1.01, 'no dead-angle trapping', fontsize=5, color=INK2)
-hd = []
-for nm, (c, BT, BR) in LIB.items():
-    e = EV[(nm, 'Al', 550.0)]; Nm = min(1 / max(1 - e['lam2'], 1e-9), 25); col, mk, _ = CLS[c]
-    g_mix = (e['m1'] - e['eta']) * 100; g_mem = (e['closed'] - e['eta']) * 100; hd.append([nm, c, Nm, e['eta'], e['m1'], e['closed'], g_mix, g_mem])
-    if c == 'planar':
-        continue
-    ax[3].plot([Nm, Nm], [g_mix, g_mem], color=col, lw=0.4, alpha=0.5)
-    ax[3].plot(Nm, g_mix, mk, color=col, ms=4, mec='white', mew=0.3); ax[3].plot(Nm, g_mem, mk, mfc='none', mec=col, ms=4, mew=0.6)
-pl = [h for h in hd if h[1] == 'planar'][0]
-ax[3].text(25, 19.3, f'planar (off-scale):\nmixing +{pl[6]:.0f} pp, memoryless +{pl[7]:.0f} pp', fontsize=4.6, color=INK2, ha='right', va='top')
-ax[3].plot([], [], 'o', color=INK2, ms=4, label='complete reciprocal mixing'); ax[3].plot([], [], 'o', mfc='none', mec=INK2, ms=4, label='memoryless formula')
-ax[3].axhline(0, color=INK2, lw=0.5); ax[3].set_xscale('log'); ax[3].set_xlim(1, 30); ax[3].set_xticks([1, 2, 5, 10, 25]); ax[3].set_xticklabels(['1', '2', '5', '10', '∞']); ax[3].minorticks_off()
-ax[3].set_ylim(-1.5, 20); ax[3].set_xlabel('N_mix (log scale)'); ax[3].set_ylabel('predicted gain over actual η_sta (pp)')
-ax[3].legend(fontsize=5, frameon=False, loc='upper left'); ax[3].set_title('(d) what mixing can gain (Al, 550 nm)', loc='left')
-fig.savefig(f'{OUT}/fig3_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
-save_xlsx('fig3_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'p_inf', 'xi', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
-                                 ('contours', ['N_mix \\ p'] + list(pg), [[Ng[j]] + list(Z[j]) for j in range(30)]),
-                                 ('mixing gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_memoryless', 'gain_mixing_pp', 'gain_memoryless_pp'], hd)])
+fig.savefig(f'{OUT}/fig4_structure_map.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig4_structure_map.pdf', bbox_inches='tight'); plt.close(fig)
+save_xlsx('fig4_structure_map', [('structures', ['structure', 'class', 'p_Lamb', 'lambda2_85', 'N_mix', 'p_inf', 'xi', 'eta_Al', 'eta_Ag', 'eta_LL15'], rows),
+                                 ('contours', ['N_mix \\ p'] + list(pg), [[Ng[j]] + list(Z[j]) for j in range(30)])])
 
 # ------------------------------------------------------------------ Fig. 4
 fig, ax = plt.subplots(1, 2, figsize=(7.2, 2.6), gridspec_kw=dict(wspace=0.35)); rows = []
@@ -217,8 +231,8 @@ for c, (col, mk, lab) in CLS.items():
 ax[1].axhspan(0.33, 0.36, color='#eef4fb', zorder=0); ax[1].axhline(0.337, color=INK2, ls=':', lw=0.7)
 ax[1].set_ylim(0.28, 0.40); ax[1].set_xlabel('η_sta (Al device, 550 nm)'); ax[1].set_ylabel('selectivity S₄₀₋₆₀ of the output')
 ax[1].set_title('(b) composition window of passive structures', loc='left'); ax[1].legend(fontsize=4.8, frameon=False, loc='lower left', ncol=2)
-fig.savefig(f'{OUT}/fig4_bound_window.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig4_bound_window.pdf', bbox_inches='tight'); plt.close(fig)
-save_xlsx('fig4_bound_window', [('a_first_pass', ['curve', '0-20', '20-40', '40-60', '60-80', 'total'], rows),
+fig.savefig(f'{OUT}/fig5_bound_window.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig5_bound_window.pdf', bbox_inches='tight'); plt.close(fig)
+save_xlsx('fig5_bound_window', [('a_first_pass', ['curve', '0-20', '20-40', '40-60', '60-80', 'total'], rows),
                                 ('b_composition', ['structure', 'class', 'eta_sta', 'S0-20', 'S20-40', 'S40-60', 'S60-80'], win)])
 S = [w[5] for w in win]
 print(f'Fig 4: S40-60 range {min(S):.3f}-{max(S):.3f} over {len(S)} structures; bound total {gbound(P05, 0, 90):.3f}')

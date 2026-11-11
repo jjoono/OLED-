@@ -28,12 +28,13 @@ const CAPTION_GREY = '444444';
 
 const FIGS = {
   '1': 'figures_oe/fig1_mixing_concept.png',
-  '2': 'figures_oe/fig2_reduced_model.png',
-  '3': 'figures_oe/fig3_structure_map.png',
-  '4': 'figures_oe/fig4_bound_window.png',
-  '5': 'figures_oe/fig5_hemisphere_benchmark.png',
+  '2': 'figures_oe/fig2_complete_mixing.png',
+  '3': 'figures_oe/fig3_reduced_model.png',
+  '4': 'figures_oe/fig4_structure_map.png',
+  '5': 'figures_oe/fig5_bound_window.png',
+  '6': 'figures_oe/fig6_hemisphere_benchmark.png',
   'S1': 'figures_oe/figS11_device_inputs.png', 'S2': 'fig1_platform.png', 'S3': 'figS1_restart_control.png',
-  'S4': 'fig3_efficiency_composition.png', 'S5': 'figS8_angle_reset.png',
+  'S4': 'fig3_efficiency_composition.png',
 };
 
 // ---------- PNG size from IHDR ----------

@@ -125,3 +125,32 @@ Nature Photonics나 LSA를 노린다면 다음을 권합니다. 반구 MLA, 무�
 - 변수당 평가 횟수는 반구가 많았습니다(15회 대 4–11회). 따라서 비교는 반구에 유리합니다.
 - t 값(30–115)은 한 번 평가의 몬테카를로 잡음을 기준으로 한 검정일 뿐, 최적화 불확실성을 재는 것이 아니라고 명시했습니다(노트 S6).
 - 남은 권고: 대역마다 독립 재시작을 2–3회 더 하면 제대로 된 분산을 얻을 수 있습니다(위 스크립트에서 `RNG_SEED` 변경).
+
+---
+
+# 종합 심사(Optica/ACS Photonics 관점)에 대한 대응
+
+새 계산: `selectivity/cutoff_modes.py` → `selectivity/data/cutoff_modes.json`
+
+| 지적 | 조치 | 위치 |
+|---|---|---|
+| 상반성 결과가 보편적 상한처럼 읽힘 | 계수 1 상반적 반환 모델의 **기준값**으로 한정. 2.4절 제목 "Complete reciprocal mixing as a reference". 서론·논의·결론에서 "Reciprocity alone does not bound…"를 명시 | 서론, 2.4, 4.1, 5, 6 |
+| 검토자의 2상태 반례 | 직접 확인함: 같은 p, 같은 상반성 조건에서 η = 0.375(계수 1) 대 0.427 | 노트 S1 |
+| 제목 | "Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction" | 영문·국문 |
+| 초록 | 모델 조건, 평균 절대 오차 0.30 %p(최대 3.0), 조사한 구조·소자로 한정, 원뿔 실패를 명시 (125단어) | 초록 |
+| N_mix 표현 | "a spectral measure of angular relaxation in units of encounters; a relaxation time, not an exact pass count" | 2.2 |
+| 85° 절단 | 절단각별 축약 모델 오차: 80° 0.32/3.02, 85° 0.30/2.99, 88° 0.40/3.55, 90° 0.55/4.72 %p. 절단은 정확도 조정이 아니라 기여가 작은 스침각 상태(에텐듀 0.76%)의 통제임을 명시. 자유형 40–60°에서 N_mix 7.5 대 17도 본문에 적음 | 2.2, 노트 S1 |
+| p∞의 물리적 해석 | 무손실 소자 반환 극한의 구조 지표로 명시. 실제 OLED의 생존 연산자 diag(R)B_R은 추출과 기생 손실을 함께 담으며 순위는 같음(스피어먼 0.96) | 2.5 |
+| 원뿔 실패의 모드 분석 | 60° 원뿔: 느린 모드(λ > 0.8)가 되돌아온 빛 편차의 0.4%만 담음. 실제 빛 가중 이완률 λ_eff = 0.42로 오차 4.2/14.4 → 0.24/0.81 %p. 45° 원뿔: 닫힌 역반사 집합이 98%를 담는 다중 이완률 경우. λ_eff는 라이브러리에서는 더 나쁨(0.47 대 0.31 %p)이므로 λ₂를 유지하고, 느린 모드 점유율은 사후 진단으로 제시 | 4.2, 노트 S9, 표 S17 |
+| 스토리 순서 | 완전 혼합 결과를 결과 4.1과 새 그림 2(p_mix 대 p, 이득 대 N_mix)로 앞당김. 축약 모델 검증 4.2/그림 3, 구조 지도 4.3/그림 4, 휘도 상한 4.4/그림 5, 사례 연구 4.5/그림 6 | 4장 |
+| 논의 핵심 문단 | 검토자 제안 문단을 반영("Why angular mixing gives limited gains"). 결론 문장을 "조사한 구조에서는 탈출 프로파일 개선이 혼합률만 높이는 것보다 대체로 효과적"으로 완화 | 5장 |
+| 상대/절대 EQE | G_j가 상대 비임을 명시. 40–60°와 전체에서 절대 EQE로 +1.3 %p, +0.71 %p | 4.5 |
+| 그림 6c 유의성 | "Monte Carlo 평가 잡음 대비 유의이며 전역 최적해의 불확실성이 아님" | 그림 6 캡션 |
+| 범위 표현 | "angle-insensitive" → "deliberately angle-selective filters를 제외" | 5장 범위 |
+| 데이터 공개 | 버전 관리되는 공개 저장소에 반환 행렬·입력·스크립트를 올린다고 기술, DOI는 [추가 예정] | Data availability |
+
+**여기서 할 수 없어 저자에게 남은 것**
+1. LightTools 고정 캐비티 대조: `opt_fixedcavity_freeform.m` 실행. 검토자가 우선순위 "매우 높음"으로 꼽은 항목입니다.
+2. 공개 저장소 생성과 DOI 발급(Zenodo 등).
+3. 커버 레터: Nature에서 심사 중인 round-trip loss 논문과의 관계를 밝히는 문단.
+4. 목표 저널 결정. Optica로 가면 Research Article 형식(약 6–8쪽)에 맞춰 더 압축해야 합니다.

@@ -4,7 +4,7 @@
 \usepackage{graphicx,amsmath,url,caption}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\title{Supplement 1:\\Reciprocity Limits the Gain from Angular Mixing in Passive OLED Light-Extraction Structures}
+\title{Supplement 1:\\Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction}
 \author{}
 \date{}
 \begin{document}
@@ -12,8 +12,7 @@
 \sloppy
 
 
-Reciprocity Constrains Angular Mixing in Passive Light-Extraction Structures:
-Two Spectral Metrics for OLED Outcoupling
+Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction
 
 Notes S1–S4 support the spectral metrics: model details, the devices and the structure library, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, and Note S9 reports direct ray tracing and a blind test. Main-text references are cited as "main ref. n".
 
@@ -41,13 +40,32 @@ random lenslet heights, spread 0.2 & 0.935 & 0.859 & 0.826 & 0.787 & 0.46 \\
 \end{tabular}}
 \end{table}
 
-For the freeform 40–60\ensuremath{^\circ} lens and height-randomized hemispheres the full-range value is set by grazing states. With the 85\ensuremath{^\circ} cutoff the reciprocal reduced model has a mean error of 0.30 pp and a largest error of 3.0 pp over the 342 cases, against 0.55 and 4.7 pp without it. The absolute values of $N_{\mathrm{mix}}$ and $\xi$ depend on the cutoff ($\xi$ of the hemispherical MLA is 0.65, 0.47, and 0.31 at 80\ensuremath{^\circ}, 85\ensuremath{^\circ}, and 90\ensuremath{^\circ}), but the ranking does not: the rank correlation with the 85\ensuremath{^\circ} values is 0.96–0.99 for $N_{\mathrm{mix}}$ and 0.90–0.98 for $\xi$ at 80\ensuremath{^\circ}, 88\ensuremath{^\circ}, and 90\ensuremath{^\circ} (Table S6).
+For the freeform 40–60\ensuremath{^\circ} lens and height-randomized hemispheres the full-range value is set by grazing states ($N_{\mathrm{mix}}$ of the 40–60\ensuremath{^\circ} freeform MLA: 7.5 at 85\ensuremath{^\circ}, 17 at 90\ensuremath{^\circ}). The reduced-model error depends little on the cutoff between 80\ensuremath{^\circ} and 85\ensuremath{^\circ} and grows above it, when grazing states start to dominate $\lambda_2$:
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{llllllll}
+\hline
+Cutoff & mean error (pp) & max error (pp) & hemispherical MLA & freeform MLA & random MLA & wavy & scattering \\
+\hline
+80\ensuremath{^\circ} & 0.32 & 3.02 & 0.21 & 0.64 & 0.20 & 0.66 & 0.29 \\
+85\ensuremath{^\circ} & 0.30 & 2.99 & 0.26 & 0.60 & 0.16 & 0.67 & 0.29 \\
+88\ensuremath{^\circ} & 0.40 & 3.55 & 0.38 & 0.95 & 0.25 & 0.67 & 0.30 \\
+90\ensuremath{^\circ} & 0.55 & 4.72 & 0.45 & 1.16 & 0.52 & 0.68 & 0.30 \\
+\hline
+\end{tabular}}
+\end{table}
+
+(class columns: mean error in pp over three devices and three wavelengths). The cutoff therefore controls the influence of physically minor states (0.76\% of the étendue, less than 0.1\% of $\mathbf{v}^{(0)}$) rather than tuning the accuracy, which is within 0.02 pp of its best value anywhere between 80\ensuremath{^\circ} and 85\ensuremath{^\circ}. The absolute values of $N_{\mathrm{mix}}$ and $\xi$ depend on the cutoff ($\xi$ of the hemispherical MLA is 0.65, 0.47, and 0.31 at 80\ensuremath{^\circ}, 85\ensuremath{^\circ}, and 90\ensuremath{^\circ}), but the ranking does not: the rank correlation with the 85\ensuremath{^\circ} values is 0.96–0.99 for $N_{\mathrm{mix}}$ and 0.90–0.98 for $\xi$ at 80\ensuremath{^\circ}, 88\ensuremath{^\circ}, and 90\ensuremath{^\circ} (Table S6).
 
 \textbf{Detailed balance of the traced matrices.} The relative asymmetry $\sum|F-F^{\mathsf T}|/\sum|F|$ of $F_{ji} = w_i B_R(i\to j)$ is 0.05–0.13 on 1\ensuremath{^\circ} bins, 0.009–0.024 on 5\ensuremath{^\circ} bins, and 0.002–0.007 on 15\ensuremath{^\circ} bins, falling as expected for Monte Carlo noise; the planar matrix is exactly symmetric. Symmetrizing $F$ while keeping each column sum changes $N_{\mathrm{mix}}$ by at most 0.20 (2.7\%), $\xi$ by 0.005, $\eta_{\mathrm{sta}}$ by 0.04 pp, and the reduced-model error by 0.04 pp over all 37 non-planar structures and three devices.
 
 \textbf{Reciprocal redistribution.} For $B_R(i\to r) = (1-p_i)[(1-m)\delta_{ir} + m q_r]$, detailed balance of the mixing term requires $w_i(1-p_i)q_r = w_r(1-p_r)q_i$, i.e. $q \propto w(1-p)$. The normalized kernel $(1-m)I + m\,q\mathbf{1}^{\mathsf T}$ has eigenvalues 1 and $1-m$, so $m = 1-\lambda_2$ for any $q$.
 
 \textbf{Complete reciprocal mixing.} With $q_r = w_r(1-p_r)/\sum_k w_k(1-p_k)$, $p_{\mathrm{mix}} = \sum_r q_r p_r = (p - \langle p^2\rangle)/(1-p) = p - \sigma_p^2/(1-p)$, where $\langle\cdot\rangle$ is the étendue-weighted mean; $p_{\mathrm{mix}} \le p$ is the Cauchy–Schwarz inequality $p^2 \le \langle p^2\rangle$. The rank-one kernel $B_R = q(\mathbf{1}-\mathbf{p})^{\mathsf T}$ with $\mathrm{diag}\,\mathbf{R}$ gives $(I-\mathbf{u}\mathbf{v}^{\mathsf T})^{-1} = I + \mathbf{u}\mathbf{v}^{\mathsf T}/(1-\mathbf{v}^{\mathsf T}\mathbf{u})$ with $u_k = R_k q_k$, $\mathbf{v} = \mathbf{1}-\mathbf{p}$, hence the closed form of main-text Sec. 2.4; it agrees with the numerical series to $10^{-9}$ for all 342 cases. Values for every structure are in \texttt{selectivity/data/reciprocal\_limit.json}; $p_{\mathrm{mix}}/p$ is 0.87–0.91 for hemispherical MLAs, 0.81–0.87 for freeform MLAs, 0.84–0.93 for random MLAs, 0.37–0.90 for wavy surfaces, 0.59–0.99 for scattering layers, and 0.14 for the planar interface.
+
+\textbf{Reciprocity alone does not bound the efficiency.} The complete-mixing kernel is the only reciprocal rank-one kernel with given $p(\theta)$, but other reciprocal kernels exist. Two states with $w$ = (1, 1), $p$ = (0.4, 0), $R$ = 0.8, and all light launched into the second state give, for the rank-one kernel $B$ = [[0.225, 0.375], [0.375, 0.625]], $\eta$ = 0.375; the kernel [[0, 0.6], [0.6, 0.4]] has the same column sums and is also reciprocal, yet sends all light returned from the trapped state into the escaping one and gives $\eta$ = 0.427. $\eta_{\mathrm{mix}}$ is therefore a reference, not a bound; among the structures studied, only two wavy surfaces exceed it, by at most 0.4 pp.
 
 \textbf{Bounds on $p_\infty$.} With $D = \mathrm{diag}(w)$, $D^{-1/2}B_R D^{1/2}$ is symmetric, so $\rho(B_R)$ is the maximum of its Rayleigh quotient. With $x = D^{1/2}\mathbf{1}$ the quotient is $\sum_{i,r} w_i B_R(i\to r)/\sum_i w_i = 1-\tilde p$, both sums running over the bins below the cutoff; hence $p_\infty \le \tilde p$. $\tilde p$ is the probability that uniform-radiance light leaves the truncated chain in one encounter, by escape or by return beyond the cutoff, and exceeds $p$ by less than 0.008. The column sums are $1-p(\theta_i)$, so $p_\infty \ge \min_\theta p(\theta)$. All 37 non-planar structures satisfy both bounds, with smallest margins of 0.0014 (upper) and 0.106 (lower); the planar interface meets the lower bound with equality. With $p$ in place of $\tilde p$ the upper bound would fail for the thick scattering layer ($\tau^*$ = 4) by 0.005. $\xi$ is a structure-only descriptor; the device-aware variant $1-\rho(\mathrm{diag}\,\mathbf{R}\,B_R)$ ranks the structures like $p_\infty$ (Spearman 0.956, Al, 550 nm). A two-parameter reciprocal kernel fitted to both $\lambda_2$ and $\rho$, and a two-rate scalar formula, were not more accurate overall than the one-parameter model (0.32 pp mean) and are not used.
 
@@ -223,7 +241,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3\ensuremath{^\circ} bi
 
 \section*{Note S4 | Mixing versus escape and the composition window}
 
-\textbf{Contour templates.} Fig. 3a of the main text scales the $p(\theta)$ shape of the hemispherical MLA. Table S7 repeats the calculation with the shapes of a scattering layer and a wavy surface: at fixed $p$, the whole range of $N_{\mathrm{mix}}$ is worth 1.2–3.2 pp, whereas 0.01 in $p$ is worth about 0.6 pp for every template.
+\textbf{Contour templates.} Fig. 4a of the main text scales the $p(\theta)$ shape of the hemispherical MLA. Table S7 repeats the calculation with the shapes of a scattering layer and a wavy surface: at fixed $p$, the whole range of $N_{\mathrm{mix}}$ is worth 1.2–3.2 pp, whereas 0.01 in $p$ is worth about 0.6 pp for every template.
 
 \begin{table}[htbp]
 \centering
@@ -463,9 +481,32 @@ ring-spectrum wavy, slope 1.2 & 0.424 & 1.2 & 0.86 & 0.7934 & — & — & -0.11 
 
 Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp; without the two cone arrays (63 cases) 0.48 pp and at most 3.3 pp (35\ensuremath{^\circ} caps), against 2.62 and 8.8 pp for the memoryless formula and 1.30 and 5.2 pp for isotropic redistribution. The cone arrays fail (mean 6.0 and 4.2 pp, maximum 20 and 14 pp, low-loss device). The 45\ensuremath{^\circ} cones retroreflect light within 0–4\ensuremath{^\circ} (0.5\% of the étendue) into itself, giving $\lambda_2 = 1$ like the planar interface; the 60\ensuremath{^\circ} cones have a ladder of slow modes ($\lambda_2$–$\lambda_4$ = 0.985, 0.91, 0.85) spread over most angles. In both cases $1-\lambda_2$ underestimates how fast the light that escapes is redistributed. The direct traces confirm the full series for the 60\ensuremath{^\circ} cones within 0.6 pp, so the failure is that of the one-rate reduction, not of the angle-resolved model.
 
+\textbf{Mode occupancy (post hoc).} Because $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi \propto w(1-p)$, the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S17 lists the share of the deviation $u_0/\pi - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in \texttt{selectivity/mixing.py} before the blind test, but examined only after it). For the 60\ensuremath{^\circ} cones the slow modes carry 0.4\% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.42 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45\ensuremath{^\circ} cones the closed retroreflecting set carries 98\% of it, and no single rate works. Over the library $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.47 against 0.31 pp, maximum 3.6 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption*{Table S17. Slow-mode occupancy of the returned light and reduced-model error (mean / max over three devices and three wavelengths, pp).}
+\resizebox{\linewidth}{!}{\begin{tabular}{llllll}
+\hline
+Structure & $\lambda_2$ & $\lambda_{\mathrm{eff}}$ & slow-mode share & error with $\lambda_2$ & error with $\lambda_{\mathrm{eff}}$ \\
+\hline
+hemispherical MLA & 0.859 & 0.736 & 0.251 & 0.24 / 0.62 & 0.66 / 2.89 \\
+freeform MLA, 40–60\ensuremath{^\circ} & 0.867 & 0.726 & 0.582 & 0.87 / 2.09 & 0.83 / 2.45 \\
+wavy, rms slope 0.2 & 0.540 & 0.216 & 0.000 & 1.98 / 2.99 & 0.62 / 2.11 \\
+random lenslet shapes, $s$ = 1 & 0.487 & 0.379 & 0.000 & 0.12 / 0.23 & 0.19 / 0.80 \\
+spherical caps, 35\ensuremath{^\circ} (blind) & 0.296 & 0.235 & 0.000 & 1.42 / 3.30 & 1.17 / 2.82 \\
+paraboloids (blind) & 0.636 & 0.377 & 0.000 & 0.33 / 0.83 & 0.38 / 1.52 \\
+cone–hemisphere mix (blind) & 0.634 & 0.393 & 0.000 & 0.27 / 0.82 & 0.39 / 1.29 \\
+cones, 60\ensuremath{^\circ} (blind) & 0.985 & 0.423 & 0.004 & 4.15 / 14.36 & 0.24 / 0.81 \\
+cones, 45\ensuremath{^\circ} (blind) & 1.000 & 0.987 & 0.977 & 5.99 / 20.15 & 5.47 / 18.52 \\
+\hline
+\end{tabular}}
+\end{table}
+
 \section*{Reproducing the figures and data}
 
-Main-text Figs. 1–4 are produced by \texttt{selectivity/oe\_figs.py} (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in \texttt{figures\_oe/}), with return matrices from \texttt{multipass\_reset/run\_random\_sweep.py}. Fig. 5 and Figs. S2–S4 come from the campaign archives through \texttt{make\_figures.py} and \texttt{make\_supp\_figures\_and\_data.py}; Fig. S1 and Table S2 from \texttt{selectivity/fig\_devices.py}; Tables S5–S9 from \texttt{selectivity/unc\_analysis.py}, \texttt{selectivity/review\_checks.py}, \texttt{selectivity/review\_traces\_analysis.py}, and \texttt{selectivity/make\_note\_s12.py}; the complete-mixing limit (Fig. 3d, Note S1) from \texttt{selectivity/reciprocal\_limit.py}; Tables S13–S14 from \texttt{selectivity/cavity\_decomp.py} and \texttt{selectivity/cav\_lens\_cross.py}; Table S15 from \texttt{multipass\_reset/fixedcav\_opt.py}; Table S16 from \texttt{multipass\_reset/direct\_blind.py} and \texttt{blind\_table.py}.
+Main-text Figs. 1–5 are produced by \texttt{selectivity/oe\_figs.py} (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in \texttt{figures\_oe/}), with return matrices from \texttt{multipass\_reset/run\_random\_sweep.py}. Fig. 6 and Figs. S2–S4 come from the campaign archives through \texttt{make\_figures.py} and \texttt{make\_supp\_figures\_and\_data.py}; Fig. S1 and Table S2 from \texttt{selectivity/fig\_devices.py}; Tables S5–S9 from \texttt{selectivity/unc\_analysis.py}, \texttt{selectivity/review\_checks.py}, \texttt{selectivity/review\_traces\_analysis.py}, and \texttt{selectivity/make\_note\_s12.py}; the complete-mixing reference (Fig. 2, Note S1) from \texttt{selectivity/reciprocal\_limit.py}; Tables S1 and S17 from \texttt{selectivity/cutoff\_modes.py}; Tables S13–S14 from \texttt{selectivity/cavity\_decomp.py} and \texttt{selectivity/cav\_lens\_cross.py}; Table S15 from \texttt{multipass\_reset/fixedcav\_opt.py}; Table S16 from \texttt{multipass\_reset/direct\_blind.py} and \texttt{blind\_table.py}.
 
 \begin{verbatim}
 cd multipass_reset && python3 run_random_sweep.py && cd ..

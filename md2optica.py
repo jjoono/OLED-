@@ -18,15 +18,15 @@ OUT.mkdir(exist_ok=True)
 
 FIGFILES = {
     '1': 'figures/fig1_mixing_concept.pdf',
-    '2': 'figures/fig2_reduced_model.pdf',
-    '3': 'figures/fig3_structure_map.pdf',
-    '4': 'figures/fig4_bound_window.pdf',
-    '5': 'figures/fig5_hemisphere_benchmark.pdf',
+    '2': 'figures/fig2_complete_mixing.pdf',
+    '3': 'figures/fig3_reduced_model.pdf',
+    '4': 'figures/fig4_structure_map.pdf',
+    '5': 'figures/fig5_bound_window.pdf',
+    '6': 'figures/fig6_hemisphere_benchmark.pdf',
     'S1': 'figures/figS11_device_inputs.pdf',
     'S2': 'figures/fig1_platform.pdf',
     'S3': 'figures/figS1_restart_control.pdf',
     'S4': 'figures/fig3_efficiency_composition.pdf',
-    'S5': 'figures/figS8_angle_reset.pdf',
 }
 # source of every figure PDF (copied into oe_submission/figures/ on each run)
 import shutil
