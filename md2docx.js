@@ -51,7 +51,7 @@ const SYM = {
   '\\eta': 'η', '\\theta': 'θ', '\\lambda': 'λ', '\\mu': 'μ',
   '\\phi': 'φ', '\\gamma': 'γ', '\\Delta': 'Δ', '\\sigma': 'σ',
   '\\in': '∈', '\\cdot': '·', '\\mid': '|', '\\circ': '°',
-  '\\max': 'max', '\\min': 'min', '\\log': 'log', '\\sin': 'sin', '\\cos': 'cos', '\\tan': 'tan',
+  '\\max': 'max', '\\min': 'min', '\\log': 'log', '\\ln': 'ln', '\\exp': 'exp', '\\sin': 'sin', '\\cos': 'cos', '\\tan': 'tan',
   '\\qquad': '    ', '\\quad': '  ', '\\,': ' ', '\\;': ' ', '\\!': '', '\\ ': ' ',
   '\\{': '{', '\\}': '}', '\\%': '%', '\\&': '&',
   '\\xi': 'ξ', '\\rho': 'ρ', '\\propto': '∝', '\\to': '→', '\\delta': 'δ', '\\alpha': 'α',
@@ -173,7 +173,9 @@ const P = (text, opts = {}) => new Paragraph({
 const src = fs.readFileSync(SRC, 'utf8');
 let title = src.match(/^# (.+)/m)[1];
 if (SUPP) {
-  const tl = src.split('\n').slice(1).filter((l) => l.trim()).slice(0, 2).join(' ');
+  const ls = src.split('\n'); let k = 1; while (k < ls.length && !ls[k].trim()) k++;
+  const tb = []; while (k < ls.length && ls[k].trim()) { tb.push(ls[k].trim()); k++; }   // title block = first run of non-empty lines
+  const tl = tb.join(' ');
   title = 'Supplement 1: ' + tl;
 }
 const kids = [];
