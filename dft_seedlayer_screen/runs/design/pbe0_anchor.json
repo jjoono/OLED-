@@ -49,5 +49,21 @@
    "E_b_gfn2": 3.0108,
    "rcut": 7.0
   }
+ },
+ "HAT-CN2benzo-CN2benzo-CN2benzo": {
+  "E_frag": -1800.3640907543986,
+  "E_cx": -1947.3363695155494,
+  "q_Ag_mulliken": 0.5318,
+  "result": {
+   "E_b": 1.3228,
+   "elec": 1.1416,
+   "disp": 0.1812,
+   "frag_atoms": 48,
+   "caps": 0,
+   "mol_atoms": 48,
+   "site": "pocketN5N8in",
+   "E_b_gfn2": 3.1536,
+   "rcut": 7.0
+  }
  }
 }
