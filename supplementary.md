@@ -3,7 +3,7 @@
 Reciprocity Constrains Angular Mixing in Passive Light-Extraction Structures:
 Two Spectral Metrics for OLED Outcoupling
 
-Notes S1–S4 support the spectral metrics: model details, the devices and the structure library, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study. Main-text references are cited as "main ref. n".
+Notes S1–S4 support the spectral metrics: model details, the devices and the structure library, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, and Note S9 reports direct ray tracing and a blind test. Main-text references are cited as "main ref. n".
 
 ---
 
@@ -30,7 +30,7 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 **Reciprocal redistribution.** For $B_R(i\to r) = (1-p_i)[(1-m)\delta_{ir} + m q_r]$, detailed balance of the mixing term requires $w_i(1-p_i)q_r = w_r(1-p_r)q_i$, i.e. $q \propto w(1-p)$. The normalized kernel $(1-m)I + m\,q\mathbf{1}^{\mathsf T}$ has eigenvalues 1 and $1-m$, so $m = 1-\lambda_2$ for any $q$.
 
-**Complete reciprocal mixing.** With $q_r = w_r(1-p_r)/\sum_k w_k(1-p_k)$, $p_{\mathrm{mix}} = \sum_r q_r p_r = (p - \langle p^2\rangle)/(1-p) = p - \sigma_p^2/(1-p)$, where $\langle\cdot\rangle$ is the étendue-weighted mean; $p_{\mathrm{mix}} \le p$ is the Cauchy–Schwarz inequality $p^2 \le \langle p^2\rangle$. The rank-one kernel $B_R = q(\mathbf{1}-\mathbf{p})^{\mathsf T}$ with $\mathrm{diag}\,\mathbf{R}$ gives $(I-\mathbf{u}\mathbf{v}^{\mathsf T})^{-1} = I + \mathbf{u}\mathbf{v}^{\mathsf T}/(1-\mathbf{v}^{\mathsf T}\mathbf{u})$ with $\mathbf{u} = \mathbf{R}\circ q$, $\mathbf{v} = \mathbf{1}-\mathbf{p}$, hence the closed form of main-text Sec. 2.4; it agrees with the numerical series to $10^{-9}$ for all 342 cases. Values for every structure are in `selectivity/data/reciprocal_limit.json`; $p_{\mathrm{mix}}/p$ is 0.87–0.91 for hemispherical MLAs, 0.81–0.87 for freeform MLAs, 0.84–0.93 for random MLAs, 0.37–0.90 for wavy surfaces, 0.59–0.99 for scattering layers, and 0.14 for the planar interface.
+**Complete reciprocal mixing.** With $q_r = w_r(1-p_r)/\sum_k w_k(1-p_k)$, $p_{\mathrm{mix}} = \sum_r q_r p_r = (p - \langle p^2\rangle)/(1-p) = p - \sigma_p^2/(1-p)$, where $\langle\cdot\rangle$ is the étendue-weighted mean; $p_{\mathrm{mix}} \le p$ is the Cauchy–Schwarz inequality $p^2 \le \langle p^2\rangle$. The rank-one kernel $B_R = q(\mathbf{1}-\mathbf{p})^{\mathsf T}$ with $\mathrm{diag}\,\mathbf{R}$ gives $(I-\mathbf{u}\mathbf{v}^{\mathsf T})^{-1} = I + \mathbf{u}\mathbf{v}^{\mathsf T}/(1-\mathbf{v}^{\mathsf T}\mathbf{u})$ with $u_k = R_k q_k$, $\mathbf{v} = \mathbf{1}-\mathbf{p}$, hence the closed form of main-text Sec. 2.4; it agrees with the numerical series to $10^{-9}$ for all 342 cases. Values for every structure are in `selectivity/data/reciprocal_limit.json`; $p_{\mathrm{mix}}/p$ is 0.87–0.91 for hemispherical MLAs, 0.81–0.87 for freeform MLAs, 0.84–0.93 for random MLAs, 0.37–0.90 for wavy surfaces, 0.59–0.99 for scattering layers, and 0.14 for the planar interface.
 
 **Bounds on $p_\infty$.** With $D = \mathrm{diag}(w)$, $D^{-1/2}B_R D^{1/2}$ is symmetric, so $\rho(B_R)$ is the maximum of its Rayleigh quotient. With $x = D^{1/2}\mathbf{1}$ the quotient is $\sum_{i,r} w_i B_R(i\to r)/\sum_i w_i = 1-\tilde p$, both sums running over the bins below the cutoff; hence $p_\infty \le \tilde p$. $\tilde p$ is the probability that uniform-radiance light leaves the truncated chain in one encounter, by escape or by return beyond the cutoff, and exceeds $p$ by less than 0.008. The column sums are $1-p(\theta_i)$, so $p_\infty \ge \min_\theta p(\theta)$. All 37 non-planar structures satisfy both bounds, with smallest margins of 0.0014 (upper) and 0.106 (lower); the planar interface meets the lower bound with equality. With $p$ in place of $\tilde p$ the upper bound would fail for the thick scattering layer ($\tau^*$ = 4) by 0.005. $\xi$ is a structure-only descriptor; the device-aware variant $1-\rho(\mathrm{diag}\,\mathbf{R}\,B_R)$ ranks the structures like $p_\infty$ (Spearman 0.956, Al, 550 nm). A two-parameter reciprocal kernel fitted to both $\lambda_2$ and $\rho$, and a two-rate scalar formula, were not more accurate overall than the one-parameter model (0.32 pp mean) and are not used.
 
@@ -290,17 +290,60 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 | 60–80° | 99.8/71.1 / 90.5/76.3 | 1.020 | 0.972 | 0.964 | 0.996 |
 | total EQE | 61.3/97.5 / 67.5/120.6 | 1.013 | 0.974 | 0.971 | 1.003 |
 
-The freeform entries are the designs of the original per-band campaign and of the total-EQE campaign (for 60–80° the restart optimum, ratio 1.036, has no traced return matrix). For the hemispheres the model reproduces the LightTools EQE within +0.7% (total) to +3.8% (60–80°); for the freeform optima it lies between −3.2% (total) and +0.5% (20–40°). The two tools therefore agree on the size of the differences (a few percent) but not on their sign below about 5%; the main reason is the profile: the freeform curves are rebuilt with a PCHIP spline, whereas LightTools uses its own spline, and the total-EQE optimum has a non-monotonic profile with an annular trough (control-point heights 1.05, 0.15, 0.19, 0.53, 0.50), for which the reconstruction is least certain. Within the model, the lens shape alone changes the band EQE by −5.4% to +0.4% and the cavity by −2.6% to +0.3%. This also explains Table 3, where the total-EQE freeform lens, at the hemisphere's cavity and 550 nm, has $\eta_{\mathrm{sta}}$ = 0.771 against 0.792.
+The freeform entries are the designs of the original per-band campaign and of the total-EQE campaign (for 60–80° the restart optimum, ratio 1.036, has no traced return matrix). For the hemispheres the model reproduces the LightTools EQE within +0.7% (total) to +3.8% (60–80°); for the freeform optima it lies between −3.2% (total) and +0.5% (20–40°). The two tools therefore agree on the size of the differences (a few percent) but not on their sign below about 5%; the main reason is the profile: the freeform curves are rebuilt with a PCHIP spline, whereas LightTools uses its own spline, and the total-EQE optimum has a non-monotonic profile with an annular trough (control-point heights 1.05, 0.15, 0.19, 0.53, 0.50), for which the reconstruction is least certain. Lens and cavity interact (Table S14): the freeform 40–60° lens gains 0.4%, 1.8%, and 4.1% over the hemispherical one at the hemisphere's band cavity, the total-EQE cavity, and its own cavity when spectrally weighted, and 5.6–9.2% at 550 nm alone, because the cavity resonance moves with wavelength and the spectral average smears the angular distribution that the lens acts on.
 
-**Lens-only optimization at a fixed stack.** {{ES}}
+**Table S14 | 40–60° band EQE, freeform/hemisphere (40–60° designs of the benchmark), at three cavities.**
+
+| Cavity ETL/HTL (nm) | 550 nm | spectrally weighted |
+|---|---|---|
+| 74.6/81.7 (hemisphere, 40–60° optimum) | 1.056 | 1.004 |
+| 61.3/97.5 (hemisphere, total-EQE optimum) | 1.070 | 1.018 |
+| 68.5/114.4 (freeform, 40–60° optimum) | 1.092 | 1.041 | This also explains Table 3, where the total-EQE freeform lens, at the hemisphere's cavity and 550 nm, has $\eta_{\mathrm{sta}}$ = 0.771 against 0.792.
+
+**Lens-only optimization at a fixed stack.** With the stack fixed (Al, ETL 61.3 / HTL 97.5 nm, 550 nm), the hemisphere's height and an 11-variable freeform profile (5 radial and 5 height control points, height scale; same bounds and feasibility rules as the benchmark) were optimized for the same objective in the multi-pass model with the same tracer: a grid search for the hemisphere and a (1+8) evolution strategy with step-size adaptation, started at the hemispherical optimum, for the freeform (80 evaluations at 4,000 rays per bin; winners re-evaluated at 20,000). Results (Table S15): the freeform gains 1.25% in $\eta_{\mathrm{sta}}$ and 9.0% in the 40–60° band. The total-objective winner keeps $p$ (0.422 against 0.421) but lowers $N_{\mathrm{mix}}$ from 7.1 to 2.1 and raises $p_{\mathrm{mix}}/p$ from 0.91 to 0.93, i.e. it recovers 1.0 of the 1.4 pp that complete reciprocal mixing would add to the hemisphere. The LightTools freeform optima, evaluated at the same stack, reach 0.771 ($\eta_{\mathrm{sta}}$) and 0.284 (40–60°).
+
+**Table S15 | Lens-only optimization at a fixed stack (multi-pass model, Al, 550 nm).**
+
+| Objective | lens | $\eta_{\mathrm{sta}}$ | 40–60° power | $p$ | $N_{\mathrm{mix}}$ | $\xi$ |
+|---|---|---|---|---|---|---|
+| $\eta_{\mathrm{sta}}$ | hemisphere (height 0.93) | 0.7936 | 0.2609 | 0.421 | 7.1 | 0.47 |
+| $\eta_{\mathrm{sta}}$ | freeform, optimized at fixed stack | 0.8035 | 0.2728 | 0.422 | 2.1 | 0.85 |
+| 40–60° power | hemisphere (height 1.73) | 0.7773 | 0.2692 | 0.427 | 8.8 | 0.38 |
+| 40–60° power | freeform, optimized at fixed stack | 0.7946 | 0.2935 | 0.428 | 2.7 | 0.79 |
 
 **LightTools control.** `opt_fixedcavity_freeform.m` repeats the per-band freeform optimization of `opt_4band_freeform.m` with ETL and HTL fixed at each arm's hemispherical optimum and the hemisphere as the first seed, so that $G_j \ge 1$ holds by construction and any gain is due to the lens shape; it requires the LightTools pipeline and has not been run here.
+
+## Note S9 | Direct ray tracing and blind test
+
+**Direct ray tracing.** Rays are launched with the first-pass distribution $\mathbf{v}^{(0)}$ (Al, 550 nm; polar angle drawn uniformly in $\sin^2\theta$ within each 1° bin, azimuth and position uniform), traced through the height field, and, when returned, absorbed with probability $1-R(\theta)$ or reflected specularly, keeping their azimuth, and sent to a new uniformly drawn position (the substrate is thick compared with the lattice). $10^6$ rays per case; the standard error is 0.04–0.05 pp. A second run re-randomizes the azimuth at every pass, which is what the chain on polar angle assumes.
+
+**Blind structures.** Nine structures were chosen after the reduced model and its reciprocal redistribution were fixed and were not used to adjust anything: hexagonal arrays of spherical caps (contact angle 60° and 35°), paraboloids $h = 1-\rho^2$, cones of 45° and 60° side angle, truncated Gaussian bumps (peak height 1.5), a 6 × 6 supercell randomly filled with hemispheres and 60° cones (radius spread ±20%, position jitter 15% of the pitch), and quasi-periodic wavy surfaces whose spectrum is concentrated on a ring $|\mathbf{k}| = 2$ (rms slope 0.6 and 1.2). Return matrices: 20,000 rays per bin (10,000 for wavy surfaces); errors over three devices and three wavelengths.
+
+**Table S16 | Direct ray tracing and blind test (Al, 550 nm; reduced and memoryless models minus full series).**
+
+| Structure | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ full series | direct, $(\theta,\phi)$ | direct, $\phi$ re-randomized | reduced − full (pp) | memoryless − full (pp) |
+|---|---|---|---|---|---|---|---|---|
+| hemispherical MLA (library) | 0.422 | 7.1 | 0.47 | 0.7918 | 0.7878 ± 0.0004 | 0.7913 | -0.27 | +2.24 |
+| freeform MLA, 40–60° (library) | 0.425 | 7.5 | 0.39 | 0.7887 | 0.7882 ± 0.0004 | 0.7886 | -1.11 | +2.69 |
+| wavy, rms slope 0.2 (library) | 0.402 | 2.2 | 0.35 | 0.6084 | 0.6087 ± 0.0005 | 0.6093 | -2.71 | +19.29 |
+| wavy, rms slope 1.0 (library) | 0.422 | 1.1 | 0.87 | 0.7924 | 0.7916 ± 0.0004 | 0.7917 | -0.07 | +2.15 |
+| spherical caps, 60° contact | 0.418 | 2.0 | 0.74 | 0.7761 | — | — | -0.24 | +3.51 |
+| spherical caps, 35° contact | 0.410 | 1.4 | 0.66 | 0.7273 | 0.7258 ± 0.0004 | 0.7260 | -1.82 | +7.90 |
+| paraboloids | 0.425 | 2.7 | 0.71 | 0.8010 | — | — | -0.27 | +1.50 |
+| cones, 45° side | 0.423 | ∞ | 0.23 | 0.7838 | — | — | -3.53 | +3.06 |
+| cones, 60° side | 0.431 | 68.2 | 0.68 | 0.7866 | 0.7808 ± 0.0004 | 0.7865 | -2.55 | +3.26 |
+| Gaussian bumps | 0.424 | 1.6 | 0.70 | 0.7573 | — | — | -0.34 | +5.76 |
+| random mix of cones and hemispheres | 0.427 | 2.7 | 0.76 | 0.7951 | 0.7937 ± 0.0004 | 0.7947 | -0.11 | +2.17 |
+| ring-spectrum wavy, slope 0.6 | 0.413 | 1.3 | 0.76 | 0.7565 | 0.7551 ± 0.0004 | 0.7567 | -0.72 | +5.18 |
+| ring-spectrum wavy, slope 1.2 | 0.424 | 1.2 | 0.86 | 0.7934 | — | — | -0.11 | +2.18 |
+
+Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp; without the two cone arrays (63 cases) 0.48 pp and at most 3.3 pp (35° caps), against 2.62 and 8.8 pp for the memoryless formula and 1.30 and 5.2 pp for isotropic redistribution. The cone arrays fail (mean 6.0 and 4.2 pp, maximum 20 and 14 pp, low-loss device). The 45° cones retroreflect light within 0–4° (0.5% of the étendue) into itself, giving $\lambda_2 = 1$ like the planar interface; the 60° cones have a ladder of slow modes ($\lambda_2$–$\lambda_4$ = 0.985, 0.91, 0.85) spread over most angles. In both cases $1-\lambda_2$ underestimates how fast the light that escapes is redistributed. The direct traces confirm the full series for the 60° cones within 0.6 pp, so the failure is that of the one-rate reduction, not of the angle-resolved model.
 
 ---
 
 ## Reproducing the figures and data
 
-Main-text Figs. 1–4 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 5 and Figs. S2–S5 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`.
+Main-text Figs. 1–4 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 5 and Figs. S2–S4 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing limit (Fig. 3d, Note S1) from `selectivity/reciprocal_limit.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

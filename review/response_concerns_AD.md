@@ -1,55 +1,127 @@
-# Response to the four concerns (A–D) before submission
+# 투고 전 우려 사항 A–D에 대한 대응
 
-New computations: `selectivity/reciprocal_limit.py` (A), `multipass_reset/direct_blind.py` + `blind_table.py` (B),
-`selectivity/cavity_decomp.py`, `multipass_reset/fixedcav_opt.py`, `opt_fixedcavity_freeform.m` (C).
-Data: `selectivity/data/reciprocal_limit.json`, `multipass_reset/blind/results.json`, `selectivity/data/cavity_decomp.json`,
-`multipass_reset/fixedcav/results.json`.
+새 계산 스크립트:
+- `selectivity/reciprocal_limit.py` (A)
+- `multipass_reset/direct_blind.py`, `multipass_reset/blind_table.py` (B)
+- `selectivity/cavity_decomp.py`, `selectivity/cav_lens_cross.py`, `multipass_reset/fixedcav_opt.py`, `opt_fixedcavity_freeform.m` (C)
 
-## A. New physical result or an application of known mathematics?
+데이터:
+- `selectivity/data/reciprocal_limit.json`
+- `multipass_reset/blind/results.json`
+- `selectivity/data/cavity_decomp.json`, `selectivity/data/cav_lens_cross.json`
+- `multipass_reset/fixedcav/results.json`
 
-**Change.** The paper is now built around the question "how much can better angular mixing raise outcoupling?"
-(new title, abstract, introduction, Sec. 2.4, Sec. 4.3, Fig. 3d, Discussion, Conclusion).
+## A. 새로운 물리적 발견인가, 기존 수학의 적용인가
 
-**New quantitative result.** For the only reciprocal rank-one return kernel, completely mixed light escapes with
-p_mix = p − σ_p²/(1 − p) (σ_p²: étendue-weighted variance of p(θ)), not with p as the memoryless formula assumes;
-the multi-pass series then has a closed form (Sec. 2.4, Note S1; verified against the numerical series to 1e-9).
-Consequences:
-- For the 37 non-planar structures, complete reciprocal mixing at a structure's own p(θ) would add −0.4 to +1.8 pp
-  (Al), ≤ 2.0 pp (Ag), ≤ 0.4 pp (low loss). Hemispherical MLAs, the slowest mixers, would gain only 1.3–1.7 pp because
-  p_mix = (0.87–0.91) p.
-- The memoryless formula predicts gains larger by 0.6–2.9 pp (lens arrays), 17 pp (shallow wavy), 31 pp (planar,
-  p_mix = 0.06 against p = 0.40).
-- Even a complete mixer has ξ = 1 − σ_p²/[p(1 − p)] < 1 unless p(θ) is flat: the design lever is a higher p or a flatter
-  p(θ), not faster mixing.
+**바꾼 것.** 논문의 중심 질문을 "각도 혼합을 개선하면 광추출이 얼마나 오르는가"로 바꿨습니다.
+- 제목: Reciprocity Limits the Gain from Angular Mixing in Passive OLED Light-Extraction Structures
+- 함께 고친 곳: 초록, 서론, 2.4절(신설), 4.3절(신설), 그림 3d(신설), 논의, 결론
+- 국문본도 같은 내용으로 고쳤습니다.
 
-The Markov/reciprocity machinery is still stated as known; the novelty claim is restricted to these consequences.
+**새 정량 결과.**
+- 상반성을 만족하는 계수 1 반환 핵에서 완전히 혼합된 빛의 탈출 확률은 다음과 같습니다.
+  - p_mix = p − σ_p²/(1 − p)
+  - σ_p²는 p(θ)의 에텐듀 가중 분산입니다.
+  - 무기억 공식은 이 값을 p로 가정합니다.
+- 이때 다중 패스 급수는 닫힌 형태로 합해집니다(2.4절, 노트 S1). 342개 경우 모두에서 수치 급수와 1e-9까지 일치합니다.
 
-## B. No independent validation
+**결과.**
+- 평면이 아닌 37개 구조에서, 각 구조 자신의 p(θ)를 그대로 두고 완전히 혼합했을 때의 효율 증가:
+  - Al: −0.4 ~ +1.8 %p
+  - Ag: 최대 2.0 %p
+  - 저손실 소자: 최대 0.4 %p
+- 가장 느리게 혼합하는 반구 MLA도 1.3–1.7 %p만 얻습니다. 혼합된 빛의 탈출 확률이 p_mix = (0.87–0.91)p로 낮기 때문입니다.
+- 무기억 공식은 더 큰 이득을 예측합니다.
+  - 렌즈 배열: 0.6–2.9 %p 더 큼
+  - 가장 얕은 물결면: 17 %p 더 큼
+  - 평면 계면: 31 %p 더 큼 (p = 0.40이지만 p_mix = 0.06)
+- 완전히 혼합해도 p(θ)가 평평하지 않으면 ξ = 1 − σ_p²/[p(1 − p)] < 1입니다. 따라서 효율을 높이는 설계 지렛대는 빠른 혼합이 아니라 더 높은 p나 더 평평한 p(θ)입니다.
 
-- **Direct ray tracing** of the whole multi-pass process in (θ, φ), azimuth kept between passes, specular R(θ)
-  (1e6 rays per case): {{DIRECT}}
-- **Blind test** on nine families not used in model development: {{BLIND}}
-- **Not possible here:** experimental BSDF measurement, and an independent commercial ray tracer for structures other
-  than the hemisphere. Recommended if the target is Nature Photonics / LSA: measure the return BSDF of two or three
-  fabricated films (hemispherical MLA, random MLA, scattering film) and compute N_mix, ξ, p_mix from it.
+마르코프 연쇄와 상반성은 여전히 알려진 이론으로 명시했습니다. 새로움 주장은 위의 정량적 결과로만 한정했습니다.
 
-## C. Cavity co-optimization in the freeform benchmark
+## B. 독립 검증의 부재
 
-- Full device model, spectrally weighted, own cavities (Note S8, Table S13): lens shape alone changes the band EQE by
-  −5.4% to +0.4%, the cavity by −2.6% to +0.3%.
-- The model reproduces the hemispheres' LightTools EQE within 4% but rates the freeform optima 1–5% lower relative to
-  them; tools agree that shape gains are a few percent at most, not on their sign below ~5%.
-- Table 3's 0.771 vs 0.792: the total-EQE freeform lens at the hemisphere's cavity extracts less; its LightTools
-  advantage rests on its own cavity (ETL 67.5 / HTL 120.6 nm vs 61.3 / 97.5) and on an annular-trough profile.
-- Lens-only optimization at a fixed stack in the model: {{ES}}
-- `opt_fixedcavity_freeform.m`: LightTools control with ETL/HTL fixed at each arm's hemispherical optimum and the
-  hemisphere as first seed. **To be run by the authors** (needs LightTools/MATLAB).
+**직접 광선추적.**
+- 방법: 다중 패스 전 과정을 (θ, φ)에서 추적했습니다. 방위각은 패스 사이에 유지하고, 소자 반사는 정반사 R(θ)로 두었습니다. 경우마다 광선 1e6개를 썼습니다(노트 S9, 표 S16).
+- 결과: 8개 구조에서 전체 급수와 0.6 %p 이내로 일치합니다.
+- 가장 큰 차이는 반구 MLA −0.40 %p, 60° 원뿔 −0.59 %p입니다. 매 패스 방위각을 다시 무작위로 섞으면 차이가 0.13 %p 이하로 줄어듭니다. 즉 남은 차이는 극각 모델이 무시하는 방위각 기억입니다.
 
-## D. Statistics
+**블라인드 시험.**
+- 축약 모델을 확정한 뒤 고른 9개 구조로 시험했고, 결과를 보고 모델을 조정하지 않았습니다.
+  - 구면 캡 60°, 35°
+  - 포물면
+  - 원뿔 45°, 60°
+  - 가우스 돌기
+  - 원뿔·반구 무작위 혼합
+  - 고리형 스펙트럼 물결면 0.6, 1.2
+- 원뿔을 뺀 7개 구조(63개 경우):
+  - 상반적 축약 모델: 평균 0.48 %p, 최대 3.3 %p. 라이브러리(평균 0.30, 최대 3.0)와 비슷합니다.
+  - 무기억 공식: 평균 2.62, 최대 8.8 %p
+  - 등방 재분배: 평균 1.30, 최대 5.2 %p
+- **원뿔 배열 2종에서는 실패합니다.** 평균 오차는 6.0 / 4.2 %p, 최대 오차는 20 / 14 %p입니다.
+  - 45° 원뿔: 0–4°의 빛(에텐듀의 0.5%)을 자기 자신으로 역반사해 λ₂ = 1이 됩니다.
+  - 60° 원뿔: λ₂–λ₄ = 0.985, 0.91, 0.85처럼 느린 모드가 줄지어 있지만, 이 모드들은 실제로 탈출하는 빛을 지배하지 않습니다.
+  - 60° 원뿔에서도 전체 급수는 직접 광선추적과 0.6 %p 이내로 맞습니다. 따라서 실패한 것은 혼합률 하나로 줄이는 단계이지, 각도 분해 모델 자체가 아닙니다.
+  - 이 한계를 본문 4.1절, 초록, 결론에 명시했습니다.
 
-- Main text and Table 2 now judge reproducibility by independent searches: 40–60° 1.046–1.070, 60–80° 1.020–1.036,
-  total 1.005–1.013 (4 searches), 0–40° never above 1.003; the hemisphere had more evaluations per variable
-  (15 vs 4–11).
-- The t values are described as tests of evaluation noise only (Note S6), not of optimizer uncertainty.
-- Remaining recommendation: 2–3 further independent restarts per arm (e.g. `opt_fixedcavity_freeform.m` with different
-  `RNG_SEED`) would give a proper spread.
+**여기서 할 수 없는 것.**
+- 제작한 필름의 반환 BSDF 실험 측정
+- 반구 외 구조에 대한 독립 상용 광선추적기 검증
+
+Nature Photonics나 LSA를 노린다면 다음을 권합니다. 반구 MLA, 무작위 MLA, 산란 필름 2–3종의 반환 BSDF를 측정해 N_mix, ξ, p_mix를 실측값으로 계산하는 것입니다.
+
+## C. 자유형 벤치마크의 캐비티 공동 최적화
+
+**전체 소자 모델, 스펙트럼 가중, 각 설계 자신의 캐비티(노트 S8, 표 S13).** 자유형/반구 비는 다음과 같습니다.
+
+| 목적 | LightTools | 모델(자기 캐비티) | 렌즈만(반구 캐비티) | 캐비티만 |
+|---|---|---|---|---|
+| 20–40° | 0.966 | 0.959 | 0.946 | 0.974 |
+| 40–60° | 1.070 | 1.026 | 1.004 | 0.986 |
+| 60–80° | 1.020 | 0.972 | 0.964 | 0.996 |
+| 전체 | 1.013 | 0.974 | 0.971 | 1.003 |
+
+**렌즈와 캐비티는 상호작용합니다(표 S14).** 40–60° 자유형 렌즈가 반구 렌즈보다 얼마나 높은지(대역 EQE 기준):
+
+| 캐비티 | 스펙트럼 가중 | 550 nm 단일 파장 |
+|---|---|---|
+| 반구 40–60° 캐비티 | +0.4% | +5.6–9.2% (세 캐비티 범위) |
+| 전체 EQE 캐비티 | +1.8% | |
+| 자유형 자기 캐비티 | +4.1% | |
+
+**적층을 고정한 렌즈만 최적화(우리 모델, Al, 550 nm, 표 S15).** 동등하게 최적화한 반구와 비교했습니다.
+- 40–60° 대역: +9.0%
+- 기판→공기 추출 효율 η_sta: +1.25%
+- η_sta 이득을 얻은 자유형은 p를 바꾸지 않았습니다(0.421 → 0.422). 대신 다음이 바뀌었습니다.
+  - N_mix: 7.1 → 2.1
+  - p_mix/p: 0.91 → 0.93
+- 즉 완전 혼합이 반구에 더할 수 있는 1.4 %p 가운데 1.0 %p를 되찾은 것입니다. 이것이 구조 지도가 예측하는 바로 그 이득입니다.
+- 결론: 렌즈 형상은 고정 캐비티에서도 빛을 대역으로 몇 % 조향하지만, 전체 효율은 혼합을 통해서만 올립니다.
+
+**두 도구의 일치 정도.**
+- 우리 모델은 반구의 LightTools EQE를 4% 이내로 재현합니다.
+- 자유형 최적해는 반구 대비 1–5% 낮게 평가합니다.
+- 따라서 "형상 이득은 몇 % 이내"라는 데는 두 도구가 일치하지만, 약 5% 미만 차이의 부호에는 일치하지 않습니다.
+
+**표 3의 0.771 대 0.792.**
+- 전체 EQE 자유형 렌즈를 반구 캐비티에 두면 실제로 덜 추출합니다.
+- LightTools에서의 우위는 두 가지에 기대고 있습니다.
+  - 자기 캐비티: ETL 67.5 / HTL 120.6 nm (반구는 61.3 / 97.5 nm)
+  - 고리형 골이 있는 프로파일(제어점 높이 1.05, 0.15, 0.19, 0.53, 0.50). 우리 PCHIP 재구성이 가장 덜 정확한 형태입니다.
+
+**저자가 실행할 것.** `opt_fixedcavity_freeform.m`
+- 각 대역의 ETL/HTL을 그 대역 반구 최적값에 ±0.01 nm로 고정합니다.
+- 반구를 첫 시드로 넣어 G_j ≥ 1을 보장합니다. 따라서 나오는 이득은 모두 렌즈 형상 때문입니다.
+- `RNG_SEED`를 바꿔 2–3회 실행하면 독립 탐색의 분산도 얻을 수 있습니다.
+- LightTools와 MATLAB이 필요해 여기서는 실행하지 못했습니다.
+
+## D. 통계적 유의성
+
+- 본문과 표 2는 재현성을 독립 탐색으로 판단하도록 바꿨습니다.
+  - 40–60°: 1.046–1.070
+  - 60–80°: 1.020–1.036
+  - 전체: 1.005–1.013 (탐색 4회)
+  - 0–40°: 어느 탐색도 1.003을 넘지 않음
+- 변수당 평가 횟수는 반구가 많았습니다(15회 대 4–11회). 따라서 비교는 반구에 유리합니다.
+- t 값(30–115)은 한 번 평가의 몬테카를로 잡음을 기준으로 한 검정일 뿐, 최적화 불확실성을 재는 것이 아니라고 명시했습니다(노트 S6).
+- 남은 권고: 대역마다 독립 재시작을 2–3회 더 하면 제대로 된 분산을 얻을 수 있습니다(위 스크립트에서 `RNG_SEED` 변경).
