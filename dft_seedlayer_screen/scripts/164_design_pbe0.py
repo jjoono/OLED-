@@ -46,6 +46,34 @@ def pbe_guess(m):
     return mf.make_rdm1()
 
 
+CK = os.path.join(D, "pbe0_ckpt")
+
+
+def scf_ck(m, tag):
+    """q.scf with a PySCF chkfile, so a container restart resumes from the
+    last SCF iterate instead of from scratch (and a PBE guess only once)."""
+    from pyscf import dft, scf as pscf
+    os.makedirs(CK, exist_ok=True)
+    ck = os.path.join(CK, tag + ".chk")
+    mf = (dft.UKS(m) if m.spin else dft.RKS(m)).density_fit()
+    mf.xc = "PBE0"
+    mf.grids.level = 4
+    mf.conv_tol = 1e-9
+    mf.max_cycle = 200
+    mf.level_shift = 0.2
+    if os.path.exists(ck):
+        dm0 = mf.from_chk(ck)
+    else:
+        dm0 = pbe_guess(m)
+    mf.chkfile = ck
+    e = mf.kernel(dm0)
+    if not mf.converged:
+        mf = mf.newton()
+        mf.chkfile = ck
+        e = mf.kernel(mf.make_rdm1())
+    return mf, e
+
+
 def load():
     return json.load(open(OUT)) if os.path.exists(OUT) else {}
 
@@ -79,14 +107,14 @@ def main():
         t0 = time.time()
         if "E_frag" not in rec:
             m = q.mol(FS, FX, 1)
-            mf, e = q.scf(m, dm0=pbe_guess(m))
+            mf, e = scf_ck(m, name + "_frag")
             if not mf.converged:
                 raise RuntimeError(f"{name}: fragment SCF not converged")
             save(name, "E_frag", float(e))
             print(f"{name} fragment {len(FS)} atoms done {time.time()-t0:.0f}s", flush=True)
         if "E_cx" not in load()[name]:
             m = q.mol(FS + ["Ag"], np.vstack([FX, ag]), 2)
-            mf, e = q.scf(m, dm0=pbe_guess(m))
+            mf, e = scf_ck(m, name + "_cx")
             if not mf.converged:
                 raise RuntimeError(f"{name}: complex SCF not converged")
             save(name, "E_cx", float(e))
