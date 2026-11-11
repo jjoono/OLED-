@@ -65,11 +65,17 @@ def scf_ck(m, tag):
         dm0 = mf.from_chk(ck)
     else:
         dm0 = pbe_guess(m)
+    # Ag on an acceptor: one electron goes into a (near-)degenerate LUMO and
+    # DIIS sloshes (HATCN: |g| stuck at 3e-3 for hours, energy 5 mHa above
+    # the real minimum). So DIIS only for 40 cycles, then second-order SCF,
+    # which found a state 5 mHa lower within three macro-iterations.
     mf.chkfile = ck
+    mf.max_cycle = 40
     e = mf.kernel(dm0)
     if not mf.converged:
         mf = mf.newton()
         mf.chkfile = ck
+        mf.max_cycle = 60
         e = mf.kernel(mf.make_rdm1())
     return mf, e
 
