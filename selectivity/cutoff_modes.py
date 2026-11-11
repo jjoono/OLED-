@@ -29,7 +29,7 @@ for cut in (80, 85, 88, 90):
 def modes(BR, BT, dev='Al', i=75, cut=85):
     """Overlap of the first returned light with the eigenmodes of M (etendue-weighted inner product)."""
     k = TH < cut; B = BR[np.ix_(k, k)]; cs = B.sum(0); M = B / np.maximum(cs, 1e-12)[None, :]
-    w = W1[k]; pi = w * (1 - BT.sum(1)[k]); pi /= pi.sum()                       # stationary distribution of M
+    w = W1[k]; pi = w * cs; pi /= pi.sum()                                     # stationary distribution of the truncated, renormalized M: w_i s_i
     S = np.diag(pi ** -0.5) @ M @ np.diag(pi ** 0.5); S = 0.5 * (S + S.T)           # symmetrized (reciprocal)
     lam, U = np.linalg.eigh(S); o = np.argsort(-lam); lam, U = lam[o], U[:, o]
     P = DV[f'{dev}_P'][i].reshape(90, 2).sum(1)[k]; u0 = B @ P; u0 /= u0.sum()    # light returned after the first pass

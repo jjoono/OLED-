@@ -104,7 +104,7 @@ function mathRuns(src, base = {}) {
   }
   s = s.replace(/\\left|\\right/g, '');
   s = expandFrac(s);
-  s = s.replace(/\\mathsf\s*\{?([A-Za-z])\}?/g, '$1');
+  s = s.replace(/\\mathsf\s*(?:\{([A-Za-z])\}|([A-Za-z]))/g, (m, a1, a2) => a1 || a2);
   s = s.replace(/\\(?:tilde|widetilde)\s*\{?([A-Za-z])\}?/g, '$1\u0303');
   s = s.replace(/\\hat\s*\{?([A-Za-z])\}?/g, '$1\u0302');
   for (const k of SYM_KEYS) s = s.split(k).join(SYM[k]);

@@ -22,7 +22,7 @@ Notes S1–S4 support the spectral metrics: model details, the devices and the s
 
 \textbf{Full series.} $\eta_{\mathrm{sta}}$ is obtained by a direct linear solve on the full 0–90\ensuremath{^\circ} grid. Over all cases the spectral radius of $\mathrm{diag}\,\mathbf{R}\,B_R$ stays below 0.9991, the residual below $10^{-16}$, and a pass-by-pass sum agrees with the solve to $10^{-14}$.
 
-\textbf{Angular cutoff.} Bins near 90\ensuremath{^\circ} carry almost no étendue but can return light at their own angle, and a few such states can dominate $\lambda_2$ without affecting extraction. The spectral metrics are therefore evaluated on $\theta < 85\ensuremath{^\circ}$, which excludes 0.76\% of the étendue and less than 0.1\% of $\mathbf{v}^{(0)}$: $B_R$ is restricted to these bins, $M$ is formed by renormalizing the columns of the sub-block, and $\rho$ is taken from the sub-block. $\eta_{\mathrm{sta}}$, in the full series and in the reduced model, always uses 0–90\ensuremath{^\circ}. For every structure $\lambda_2$ is real and positive (0.09–0.88), so $|\lambda_2| = \lambda_2$. $N_{\mathrm{mix}}$ is the relaxation time, not the e-folding pass number $-1/\ln\lambda_2$ (2 against 1.44 at $\lambda_2$ = 0.5).
+\textbf{Angular cutoff.} Bins near 90\ensuremath{^\circ} carry almost no étendue but can return light at their own angle, and a few such states can dominate $\lambda_2$ without affecting extraction. The spectral metrics are therefore evaluated on $\theta < 85\ensuremath{^\circ}$, which excludes 0.76\% of the étendue and less than 0.1\% of $\mathbf{v}^{(0)}$: $B_R$ is restricted to these bins, $M$ is formed by renormalizing the columns of the sub-block, and $\rho$ is taken from the sub-block. $\eta_{\mathrm{sta}}$, in the full series and in the reduced model, always uses 0–90\ensuremath{^\circ}. On the full domain detailed balance gives the stationary distribution of $M$ as $\pi \propto w(1-p)$. The renormalized sub-block has stationary distribution $\pi^{(S)}_i \propto w_i s_i$ instead, with $s_i = \sum_{j<85\ensuremath{^\circ}} B_R(i\to j)$ the fraction returned into the retained bins, because $\sum_i [B_R(i\to j)/s_i]\,w_i s_i = \sum_i w_j B_R(j\to i) = w_j s_j$; $s_i$ differs from $1-p_i$ by the light returned beyond the cutoff (up to 0.25 in the bins next to 85\ensuremath{^\circ} for the hemispherical MLA). The reduced model and the closed-form reference use $q \propto w(1-p)$ on the full domain; only the spectral metrics use the truncated chain. For every structure $\lambda_2$ is real and positive (0.09–0.88), so $|\lambda_2| = \lambda_2$. $N_{\mathrm{mix}}$ is the relaxation time, not the e-folding pass number $-1/\ln\lambda_2$ (2 against 1.44 at $\lambda_2$ = 0.5).
 
 \begin{table}[htbp]
 \centering
@@ -237,21 +237,21 @@ wavy, rms slope 1.0 & 24 \ensuremath{\times} 24 box, new realization & 1.13 & 0.
 \end{tabular}}
 \end{table}
 
-$\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3\ensuremath{^\circ} bins) and 0.06 pp for all other structures; a 10 \ensuremath{\times} 10 supercell or 24 \ensuremath{\times} 24 wavy box changes $N_{\mathrm{mix}}$ by at most 0.06, $\xi$ by 0.025, and $\eta_{\mathrm{sta}}$ by 0.34 pp, comparable to the realization spread.
+$\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3\ensuremath{^\circ} bins) and 0.06 pp for all other structures. The planar interface is the one structure whose returned light never changes angle, so its $\eta_{\mathrm{sta}}$ depends on how the Fresnel edge at the critical angle (41.47\ensuremath{^\circ}) is resolved within a bin: the library value 0.384 (Al, 550 nm) samples the Fresnel coefficients at 0.5\ensuremath{^\circ} bin centres, integration within 1\ensuremath{^\circ} bins gives 0.378, and an exact per-angle sum at 0.01\ensuremath{^\circ} with s and p separate gives 0.375. All statements about the planar interface hold for either value; a 10 \ensuremath{\times} 10 supercell or 24 \ensuremath{\times} 24 wavy box changes $N_{\mathrm{mix}}$ by at most 0.06, $\xi$ by 0.025, and $\eta_{\mathrm{sta}}$ by 0.34 pp, comparable to the realization spread.
 
 \textbf{Polarization.} The scalar model averages $R$ over s and p and sums $\mathbf{v}^{(0)}$, and the tracers use unpolarized Fresnel coefficients. The opposite limit treats s and p as separate channels that keep their label at every encounter: $\eta = \sum_{s,p} \mathbf{p}_{\sigma}^{\mathsf T}(I-\mathrm{diag}\,\mathbf{R}_{\sigma}B_{R,\sigma})^{-1}\mathbf{v}^{(0)}_{\sigma}$, with return matrices traced with $|r_s|^2$ or $|r_p|^2$ only and polarization-resolved $\mathbf{v}^{(0)}_\sigma$ and $R_\sigma$ (s carries 65–70\% of $\mathbf{v}^{(0)}$). The limit is exact for a planar interface; for curved surfaces, which rotate the local plane of incidence, the true value lies between the two (Table S18). The polarization treatment shifts the absolute $\eta_{\mathrm{sta}}$ of the hemispherical MLA and the wavy surface by 0.6–1.5 pp, but the complete-mixing gain by at most 0.4 pp and the reduced-model error by at most 0.1 pp, so the comparisons in the main text are unaffected.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption*{\textbf{Table S18 | Scalar model versus polarization-resolved limit without s/p conversion (Al).} Last two columns: scalar / polarization-resolved, pp.}
+\caption*{\textbf{Table S18 | Scalar model versus polarization-resolved limit without s/p conversion (Al).} Last two columns: scalar / polarization-resolved, pp. The planar matrices here are integrated within each 1\ensuremath{^\circ} bin, so the planar $\eta_{\mathrm{sta}}$ is 0.378 at 550 nm, against 0.384 in Table S3 (0.5\ensuremath{^\circ} sampling) and 0.375 exactly (Note S3).}
 \resizebox{\linewidth}{!}{\begin{tabular}{lllllll}
 \hline
 Structure & \ensuremath{\lambda} (nm) & $\eta_{\mathrm{sta}}$, scalar & $\eta_{\mathrm{sta}}$, s and p separate & difference (pp) & complete-mixing gain & reduced - full \\
 \hline
-planar interface & 500 & 0.3525 & 0.3527 & +0.02 & 12.82 / 13.88 & +0.00 / -0.00 \\
-planar interface & 550 & 0.3704 & 0.3706 & +0.02 & 13.27 / 14.48 & -0.00 / +0.00 \\
-planar interface & 600 & 0.4003 & 0.4006 & +0.03 & 10.79 / 12.69 & +0.00 / +0.00 \\
+planar interface & 500 & 0.3591 & 0.3595 & +0.04 & 12.86 / 13.92 & +0.00 / +0.00 \\
+planar interface & 550 & 0.3776 & 0.3780 & +0.04 & 13.26 / 14.46 & +0.00 / +0.00 \\
+planar interface & 600 & 0.4086 & 0.4090 & +0.05 & 10.65 / 12.57 & +0.00 / +0.00 \\
 hemispherical MLA & 500 & 0.7019 & 0.7081 & +0.62 & 5.86 / 5.99 & -0.61 / -0.60 \\
 hemispherical MLA & 550 & 0.7913 & 0.8038 & +1.25 & 1.41 / 1.05 & -0.28 / -0.30 \\
 hemispherical MLA & 600 & 0.8032 & 0.8156 & +1.25 & 0.13 / -0.02 & -0.04 / -0.04 \\
@@ -530,7 +530,7 @@ ring-spectrum wavy, slope 1.2 & 0.424 & 1.2 & 0.86 & 0.7934 & — & — & -0.11 
 
 Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp; without the two cone arrays (63 cases) 0.48 pp and at most 3.3 pp (35\ensuremath{^\circ} caps), against 2.62 and 8.8 pp for the memoryless formula and 1.30 and 5.2 pp for isotropic redistribution. The cone arrays fail (mean 6.0 and 4.2 pp, maximum 20 and 14 pp, low-loss device). The 45\ensuremath{^\circ} cones retroreflect light within 0–4\ensuremath{^\circ} (0.5\% of the étendue) into itself, giving $\lambda_2 = 1$ like the planar interface; the 60\ensuremath{^\circ} cones have a ladder of slow modes ($\lambda_2$–$\lambda_4$ = 0.985, 0.91, 0.85) spread over most angles. In both cases $1-\lambda_2$ underestimates how fast the light that escapes is redistributed. The direct traces confirm the full series for the 60\ensuremath{^\circ} cones within 0.6 pp, so the failure is that of the one-rate reduction, not of the angle-resolved model.
 
-\textbf{Mode occupancy (post hoc).} Because $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi \propto w(1-p)$, the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S17 lists the share of the deviation $u_0/\pi - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in \texttt{selectivity/mixing.py} before the blind test, but examined only after it). For the 60\ensuremath{^\circ} cones the slow modes carry 0.4\% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.42 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45\ensuremath{^\circ} cones the closed retroreflecting set carries 98\% of it, and no single rate works. Over the library $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.47 against 0.31 pp, maximum 3.6 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing.
+\textbf{Mode occupancy (post hoc).} Because the truncated $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi^{(S)} \propto w s$ (Note S1), the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S17 lists the share of the deviation $u_0/\pi^{(S)} - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in \texttt{selectivity/mixing.py} before the blind test, but examined only after it). For the 60\ensuremath{^\circ} cones the slow modes carry 0.4\% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.43 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45\ensuremath{^\circ} cones the closed retroreflecting set carries 98\% of it, and no single rate works. Over the library $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.48 against 0.31 pp, maximum 3.7 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing.
 
 \begin{table}[htbp]
 \centering
@@ -540,15 +540,15 @@ Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp
 \hline
 Structure & $\lambda_2$ & $\lambda_{\mathrm{eff}}$ & slow-mode share & error with $\lambda_2$ & error with $\lambda_{\mathrm{eff}}$ \\
 \hline
-hemispherical MLA & 0.859 & 0.736 & 0.251 & 0.24 / 0.62 & 0.66 / 2.89 \\
-freeform MLA, 40–60\ensuremath{^\circ} & 0.867 & 0.726 & 0.582 & 0.87 / 2.09 & 0.83 / 2.45 \\
-wavy, rms slope 0.2 & 0.540 & 0.216 & 0.000 & 1.98 / 2.99 & 0.62 / 2.11 \\
-random lenslet shapes, $s$ = 1 & 0.487 & 0.379 & 0.000 & 0.12 / 0.23 & 0.19 / 0.80 \\
-spherical caps, 35\ensuremath{^\circ} (blind) & 0.296 & 0.235 & 0.000 & 1.42 / 3.30 & 1.17 / 2.82 \\
-paraboloids (blind) & 0.636 & 0.377 & 0.000 & 0.33 / 0.83 & 0.38 / 1.52 \\
-cone–hemisphere mix (blind) & 0.634 & 0.393 & 0.000 & 0.27 / 0.82 & 0.39 / 1.29 \\
-cones, 60\ensuremath{^\circ} (blind) & 0.985 & 0.423 & 0.004 & 4.15 / 14.36 & 0.24 / 0.81 \\
-cones, 45\ensuremath{^\circ} (blind) & 1.000 & 0.987 & 0.977 & 5.99 / 20.15 & 5.47 / 18.52 \\
+hemispherical MLA & 0.859 & 0.734 & 0.243 & 0.24 / 0.62 & 0.67 / 2.93 \\
+freeform MLA, 40–60\ensuremath{^\circ} & 0.867 & 0.723 & 0.572 & 0.87 / 2.09 & 0.83 / 2.47 \\
+wavy, rms slope 0.2 & 0.540 & 0.195 & 0.000 & 1.98 / 2.99 & 0.72 / 2.33 \\
+random lenslet shapes, $s$ = 1 & 0.487 & 0.376 & 0.000 & 0.12 / 0.23 & 0.19 / 0.82 \\
+spherical caps, 35\ensuremath{^\circ} (blind) & 0.296 & 0.237 & 0.000 & 1.42 / 3.30 & 1.18 / 2.83 \\
+paraboloids (blind) & 0.636 & 0.379 & 0.000 & 0.33 / 0.83 & 0.37 / 1.51 \\
+cone–hemisphere mix (blind) & 0.634 & 0.397 & 0.000 & 0.27 / 0.82 & 0.38 / 1.27 \\
+cones, 60\ensuremath{^\circ} (blind) & 0.985 & 0.430 & 0.004 & 4.15 / 14.36 & 0.23 / 0.77 \\
+cones, 45\ensuremath{^\circ} (blind) & 1.000 & 0.988 & 0.978 & 5.99 / 20.15 & 5.50 / 18.61 \\
 \hline
 \end{tabular}}
 \end{table}

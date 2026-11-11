@@ -53,14 +53,18 @@ def wave_bsdf(slope, pol, N=10000):
     BT, BR, lost = G._run(batch, (amp, gx, gy, ph, np.array([h0]), np.zeros(1)), (L, 0.0, 0.0, L), 2 * h0, lip, 1.51, N, 80, 1)
     return BT, BR
 
-def planar_bsdf(pol):
-    n = 1.51; t = np.radians(TH); st = n * np.sin(t); BT = np.zeros((90, 90)); BR = np.zeros((90, 90))
+def planar_bsdf(pol, K=400):
+    """Flat interface, Fresnel integrated within each 1-deg bin (uniform in sin^2, i.e. Lambertian within the bin)."""
+    n = 1.51; BT = np.zeros((90, 90)); BR = np.zeros((90, 90))
     for i in range(90):
-        if st[i] >= 1:
-            BR[i, i] = 1.0; continue
-        ct = np.sqrt(1 - st[i] ** 2); ci = np.cos(t[i])
-        rs = (n * ci - ct) / (n * ci + ct); rp = (ct - n * ci) / (ct + n * ci); Rf = rs ** 2 if pol == 's' else rp ** 2
-        BR[i, i] = Rf; BT[i, min(int(np.degrees(np.arcsin(st[i]))), 89)] = 1 - Rf
+        s2 = np.sin(np.radians(i)) ** 2 + (np.sin(np.radians(i + 1)) ** 2 - np.sin(np.radians(i)) ** 2) * (np.arange(K) + 0.5) / K
+        t = np.arcsin(np.sqrt(s2)); st = n * np.sin(t)
+        for tt, ss in zip(t, st):
+            if ss >= 1:
+                BR[i, i] += 1.0 / K; continue
+            ct = np.sqrt(1 - ss ** 2); ci = np.cos(tt)
+            rs = (n * ci - ct) / (n * ci + ct); rp = (ct - n * ci) / (ct + n * ci); Rf = rs ** 2 if pol == 's' else rp ** 2
+            BR[i, i] += Rf / K; BT[i, min(int(np.degrees(np.arcsin(ss))), 89)] += (1 - Rf) / K
     return BT, BR
 
 def device_pol(j):
