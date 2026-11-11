@@ -8,10 +8,18 @@ reduced by Ag, so the anion spectrum matters as much as the neutral one: the
 F4TCNQ anion's 2.4 eV band is what disqualifies it optically, while the
 HATCN anion has only a weak 1.96 eV pair (f 0.15 each, script 44).
 
-Level as script 44 (range-separated hybrid for the CT-like anion states),
-GFN2 geometry of the neutral for both (vertical), 6 roots (the question is
-only what lies below 3.1 eV; 12 roots of a range-separated hybrid took > 1 h
-per state on 4 cores). Reported:
+Level: TDA-PBE0/def2-SVP (DF), GFN2 geometry of the neutral for both
+(vertical). Not script 44's wB97X: in PySCF on 4 cores the TDA Davidson of a
+range-separated hybrid ran > 2 h for HATCN alone, and the Davidson residual
+stagnates (|r| ~ 0.03) while the subspace doubles every iteration. So:
+  * PBE0, which puts CT-like states LOWER than a range-separated hybrid --
+    the test is conservative: a state PBE0 puts above 3.1 eV is above it at
+    wB97X too, and an anion band PBE0 puts in the visible may be bluer;
+  * a capped Davidson (4 iterations, 3-4 roots). The Ritz values are
+    variational upper bounds that had converged to < 0.01 eV for the lowest
+    HATCN state by iteration 3 (3.92 -> 3.74 -> 3.714 -> 3.713 eV); higher
+    roots of a capped run are less converged and only bound from above.
+HATCN is computed the same way; the comparison is internal. Reported:
   neutral  first state with f > 0.02, and any such state below 3.1 eV
   anion    sum of f between 1.65 and 3.1 eV (the visible), first bright state
 HATCN is computed here at the same level and geometry protocol, so the
@@ -32,7 +40,8 @@ HA = 27.211386
 VIS = (1.65, 3.10)
 
 
-def run(S, X, charge, nroots=6):
+def run(S, X, charge, nroots=None):
+    nroots = nroots or (4 if charge else 3)
     from pyscf import gto, dft, tdscf
     m = gto.Mole()
     m.atom = [(s, tuple(x)) for s, x in zip(S, X)]
@@ -44,7 +53,7 @@ def run(S, X, charge, nroots=6):
     m.max_memory = int(os.environ.get("QC_MEM_MB", "8000"))
     m.build()
     mf = (dft.UKS(m) if m.spin else dft.RKS(m)).density_fit()
-    mf.xc = "wb97x"
+    mf.xc = "pbe0"
     mf.grids.level = 3
     mf.conv_tol = 1e-8
     mf.max_cycle = 60
@@ -54,7 +63,8 @@ def run(S, X, charge, nroots=6):
         mf.kernel(mf.make_rdm1())
     td = tdscf.TDA(mf)
     td.nstates = nroots
-    td.conv_tol = 1e-4  # 0.003 eV on excitation energies; enough for a 3.1 eV cut
+    td.conv_tol = 1e-4
+    td.max_cycle = 4
     td.kernel()
     e = np.array(td.e) * HA
     f = np.array(td.oscillator_strength())
