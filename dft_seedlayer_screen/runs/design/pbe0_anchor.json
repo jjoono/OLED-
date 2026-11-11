@@ -65,5 +65,21 @@
    "E_b_gfn2": 3.1536,
    "rcut": 7.0
   }
+ },
+ "HAT-F4benzo-F4benzo-F4benzo": {
+  "E_frag": -2436.747112486073,
+  "E_cx": -2583.723170529618,
+  "q_Ag_mulliken": 0.5071,
+  "result": {
+   "E_b": 1.4229,
+   "elec": 1.2445,
+   "disp": 0.1785,
+   "frag_atoms": 42,
+   "caps": 0,
+   "mol_atoms": 42,
+   "site": "lpN7",
+   "E_b_gfn2": 3.5098,
+   "rcut": 7.0
+  }
  }
 }

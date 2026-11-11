@@ -43,3 +43,9 @@ HAT-CN2benzo-CN2benzo-CN2benzo {'E_b': 1.3228, 'elec': 1.1416, 'disp': 0.1812, '
 ECP def2-svp not found for  N
 ECP def2-svp not found for  F
 ECP def2-svp not found for  C
+HAT-F4benzo-F4benzo-F4benzo fragment 42 atoms done 693s
+ECP def2-svp not found for  N
+ECP def2-svp not found for  F
+ECP def2-svp not found for  C
+HAT-F4benzo-F4benzo-F4benzo complex done 5369s
+HAT-F4benzo-F4benzo-F4benzo {'E_b': 1.4229, 'elec': 1.2445, 'disp': 0.1785, 'frag_atoms': 42, 'caps': 0, 'mol_atoms': 42, 'site': 'lpN7', 'E_b_gfn2': 3.5098, 'rcut': 7.0}

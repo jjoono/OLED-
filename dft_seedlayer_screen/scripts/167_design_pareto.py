@@ -5,8 +5,13 @@
 Hard constraints and objectives from runs/design/spec.json
 (notes/DESIGN_SPEC_CGL_SEED.md). E_b per molecule, best available source:
   1. PBE0 anchor (script 164) on the production scale (HATCN offset)
-  2. Delta-ML GP prediction (script 163) with its sigma
-  3. ridge prediction, kept alongside as the model-disagreement check
+  2. HAT-family map: linear GFN2 -> PBE0 fitted on the five HAT anchors
+     (same protocol, same site chemistry). Within the family GFN2 ranks
+     correctly (r = 0.84) while EA does not (r = -0.09: the F4-benzo HAT has
+     the lowest EA and the highest E_b). Sigma = its leave-one-out RMSE.
+  3. cross-family Delta-ML GP (script 163), kept as the comparison: across
+     families GFN2 inverts HATCN vs F4TCNQ/F6-TCNNQ, which is why the
+     family map, not the global one, is used for HAT derivatives.
 "Safe" E_b = estimate - sigma; a candidate meets the E_b target only if the
 safe value does.
 
@@ -53,6 +58,20 @@ def main():
     A = json.load(open(os.path.join(D, "pbe0_anchor.json"))) if os.path.exists(os.path.join(D, "pbe0_anchor.json")) else {}
     off = 1.631 - A["HATCN"]["result"]["E_b"] if "result" in A.get("HATCN", {}) else None
     td = json.load(open(os.path.join(D, "tddft.json"))) if os.path.exists(os.path.join(D, "tddft.json")) else {}
+    # HAT-family map from the anchors (protocol scale), with LOO RMSE
+    anc = [(n, v["result"]["E_b"], S[n]["E_b_gfn2"]) for n, v in A.items()
+           if "result" in v and lib.get(n, {}).get("family") in ("HAT", "reference") and n in S
+           and (n == "HATCN" or lib[n]["family"] == "HAT")]
+    fam = None
+    if len(anc) >= 4:
+        x = np.array([a[2] for a in anc]); y = np.array([a[1] for a in anc])
+        coef = np.polyfit(x, y, 1)
+        loo = [y[i] - np.polyval(np.polyfit(np.delete(x, i), np.delete(y, i), 1), x[i]) for i in range(len(x))]
+        fam = {"slope": round(float(coef[0]), 3), "intercept": round(float(coef[1]), 3),
+               "r": round(float(np.corrcoef(x, y)[0, 1]), 3),
+               "loo_rmse": round(float(np.sqrt(np.mean(np.square(loo)))), 3),
+               "anchors": [a[0] for a in anc]}
+        print("HAT family map:", fam)
     rows = []
     for n, s in S.items():
         if "error" in s or n not in pred:
@@ -61,6 +80,10 @@ def main():
         gp, sg = pred[n]["gp"]
         src = "GP"
         eb = gp
+        if fam and L["family"] == "HAT" and off is not None:
+            eb = float(np.polyval([fam["slope"], fam["intercept"]], s["E_b_gfn2"])) + off
+            sg = fam["loo_rmse"]
+            src = "HAT map"
         if n in A and "result" in A[n] and off is not None:
             eb = A[n]["result"]["E_b"] + off if n != "HATCN" else 1.631
             sg = 0.10
@@ -82,7 +105,8 @@ def main():
         if L["SA"] > h["SA_max"]:
             fails.append(f"SA {L['SA']}")
         row = {"name": n, "family": L["family"], "E_b": round(eb, 3), "sigma": round(sg, 3),
-               "E_b_safe": round(eb - sg, 3), "E_b_ridge": pred[n]["ridge"][0], "source": src,
+               "E_b_safe": round(eb - sg, 3), "E_b_ridge": pred[n]["ridge"][0], "E_b_gp": pred[n]["gp"][0], "source": src,
+               "E_b_gfn2": s["E_b_gfn2"],
                "EA": p["EA"], "gap": p["gap_gfn2"], "risk": p["cryst_risk"], "dq": s.get("dq"),
                "MW": L["MW"], "SA": L["SA"], "synth_class": cls, "route": L["route"],
                "fails": fails, "meets_Eb_target": bool(eb - sg >= spec["Eb_target_eV"])}
@@ -97,7 +121,7 @@ def main():
     for r, k in zip(ok, rk):
         r["pareto_front"] = int(k)
     ok.sort(key=lambda r: (r["pareto_front"], -r["E_b"]))
-    out = {"n_surveyed": len(rows), "n_pass_hard": len(ok), "HATCN": [r for r in rows if r["name"] == "HATCN"],
+    out = {"hat_family_map": fam, "offset_to_production": off, "n_surveyed": len(rows), "n_pass_hard": len(ok), "HATCN": [r for r in rows if r["name"] == "HATCN"],
            "pass": ok, "fail_counts": {}}
     for r in rows:
         for f in r["fails"]:
@@ -109,7 +133,7 @@ def main():
         if r["pareto_front"] > 1:
             continue
         print(f"F{r['pareto_front']} {r['name']:<34} Eb {r['E_b']:.2f}±{r['sigma']:.2f} ({r['source']}) "
-              f"ridge {r['E_b_ridge']:.2f} EA {r['EA']:.2f} gap {r['gap']:.2f} risk {r['risk']:.0f} "
+              f"GP {r['E_b_gp']:.2f} EA {r['EA']:.2f} gap {r['gap']:.2f} risk {r['risk']:.0f} "
               f"cls {r['synth_class']} SA {r['SA']}")
 
 
