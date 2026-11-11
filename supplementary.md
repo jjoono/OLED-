@@ -2,7 +2,7 @@
 
 Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction
 
-Notes S1–S4 support the spectral metrics: model details, the devices and the structure library, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, and Note S9 reports direct ray tracing and a blind test. Main-text references are cited as "main ref. n".
+Notes S1–S4 support the spectral metrics: model details, the devices and the structure library, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and a blind test, and Note S10 gives the estimators and numerical diagnostics. Main-text references are cited as "main ref. n".
 
 ---
 
@@ -177,17 +177,17 @@ By device, the mean (maximum) reciprocal-model error is 0.41 (2.7) pp for Al, 0.
 | wavy, rms slope 1.0 | 12 × 12 box (library) | 1.13 | 0.871 | 0.7924 | -0.07 |
 | wavy, rms slope 1.0 | 24 × 24 box, new realization | 1.13 | 0.867 | 0.7912 | -0.04 |
 
-$\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp for all other structures. The planar interface is the one structure whose returned light never changes angle, so its $\eta_{\mathrm{sta}}$ depends on how the Fresnel edge at the critical angle (41.47°) is resolved within a bin: the library value 0.384 (Al, 550 nm) samples the Fresnel coefficients at 0.5° bin centres, integration within 1° bins gives 0.378, and an exact per-angle sum at 0.01° with s and p separate gives 0.375. All statements about the planar interface hold for either value; a 10 × 10 supercell or 24 × 24 wavy box changes $N_{\mathrm{mix}}$ by at most 0.06, $\xi$ by 0.025, and $\eta_{\mathrm{sta}}$ by 0.34 pp, comparable to the realization spread.
+$\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp for all other structures. The planar interface is the one structure whose returned light never changes angle, so its $\eta_{\mathrm{sta}}$ depends on how the Fresnel edge at the critical angle (41.47°) is resolved within a bin: with 1° bins and uniform radiance within each bin it is 0.384 (Al, 550 nm), whereas an exact per-angle sum at 0.01° gives 0.380 (0.380 with s and p separate). The 0.4 pp difference comes from the bin containing the critical angle (41.47°) and does not affect any statement about the planar interface; for all other structures, which redistribute angle, bin effects are at most 0.06 pp; a 10 × 10 supercell or 24 × 24 wavy box changes $N_{\mathrm{mix}}$ by at most 0.06, $\xi$ by 0.025, and $\eta_{\mathrm{sta}}$ by 0.34 pp, comparable to the realization spread.
 
-**Polarization.** The scalar model averages $R$ over s and p and sums $\mathbf{v}^{(0)}$, and the tracers use unpolarized Fresnel coefficients. The opposite limit treats s and p as separate channels that keep their label at every encounter: $\eta = \sum_{s,p} \mathbf{p}_{\sigma}^{\mathsf T}(I-\mathrm{diag}\,\mathbf{R}_{\sigma}B_{R,\sigma})^{-1}\mathbf{v}^{(0)}_{\sigma}$, with return matrices traced with $|r_s|^2$ or $|r_p|^2$ only and polarization-resolved $\mathbf{v}^{(0)}_\sigma$ and $R_\sigma$ (s carries 65–70% of $\mathbf{v}^{(0)}$). The limit is exact for a planar interface; for curved surfaces, which rotate the local plane of incidence, the true value lies between the two (Table S18). The polarization treatment shifts the absolute $\eta_{\mathrm{sta}}$ of the hemispherical MLA and the wavy surface by 0.6–1.5 pp, but the complete-mixing gain by at most 0.4 pp and the reduced-model error by at most 0.1 pp, so the comparisons in the main text are unaffected.
+**Polarization.** The scalar model averages $R$ over s and p and sums $\mathbf{v}^{(0)}$, and the tracers use unpolarized Fresnel coefficients. The opposite limit treats s and p as separate channels that keep their label at every encounter: $\eta = \sum_{s,p} \mathbf{p}_{\sigma}^{\mathsf T}(I-\mathrm{diag}\,\mathbf{R}_{\sigma}B_{R,\sigma})^{-1}\mathbf{v}^{(0)}_{\sigma}$, with return matrices traced with $|r_s|^2$ or $|r_p|^2$ only and polarization-resolved $\mathbf{v}^{(0)}_\sigma$ and $R_\sigma$ (s carries 65–70% of $\mathbf{v}^{(0)}$). The limit is exact for a planar interface; for curved surfaces, which rotate the local plane of incidence, the true value lies between the two (Table S18). The polarization treatment shifts the absolute $\eta_{\mathrm{sta}}$ of the hemispherical MLA and the wavy surface by 0.6–1.5 pp, but the complete-mixing gain by at most 0.4 pp and the reduced-model error by at most 0.1 pp, so the comparisons in the main text are unaffected. For the planar interface the separate-channel result is exact and agrees with the scalar model within 0.11 pp; only its hypothetical complete-mixing reference is 2.6–3.1 pp higher when each polarization is mixed separately, which does not change any conclusion.
 
-**Table S18 | Scalar model versus polarization-resolved limit without s/p conversion (Al).** Last two columns: scalar / polarization-resolved, pp. The planar matrices here are integrated within each 1° bin, so the planar $\eta_{\mathrm{sta}}$ is 0.378 at 550 nm, against 0.384 in Table S3 (0.5° sampling) and 0.375 exactly (Note S3).
+**Table S18 | Scalar model versus polarization-resolved limit without s/p conversion (Al).** Last two columns: scalar / polarization-resolved, pp. Planar matrices are integrated within each 1° bin (0.384 at 550 nm, as in Table S3; 0.380 for an exact per-angle sum, Note S3).
 
 | Structure | λ (nm) | $\eta_{\mathrm{sta}}$, scalar | $\eta_{\mathrm{sta}}$, s and p separate | difference (pp) | complete-mixing gain | reduced − full |
 |---|---|---|---|---|---|---|
-| planar interface | 500 | 0.3591 | 0.3595 | +0.04 | 12.86 / 13.92 | +0.00 / +0.00 |
-| planar interface | 550 | 0.3776 | 0.3780 | +0.04 | 13.26 / 14.46 | +0.00 / +0.00 |
-| planar interface | 600 | 0.4086 | 0.4090 | +0.05 | 10.65 / 12.57 | +0.00 / +0.00 |
+| planar interface | 500 | 0.3658 | 0.3649 | -0.09 | 10.09 / 12.72 | +0.00 / +0.00 |
+| planar interface | 550 | 0.3837 | 0.3834 | -0.03 | 10.37 / 13.16 | +0.00 / +0.00 |
+| planar interface | 600 | 0.4165 | 0.4154 | -0.11 | 8.27 / 11.42 | +0.00 / +0.00 |
 | hemispherical MLA | 500 | 0.7019 | 0.7081 | +0.62 | 5.86 / 5.99 | -0.61 / -0.60 |
 | hemispherical MLA | 550 | 0.7913 | 0.8038 | +1.25 | 1.41 / 1.05 | -0.28 / -0.30 |
 | hemispherical MLA | 600 | 0.8032 | 0.8156 | +1.25 | 0.13 / -0.02 | -0.04 / -0.04 |
@@ -256,6 +256,8 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | Ag, 550 nm | 0.322 | 0.361 |
 | low loss, 550 nm | 0.274 | 0.366 |
 
+**Fig. S2 | Composition window for all devices and wavelengths.** $S_{40\text{–}60}$ of the multi-pass output against $\eta_{\mathrm{sta}}$ for all 38 structures; rows, Al, Ag, and low-loss devices; columns, 500, 550, and 600 nm; dotted line, Lambertian partition (0.337). Monte Carlo uncertainty of $S_{40\text{–}60}$ is at most 0.003 (ray seeds and realizations, six random and wavy structures). *(`figS2_composition_window.png`)*
+
 ---
 
 ## Note S5 | Benchmark platform and design space
@@ -277,7 +279,7 @@ All campaigns share the platform of Table S10; the hemisphere is a point of the 
 
 **Searches and fidelity.** Each arm is optimized by MATLAB `surrogateopt` (radial-basis surrogate) followed by `patternsearch` at 10,000 rays and 31 wavelengths; every optimum is re-evaluated three times at 50,000 rays and 151 wavelengths. EQE is the radiative efficiency times the spectrally weighted fraction of generated photons reaching air, over the hemisphere or a band; it includes the cavity's coupling into the substrate and is not directly comparable with $\eta_{\mathrm{sta}}$. Infeasible candidates are returned to the optimizer as constraint violations and not traced. The 25 mm patch underestimates the total of an infinite film by about 4%, but no band share changes by more than 0.24 pp between 15 and 100 mm, and all comparisons are made at equal patch.
 
-**Fig. S2 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture. (b) The hemispherical reference and an axisymmetric freeform profile (40–60° optimum; open circles, free control points) in units of the lens radius. (c) The four polar bands. (d) Optimization workflow. *(`fig1_platform.png`)*
+**Fig. S3 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture. (b) The hemispherical reference and an axisymmetric freeform profile (40–60° optimum; open circles, free control points) in units of the lens radius. (c) The four polar bands. (d) Optimization workflow. *(`fig1_platform.png`)*
 
 ---
 
@@ -301,13 +303,15 @@ In the original per-band campaign (random seeds plus the best designs of a separ
 
 **What the $t$ values test.** $t = \Delta/(s_p\sqrt{2/n})$ with $n$ = 3 and pooled standard deviation $s_p$ compares two fixed designs against the Monte Carlo noise of one evaluation (about $10^{-4}$ in EQE); with a Holm correction over five objectives [S. Holm, Scand. J. Stat. 6, 65 (1979)] the thresholds are 3.75, 3.50, 3.19, 2.78, and 2.13. The large values ($t$ = 30–115) reflect this small noise. They show that a reported difference is not an evaluation artefact but say nothing about the uncertainty of the optimizer, which only the spread over independent searches above measures. The restart winner is also the best of about seventy noisy evaluations, so its +0.3% residues at 0–40° are upper limits.
 
-**Fig. S3 | Restart control.** (a) Re-measured hemisphere and restarted optimum for every arm, with standard deviations and $t$. (b) Five-repeat confirmation of the 20–40° arm. *(`figS1_restart_control.png`)*
+**Fig. S5 | Best-so-far search curves.** Best objective found so far against the evaluation count, at search fidelity (10,000 rays, 31 wavelengths), for the hemispherical campaign (3 variables), the original freeform per-band campaign, and the restart control; dotted lines, final re-evaluated values (50,000 rays, 151 wavelengths); dots in the total-EQE panel, final values of three independent random starts (140 evaluations each). Search-fidelity maxima are biased upward by noise and can exceed the re-evaluated values. *(`figS5_optimizer_convergence.png`)*
+
+**Fig. S4 | Restart control.** (a) Re-measured hemisphere and restarted optimum for every arm, with standard deviations and $t$. (b) Five-repeat confirmation of the 20–40° arm. *(`figS1_restart_control.png`)*
 
 ---
 
 ## Note S7 | Total efficiency fixes the angular composition
 
-Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible designs, 492 optimizer-visited), each band EQE is nearly proportional to the total (Table S12, Fig. S4); random designs alone reproduce the collapse. $S_{40\text{–}60}$ spans only 0.336–0.375 (5–95%), and the 40–60° band carries the largest share in every design with total EQE ≥ 0.40. Band-dedicated optima raise their band's share by 1–27% but lose 1–11% of total EQE, for net band-power gains of 1.00–1.22 against the natural composition of the twenty most efficient designs.
+Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible designs, 492 optimizer-visited), each band EQE is nearly proportional to the total (Table S12, Fig. S6); random designs alone reproduce the collapse. $S_{40\text{–}60}$ spans only 0.336–0.375 (5–95%), and the 40–60° band carries the largest share in every design with total EQE ≥ 0.40. Band-dedicated optima raise their band's share by 1–27% but lose 1–11% of total EQE, for net band-power gains of 1.00–1.22 against the natural composition of the twenty most efficient designs.
 
 **Table S12 | Band EQE against total EQE (least squares, 95% intervals).**
 
@@ -318,7 +322,7 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 | 40–60° | 0.348 ± 0.005 | 0.003 ± 0.003 | 0.968 | 0.967 |
 | 60–80° | 0.189 ± 0.008 | 0.026 ± 0.004 | 0.769 | 0.724 |
 
-**Fig. S4 | Total efficiency fixes the angular composition.** (a) Total EQE against 40–60° EQE for random (grey) and optimizer-visited (green) designs; line, $R^2$ = 0.968. (b) Selectivity of the band-dedicated optima (red) against the natural composition (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity against total EQE for all bands. *(`fig3_efficiency_composition.png`)*
+**Fig. S6 | Total efficiency fixes the angular composition.** (a) Total EQE against 40–60° EQE for random (grey) and optimizer-visited (green) designs; line, $R^2$ = 0.968. (b) Selectivity of the band-dedicated optima (red) against the natural composition (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity against total EQE for all bands. *(`fig3_efficiency_composition.png`)*
 
 ---
 
@@ -400,11 +404,94 @@ Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp
 | cones, 60° (blind) | 0.985 | 0.430 | 0.004 | 4.15 / 14.36 | 0.23 / 0.77 |
 | cones, 45° (blind) | 1.000 | 0.988 | 0.978 | 5.99 / 20.15 | 5.50 / 18.61 |
 
+## Note S10 | Estimators and numerical diagnostics
+
+**Estimators.** The traced matrices are built as follows (height-field tracer; the scattering layers use the slab Monte Carlo of `selectivity/slab.py` plus the adding method with the flat Fresnel face).
+
+```
+for each incidence bin i = 0..89 (1 deg):
+    for each of N rays (N = 20,000; 10,000 for wavy surfaces):
+        theta = bin centre i + 0.5 deg; phi ~ U(0, 2 pi); (x, y) ~ U(unit cell or supercell)
+        start just below the base plane, moving up into the structure
+        repeat up to 60-80 interface events:
+            march to the next crossing of z = h(x, y) (Lipschitz-safe step, bisection)
+            reflect with probability (R_s + R_p)/2 at the local normal, else refract
+            if the ray is in air moving up above max h:   escape; record air polar angle
+            if the ray is in glass moving down below z=0: return; record substrate polar angle
+        rays that reach the event limit are counted as lost (not renormalized)
+    BT[i, j_air] = escaped count / N;  BR[i, j_sub] = returned count / N
+p_i = sum_j BT[i, j];   M[:, i] = BR[i, :]^T / sum_j BR[i, j]   (full domain)
+spectral metrics: principal sub-block of BR^T below 85 deg; M_S[:, i] = B_S[:, i] / s_i, s_i = sum over retained bins
+```
+
+An encounter starts when a ray leaves the substrate upwards and ends when it escapes into air or re-enters the substrate below the base plane; Fresnel reflection inside the escape cone is part of the return. The lost fraction is at most 0.3% in any bin and is not renormalized, so $p_i + \sum_j B_R(i\to j) = 1 -$ lost. $\lambda_2$ is the eigenvalue of second-largest modulus of $M_S$ from `numpy.linalg.eigvals` (LAPACK geev, double precision) on the non-symmetrized matrix; $p_\infty = 1-\rho(B_S)$ uses the un-renormalized sub-block, so return beyond the cutoff counts as leaving the chain, consistent with $\tilde p$. $\eta_{\mathrm{sta}}$ uses `numpy.linalg.solve` (LAPACK gesv) on 0–90°, with $\rho(\mathrm{diag}\,\mathbf{R}\,B_R) \le 0.9991$ verified for every case; $\eta_{\mathrm{mix}}$ uses the closed form on the same grid, and the first pass is $\mathbf{p}^{\mathsf T}\mathbf{v}^{(0)}$ for every structure, since the slab matrices already contain the multiple scattering inside the layer and at its face. Spectral weighting: $\bar\eta = \sum_\lambda s(\lambda)\,\eta_{\mathrm{sub}}(\lambda)\,\eta(\lambda)/\sum_\lambda s(\lambda)\,\eta_{\mathrm{sub}}(\lambda)$, 400–700 nm in 10 nm steps, with the device recomputed at each wavelength and the structure matrices fixed.
+
+**Detailed balance.** With $F_{ji} = w_i B_R(i\to j)$ below 85°, the relative residual $\lVert F-F^{\mathsf T}\rVert/\lVert F\rVert$ is 0.013–0.154 (median 0.047) over the 37 non-planar structures; entry-wise, $|F_{ji}-F_{ij}|/(F_{ji}+F_{ij})$ has a median of 0.06 and a 90th percentile of 0.25, dominated by weak entries. Projecting onto the nearest reciprocal matrix with the same column sums changes $N_{\mathrm{mix}}$ by at most 2.7%, $\xi$ by 0.005, and $\eta_{\mathrm{sta}}$ by 0.04 pp (Note S1), so the physical conclusions do not depend on Monte Carlo asymmetry.
+
+**Adding method versus direct slab Monte Carlo.** A single trace through the HG slab with the Fresnel face (Lambertian within each 1° input bin) reproduces the adding-method matrices (Table S20; adding / direct). $S_{40\text{–}60}$ differs by up to 0.006 because the library maps substrate bins to air bins after the slab, whereas the direct trace bins the air angle exactly.
+
+**Table S20 | Scattering layers: adding method / direct Monte Carlo (Al, 550 nm).** Last column: largest difference in $p(\theta)$ below 85°.
+
+| Slab | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ | $S_{40\text{–}60}$ | max $|\Delta p(\theta)|$ |
+|---|---|---|---|---|---|---|
+| $g$ 0.8, $\tau^*$ 1 | 0.3258 / 0.3257 | 1.172 / 1.170 | 0.977 / 0.977 | 0.7374 / 0.7373 | 0.354 / 0.348 | 0.011 |
+| $g$ 0, $\tau^*$ 0.25 | 0.3812 / 0.3814 | 2.246 / 2.255 | 0.545 / 0.546 | 0.6754 / 0.6759 | 0.349 / 0.343 | 0.009 |
+
+**Bands in the hemispherical return matrix.** The share of returned light that lands more than 10° from its incident angle (incidence 45–80°) is 0.130 for the single-lenslet unit cell, 0.127 for a 6 × 6 supercell of identical hemispheres traced with the other tracer, and 0.127 with twice the rays; the supercell matrices at 20,000 and 40,000 rays differ by 2.4% (relative Frobenius norm). The bands are deterministic pathways of rays totally reflected at the lens flank, e.g. from 70° to about 34° and from 50° to about 39°.
+
+**Signed errors of the reduced model.** The reciprocal reduced model underestimates on average (Table S21); the largest error is −2.99 pp for the wavy surface of rms slope 0.2 on Ag at 550 nm, the structure with the lowest $\xi$ among fast mixers.
+
+**Table S21 | Reciprocal reduced model minus full series (pp).**
+
+| Subset | mean signed | mean absolute | max absolute |
+|---|---|---|---|
+| all 342 cases | -0.24 | 0.30 | 2.99 |
+| scattering layers | -0.28 | 0.29 | 2.49 |
+| hemispherical MLAs | -0.24 | 0.26 | 1.12 |
+| freeform MLAs | -0.40 | 0.60 | 2.09 |
+| random MLAs | -0.08 | 0.16 | 0.51 |
+| wavy surfaces | -0.67 | 0.67 | 2.99 |
+| Al | -0.41 | 0.41 | 2.71 |
+| Ag | -0.28 | 0.33 | 2.99 |
+| low loss | -0.04 | 0.16 | 1.78 |
+| 500 nm | -0.32 | 0.38 | 2.49 |
+| 550 nm | -0.29 | 0.29 | 2.99 |
+| 600 nm | -0.11 | 0.23 | 2.58 |
+
+**Cutoff dependence of $\xi$.** Table S22 gives $\xi$ for representative structures. Hemispherical and random lenses, whose second eigenvector reaches into near-grazing states, change most; thick scattering layers barely change. The shallow wavy surface and the thin isotropic scatterer stay below random lenses of similar $N_{\mathrm{mix}}$ at every cutoff.
+
+**Table S22 | $\xi$ versus cutoff.**
+
+| Structure | 80° | 85° | 88° | 90° |
+|---|---|---|---|---|
+| planar | 0.000 | 0.000 | 0.000 | 0.000 |
+| hemispherical MLA | 0.639 | 0.465 | 0.381 | 0.306 |
+| random lenslet shapes, $s$ = 1 | 0.828 | 0.769 | 0.730 | 0.720 |
+| wavy, rms slope 0.2 | 0.426 | 0.345 | 0.313 | 0.307 |
+| wavy, rms slope 1.0 | 0.890 | 0.871 | 0.868 | 0.868 |
+| scattering layer, $g$ 0, $\tau^*$ 0.25 | 0.563 | 0.545 | 0.538 | 0.537 |
+| scattering layer, $g$ 0.8, $\tau^*$ 4 | 0.996 | 0.993 | 0.990 | 0.989 |
+
+**Exceeding the complete-mixing reference.** For the chain started in its stationary distribution $q$, the one-step autocorrelation of the escape probability, $C = \sum_i q_i f_i \sum_j M_{ji} f_j / \sum_i q_i f_i^2$ with $f = p - p_{\mathrm{mix}}$, is zero for complete mixing and positive for angle retention. Table S23 lists the three structures with the lowest $C$ and three typical ones; $C$ and $\eta_{\mathrm{sta}}-\eta_{\mathrm{mix}}$ (Al, 550 nm) are correlated with coefficient -0.76 over the 37 non-planar structures.
+
+**Table S23 | Escape autocorrelation and the gap to the reference (Al, 550 nm).**
+
+| Structure | $C$ | $\eta_{\mathrm{sta}}-\eta_{\mathrm{mix}}$ (pp) |
+|---|---|---|
+| W_slope0.4 | -0.094 | +0.42 |
+| W_slope0.7 | -0.084 | +0.01 |
+| scatter g0.0_t1.0 | +0.026 | -0.02 |
+| scatter g0.8_t1.0 | +0.145 | -0.03 |
+| A_shape1.0 | +0.430 | -0.67 |
+| MLA hemi_total | +0.814 | -1.40 |
+
+**LightTools settings of the benchmark.** Disc source (radius 1 mm) with the angular distribution of the CPS substrate radiance (1° polar mesh, uniform in azimuth), monochromatic runs weighted by the CPS power per wavelength; search at 10 nm steps (31 wavelengths, 453–753 nm) and 10,000 rays, final evaluation at 2 nm steps (151 wavelengths) and 50,000 rays, three repeats; device reflectance as a polarization-averaged angle- and wavelength-resolved user coating on the bottom face; textured patch 25 × 25 mm on a 1.295 mm substrate; far-field intensity mesh in 1° polar bins integrated over azimuth, bands summed with $\sin\theta$ weighting. Freeform profiles are passed to LightTools as spline control points, and each constructed geometry is checked by a control-point round trip with tolerance $10^{-4}$ (lens radius units); geometries failing it are rejected. Evaluated through the freeform pipeline with quarter-circle control points, the hemisphere reproduces its own campaign within 0.00–0.09% (Table S11).
+
 ---
 
 ## Reproducing the figures and data
 
-Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S2–S4 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
+Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

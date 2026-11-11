@@ -63,7 +63,7 @@ def planar_bsdf(pol, K=400):
             if ss >= 1:
                 BR[i, i] += 1.0 / K; continue
             ct = np.sqrt(1 - ss ** 2); ci = np.cos(tt)
-            rs = (n * ci - ct) / (n * ci + ct); rp = (ct - n * ci) / (ct + n * ci); Rf = rs ** 2 if pol == 's' else rp ** 2
+            rs = (n * ci - ct) / (n * ci + ct); rp = (n * ct - ci) / (n * ct + ci); Rf = rs ** 2 if pol == 's' else rp ** 2
             BR[i, i] += Rf / K; BT[i, min(int(np.degrees(np.arcsin(ss))), 89)] += (1 - Rf) / K
     return BT, BR
 
