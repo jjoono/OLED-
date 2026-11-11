@@ -67,6 +67,7 @@ THETA_SITE = {"TPBi": 0.50, "NBphen": 0.35, "Bphen": 0.35, "BCP": 0.30, "p-bPPhe
               "B3PyMPM": 0.40, "TmPyPB": 0.40, "3TPYMB": 0.40, "T2T": 0.30, "PO-T2T": 0.40,
               "DPEPO": 0.30, "TSPO1": 0.30, "Alq3": 0.30, "Liq": 0.40,
               "CBP": 0.15, "TCTA": 0.15, "mCP": 0.15, "TAPC": 0.15, "NPB": 0.15, "TPD": 0.15}
+DESIGN_PARTNERS = ["HAT-CNPh-CNPh-CNPh", "HAT-C6F5-CNPh-CNPh"]
 SMILES_EXTRA = {
     "p-bPPhenB": "c1ccc(cc1)-c1cc(-c2ccc(cc2)-c2cc(-c3ccccc3)nc3c2ccc2cccnc23)c2ccc3cccnc3c2n1",
     "B3PyMPM": "Cc1nc(-c2cc(-c3cccnc3)cc(-c3cccnc3)c2)cc(-c2cc(-c3cccnc3)cc(-c3cccnc3)c2)n1",
@@ -158,6 +159,23 @@ def main():
     rank = {r["name"]: r for r in json.load(open(os.path.join(ROOT, "runs", "common_ranking.json")))}
     k68 = json.load(open(os.path.join(ROOT, "runs", "mixed_seed_kmc.json")))
     names = [n for n in THETA_SITE if n in rank]
+    # Designed partners from step 2: library molecules that fail the stand-alone
+    # EA spec but are strong, glassier Ag anchors. In a blend, HATCN carries
+    # the EA (CGL alignment) and the partner carries morphology + traps.
+    # E_b from the HAT-family GFN2->PBE0 map (script 167), production scale.
+    pj = os.path.join(D, "pareto.json")
+    if os.path.exists(pj):
+        par = json.load(open(pj))
+        fam, off = par.get("hat_family_map"), par.get("offset_to_production")
+        sites = {json.loads(l)["name"]: json.loads(l) for l in open(os.path.join(D, "sites.jsonl"))}
+        lib = json.load(open(os.path.join(D, "library.json")))
+        for n in DESIGN_PARTNERS:
+            if fam and n in sites:
+                eb = fam["slope"] * sites[n]["E_b_gfn2"] + fam["intercept"] + off
+                rank[n] = {"E_b": round(eb, 3), "dq": sites[n]["dq"], "designed": True,
+                           "MW": lib[n]["MW"], "route": lib[n]["route"]}
+                THETA_SITE[n] = 0.35
+                names.append(n)
     pp = partner_props(names)
     neat = json.load(open(KMC1)) if os.path.exists(KMC1) and "--kmc" not in sys.argv else kmc_neat()
     # N_sat at x = 0.5 vs theta_eff (script 68 grid), relative to neat HATCN
@@ -180,7 +198,7 @@ def main():
             "N_sat_rel": round(float(np.interp(th, gx, gy)) / n_hat, 3),
             "hatcn_domains_killed": True, "partner_risk": pp[n]["risk"],
             "IP_partner": ip, "CT_class": ct, "CT_flag": ct != "none",
-            "dq_partner": rank[n]["dq"]})
+            "dq_partner": rank[n]["dq"], "designed": rank[n].get("designed", False)})
     # neat references
     rows.append({"formulation": "HATCN neat", "partner": None, "E_b_partner": 1.631, "p_trap": 1.0,
                  "theta_eff": 1.0, "N_sat_rel": 1.0, "hatcn_domains_killed": False,
@@ -204,6 +222,9 @@ def main():
             bad.append(f"CT with HATCN ({r.get('CT_class')})")
         if r["partner_risk"] is not None and r["partner"] and r["partner_risk"] > 58 and "Cs" not in r["formulation"]:
             bad.append("partner crystallises itself")
+        mw = rank.get(r["partner"], {}).get("MW") if r["partner"] else None
+        if mw and mw > 900:
+            bad.append(f"partner MW {mw:.0f} > 900 (sublimation)")
         if r["hatcn_domains_killed"] is False:
             bad.append("HATCN domains span the film (crystallisation, Park & Suh)")
         if r.get("electrical_role"):

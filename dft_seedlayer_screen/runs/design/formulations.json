@@ -23,6 +23,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.2061,
+   "designed": false,
    "issues": [],
    "score": 0.883
   },
@@ -40,6 +41,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.2324,
+   "designed": false,
    "issues": [],
    "score": 0.875
   },
@@ -57,6 +59,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.314,
+   "designed": false,
    "issues": [],
    "score": 0.87
   },
@@ -89,6 +92,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.5055,
+   "designed": false,
    "issues": [],
    "score": 0.844
   },
@@ -106,6 +110,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.1313,
+   "designed": false,
    "issues": [],
    "score": 0.822
   },
@@ -123,6 +128,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.1123,
+   "designed": false,
    "issues": [],
    "score": 0.821
   },
@@ -140,6 +146,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.0169,
+   "designed": false,
    "issues": [],
    "score": 0.818
   },
@@ -157,6 +164,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.3165,
+   "designed": false,
    "issues": [],
    "score": 0.815
   },
@@ -174,8 +182,29 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.238,
+   "designed": false,
    "issues": [],
    "score": 0.808
+  },
+  {
+   "formulation": "HATCN:HAT-C6F5-CNPh-CNPh 1:1",
+   "partner": "HAT-C6F5-CNPh-CNPh",
+   "E_b_partner": 1.493,
+   "tau_s": 1880000000000000.0,
+   "p_trap": 1.0,
+   "theta_eff": 0.35,
+   "N_sat_rel": 0.922,
+   "hatcn_domains_killed": true,
+   "partner_risk": 39.4,
+   "IP_partner": 8.286,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.2876,
+   "designed": true,
+   "issues": [
+    "partner MW 971 > 900 (sublimation)"
+   ],
+   "score": 0.753
   },
   {
    "formulation": "HATCN:T2T 1:1",
@@ -191,8 +220,29 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.2318,
+   "designed": false,
    "issues": [],
    "score": 0.75
+  },
+  {
+   "formulation": "HATCN:HAT-CNPh-CNPh-CNPh 1:1",
+   "partner": "HAT-CNPh-CNPh-CNPh",
+   "E_b_partner": 1.451,
+   "tau_s": 369000000000000.0,
+   "p_trap": 1.0,
+   "theta_eff": 0.35,
+   "N_sat_rel": 0.922,
+   "hatcn_domains_killed": true,
+   "partner_risk": 59.3,
+   "IP_partner": 8.151,
+   "CT_class": "none",
+   "CT_flag": false,
+   "dq_partner": -0.2959,
+   "designed": true,
+   "issues": [
+    "partner crystallises itself"
+   ],
+   "score": 0.713
   },
   {
    "formulation": "HATCN:Bphen 1:1",
@@ -208,6 +258,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.353,
+   "designed": false,
    "issues": [
     "partner crystallises itself"
    ],
@@ -227,6 +278,7 @@
    "CT_class": "weak possible",
    "CT_flag": true,
    "dq_partner": -0.2751,
+   "designed": false,
    "issues": [
     "CT with HATCN (weak possible)"
    ],
@@ -262,6 +314,7 @@
    "CT_class": "strong",
    "CT_flag": true,
    "dq_partner": -0.0175,
+   "designed": false,
    "issues": [
     "CT with HATCN (strong)"
    ],
@@ -281,6 +334,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.3655,
+   "designed": false,
    "issues": [
     "partner crystallises itself"
    ],
@@ -316,6 +370,7 @@
    "CT_class": "weak possible",
    "CT_flag": true,
    "dq_partner": 0.0076,
+   "designed": false,
    "issues": [
     "CT with HATCN (weak possible)"
    ],
@@ -335,6 +390,7 @@
    "CT_class": "strong",
    "CT_flag": true,
    "dq_partner": 0.0178,
+   "designed": false,
    "issues": [
     "CT with HATCN (strong)"
    ],
@@ -354,6 +410,7 @@
    "CT_class": "strong",
    "CT_flag": true,
    "dq_partner": -0.0192,
+   "designed": false,
    "issues": [
     "CT with HATCN (strong)"
    ],
@@ -389,6 +446,7 @@
    "CT_class": "strong",
    "CT_flag": true,
    "dq_partner": -0.0313,
+   "designed": false,
    "issues": [
     "CT with HATCN (strong)"
    ],
@@ -408,6 +466,7 @@
    "CT_class": "none",
    "CT_flag": false,
    "dq_partner": -0.07,
+   "designed": false,
    "issues": [
     "partner crystallises itself"
    ],
@@ -443,6 +502,7 @@
    "CT_class": "weak possible",
    "CT_flag": true,
    "dq_partner": -0.0012,
+   "designed": false,
    "issues": [
     "CT with HATCN (weak possible)",
     "partner crystallises itself"

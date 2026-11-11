@@ -9,7 +9,9 @@ HATCN:TmPyPB 1:1             Eb 0.371 ptrap 0.17 Nsat 0.821 risk 19.5 CT none sc
 HATCN:TSPO1 1:1              Eb 0.381 ptrap 0.20 Nsat 0.818 risk 15.6 CT none score +0.818 
 HATCN:NBphen 1:1             Eb 0.460 ptrap 0.48 Nsat 0.857 risk 51.1 CT none score +0.815 
 HATCN:B3PyMPM 1:1            Eb 0.416 ptrap 0.31 Nsat 0.841 risk 46.3 CT none score +0.808 
+HATCN:HAT-C6F5-CNPh-CNPh 1:1 Eb 1.493 ptrap 1.00 Nsat 0.922 risk 39.4 CT none score +0.753 partner MW 971 > 900 (sublimation)
 HATCN:T2T 1:1                Eb 0.324 ptrap 0.08 Nsat 0.805 risk 57.5 CT none score +0.750 
+HATCN:HAT-CNPh-CNPh-CNPh 1:1 Eb 1.451 ptrap 1.00 Nsat 0.922 risk 59.3 CT none score +0.713 partner crystallises itself
 HATCN:Bphen 1:1              Eb 0.621 ptrap 0.94 Nsat 0.914 risk 59.7 CT none score +0.705 partner crystallises itself
 HATCN:Alq3 1:1               Eb 0.429 ptrap 0.36 Nsat 0.835 risk 19.7 CT weak possible score +0.685 CT with HATCN (weak possible)
 Bphen:Cs 20% (no HATCN)      Eb 0.886 ptrap 0.94 Nsat 0.889 risk 59.7 CT - score +0.680 not a p-side seed
