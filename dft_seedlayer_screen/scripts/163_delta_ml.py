@@ -197,7 +197,21 @@ def loo(rows, kind):
 
 def main():
     rows = json.load(open(TRAIN)) if os.path.exists(TRAIN) and "--rebuild" not in sys.argv else build_train()
-    out = {"n_train": len(rows)}
+    # Training rows for molecules that are also in the library (HATCN, F4TCNQ,
+    # F6-TCNNQ, Bphen, BCP, TPBi) take their GFN2 features from script 162, so
+    # that the strong-acceptor end of the map is fitted on the same protocol
+    # (GFN2-optimised geometry, 162 site set) it is applied to. HATCN: 3.29 in
+    # the old survey (DFT geometry) vs 3.00 here.
+    sp = os.path.join(D, "sites.jsonl")
+    swapped = []
+    if os.path.exists(sp) and "--old-features" not in sys.argv:
+        lib_sites = {json.loads(l)["name"]: json.loads(l) for l in open(sp) if l.strip()}
+        for r in rows:
+            s162 = lib_sites.get(r["name"])
+            if s162 and "error" not in s162:
+                swapped.append((r["name"], r["eb_gfn2"], s162["E_b_gfn2"]))
+                r["eb_gfn2"], r["q1"] = s162["E_b_gfn2"], s162["q_Ag1"]
+    out = {"n_train": len(rows), "features_from_162": swapped}
     yg = np.array([r["eb_gfn2"] for r in rows])
     y = np.array([r["pbe0"] for r in rows])
     out["raw_gfn2"] = {"spearman": round(float(spearmanr(yg, y)[0]), 3)}

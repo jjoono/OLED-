@@ -1,0 +1,792 @@
+{
+ "F4TCNQ": {
+  "ridge": [
+   1.22,
+   0.119
+  ],
+  "gp": [
+   1.21,
+   0.066
+  ]
+ },
+ "F6-TCNNQ": {
+  "ridge": [
+   1.481,
+   0.119
+  ],
+  "gp": [
+   1.203,
+   0.066
+  ]
+ },
+ "HAT-CN-CN-CN2benzo": {
+  "ridge": [
+   1.275,
+   0.119
+  ],
+  "gp": [
+   1.54,
+   0.136
+  ]
+ },
+ "HAT-CN-CN2benzo-CN2benzo": {
+  "ridge": [
+   1.275,
+   0.119
+  ],
+  "gp": [
+   1.448,
+   0.176
+  ]
+ },
+ "HATCN": {
+  "ridge": [
+   1.214,
+   0.119
+  ],
+  "gp": [
+   1.607,
+   0.066
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-CN2benzo": {
+  "ridge": [
+   1.266,
+   0.119
+  ],
+  "gp": [
+   1.451,
+   0.176
+  ]
+ },
+ "HAT-CN-CN-F4benzo": {
+  "ridge": [
+   1.307,
+   0.119
+  ],
+  "gp": [
+   1.336,
+   0.159
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-F4benzo": {
+  "ridge": [
+   1.299,
+   0.119
+  ],
+  "gp": [
+   1.312,
+   0.163
+  ]
+ },
+ "HAT-CN-CN2benzo-F4benzo": {
+  "ridge": [
+   1.307,
+   0.119
+  ],
+  "gp": [
+   1.295,
+   0.153
+  ]
+ },
+ "HAT-CN-CN-CNbenzo": {
+  "ridge": [
+   1.197,
+   0.119
+  ],
+  "gp": [
+   1.57,
+   0.114
+  ]
+ },
+ "HAT-CN-CN-Cl2benzo": {
+  "ridge": [
+   1.175,
+   0.119
+  ],
+  "gp": [
+   1.576,
+   0.101
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-Cl2benzo": {
+  "ridge": [
+   1.209,
+   0.119
+  ],
+  "gp": [
+   1.462,
+   0.171
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-CNbenzo": {
+  "ridge": [
+   1.214,
+   0.119
+  ],
+  "gp": [
+   1.457,
+   0.174
+  ]
+ },
+ "HAT-CN-CN2benzo-Cl2benzo": {
+  "ridge": [
+   1.195,
+   0.119
+  ],
+  "gp": [
+   1.493,
+   0.157
+  ]
+ },
+ "HAT-CN-CN2benzo-CNbenzo": {
+  "ridge": [
+   1.206,
+   0.119
+  ],
+  "gp": [
+   1.465,
+   0.17
+  ]
+ },
+ "HAT-CN2benzo-F4benzo-F4benzo": {
+  "ridge": [
+   1.328,
+   0.119
+  ],
+  "gp": [
+   1.204,
+   0.068
+  ]
+ },
+ "HAT-CN-CN-F2benzo": {
+  "ridge": [
+   1.163,
+   0.119
+  ],
+  "gp": [
+   1.585,
+   0.095
+  ]
+ },
+ "HAT-CN-CN-pyr34": {
+  "ridge": [
+   1.184,
+   0.119
+  ],
+  "gp": [
+   1.564,
+   0.119
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-F2benzo": {
+  "ridge": [
+   1.202,
+   0.119
+  ],
+  "gp": [
+   1.46,
+   0.172
+  ]
+ },
+ "HAT-CN-F4benzo-F4benzo": {
+  "ridge": [
+   1.333,
+   0.119
+  ],
+  "gp": [
+   1.201,
+   0.072
+  ]
+ },
+ "HAT-CN-CN2benzo-F2benzo": {
+  "ridge": [
+   1.183,
+   0.119
+  ],
+  "gp": [
+   1.505,
+   0.151
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-pyr34": {
+  "ridge": [
+   1.197,
+   0.119
+  ],
+  "gp": [
+   1.463,
+   0.171
+  ]
+ },
+ "HAT-CN-CN2benzo-pyr34": {
+  "ridge": [
+   1.196,
+   0.119
+  ],
+  "gp": [
+   1.456,
+   0.174
+  ]
+ },
+ "HAT-CN2benzo-CNbenzo-F4benzo": {
+  "ridge": [
+   1.242,
+   0.119
+  ],
+  "gp": [
+   1.335,
+   0.172
+  ]
+ },
+ "HAT-CN2benzo-Cl2benzo-F4benzo": {
+  "ridge": [
+   1.235,
+   0.119
+  ],
+  "gp": [
+   1.352,
+   0.174
+  ]
+ },
+ "HAT-CN-CNbenzo-F4benzo": {
+  "ridge": [
+   1.236,
+   0.119
+  ],
+  "gp": [
+   1.35,
+   0.171
+  ]
+ },
+ "HAT-CN-Cl2benzo-F4benzo": {
+  "ridge": [
+   1.219,
+   0.119
+  ],
+  "gp": [
+   1.402,
+   0.173
+  ]
+ },
+ "HAT-F4benzo-F4benzo-F4benzo": {
+  "ridge": [
+   1.29,
+   0.119
+  ],
+  "gp": [
+   1.205,
+   0.069
+  ]
+ },
+ "HAT-CN2benzo-F2benzo-F4benzo": {
+  "ridge": [
+   1.228,
+   0.119
+  ],
+  "gp": [
+   1.337,
+   0.171
+  ]
+ },
+ "HAT-CN2benzo-F4benzo-pyr34": {
+  "ridge": [
+   1.224,
+   0.119
+  ],
+  "gp": [
+   1.341,
+   0.173
+  ]
+ },
+ "HAT-CN-F2benzo-F4benzo": {
+  "ridge": [
+   1.206,
+   0.119
+  ],
+  "gp": [
+   1.404,
+   0.172
+  ]
+ },
+ "HAT-CN2benzo-CNbenzo-Cl2benzo": {
+  "ridge": [
+   1.145,
+   0.119
+  ],
+  "gp": [
+   1.455,
+   0.171
+  ]
+ },
+ "HAT-CN2benzo-CNbenzo-CNbenzo": {
+  "ridge": [
+   1.148,
+   0.119
+  ],
+  "gp": [
+   1.466,
+   0.168
+  ]
+ },
+ "HAT-CN2benzo-Cl2benzo-Cl2benzo": {
+  "ridge": [
+   1.133,
+   0.119
+  ],
+  "gp": [
+   1.47,
+   0.163
+  ]
+ },
+ "HAT-CN2benzo-CN2benzo-benzo": {
+  "ridge": [
+   1.157,
+   0.119
+  ],
+  "gp": [
+   1.456,
+   0.173
+  ]
+ },
+ "HAT-CN-Cl2benzo-Cl2benzo": {
+  "ridge": [
+   1.111,
+   0.119
+  ],
+  "gp": [
+   1.47,
+   0.159
+  ]
+ },
+ "HAT-CN-CNbenzo-Cl2benzo": {
+  "ridge": [
+   1.127,
+   0.119
+  ],
+  "gp": [
+   1.482,
+   0.157
+  ]
+ },
+ "HAT-CN-F4benzo-pyr34": {
+  "ridge": [
+   1.221,
+   0.119
+  ],
+  "gp": [
+   1.323,
+   0.17
+  ]
+ },
+ "HAT-CN-CN-benzo": {
+  "ridge": [
+   1.111,
+   0.119
+  ],
+  "gp": [
+   1.543,
+   0.123
+  ]
+ },
+ "HAT-CN-CNbenzo-CNbenzo": {
+  "ridge": [
+   1.134,
+   0.119
+  ],
+  "gp": [
+   1.471,
+   0.164
+  ]
+ },
+ "HAT-CN-CN2benzo-benzo": {
+  "ridge": [
+   1.141,
+   0.119
+  ],
+  "gp": [
+   1.465,
+   0.168
+  ]
+ },
+ "HAT-CN2benzo-CNbenzo-F2benzo": {
+  "ridge": [
+   1.137,
+   0.119
+  ],
+  "gp": [
+   1.458,
+   0.171
+  ]
+ },
+ "HAT-CN2benzo-Cl2benzo-F2benzo": {
+  "ridge": [
+   1.124,
+   0.119
+  ],
+  "gp": [
+   1.475,
+   0.161
+  ]
+ },
+ "HAT-CNbenzo-F4benzo-F4benzo": {
+  "ridge": [
+   1.265,
+   0.119
+  ],
+  "gp": [
+   1.21,
+   0.074
+  ]
+ },
+ "HAT-Cl2benzo-F4benzo-F4benzo": {
+  "ridge": [
+   1.255,
+   0.119
+  ],
+  "gp": [
+   1.219,
+   0.084
+  ]
+ },
+ "HAT-CN2benzo-CNbenzo-pyr34": {
+  "ridge": [
+   1.137,
+   0.119
+  ],
+  "gp": [
+   1.461,
+   0.17
+  ]
+ },
+ "HAT-CN2benzo-Cl2benzo-pyr34": {
+  "ridge": [
+   1.131,
+   0.119
+  ],
+  "gp": [
+   1.462,
+   0.169
+  ]
+ },
+ "HAT-CN-CNbenzo-F2benzo": {
+  "ridge": [
+   1.113,
+   0.119
+  ],
+  "gp": [
+   1.494,
+   0.151
+  ]
+ },
+ "HAT-CN-Cl2benzo-F2benzo": {
+  "ridge": [
+   1.098,
+   0.119
+  ],
+  "gp": [
+   1.48,
+   0.155
+  ]
+ },
+ "HAT-CN-CNbenzo-pyr34": {
+  "ridge": [
+   1.123,
+   0.119
+  ],
+  "gp": [
+   1.466,
+   0.167
+  ]
+ },
+ "HAT-CN2benzo-F2benzo-F2benzo": {
+  "ridge": [
+   1.111,
+   0.119
+  ],
+  "gp": [
+   1.486,
+   0.156
+  ]
+ },
+ "HAT-CN-Cl2benzo-pyr34": {
+  "ridge": [
+   1.107,
+   0.119
+  ],
+  "gp": [
+   1.465,
+   0.164
+  ]
+ },
+ "HAT-F2benzo-F4benzo-F4benzo": {
+  "ridge": [
+   1.246,
+   0.119
+  ],
+  "gp": [
+   1.212,
+   0.076
+  ]
+ },
+ "HAT-F4benzo-F4benzo-pyr34": {
+  "ridge": [
+   1.248,
+   0.119
+  ],
+  "gp": [
+   1.21,
+   0.074
+  ]
+ },
+ "HAT-CN2benzo-F2benzo-pyr34": {
+  "ridge": [
+   1.122,
+   0.119
+  ],
+  "gp": [
+   1.466,
+   0.168
+  ]
+ },
+ "HAT-CN2benzo-pyr34-pyr34": {
+  "ridge": [
+   1.12,
+   0.119
+  ],
+  "gp": [
+   1.449,
+   0.174
+  ]
+ },
+ "HAT-CNbenzo-Cl2benzo-F4benzo": {
+  "ridge": [
+   1.167,
+   0.119
+  ],
+  "gp": [
+   1.407,
+   0.18
+  ]
+ },
+ "HAT-CNbenzo-CNbenzo-F4benzo": {
+  "ridge": [
+   1.169,
+   0.119
+  ],
+  "gp": [
+   1.398,
+   0.179
+  ]
+ },
+ "HAT-Cl2benzo-Cl2benzo-F4benzo": {
+  "ridge": [
+   1.15,
+   0.119
+  ],
+  "gp": [
+   1.468,
+   0.166
+  ]
+ },
+ "HAT-CN-F2benzo-F2benzo": {
+  "ridge": [
+   1.083,
+   0.119
+  ],
+  "gp": [
+   1.491,
+   0.15
+  ]
+ },
+ "HAT-CN2benzo-F4benzo-benzo": {
+  "ridge": [
+   1.177,
+   0.119
+  ],
+  "gp": [
+   1.362,
+   0.178
+  ]
+ },
+ "HAT-CN-pyr34-pyr34": {
+  "ridge": [
+   1.107,
+   0.119
+  ],
+  "gp": [
+   1.461,
+   0.169
+  ]
+ },
+ "HAT-CN-F2benzo-pyr34": {
+  "ridge": [
+   1.093,
+   0.119
+  ],
+  "gp": [
+   1.478,
+   0.159
+  ]
+ },
+ "HAT-CN-F4benzo-benzo": {
+  "ridge": [
+   1.158,
+   0.119
+  ],
+  "gp": [
+   1.397,
+   0.178
+  ]
+ },
+ "HAT-CNbenzo-F2benzo-F4benzo": {
+  "ridge": [
+   1.157,
+   0.119
+  ],
+  "gp": [
+   1.394,
+   0.18
+  ]
+ },
+ "HAT-Cl2benzo-F4benzo-pyr34": {
+  "ridge": [
+   1.157,
+   0.119
+  ],
+  "gp": [
+   1.379,
+   0.182
+  ]
+ },
+ "HAT-CNbenzo-Cl2benzo-Cl2benzo": {
+  "ridge": [
+   1.065,
+   0.119
+  ],
+  "gp": [
+   1.427,
+   0.176
+  ]
+ },
+ "HAT-Cl2benzo-F2benzo-F4benzo": {
+  "ridge": [
+   1.14,
+   0.119
+  ],
+  "gp": [
+   1.455,
+   0.169
+  ]
+ },
+ "HAT-CNbenzo-F4benzo-pyr34": {
+  "ridge": [
+   1.157,
+   0.119
+  ],
+  "gp": [
+   1.372,
+   0.182
+  ]
+ },
+ "HAT-Cl2benzo-Cl2benzo-Cl2benzo": {
+  "ridge": [
+   1.05,
+   0.119
+  ],
+  "gp": [
+   1.397,
+   0.184
+  ]
+ },
+ "HAT-CNbenzo-CNbenzo-Cl2benzo": {
+  "ridge": [
+   1.075,
+   0.119
+  ],
+  "gp": [
+   1.427,
+   0.177
+  ]
+ },
+ "HAT-CN2benzo-CNbenzo-benzo": {
+  "ridge": [
+   1.093,
+   0.119
+  ],
+  "gp": [
+   1.443,
+   0.175
+  ]
+ },
+ "HAT-CNbenzo-CNbenzo-CNbenzo": {
+  "ridge": [
+   1.077,
+   0.119
+  ],
+  "gp": [
+   1.433,
+   0.176
+  ]
+ },
+ "HAT-CN2benzo-Cl2benzo-benzo": {
+  "ridge": [
+   1.079,
+   0.119
+  ],
+  "gp": [
+   1.452,
+   0.169
+  ]
+ },
+ "HAT-F2benzo-F2benzo-F4benzo": {
+  "ridge": [
+   1.127,
+   0.119
+  ],
+  "gp": [
+   1.456,
+   0.168
+  ]
+ },
+ "BCP": {
+  "ridge": [
+   0.454,
+   0.119
+  ],
+  "gp": [
+   0.476,
+   0.064
+  ]
+ },
+ "Bphen": {
+  "ridge": [
+   0.437,
+   0.119
+  ],
+  "gp": [
+   0.595,
+   0.063
+  ]
+ },
+ "TPBi": {
+  "ridge": [
+   0.381,
+   0.119
+  ],
+  "gp": [
+   0.434,
+   0.062
+  ]
+ },
+ "HAT-F2benzo-F4benzo-pyr34": {
+  "ridge": [
+   1.146,
+   0.119
+  ],
+  "gp": [
+   1.368,
+   0.181
+  ]
+ }
+}
