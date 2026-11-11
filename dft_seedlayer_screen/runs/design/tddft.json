@@ -21,6 +21,84 @@
    "first_bright_eV": null,
    "first_bright_f": null,
    "bright_below_3p1": []
+  },
+  "anion": {
+   "states": [
+    {
+     "eV": 0.886,
+     "nm": 1398.8,
+     "f": 0.0433
+    },
+    {
+     "eV": 0.888,
+     "nm": 1396.8,
+     "f": 0.0433
+    },
+    {
+     "eV": 1.454,
+     "nm": 852.7,
+     "f": 0.0
+    },
+    {
+     "eV": 1.723,
+     "nm": 719.5,
+     "f": 0.1573
+    }
+   ],
+   "first_bright_eV": 0.886,
+   "first_bright_f": 0.0433,
+   "vis_sum_f": 0.157
+  }
+ },
+ "HAT-CN2benzo-CN2benzo-CN2benzo": {
+  "neutral": {
+   "states": [
+    {
+     "eV": 3.37,
+     "nm": 367.9,
+     "f": 0.109
+    },
+    {
+     "eV": 3.371,
+     "nm": 367.8,
+     "f": 0.1087
+    },
+    {
+     "eV": 3.578,
+     "nm": 346.6,
+     "f": 0.0
+    }
+   ],
+   "first_bright_eV": 3.37,
+   "first_bright_f": 0.109,
+   "bright_below_3p1": []
+  },
+  "anion": {
+   "states": [
+    {
+     "eV": 0.592,
+     "nm": 2094.4,
+     "f": 0.0809
+    },
+    {
+     "eV": 0.592,
+     "nm": 2093.3,
+     "f": 0.0809
+    },
+    {
+     "eV": 1.78,
+     "nm": 696.7,
+     "f": 0.2378
+    },
+    {
+     "eV": 1.78,
+     "nm": 696.5,
+     "f": 0.2374
+    }
+   ],
+   "first_bright_eV": 0.592,
+   "first_bright_f": 0.0809,
+   "vis_sum_f": 0.475
   }
  }
 }

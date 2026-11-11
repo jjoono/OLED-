@@ -114,12 +114,24 @@ calibrated on documented blends (IP < 6.5 eV -> CT with HATCN).
 ## Transparency (TD-DFT, TDA-PBE0)
 
 PBE0 places CT-like states lower than a range-separated hybrid, so "above 3.1 eV
-at PBE0" is a conservative pass.
+at PBE0" is a conservative pass. PBE0 puts the HATCN anion band 0.24 eV below
+wB97X (1.72 vs 1.96 eV, script 44), as expected. Only 3 (neutral) / 4 (anion)
+roots were computed, so the anion visible sum is a lower bound; it is compared
+between molecules at the same root count.
+
+* HAT-CN2benzo x3 passes the neutral test, but with a bright doublet at
+  368 nm where HATCN has nothing below 334 nm (and that one dark). In a film
+  the band tail approaches 400 nm.
+* Its anion absorbs ~3x more in the red than the HATCN anion (sum f 0.48 vs
+  0.16), from the extended pi system that also gives the deeper Ag binding.
+  Only the Ag-contact monolayer is reduced, so the absolute loss is small,
+  but it is the same direction as F4TCNQ's failure. The one-pot finalist
+  buys +0.1 eV of E_b with a measurable optical cost.
 
 | molecule | neutral lowest (eV) | neutral bright below 3.1 eV | anion visible sum f |
 |---|---|---|---|
-| HATCN | 3.71 (dark; 3.96, 4.17 dark) | none | running |
-| HAT-CN2benzo x3 | running | | |
+| HATCN | 3.71 (dark; 3.96, 4.17 dark) | none | 0.16 (1.72 eV / 720 nm, f 0.16; NIR pair 0.89 eV f 0.04 x2) |
+| HAT-CN2benzo x3 | 3.37 (368 nm, **bright** f 0.11 x2) | none | **0.48** (1.78 eV / 697 nm, f 0.24 x2; NIR pair 0.59 eV f 0.08 x2) |
 | HAT-CN-F4benzo-F4benzo | running | | |
 
 ## What is solid and what is not
