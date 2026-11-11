@@ -179,6 +179,22 @@ By device, the mean (maximum) reciprocal-model error is 0.41 (2.7) pp for Al, 0.
 
 $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp for all other structures; a 10 × 10 supercell or 24 × 24 wavy box changes $N_{\mathrm{mix}}$ by at most 0.06, $\xi$ by 0.025, and $\eta_{\mathrm{sta}}$ by 0.34 pp, comparable to the realization spread.
 
+**Polarization.** The scalar model averages $R$ over s and p and sums $\mathbf{v}^{(0)}$, and the tracers use unpolarized Fresnel coefficients. The opposite limit treats s and p as separate channels that keep their label at every encounter: $\eta = \sum_{s,p} \mathbf{p}_{\sigma}^{\mathsf T}(I-\mathrm{diag}\,\mathbf{R}_{\sigma}B_{R,\sigma})^{-1}\mathbf{v}^{(0)}_{\sigma}$, with return matrices traced with $|r_s|^2$ or $|r_p|^2$ only and polarization-resolved $\mathbf{v}^{(0)}_\sigma$ and $R_\sigma$ (s carries 65–70% of $\mathbf{v}^{(0)}$). The limit is exact for a planar interface; for curved surfaces, which rotate the local plane of incidence, the true value lies between the two (Table S18). The polarization treatment shifts the absolute $\eta_{\mathrm{sta}}$ of the hemispherical MLA and the wavy surface by 0.6–1.5 pp, but the complete-mixing gain by at most 0.4 pp and the reduced-model error by at most 0.1 pp, so the comparisons in the main text are unaffected.
+
+**Table S18 | Scalar model versus polarization-resolved limit without s/p conversion (Al).** Last two columns: scalar / polarization-resolved, pp.
+
+| Structure | λ (nm) | $\eta_{\mathrm{sta}}$, scalar | $\eta_{\mathrm{sta}}$, s and p separate | difference (pp) | complete-mixing gain | reduced − full |
+|---|---|---|---|---|---|---|
+| planar interface | 500 | 0.3525 | 0.3527 | +0.02 | 12.82 / 13.88 | +0.00 / -0.00 |
+| planar interface | 550 | 0.3704 | 0.3706 | +0.02 | 13.27 / 14.48 | -0.00 / +0.00 |
+| planar interface | 600 | 0.4003 | 0.4006 | +0.03 | 10.79 / 12.69 | +0.00 / +0.00 |
+| hemispherical MLA | 500 | 0.7019 | 0.7081 | +0.62 | 5.86 / 5.99 | -0.61 / -0.60 |
+| hemispherical MLA | 550 | 0.7913 | 0.8038 | +1.25 | 1.41 / 1.05 | -0.28 / -0.30 |
+| hemispherical MLA | 600 | 0.8032 | 0.8156 | +1.25 | 0.13 / -0.02 | -0.04 / -0.04 |
+| wavy, rms slope 1.0 | 500 | 0.7546 | 0.7637 | +0.91 | 0.12 / 0.04 | -0.31 / -0.42 |
+| wavy, rms slope 1.0 | 550 | 0.7916 | 0.8015 | +0.99 | 0.12 / 0.06 | -0.07 / -0.10 |
+| wavy, rms slope 1.0 | 600 | 0.7906 | 0.8052 | +1.46 | 0.08 / 0.03 | +0.01 / -0.03 |
+
 ---
 
 ## Note S4 | Mixing versus escape and the composition window
@@ -208,6 +224,25 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | 1.0 | Al | +0.91 | -2.20 | +0.30 | -0.98 | -0.91 |
 | 1.0 | Ag | +0.91 | -0.94 | +0.13 | +0.10 | +0.07 |
 | 1.0 | low loss | +0.11 | +0.07 | -0.01 | +0.18 | +0.13 |
+
+**Mixing gain by device and wavelength.** The complete-mixing reference depends on how the first-pass distribution $\mathbf{v}^{(0)}$ overlaps $p(\theta)$ (Table S19). When the cavity launches light into angles that the hemispherical MLA transmits poorly (first-pass escape probability 0.33–0.38 against $p$ = 0.42: Al and Ag at 500 nm, low loss at 600 nm), complete mixing would add 3–9 pp, and random lenses and wavy surfaces realize most of it. Elsewhere the reference is below about 2 pp. Weighted with the emission spectrum of the emitter (Ir(dmppy-ph)$_2$tmd, peak 572 nm; relative weight 0.01 at 500 nm, 0.52 at 550 nm, 0.71 at 600 nm) and with $\eta_{\mathrm{sub}}(\lambda)$, the reference is at most 1.2, 1.5, and 2.2 pp for the Al, Ag, and low-loss devices.
+
+**Table S19 | Complete-mixing gain and realized randomization gain (pp).** First pass: first-pass escape probability $\mathbf{p}^{\mathsf T}\mathbf{v}^{(0)}$ of the hemispherical MLA ($p$ = 0.422). Random − hemisphere: best random MLA minus the hemispherical array; wavy − hemisphere: wavy surface of slope 1.5 minus the hemispherical MLA.
+
+| Device, wavelength | first pass | gain, hemispherical MLAs | gain, all non-planar | best random − hemisphere | wavy (1.5) − hemisphere |
+|---|---|---|---|---|---|
+| Al, 500 nm | 0.363 | 5.7 to 6.4 | -0.6 to 6.4 | +3.6 | +5.8 |
+| Al, 550 nm | 0.433 | 1.3 to 1.7 | -0.4 to 1.8 | +0.5 | +0.9 |
+| Al, 600 nm | 0.462 | 0.1 to 0.3 | -0.2 to 1.2 | +0.0 | -0.3 |
+| Al, spectrally weighted | — | 0.4 to 0.6 | -0.2 to 1.1 | +0.2 (best random or wavy) | — |
+| Ag, 500 nm | 0.326 | 8.4 to 9.4 | -0.4 to 9.4 | +5.7 | +8.4 |
+| Ag, 550 nm | 0.413 | 1.1 to 1.5 | -0.3 to 2.0 | +0.7 | +1.0 |
+| Ag, 600 nm | 0.462 | 0.3 to 0.4 | -0.1 to 1.2 | +0.0 | +0.1 |
+| Ag, spectrally weighted | — | 0.6 to 0.9 | -0.2 to 1.4 | +0.5 (best random or wavy) | — |
+| low loss, 500 nm | 0.467 | 0.2 to 0.3 | -0.1 to 0.8 | +0.1 | +0.1 |
+| low loss, 550 nm | 0.458 | 0.1 to 0.1 | -0.0 to 0.4 | +0.3 | +0.4 |
+| low loss, 600 nm | 0.382 | 3.2 to 4.0 | -0.1 to 4.3 | +3.0 | +4.0 |
+| low loss, spectrally weighted | — | 1.8 to 2.2 | -0.1 to 2.2 | +2.0 (best random or wavy) | — |
 
 **Composition window.** $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$, both powers in air including Fresnel losses, over all 38 structures (Table S9). In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
 
@@ -369,7 +404,7 @@ Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp
 
 ## Reproducing the figures and data
 
-Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S2–S4 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`.
+Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S2–S4 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

@@ -11,7 +11,7 @@ We submit our manuscript, "Reciprocal Angular Transport Explains the Limited Ben
 **The main result.** We treat repeated encounters between an emitter and a passive extraction structure as a reciprocal Markov chain on polar angle. In a fully mixing, reciprocal return model, recirculating light escapes with probability p − σ²/(1 − p), where σ² is the étendue-weighted variance of the angle-dependent escape probability. It does not escape with p, as the memoryless formula assumes, and the efficiency follows in closed form.
 
 **What follows from it.**
-- Across 37 scattering, microlens, randomized-lens, and textured structures, complete mixing would add no more than about two percentage points of extraction in the devices studied. The memoryless formula predicts up to 19 points, and 41 points for a planar interface.
+- Across 37 scattering, microlens, randomized-lens, and textured structures, complete mixing would add no more than about two percentage points to the spectrally weighted extraction of the devices studied. It adds more (up to 9 points) only at wavelengths where the cavity sends light into angles the structure transmits poorly, and there randomized lenses and textures realize most of that gain. The memoryless formula predicts up to 19 points, and 41 points for a planar interface.
 - The result explains why faster mixing gives limited gains: the same angular variance of escape that leaves light behind also limits what mixing can recover.
 - We state its scope explicitly. It is a physically constrained reference for a rank-one reciprocal model, not a universal bound; the Supplement gives a reciprocal counterexample.
 
