@@ -1,0 +1,6 @@
+{"tag":"ref_narrow528_fine","base":"ref_narrow528","job":"ref","emitter":"narrow528","step":2.0,"du":5e-4,"maxfev":300}
+{"tag":"refdbr3_narrow528_fine","base":"refdbr3_narrow528","job":"refdbr","emitter":"narrow528","N":3,"step":2.0,"du":5e-4,"maxfev":400}
+{"tag":"prop3_narrow528_Ag8","base":"prop3_narrow528_ext","job":"prop","emitter":"narrow528","d_ag_min":7.0,"x0_override":{"2":8.0}}
+{"tag":"prop3_narrow528_Ag12_8","base":"prop3_narrow528_ext","job":"prop","emitter":"narrow528","preset":"Ag12","d_ag_min":7.0,"x0_override":{"2":8.0}}
+{"tag":"prop3_narrow528_real","base":"prop3_narrow528_ext","job":"prop","emitter":"narrow528","preset":"Ag12+ODR+lowkITO","d_ag_min":7.0,"x0_override":{"2":8.0}}
+{"tag":"prop3_narrow528_real_lowHTL","base":"prop3_narrow528_ext","job":"prop","emitter":"narrow528","preset":"Ag12+ODR+lowkITO+lowHTL","d_ag_min":7.0,"x0_override":{"2":8.0}}
