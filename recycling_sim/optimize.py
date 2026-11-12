@@ -29,6 +29,7 @@ EMITTERS = {
     "irppy2acac": dict(kind="l_I_Irppy2acac"),
     "vdabna_hf": dict(kind="l_mCPCN_SpiroAC_20wt_v_DABNA_1_5wt"),   # measured blue hyperfluorescence, 475 nm / 23 nm
     "red_narrow": dict(kind="narrow", peak=615, fwhm=30, shoulder=0.15),
+    "narrow532_15": dict(kind="narrow", peak=532, fwhm=15, shoulder=0.0),   # ultra-narrow, no vibronic shoulder
     "blue_narrow": dict(kind="narrow", peak=470, fwhm=20, shoulder=0.10),       # nu-DABNA-like EL (469 nm / 18 nm)
     "narrow528_40": dict(kind="narrow", peak=528, fwhm=40, shoulder=0.15),
 }
