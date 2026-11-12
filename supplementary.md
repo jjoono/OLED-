@@ -2,7 +2,7 @@
 
 Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction
 
-Notes S1–S4 support the spectral metrics: model details, the devices and the 38 structures, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and an out-of-sample test, and Note S10 gives the estimators and numerical diagnostics. Main-text references are cited as "main ref. n".
+Notes S1–S4 support the spectral metrics: model details, the devices and the 38 structures, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and an out-of-sample test, Note S10 gives the estimators and numerical diagnostics, and Note S11 compares mixing at the escape surface with mixing at the device side. Main-text references are cited as "main ref. n".
 
 ---
 
@@ -489,9 +489,50 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 ---
 
+## Note S11 | Mixing at the escape surface versus the device side
+
+**Device-side kernel.** Let the device reflect returned light with a kernel $D(i\to j)$ instead of the specular reflectance $\mathrm{diag}\,\mathbf{R}$. Energy conservation at each incidence angle fixes the column sums, $\sum_j D(i\to j) = R_i$. Reciprocity of the device requires $w_i D(i\to j) = w_j D(j\to i)$. A rank-one kernel $D(i\to j) = a_i b_j$ satisfies the second condition only if $b_j \propto w_j a_j$, and the first condition then gives $a_i \propto R_i$. The result is $D(i\to j) = R_i R_j w_j/\sum_k w_k R_k$ (main text, Sec. 2.5). The multi-pass efficiency is $\eta = \mathbf{p}^{\mathsf T}(I - D\,B_R)^{-1}\mathbf{v}^{(0)}$, where $B_R$ is the return matrix of the structure itself. Light that has been reflected by $D$ is distributed in proportion to $w_j R_j$, independently of its incidence angle. Its escape probability at the next encounter is therefore $p_D = \sum_k w_k R_k p_k/\sum_k w_k R_k$.
+
+**Comparison with mixing at the escape surface.** At the escape surface, the same construction with column sums $1-p_i$ gives the kernel $(1-p_i)\,w_r(1-p_r)/\sum_k w_k(1-p_k)$ of Sec. 2.4. The redistribution weight $1-p$ is then perfectly anticorrelated with the escape probability, which produces the term $-\sigma_p^2/(1-p)$. At the device, the weight is $R$, and the correction is $\mathrm{Cov}_w(R,p)/\langle R\rangle_w$. For the three bottom-emitting stacks of this work, $|p_D - p| < 0.008$ for all structures at 500, 550, and 600 nm.
+
+**Strong microcavities.** For a top-emitting microcavity with a 20 nm Ag cathode, an optical clear resin (n = 1.59) as the exit medium, and a planar exit face, the modelled device reflectance seen from the resin is 0.63 inside the escape cone and 0.92 outside it. The device absorbs most strongly at the angles at which it emits. The covariance is then negative, and $p_D$ = 0.316 compared with $p$ = 0.355. Device-side mixing is therefore also reduced in strong microcavities, although less than mixing at the escape surface. This example uses the stack model of `selectivity/advsci_model.py` and is illustrative only.
+
+**Table S24 | Gain over the actual $\eta_{\mathrm{sta}}$ for complete reciprocal mixing at the escape surface and at the device (37 non-planar structures).** The last column gives the difference between device-side mixing and the fully randomized model.
+
+| Device | λ (nm) | Mixing at the escape surface (pp) | Mixing at the device (pp) | Device-side − fully randomized (pp) |
+|---|---|---|---|---|
+| Al | 500 | −0.6 to +6.4 (median 3.5) | +0.3 to +18.8 (median 4.5) | −3.3 to −0.7 |
+| Al | 550 | −0.4 to +1.8 (median 0.8) | +0.2 to +17.1 (median 2.0) | −2.1 to +0.3 |
+| Al | 600 | −0.2 to +1.2 (median 0.1) | +0.2 to +15.7 (median 1.3) | −1.4 to +1.5 |
+| Ag | 500 | −0.4 to +9.4 (median 4.7) | +0.3 to +15.8 (median 5.0) | −2.7 to −0.7 |
+| Ag | 550 | −0.3 to +2.0 (median 0.6) | +0.1 to +11.2 (median 1.2) | −1.1 to −0.1 |
+| Ag | 600 | −0.1 to +1.2 (median 0.2) | +0.1 to +9.2 (median 0.6) | −0.7 to +0.5 |
+| low loss | 500 | −0.1 to +0.8 (median 0.1) | +0.1 to +6.7 (median 0.4) | −0.1 to +0.4 |
+| low loss | 550 | 0.0 to +0.4 (median 0.0) | +0.1 to +4.1 (median 0.3) | +0.2 to +1.1 |
+| low loss | 600 | −0.1 to +4.3 (median 2.1) | +0.1 to +4.8 (median 2.1) | −0.9 to +1.2 |
+
+**Slab model.** The slab has refractive index $n$, an internal isotropic source ($\mathbf{v}^{(0)} \propto w$), a planar exit face with unpolarized Fresnel transmission integrated within each 0.25° bin, and an angle-independent back reflectance $R$. No mixing means specular reflection at both faces. Mixing at the exit face uses the kernel of Sec. 2.4 with the Fresnel $p(\theta)$. Mixing at the back reflector uses $D$ with constant $R$, which gives the fully randomized result $p/[p+(1-p)(1-R)]$.
+
+**Table S25 | Slab with a planar exit face and a back reflector.**
+
+| $n$ | $R$ | $p$ | $p_{\mathrm{mix}}$ | No mixing | Mixing at exit face | Mixing at back reflector |
+|---|---|---|---|---|---|---|
+| 1.5 | 0.90 | 0.404 | 0.054 | 0.440 | 0.599 | 0.871 |
+| 1.5 | 0.98 | 0.404 | 0.054 | 0.445 | 0.837 | 0.971 |
+| 2.0 | 0.90 | 0.210 | 0.040 | 0.245 | 0.419 | 0.726 |
+| 2.0 | 0.98 | 0.210 | 0.040 | 0.249 | 0.733 | 0.930 |
+| 2.4 | 0.90 | 0.137 | 0.032 | 0.170 | 0.331 | 0.614 |
+| 2.4 | 0.98 | 0.137 | 0.032 | 0.174 | 0.665 | 0.888 |
+| 3.0 | 0.90 | 0.080 | 0.024 | 0.107 | 0.243 | 0.467 |
+| 3.0 | 0.98 | 0.080 | 0.024 | 0.111 | 0.576 | 0.814 |
+| 3.5 | 0.90 | 0.055 | 0.019 | 0.079 | 0.192 | 0.369 |
+| 3.5 | 0.98 | 0.055 | 0.019 | 0.082 | 0.509 | 0.745 |
+
+---
+
 ## Reproducing the figures and data
 
-Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (set of 38 structures, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
+Main-text Fig. 7 and Tables S24–S25 are produced by `selectivity/placement.py`. Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (set of 38 structures, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

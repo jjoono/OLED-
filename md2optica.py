@@ -23,6 +23,7 @@ FIGFILES = {
     '4': 'figures/fig4_structure_map.pdf',
     '5': 'figures/fig5_bound_window.pdf',
     '6': 'figures/fig6_hemisphere_benchmark.pdf',
+    '7': 'figures/fig7_placement.pdf',
     'S1': 'figures/figS11_device_inputs.pdf',
     'S2': 'figures/figS2_composition_window.pdf',
     'S3': 'figures/fig1_platform.pdf',

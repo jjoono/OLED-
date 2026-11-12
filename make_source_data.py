@@ -88,6 +88,10 @@ f = D + 'fig6_hemisphere_benchmark.xlsx'
 add('Fig6a_profiles', 'Fig. 6', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
 add('Fig6b_best_EQE', 'Fig. 6', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
 add('Fig6c_searches', 'Fig. 6', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
+# ---------------- Fig. 7
+f = D + 'fig7_placement.xlsx'
+add('Fig7a_placement', 'Fig. 7', 'a', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'a_structures_Al550'), f)
+add('Fig7b_slab', 'Fig. 7', 'b', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'b_slab'), f)
 # ---------------- Supplement
 f = D + 'figS11_device_inputs.xlsx'
 add('FigS1_device_inputs', 'Fig. S1', 'a-b', 'First-pass substrate radiance (a) and angle-resolved reflectance R (b) of the three devices at 550 nm.', rows_of(f, 'devices_550nm'), f)
@@ -112,7 +116,7 @@ add('FigS6c_points', 'Fig. S6', 'c', 'Selectivity points.', rows_of(f, 'c_select
 add('FigS6c_fits', 'Fig. S6', 'c', 'Selectivity fits.', rows_of(f, 'c_fits'), f)
 
 # ---------------- README
-readme['A1'] = 'Source data for all figures (main text Figs. 1-6, Supplement Figs. S1-S6)'; readme['A1'].font = Font(bold=True, size=12)
+readme['A1'] = 'Source data for all figures (main text Figs. 1-7, Supplement Figs. S1-S6)'; readme['A1'].font = Font(bold=True, size=12)
 readme['A2'] = 'One sheet per panel. Angles are substrate (glass) polar angles in degrees; efficiencies are fractions of the power launched into the substrate unless noted; pp = percentage points.'
 readme['A3'] = 'Structure classes: planar, scatter (g = asymmetry, t = reduced optical depth tau*), MLA hemi/free (benchmark optima per band), A_shape/B_aspect/C_jitter/C2_jitter (randomized lenses), W_slope (wavy surfaces).'
 for j, t in enumerate(['sheet', 'figure', 'panel', 'content', 'generated from']):

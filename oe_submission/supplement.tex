@@ -14,7 +14,7 @@
 
 Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction
 
-Notes S1–S4 support the spectral metrics: model details, the devices and the 38 structures, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and an out-of-sample test, and Note S10 gives the estimators and numerical diagnostics. Main-text references are cited as "main ref. n".
+Notes S1–S4 support the spectral metrics: model details, the devices and the 38 structures, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and an out-of-sample test, Note S10 gives the estimators and numerical diagnostics, and Note S11 compares mixing at the escape surface with mixing at the device side. Main-text references are cited as "main ref. n".
 
 \section*{Note S1 | Model details and numerical checks}
 
@@ -676,9 +676,62 @@ MLA hemi_total & +0.814 & -1.40 \\
 
 \textbf{LightTools settings of the benchmark.} Disc source (radius 1 mm) with the angular distribution of the CPS substrate radiance (1\ensuremath{^\circ} polar mesh, uniform in azimuth), monochromatic runs weighted by the CPS power per wavelength; search at 10 nm steps (31 wavelengths, 453–753 nm) and 10,000 rays, final evaluation at 2 nm steps (151 wavelengths) and 50,000 rays, three repeats; device reflectance as a polarization-averaged angle- and wavelength-resolved user coating on the bottom face; textured patch 25 \ensuremath{\times} 25 mm on a 1.295 mm substrate; far-field intensity mesh in 1\ensuremath{^\circ} polar bins integrated over azimuth, bands summed with $\sin\theta$ weighting. Freeform profiles are passed to LightTools as spline control points, and each constructed geometry is checked by a control-point round trip with tolerance $10^{-4}$ (lens radius units); geometries failing it are rejected. Evaluated through the freeform pipeline with quarter-circle control points, the hemisphere reproduces its own campaign within 0.00–0.09\% (Table S11).
 
+\section*{Note S11 | Mixing at the escape surface versus the device side}
+
+\textbf{Device-side kernel.} Let the device reflect returned light with a kernel $D(i\to j)$ instead of the specular reflectance $\mathrm{diag}\,\mathbf{R}$. Energy conservation at each incidence angle fixes the column sums, $\sum_j D(i\to j) = R_i$. Reciprocity of the device requires $w_i D(i\to j) = w_j D(j\to i)$. A rank-one kernel $D(i\to j) = a_i b_j$ satisfies the second condition only if $b_j \propto w_j a_j$, and the first condition then gives $a_i \propto R_i$. The result is $D(i\to j) = R_i R_j w_j/\sum_k w_k R_k$ (main text, Sec. 2.5). The multi-pass efficiency is $\eta = \mathbf{p}^{\mathsf T}(I - D\,B_R)^{-1}\mathbf{v}^{(0)}$, where $B_R$ is the return matrix of the structure itself. Light that has been reflected by $D$ is distributed in proportion to $w_j R_j$, independently of its incidence angle. Its escape probability at the next encounter is therefore $p_D = \sum_k w_k R_k p_k/\sum_k w_k R_k$.
+
+\textbf{Comparison with mixing at the escape surface.} At the escape surface, the same construction with column sums $1-p_i$ gives the kernel $(1-p_i)\,w_r(1-p_r)/\sum_k w_k(1-p_k)$ of Sec. 2.4. The redistribution weight $1-p$ is then perfectly anticorrelated with the escape probability, which produces the term $-\sigma_p^2/(1-p)$. At the device, the weight is $R$, and the correction is $\mathrm{Cov}_w(R,p)/\langle R\rangle_w$. For the three bottom-emitting stacks of this work, $|p_D - p| < 0.008$ for all structures at 500, 550, and 600 nm.
+
+\textbf{Strong microcavities.} For a top-emitting microcavity with a 20 nm Ag cathode, an optical clear resin (n = 1.59) as the exit medium, and a planar exit face, the modelled device reflectance seen from the resin is 0.63 inside the escape cone and 0.92 outside it. The device absorbs most strongly at the angles at which it emits. The covariance is then negative, and $p_D$ = 0.316 compared with $p$ = 0.355. Device-side mixing is therefore also reduced in strong microcavities, although less than mixing at the escape surface. This example uses the stack model of \texttt{selectivity/advsci\_model.py} and is illustrative only.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption*{\textbf{Table S24 | Gain over the actual $\eta_{\mathrm{sta}}$ for complete reciprocal mixing at the escape surface and at the device (37 non-planar structures).} The last column gives the difference between device-side mixing and the fully randomized model.}
+\resizebox{\linewidth}{!}{\begin{tabular}{lllll}
+\hline
+Device & \ensuremath{\lambda} (nm) & Mixing at the escape surface (pp) & Mixing at the device (pp) & Device-side - fully randomized (pp) \\
+\hline
+Al & 500 & -0.6 to +6.4 (median 3.5) & +0.3 to +18.8 (median 4.5) & -3.3 to -0.7 \\
+Al & 550 & -0.4 to +1.8 (median 0.8) & +0.2 to +17.1 (median 2.0) & -2.1 to +0.3 \\
+Al & 600 & -0.2 to +1.2 (median 0.1) & +0.2 to +15.7 (median 1.3) & -1.4 to +1.5 \\
+Ag & 500 & -0.4 to +9.4 (median 4.7) & +0.3 to +15.8 (median 5.0) & -2.7 to -0.7 \\
+Ag & 550 & -0.3 to +2.0 (median 0.6) & +0.1 to +11.2 (median 1.2) & -1.1 to -0.1 \\
+Ag & 600 & -0.1 to +1.2 (median 0.2) & +0.1 to +9.2 (median 0.6) & -0.7 to +0.5 \\
+low loss & 500 & -0.1 to +0.8 (median 0.1) & +0.1 to +6.7 (median 0.4) & -0.1 to +0.4 \\
+low loss & 550 & 0.0 to +0.4 (median 0.0) & +0.1 to +4.1 (median 0.3) & +0.2 to +1.1 \\
+low loss & 600 & -0.1 to +4.3 (median 2.1) & +0.1 to +4.8 (median 2.1) & -0.9 to +1.2 \\
+\hline
+\end{tabular}}
+\end{table}
+
+\textbf{Slab model.} The slab has refractive index $n$, an internal isotropic source ($\mathbf{v}^{(0)} \propto w$), a planar exit face with unpolarized Fresnel transmission integrated within each 0.25\ensuremath{^\circ} bin, and an angle-independent back reflectance $R$. No mixing means specular reflection at both faces. Mixing at the exit face uses the kernel of Sec. 2.4 with the Fresnel $p(\theta)$. Mixing at the back reflector uses $D$ with constant $R$, which gives the fully randomized result $p/[p+(1-p)(1-R)]$.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption*{Table S25. Slab with a planar exit face and a back reflector.}
+\resizebox{\linewidth}{!}{\begin{tabular}{lllllll}
+\hline
+$n$ & $R$ & $p$ & $p_{\mathrm{mix}}$ & No mixing & Mixing at exit face & Mixing at back reflector \\
+\hline
+1.5 & 0.90 & 0.404 & 0.054 & 0.440 & 0.599 & 0.871 \\
+1.5 & 0.98 & 0.404 & 0.054 & 0.445 & 0.837 & 0.971 \\
+2.0 & 0.90 & 0.210 & 0.040 & 0.245 & 0.419 & 0.726 \\
+2.0 & 0.98 & 0.210 & 0.040 & 0.249 & 0.733 & 0.930 \\
+2.4 & 0.90 & 0.137 & 0.032 & 0.170 & 0.331 & 0.614 \\
+2.4 & 0.98 & 0.137 & 0.032 & 0.174 & 0.665 & 0.888 \\
+3.0 & 0.90 & 0.080 & 0.024 & 0.107 & 0.243 & 0.467 \\
+3.0 & 0.98 & 0.080 & 0.024 & 0.111 & 0.576 & 0.814 \\
+3.5 & 0.90 & 0.055 & 0.019 & 0.079 & 0.192 & 0.369 \\
+3.5 & 0.98 & 0.055 & 0.019 & 0.082 & 0.509 & 0.745 \\
+\hline
+\end{tabular}}
+\end{table}
+
 \section*{Reproducing the figures and data}
 
-Main-text Figs. 1–5 are produced by \texttt{selectivity/oe\_figs.py} (set of 38 structures, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in \texttt{figures\_oe/}), with return matrices from \texttt{multipass\_reset/run\_random\_sweep.py}. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through \texttt{make\_figures.py} and \texttt{make\_supp\_figures\_and\_data.py}; Fig. S1 and Table S2 from \texttt{selectivity/fig\_devices.py}; Tables S5–S9 from \texttt{selectivity/unc\_analysis.py}, \texttt{selectivity/review\_checks.py}, \texttt{selectivity/review\_traces\_analysis.py}, and \texttt{selectivity/make\_note\_s12.py}; the complete-mixing reference (Fig. 2, Note S1) from \texttt{selectivity/reciprocal\_limit.py}; Tables S1 and S17 from \texttt{selectivity/cutoff\_modes.py}; Tables S13–S14 from \texttt{selectivity/cavity\_decomp.py} and \texttt{selectivity/cav\_lens\_cross.py}; Table S15 from \texttt{multipass\_reset/fixedcav\_opt.py}; Table S16 from \texttt{multipass\_reset/direct\_blind.py} and \texttt{blind\_table.py}; Fig. S2 and Tables S21–S23 from \texttt{selectivity/review2\_diag.py}; Table S20 from \texttt{selectivity/slab\_direct\_check.py}; Fig. S5 from \texttt{make\_optimizer\_convergence.py}; Table S18 from \texttt{multipass\_reset/polcheck.py}; Table S19 from \texttt{selectivity/data/mixing\_gain\_by\_condition.json} and \texttt{mixing\_gain\_spectral.json}.
+Main-text Fig. 7 and Tables S24–S25 are produced by \texttt{selectivity/placement.py}. Main-text Figs. 1–5 are produced by \texttt{selectivity/oe\_figs.py} (set of 38 structures, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in \texttt{figures\_oe/}), with return matrices from \texttt{multipass\_reset/run\_random\_sweep.py}. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through \texttt{make\_figures.py} and \texttt{make\_supp\_figures\_and\_data.py}; Fig. S1 and Table S2 from \texttt{selectivity/fig\_devices.py}; Tables S5–S9 from \texttt{selectivity/unc\_analysis.py}, \texttt{selectivity/review\_checks.py}, \texttt{selectivity/review\_traces\_analysis.py}, and \texttt{selectivity/make\_note\_s12.py}; the complete-mixing reference (Fig. 2, Note S1) from \texttt{selectivity/reciprocal\_limit.py}; Tables S1 and S17 from \texttt{selectivity/cutoff\_modes.py}; Tables S13–S14 from \texttt{selectivity/cavity\_decomp.py} and \texttt{selectivity/cav\_lens\_cross.py}; Table S15 from \texttt{multipass\_reset/fixedcav\_opt.py}; Table S16 from \texttt{multipass\_reset/direct\_blind.py} and \texttt{blind\_table.py}; Fig. S2 and Tables S21–S23 from \texttt{selectivity/review2\_diag.py}; Table S20 from \texttt{selectivity/slab\_direct\_check.py}; Fig. S5 from \texttt{make\_optimizer\_convergence.py}; Table S18 from \texttt{multipass\_reset/polcheck.py}; Table S19 from \texttt{selectivity/data/mixing\_gain\_by\_condition.json} and \texttt{mixing\_gain\_spectral.json}.
 
 \begin{verbatim}
 cd multipass_reset && python3 run_random_sweep.py && cd ..
