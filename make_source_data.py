@@ -46,6 +46,8 @@ for sh, nm, lab in (('planar M', 'Fig1b_planar_M', 'planar interface'), ('hemisp
 f = D + 'fig2_complete_mixing.xlsx'
 add('Fig2a_p_mix', 'Fig. 2', 'a', 'Uniform-radiance escape p, its etendue-weighted s.d. sigma_p, and completely mixed escape p_mix = p - sigma_p^2/(1-p), all structures.', rows_of(f, 'a_p_mix'), f)
 add('Fig2b_gain', 'Fig. 2', 'b', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'b_gain'), f)
+add('Fig2c_placement', 'Fig. 2', 'c', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'c_placement'), f)
+add('Fig2d_slab', 'Fig. 2', 'd', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'd_slab'), f)
 # ---------------- Fig. 3 (split one table into panels)
 f = D + 'fig3_reduced_model.xlsx'; C = rows_of(f, 'cases'); key = ['structure', 'class', 'device', 'lambda_nm', 'eta_full']
 for nm, col, desc in (('Fig3a_fully_randomized', 'eta_fully_randomized', 'fully randomized model'), ('Fig3b_angle_preserving', 'eta_m0', 'angle-preserving limit (m = 0)'),
@@ -81,42 +83,45 @@ add('Fig4b_randomness', 'Fig. 4', 'b', 'N_mix against each randomness parameter 
 add('Fig4c_xi', 'Fig. 4', 'c', 'Late-pass escape ratio xi = p_inf / p~ against N_mix (Al, 550 nm).', pick(S, ['structure', 'class', 'N_mix', 'p_inf', 'xi']), f)
 # ---------------- Fig. 5
 f = D + 'fig5_bound_window.xlsx'
-add('Fig5a_first_pass', 'Fig. 5', 'a', 'First-pass power into each polar band / substrate power (Al, 550 nm): bounds and four structures.', rows_of(f, 'a_first_pass'), f)
-add('Fig5b_composition', 'Fig. 5', 'b', 'S40-60 of the multi-pass output vs eta_sta, all structures (Al, 550 nm); shaded band 0.33-0.36, Lambertian 0.337.', rows_of(f, 'b_composition'), f)
+add('FigS3a_first_pass', 'Fig. S3', 'a', 'First-pass power into each polar band / substrate power (Al, 550 nm): bounds and four structures.', rows_of(f, 'a_first_pass'), f)
+add('FigS3b_composition', 'Fig. S3', 'b', 'S40-60 of the multi-pass output vs eta_sta, all structures (Al, 550 nm); shaded band 0.33-0.36, Lambertian 0.337.', rows_of(f, 'b_composition'), f)
 # ---------------- Fig. 6
 f = D + 'fig6_hemisphere_benchmark.xlsx'
-add('Fig6a_profiles', 'Fig. 6', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
-add('Fig6b_best_EQE', 'Fig. 6', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
-add('Fig6c_searches', 'Fig. 6', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
-# ---------------- Fig. 7
-f = D + 'fig7_placement.xlsx'
-add('Fig7a_placement', 'Fig. 7', 'a', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'a_structures_Al550'), f)
-add('Fig7b_slab', 'Fig. 7', 'b', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'b_slab'), f)
+add('Fig5a_profiles', 'Fig. 5', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
+add('Fig5b_best_EQE', 'Fig. 5', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
+add('Fig5c_searches', 'Fig. 5', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
 # ---------------- Supplement
 f = D + 'figS11_device_inputs.xlsx'
 add('FigS1_device_inputs', 'Fig. S1', 'a-b', 'First-pass substrate radiance (a) and angle-resolved reflectance R (b) of the three devices at 550 nm.', rows_of(f, 'devices_550nm'), f)
 f = D + 'figS2_composition_window.xlsx'
 add('FigS2_composition', 'Fig. S2', 'all', 'S40-60 vs eta_sta for all structures, devices and wavelengths.', rows_of(f, 'points'), f)
 f = 'fig1_platform.xlsx'
-add('FigS3b_profiles', 'Fig. S3', 'b', 'Hemispherical and freeform (40-60 deg) lens profiles.', rows_of(f, 'b_lens_profiles'), f)
-add('FigS3b_control_pts', 'Fig. S3', 'b', 'Free control points of the freeform profile.', rows_of(f, 'b_control_points'), f)
-add('FigS3c_bands', 'Fig. S3', 'c', 'Polar-band definition.', rows_of(f, 'c_band_definition'), f)
+add('FigS4b_profiles', 'Fig. S4', 'b', 'Hemispherical and freeform (40-60 deg) lens profiles.', rows_of(f, 'b_lens_profiles'), f)
+add('FigS4b_control_pts', 'Fig. S4', 'b', 'Free control points of the freeform profile.', rows_of(f, 'b_control_points'), f)
+add('FigS4c_bands', 'Fig. S4', 'c', 'Polar-band definition.', rows_of(f, 'c_band_definition'), f)
 f = 'figS1_restart_control.xlsx'
-add('FigS4a_restart_arms', 'Fig. S4', 'a', 'Re-measured hemisphere and restarted optimum for every arm.', rows_of(f, 'a_all_arms'), f)
-add('FigS4b_confirm_reps', 'Fig. S4', 'b', 'Five-repeat confirmation of the 20-40 deg arm (repeats).', rows_of(f, 'b_confirmation_reps'), f)
-add('FigS4b_confirm_stats', 'Fig. S4', 'b', 'Five-repeat confirmation (statistics).', rows_of(f, 'b_confirmation_stats'), f)
+add('FigS6a_restart_arms', 'Fig. S6', 'a', 'Re-measured hemisphere and restarted optimum for every arm.', rows_of(f, 'a_all_arms'), f)
+add('FigS6b_confirm_reps', 'Fig. S6', 'b', 'Five-repeat confirmation of the 20-40 deg arm (repeats).', rows_of(f, 'b_confirmation_reps'), f)
+add('FigS6b_confirm_stats', 'Fig. S6', 'b', 'Five-repeat confirmation (statistics).', rows_of(f, 'b_confirmation_stats'), f)
 f = D + 'figS5_optimizer_convergence.xlsx'
 for sh in ('0–20deg', '20–40deg', '40–60deg', '60–80deg', 'total EQE'):
     add('FigS5_' + sh.replace('–', '-').replace(' ', '_'), 'Fig. S5', sh, f'Best-so-far objective vs evaluation count, {sh}.', rows_of(f, sh), f)
 f = 'fig3_efficiency_composition.xlsx'
-add('FigS6a_points', 'Fig. S6', 'a', 'Total EQE vs 40-60 deg EQE: random and optimizer-visited designs.', rows_of(f, 'a_collapse_points'), f)
-add('FigS6a_fit', 'Fig. S6', 'a', 'Linear fit (R^2 = 0.968).', rows_of(f, 'a_fit'), f)
-add('FigS6b_dedicated', 'Fig. S6', 'b', 'Selectivity of band-dedicated optima vs natural composition.', rows_of(f, 'b_dedicated_vs_natural'), f)
-add('FigS6c_points', 'Fig. S6', 'c', 'Selectivity points.', rows_of(f, 'c_selectivity_points'), f)
-add('FigS6c_fits', 'Fig. S6', 'c', 'Selectivity fits.', rows_of(f, 'c_fits'), f)
+add('FigS7a_points', 'Fig. S7', 'a', 'Total EQE vs 40-60 deg EQE: random and optimizer-visited designs.', rows_of(f, 'a_collapse_points'), f)
+add('FigS7a_fit', 'Fig. S7', 'a', 'Linear fit (R^2 = 0.968).', rows_of(f, 'a_fit'), f)
+add('FigS7b_dedicated', 'Fig. S7', 'b', 'Selectivity of band-dedicated optima vs natural composition.', rows_of(f, 'b_dedicated_vs_natural'), f)
+add('FigS7c_points', 'Fig. S7', 'c', 'Selectivity points.', rows_of(f, 'c_selectivity_points'), f)
+add('FigS7c_fits', 'Fig. S7', 'c', 'Selectivity fits.', rows_of(f, 'c_fits'), f)
 
+# ---------------- order sheets: main figures, then supplementary figures, each by number
+import re as _re
+def _key(ws):
+    if ws.title == 'README': return (-1, 0, '')
+    mm = _re.match(r'Fig(S?)(\d+)', ws.title); return (1 if mm.group(1) else 0, int(mm.group(2)), ws.title)
+wb._sheets.sort(key=_key)
+index.sort(key=lambda r: (1 if r[1].startswith('Fig. S') else 0, int(_re.findall(r'\d+', r[1])[0]), r[0]))
 # ---------------- README
-readme['A1'] = 'Source data for all figures (main text Figs. 1-7, Supplement Figs. S1-S6)'; readme['A1'].font = Font(bold=True, size=12)
+readme['A1'] = 'Source data for all figures (main text Figs. 1-5, Supplement Figs. S1-S7)'; readme['A1'].font = Font(bold=True, size=12)
 readme['A2'] = 'One sheet per panel. Angles are substrate (glass) polar angles in degrees; efficiencies are fractions of the power launched into the substrate unless noted; pp = percentage points.'
 readme['A3'] = 'Structure classes: planar, scatter (g = asymmetry, t = reduced optical depth tau*), MLA hemi/free (benchmark optima per band), A_shape/B_aspect/C_jitter/C2_jitter (randomized lenses), W_slope (wavy surfaces).'
 for j, t in enumerate(['sheet', 'figure', 'panel', 'content', 'generated from']):

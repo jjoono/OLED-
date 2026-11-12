@@ -244,7 +244,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | low loss, 600 nm | 0.382 | 3.2 to 4.0 | -0.1 to 4.3 | +3.0 | +4.0 |
 | low loss, spectrally weighted | — | 1.8 to 2.2 | -0.1 to 2.2 | +2.0 (best random or wavy) | — |
 
-**Angular composition of the output.** $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$, both powers in air including Fresnel losses, over all 38 structures (Table S9). In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
+**Angular composition of the output.** Fig. S3 shows the band-resolved radiance bound and the composition of the output for the Al device at 550 nm. $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$, both powers in air including Fresnel losses, over all 38 structures (Table S9). In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
 
 **Table S9 | Range of $S_{40\text{–}60}$ over all structures.**
 
@@ -257,6 +257,8 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | low loss, 550 nm | 0.274 | 0.366 |
 
 **Fig. S2 | Angular composition of the output for all devices and wavelengths.** $S_{40\text{–}60}$ of the multi-pass output against $\eta_{\mathrm{sta}}$ for all 38 structures; rows, Al, Ag, and low-loss devices; columns, 500, 550, and 600 nm; dotted line, Lambertian partition (0.337). Monte Carlo uncertainty of $S_{40\text{–}60}$ is at most 0.003 (ray seeds and realizations, six random and wavy structures). *(`figS2_composition_window.png`)*
+
+**Fig. S3 | Radiance bound and angular composition of the output (main text, Sec. 4.5).** (a) First-pass power into each polar band (Al, 550 nm) for the uniform-radiance bound, the radiance-ordered bound, and four structures. (b) $S_{40\text{–}60}$ of the multi-pass output versus $\eta_{\mathrm{sta}}$ for all structures. The shaded band marks 0.33–0.36, and the dotted line marks the Lambertian value. *(`fig5_bound_window.png`)*
 
 ---
 
@@ -279,7 +281,7 @@ All campaigns share the platform of Table S10; the hemisphere is a point of the 
 
 **Searches and fidelity.** Each arm is optimized by MATLAB `surrogateopt` (radial-basis surrogate) followed by `patternsearch` at 10,000 rays and 31 wavelengths; every optimum is re-evaluated three times at 50,000 rays and 151 wavelengths. EQE is the radiative efficiency times the spectrally weighted fraction of generated photons reaching air, over the hemisphere or a band; it includes the cavity's coupling into the substrate and is not directly comparable with $\eta_{\mathrm{sta}}$. Infeasible candidates are returned to the optimizer as constraint violations and not traced. The 25 mm patch underestimates the total of an infinite film by about 4%, but no band share changes by more than 0.24 pp between 15 and 100 mm, and all comparisons are made at equal patch.
 
-**Fig. S3 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture. (b) The hemispherical reference and an axisymmetric freeform profile (40–60° optimum; open circles, free control points) in units of the lens radius. (c) The four polar bands. (d) Optimization workflow. *(`fig1_platform.png`)*
+**Fig. S4 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture. (b) The hemispherical reference and an axisymmetric freeform profile (40–60° optimum; open circles, free control points) in units of the lens radius. (c) The four polar bands. (d) Optimization workflow. *(`fig1_platform.png`)*
 
 ---
 
@@ -305,13 +307,13 @@ In the original per-band campaign (random seeds plus the best designs of a separ
 
 **Fig. S5 | Best-so-far search curves.** Best objective found so far against the evaluation count, at search fidelity (10,000 rays, 31 wavelengths), for the hemispherical campaign (3 variables), the original freeform per-band campaign, and the restart control; dotted lines, final re-evaluated values (50,000 rays, 151 wavelengths); dots in the total-EQE panel, final values of three independent random starts (140 evaluations each). Search-fidelity maxima are biased upward by noise and can exceed the re-evaluated values. *(`figS5_optimizer_convergence.png`)*
 
-**Fig. S4 | Restart control.** (a) Re-measured hemisphere and restarted optimum for every arm, with standard deviations and $t$. (b) Five-repeat confirmation of the 20–40° arm. *(`figS1_restart_control.png`)*
+**Fig. S6 | Restart control.** (a) Re-measured hemisphere and restarted optimum for every arm, with standard deviations and $t$. (b) Five-repeat confirmation of the 20–40° arm. *(`figS1_restart_control.png`)*
 
 ---
 
 ## Note S7 | Total efficiency fixes the angular composition
 
-Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible designs, 492 optimizer-visited), each band EQE is nearly proportional to the total (Table S12, Fig. S6); random designs alone reproduce the collapse. $S_{40\text{–}60}$ spans only 0.336–0.375 (5–95%), and the 40–60° band carries the largest share in every design with total EQE ≥ 0.40. Band-dedicated optima raise their band's share by 1–27% but lose 1–11% of total EQE, for net band-power gains of 1.00–1.22 against the natural composition of the twenty most efficient designs.
+Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible designs, 492 optimizer-visited), each band EQE is nearly proportional to the total (Table S12, Fig. S7); random designs alone reproduce the collapse. $S_{40\text{–}60}$ spans only 0.336–0.375 (5–95%), and the 40–60° band carries the largest share in every design with total EQE ≥ 0.40. Band-dedicated optima raise their band's share by 1–27% but lose 1–11% of total EQE, for net band-power gains of 1.00–1.22 against the natural composition of the twenty most efficient designs.
 
 **Table S12 | Band EQE against total EQE (least squares, 95% intervals).**
 
@@ -322,13 +324,13 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 | 40–60° | 0.348 ± 0.005 | 0.003 ± 0.003 | 0.968 | 0.967 |
 | 60–80° | 0.189 ± 0.008 | 0.026 ± 0.004 | 0.769 | 0.724 |
 
-**Fig. S6 | Total efficiency fixes the angular composition.** (a) Total EQE against 40–60° EQE for random (grey) and optimizer-visited (green) designs; line, $R^2$ = 0.968. (b) Selectivity of the band-dedicated optima (red) against the natural composition (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity against total EQE for all bands. *(`fig3_efficiency_composition.png`)*
+**Fig. S7 | Total efficiency fixes the angular composition.** (a) Total EQE against 40–60° EQE for random (grey) and optimizer-visited (green) designs; line, $R^2$ = 0.968. (b) Selectivity of the band-dedicated optima (red) against the natural composition (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity against total EQE for all bands. *(`fig3_efficiency_composition.png`)*
 
 ---
 
 ## Note S8 | Lens versus cavity
 
-**Full device model.** The benchmark optimizes the cavity together with the lens. To separate the two, the eight optimized lenses of Table 3 were evaluated in the full device model of the main text (birefringent CPS + TMM, dispersive constants), weighted with the emission spectrum (400–700 nm, 10 nm steps), with $\eta_{\mathrm{rad}}$ = 0.98 and the polar bands of the benchmark (Table S13). "Lens only" places both lenses at the hemisphere's cavity; "cavity only" places the hemisphere at the freeform's cavity.
+**Full device model.** The benchmark optimizes the cavity together with the lens. To separate the two, the eight optimized lenses of main-text Table 2 were evaluated in the full device model of the main text (birefringent CPS + TMM, dispersive constants), weighted with the emission spectrum (400–700 nm, 10 nm steps), with $\eta_{\mathrm{rad}}$ = 0.98 and the polar bands of the benchmark (Table S13). "Lens only" places both lenses at the hemisphere's cavity; "cavity only" places the hemisphere at the freeform's cavity.
 
 **Table S13 | Freeform/hemisphere EQE ratio: LightTools and the multi-pass model.**
 
@@ -347,7 +349,7 @@ The freeform entries are the designs of the original per-band campaign and of th
 |---|---|---|
 | 74.6/81.7 (hemisphere, 40–60° optimum) | 1.056 | 1.004 |
 | 61.3/97.5 (hemisphere, total-EQE optimum) | 1.070 | 1.018 |
-| 68.5/114.4 (freeform, 40–60° optimum) | 1.092 | 1.041 | This also explains Table 3, where the total-EQE freeform lens, at the hemisphere's cavity and 550 nm, has $\eta_{\mathrm{sta}}$ = 0.771 against 0.792.
+| 68.5/114.4 (freeform, 40–60° optimum) | 1.092 | 1.041 | This also explains main-text Table 2, where the total-EQE freeform lens, at the hemisphere's cavity and 550 nm, has $\eta_{\mathrm{sta}}$ = 0.771 against 0.792.
 
 **Lens-only optimization at a fixed stack.** With the stack fixed (Al, ETL 61.3 / HTL 97.5 nm, 550 nm), the hemisphere's height and an 11-variable freeform profile (5 radial and 5 height control points, height scale; same bounds and feasibility rules as the benchmark) were optimized for the same objective in the multi-pass model with the same tracer: a grid search for the hemisphere and a (1+8) evolution strategy with step-size adaptation, started at the hemispherical optimum, for the freeform (80 evaluations at 4,000 rays per bin; winners re-evaluated at 20,000). Results (Table S15): the freeform gains 1.25% in $\eta_{\mathrm{sta}}$ and 9.0% in the 40–60° band. The total-objective winner keeps $p$ (0.422 against 0.421) but lowers $N_{\mathrm{mix}}$ from 7.1 to 2.1 and raises $p_{\mathrm{mix}}/p$ from 0.91 to 0.93, i.e. it recovers 1.0 of the 1.4 pp that complete reciprocal mixing would add to the hemisphere. The LightTools freeform optima, evaluated at the same stack, reach 0.771 ($\eta_{\mathrm{sta}}$) and 0.284 (40–60°).
 
@@ -532,7 +534,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 ## Reproducing the figures and data
 
-Main-text Fig. 7 and Tables S24–S25 are produced by `selectivity/placement.py`. Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (set of 38 structures, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
+Main-text Figs. 1–4 and Fig. S3 are produced by `selectivity/oe_figs.py`; panels (c) and (d) of Fig. 2 and Tables S24–S25 use `selectivity/placement.py`. `oe_figs.py` evaluates the 38 structures with the full and reduced models, takes the return matrices from `multipass_reset/run_random_sweep.py`, and writes PNG, PDF, and an Excel workbook of the plotted arrays to `figures_oe/`. Main-text Fig. 5 and Figs. S4, S6, and S7 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

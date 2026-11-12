@@ -9,7 +9,7 @@ Fully randomized  : p / [p + (1 - p) A'].
 Part 1: the 38 structures with the three OLED stacks (500/550/600 nm).
 Part 2: generic slab of index n, isotropic internal source, planar exit face (Fresnel), angle-independent back
         reflectance R; no device physics.
-Writes data/placement.json and ../figures_oe/fig7_placement.{png,pdf,xlsx}."""
+Writes data/placement.json; panels (c) and (d) of main-text Fig. 2 are drawn by oe_figs.py."""
 import os, json, numpy as np, matplotlib
 matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from openpyxl import Workbook
@@ -77,34 +77,3 @@ for nm in ('planar', 'MLA hemi_total', 'MLA free_total', 'A_shape1.0', 'W_slope0
 for r in slab:
     if r['n'] in (1.5, 2.4, 3.5): print(f"slab n {r['n']} R {r['R']}: p {r['p']:.3f} p_mix {r['p_mix']:.3f} | none {r['none']:.3f} exit {r['exit_mix']:.3f} device/rand {r['rand']:.3f}")
 
-# ---- Figure 7
-INK2 = '#52514e'
-CLS7 = {'planar': ('#7d7c76', 's', 'planar'), 'scatter': ('#1baf7a', 'o', 'scattering layer'), 'MLA hemi': ('#2a78d6', 'D', 'hemispherical MLA'),
-        'MLA free': ('#eb6834', '^', 'freeform MLA'), 'random lens': ('#6250d6', 'v', 'random MLA'), 'wavy': ('#e87ba4', 'P', 'wavy surface')}
-fig, ax = plt.subplots(1, 2, figsize=(7.2, 2.7), gridspec_kw=dict(wspace=0.32)); rows_a = []
-xs, ys = [], []
-for k, v in S.items():
-    nm, dev, lam = k.split('|')
-    if dev != 'Al' or lam != '550': continue
-    x = v['p'] - v['p_mix']; y = (v['dev_mix'] - v['exit_mix']) * 100; col, mk, _ = CLS7[v['cls']]
-    ax[0].plot(x, y, mk, color=col, ms=4, mec='white', mew=0.3); xs.append(x); ys.append(y)
-    rows_a.append([nm, v['cls'], v['p'], v['p_mix'], x, v['eta'], v['exit_mix'], v['dev_mix'], v['rand'], y])
-r = np.corrcoef(xs, ys)[0, 1]
-for c, (col, mk, lab) in CLS7.items(): ax[0].plot([], [], mk, color=col, label=lab)
-ax[0].set_xlabel('p − p_mix = σ²/(1 − p)'); ax[0].set_ylabel('device-side − exit-side mixing (pp of η_sta)')
-ax[0].set_title(f'(a) placement of the mixing (Al, 550 nm), r = {r:.2f}', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=False, loc='upper left', bbox_to_anchor=(0.0, 0.92))
-for R, ls in ((0.90, '-'), (0.98, '--')):
-    sl = [s for s in slab if s['R'] == R]; n = [s['n'] for s in sl]
-    ax[1].plot(n, [s['none'] for s in sl], ls, color='#7d7c76', lw=1, label='no mixing' if R == 0.90 else None)
-    ax[1].plot(n, [s['exit_mix'] for s in sl], ls, color='#eb6834', lw=1, label='complete mixing at the exit face' if R == 0.90 else None)
-    ax[1].plot(n, [s['dev_mix'] for s in sl], ls, color='#2a78d6', lw=1, label='complete mixing at the back reflector (= fully randomized model)' if R == 0.90 else None)
-ax[1].plot([], [], 'k-', lw=1, label='R = 0.90'); ax[1].plot([], [], 'k--', lw=1, label='R = 0.98')
-ax[1].set_xlabel('refractive index n of the slab'); ax[1].set_ylabel('extraction efficiency'); ax[1].set_ylim(0, 1); ax[1].set_xlim(1.4, 3.6)
-ax[1].set_title('(b) slab with planar exit face and back reflector', loc='left', fontsize=6.5); ax[1].legend(fontsize=4.8, frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=2)
-fig.savefig('../figures_oe/fig7_placement.png', dpi=300, bbox_inches='tight'); fig.savefig('../figures_oe/fig7_placement.pdf', bbox_inches='tight'); plt.close(fig)
-wb = Workbook(); ws_ = wb.active; ws_.title = 'a_structures_Al550'
-ws_.append(['structure', 'class', 'p', 'p_mix', 'p - p_mix', 'eta_actual', 'eta_exit_side_mixing', 'eta_device_side_mixing', 'eta_fully_randomized', 'device - exit (pp)'])
-[ws_.append(rw) for rw in rows_a]
-w2 = wb.create_sheet('b_slab'); w2.append(['n', 'R', 'p', 'p_mix', 'eta_no_mixing', 'eta_exit_side_mixing', 'eta_back_side_mixing (= fully randomized)'])
-[w2.append([s['n'], s['R'], s['p'], s['p_mix'], s['none'], s['exit_mix'], s['dev_mix']]) for s in slab]
-wb.save('../figures_oe/fig7_placement.xlsx'); print('corr', r)

@@ -101,12 +101,12 @@ fig.savefig(f'{OUT}/fig1_mixing_concept.png', dpi=300, bbox_inches='tight'); fig
 save_xlsx('fig1_mixing_concept', sh)
 
 # ------------------------------------------------------------------ Fig. 2 (complete reciprocal mixing)
-fig2, bx = plt.subplots(1, 2, figsize=(7.2, 2.7), gridspec_kw=dict(wspace=0.3))
+fig2, bxx = plt.subplots(2, 2, figsize=(7.2, 5.9), gridspec_kw=dict(wspace=0.3, hspace=0.5)); bx = bxx.ravel()
 pr = []
 for nm, (c, BT, BR) in LIB.items():
     pT = BT.sum(1); w_ = W1 / W1.sum(); p = float(pT @ w_); var = float(((pT - p) ** 2) @ w_); pm = p - var / (1 - p)
     col, mk, _ = CLS[c]; bx[0].plot(p, pm, mk, color=col, ms=4, mec='white', mew=0.3); pr.append([nm, c, p, np.sqrt(var), pm])
-bx[0].plot([0, 0.5], [0, 0.5], color=INK2, lw=0.6, ls=':'); bx[0].text(0.21, 0.225, 'p_mix = p (fully randomized)', fontsize=5, color=INK2, rotation=38)
+bx[0].plot([0, 0.5], [0, 0.5], color=INK2, lw=0.6, ls=':'); bx[0].text(0.335, 0.352, 'p_mix = p (fully randomized)', fontsize=5, color=INK2, rotation=38)
 bx[0].set_xlim(0.17, 0.45); bx[0].set_ylim(0, 0.45); bx[0].set_xlabel('escape probability p (uniform radiance)'); bx[0].set_ylabel('p_mix = p − σ²/(1 − p)')
 for c, (col, mk, lab) in CLS.items():
     bx[0].plot([], [], mk, color=col, label=lab)
@@ -125,9 +125,30 @@ bx[1].plot([], [], 'o', color=INK2, ms=4, label='complete reciprocal mixing'); b
 bx[1].axhline(0, color=INK2, lw=0.5); bx[1].set_xscale('log'); bx[1].set_xlim(1, 30); bx[1].set_xticks([1, 2, 5, 10, 25]); bx[1].set_xticklabels(['1', '2', '5', '10', '∞']); bx[1].minorticks_off()
 bx[1].set_ylim(-1.5, 20); bx[1].set_xlabel('N_mix (log scale)'); bx[1].set_ylabel('predicted gain over actual η_sta (pp)')
 bx[1].legend(fontsize=5, frameon=False, loc='upper left'); bx[1].set_title('(b) what mixing can gain (Al, 550 nm)', loc='left')
+# (c), (d): mixing at the escape surface versus the device side (data from placement.py)
+PLC = json.load(open('data/placement.json')); rows_c = []
+for nm, (c, BT, BR) in LIB.items():
+    v = PLC['structures'][f'{nm}|Al|550']; x = v['p'] - v['p_mix']; y = (v['dev_mix'] - v['exit_mix']) * 100
+    col, mk, _ = CLS[c]; bx[2].plot(x, y, mk, color=col, ms=4, mec='white', mew=0.3)
+    rows_c.append([nm, c, v['p'], v['p_mix'], x, v['eta'], v['exit_mix'], v['dev_mix'], v['rand'], y])
+rc = np.corrcoef([r[4] for r in rows_c], [r[9] for r in rows_c])[0, 1]
+bx[2].set_xlabel('p − p_mix = σ²/(1 − p)'); bx[2].set_ylabel('device-side − escape-surface mixing (pp)')
+bx[2].set_title(f'(c) where the light is mixed (Al, 550 nm), r = {rc:.2f}', loc='left')
+rows_d = []
+for R, ls in ((0.90, '-'), (0.98, '--')):
+    sl = [z for z in PLC['slab'] if z['R'] == R]; nn = [z['n'] for z in sl]
+    bx[3].plot(nn, [z['none'] for z in sl], ls, color='#7d7c76', lw=1, label='no mixing' if R == 0.90 else None)
+    bx[3].plot(nn, [z['exit_mix'] for z in sl], ls, color='#eb6834', lw=1, label='complete mixing at the exit face' if R == 0.90 else None)
+    bx[3].plot(nn, [z['dev_mix'] for z in sl], ls, color='#2a78d6', lw=1, label='complete mixing at the back reflector' if R == 0.90 else None)
+    rows_d += [[z['n'], z['R'], z['p'], z['p_mix'], z['none'], z['exit_mix'], z['dev_mix']] for z in sl]
+bx[3].plot([], [], 'k-', lw=1, label='R = 0.90'); bx[3].plot([], [], 'k--', lw=1, label='R = 0.98')
+bx[3].set_xlabel('refractive index n of the slab'); bx[3].set_ylabel('extraction efficiency'); bx[3].set_ylim(0, 1); bx[3].set_xlim(1.4, 3.6)
+bx[3].set_title('(d) slab with planar exit face and back reflector', loc='left'); bx[3].legend(fontsize=4.8, frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=3)
 fig2.savefig(f'{OUT}/fig2_complete_mixing.png', dpi=300, bbox_inches='tight'); fig2.savefig(f'{OUT}/fig2_complete_mixing.pdf', bbox_inches='tight'); plt.close(fig2)
 save_xlsx('fig2_complete_mixing', [('a_p_mix', ['structure', 'class', 'p', 'sigma_p', 'p_mix'], pr),
-                                   ('b_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_fully_randomized', 'gain_mixing_pp', 'gain_fully_randomized_pp'], hd)])
+                                   ('b_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_fully_randomized', 'gain_mixing_pp', 'gain_fully_randomized_pp'], hd),
+                                   ('c_placement', ['structure', 'class', 'p', 'p_mix', 'p - p_mix', 'eta_actual', 'eta_escape_surface_mixing', 'eta_device_side_mixing', 'eta_fully_randomized', 'device - escape surface (pp)'], rows_c),
+                                   ('d_slab', ['n', 'R', 'p', 'p_mix', 'eta_no_mixing', 'eta_exit_face_mixing', 'eta_back_reflector_mixing (= fully randomized)'], rows_d)])
 
 # ------------------------------------------------------------------ Fig. 2
 fig = plt.figure(figsize=(7.2, 3.6)); gs2 = fig.add_gridspec(2, 4, height_ratios=[1, 0.62], wspace=0.38, hspace=0.62)
