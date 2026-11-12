@@ -2,7 +2,7 @@
 
 Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction
 
-Notes S1–S4 support the spectral metrics: model details, the devices and the structure library, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and a blind test, and Note S10 gives the estimators and numerical diagnostics. Main-text references are cited as "main ref. n".
+Notes S1–S4 support the spectral metrics: model details, the devices and the 38 structures, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and an out-of-sample test, and Note S10 gives the estimators and numerical diagnostics. Main-text references are cited as "main ref. n".
 
 ---
 
@@ -48,7 +48,7 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 ---
 
-## Note S2 | Devices and structure library
+## Note S2 | Devices and the 38 structures
 
 **Devices.** The emitters form a single dipole sheet at the centre of the 25 nm birefringent EML (measured ordinary and extraordinary indices), with a horizontal dipole ratio of 0.865 (Table S2, Fig. S1).
 
@@ -66,7 +66,7 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 **Random lens arrays** tile a 6 × 6 supercell periodically. Shape spread $s$ perturbs the five control points of the quarter circle by Gaussian noise of standard deviation $0.25s$ (radial) and $0.4s$ (height), so that $s$ = 1 approaches independent profiles; height spread scales each lenslet by $1\pm s$; position jitter displaces each centre by up to a fraction of the pitch, optionally with ±20% radius spread. Where lenslets overlap the higher surface is taken; profiles with near-vertical walls are rejected. **Wavy surfaces** are periodic Gaussian-correlated height fields on a 12 × 12 box (correlation length one), scaled to a prescribed rms slope; only the slope statistics matter in ray optics. **Scattering layers** are non-absorbing, index-matched Henyey–Greenstein slabs (20,000 rays per 0.5° bin) combined with the flat exit face by the adding method.
 
-**Table S3 | Structure library at 550 nm.** $p$: escape probability for uniform radiance; $N_{\mathrm{mix}}$ and $p_\infty$ on $\theta < 85°$; $\xi = p_\infty/\tilde p$; $\eta$: full series for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60° share of the multi-pass output (Al); last two columns: reciprocal and isotropic ($q \propto w$) reduced model minus full series (Al). A, lenslet shape spread $s$; B, height spread ±$s$; C, position jitter (fraction of the pitch); C2, as C with ±20% radius spread; W, wavy surface of the given rms slope. Scattering layers are labelled by $g$ and $\tau^*$, MLAs by the benchmark objective of the optimum they reproduce.
+**Table S3 | The 38 structures at 550 nm.** $p$: escape probability for uniform radiance; $N_{\mathrm{mix}}$ and $p_\infty$ on $\theta < 85°$; $\xi = p_\infty/\tilde p$; $\eta$: full series for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60° share of the multi-pass output (Al); last two columns: reciprocal and isotropic ($q \propto w$) reduced model minus full series (Al). A, lenslet shape spread $s$; B, height spread ±$s$; C, position jitter (fraction of the pitch); C2, as C with ±20% radius spread; W, wavy surface of the given rms slope. Scattering layers are labelled by $g$ and $\tau^*$, MLAs by the benchmark objective of the optimum they reproduce.
 
 | Structure | p | N_mix | p∞ | ξ | η Al | η Ag | η LL | S40–60 (Al) | err. recip. Al (pp) | err. q∝w Al (pp) |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -113,9 +113,9 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 ## Note S3 | Accuracy and convergence
 
-**Table S4 | Error of the reduced and memoryless models by structure class (pp; 342 cases, three devices, 500/550/600 nm).**
+**Table S4 | Error of the reduced and fully randomized models by structure class (pp; 342 cases, three devices, 500/550/600 nm).**
 
-| Class | cases | reciprocal mean | reciprocal max | q ∝ w mean | q ∝ w max | memoryless mean | memoryless max |
+| Class | cases | reciprocal mean | reciprocal max | q ∝ w mean | q ∝ w max | fully randomized mean | fully randomized max |
 |---|---|---|---|---|---|---|---|
 | Planar | 9 | 0.00 | 0.00 | 0.00 | 0.00 | 44.05 | 59.89 |
 | Scattering layers | 54 | 0.29 | 2.49 | 0.96 | 4.67 | 1.83 | 11.14 |
@@ -164,17 +164,17 @@ By device, the mean (maximum) reciprocal-model error is 0.41 (2.7) pp for Al, 0.
 | wavy, rms slope 1.0 | 1° bins, cutoff 85° (reference) | 1.13 | 0.886 | 0.7924 | -0.07 |
 | wavy, rms slope 1.0 | 1° bins, no cutoff | 1.14 | 0.868 | 0.7924 | -0.08 |
 | hemispherical array ($s$ = 0) | 5,000 rays per bin | 7.08 | 0.502 | 0.7944 | -0.17 |
-| hemispherical array ($s$ = 0) | 20,000 rays per bin (library) | 7.05 | 0.499 | 0.7944 | -0.15 |
+| hemispherical array ($s$ = 0) | 20,000 rays per bin (main set) | 7.05 | 0.499 | 0.7944 | -0.15 |
 | hemispherical array ($s$ = 0) | 40,000 rays per bin | 7.02 | 0.497 | 0.7943 | -0.14 |
 | wavy, rms slope 0.2 | 2,500 rays per bin | 2.17 | 0.345 | 0.6094 | -2.76 |
-| wavy, rms slope 0.2 | 10,000 rays per bin (library) | 2.17 | 0.345 | 0.6084 | -2.71 |
-| random lenslet shapes, $s$ = 1 | 6 × 6 supercell (library) | 1.95 | 0.769 | 0.7853 | -0.23 |
+| wavy, rms slope 0.2 | 10,000 rays per bin (main set) | 2.17 | 0.345 | 0.6084 | -2.71 |
+| random lenslet shapes, $s$ = 1 | 6 × 6 supercell (main set) | 1.95 | 0.769 | 0.7853 | -0.23 |
 | random lenslet shapes, $s$ = 1 | 10 × 10 supercell, new realization | 1.89 | 0.794 | 0.7887 | -0.17 |
-| position jitter 0.3 | 6 × 6 supercell (library) | 3.50 | 0.699 | 0.7979 | -0.20 |
+| position jitter 0.3 | 6 × 6 supercell (main set) | 3.50 | 0.699 | 0.7979 | -0.20 |
 | position jitter 0.3 | 10 × 10 supercell, new realization | 3.46 | 0.703 | 0.7962 | -0.21 |
-| wavy, rms slope 0.2 | 12 × 12 box (library) | 2.17 | 0.345 | 0.6084 | -2.71 |
+| wavy, rms slope 0.2 | 12 × 12 box (main set) | 2.17 | 0.345 | 0.6084 | -2.71 |
 | wavy, rms slope 0.2 | 24 × 24 box, new realization | 2.17 | 0.347 | 0.6098 | -2.76 |
-| wavy, rms slope 1.0 | 12 × 12 box (library) | 1.13 | 0.871 | 0.7924 | -0.07 |
+| wavy, rms slope 1.0 | 12 × 12 box (main set) | 1.13 | 0.871 | 0.7924 | -0.07 |
 | wavy, rms slope 1.0 | 24 × 24 box, new realization | 1.13 | 0.867 | 0.7912 | -0.04 |
 
 $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp for all other structures. The planar interface is the one structure whose returned light never changes angle, so its $\eta_{\mathrm{sta}}$ depends on how the Fresnel edge at the critical angle (41.47°) is resolved within a bin: with 1° bins and uniform radiance within each bin it is 0.384 (Al, 550 nm), whereas an exact per-angle sum at 0.01° gives 0.380 (0.380 with s and p separate). The 0.4 pp difference comes from the bin containing the critical angle (41.47°) and does not affect any statement about the planar interface; for all other structures, which redistribute angle, bin effects are at most 0.06 pp; a 10 × 10 supercell or 24 × 24 wavy box changes $N_{\mathrm{mix}}$ by at most 0.06, $\xi$ by 0.025, and $\eta_{\mathrm{sta}}$ by 0.34 pp, comparable to the realization spread.
@@ -197,7 +197,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 
 ---
 
-## Note S4 | Mixing versus escape and the composition window
+## Note S4 | Mixing versus escape and the angular composition of the output
 
 **Contour templates.** Fig. 4a of the main text scales the $p(\theta)$ shape of the hemispherical MLA. Table S7 repeats the calculation with the shapes of a scattering layer and a wavy surface: at fixed $p$, the whole range of $N_{\mathrm{mix}}$ is worth 1.2–3.2 pp, whereas 0.01 in $p$ is worth about 0.6 pp for every template.
 
@@ -244,7 +244,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | low loss, 600 nm | 0.382 | 3.2 to 4.0 | -0.1 to 4.3 | +3.0 | +4.0 |
 | low loss, spectrally weighted | — | 1.8 to 2.2 | -0.1 to 2.2 | +2.0 (best random or wavy) | — |
 
-**Composition window.** $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$, both powers in air including Fresnel losses, over all 38 structures (Table S9). In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
+**Angular composition of the output.** $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$, both powers in air including Fresnel losses, over all 38 structures (Table S9). In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
 
 **Table S9 | Range of $S_{40\text{–}60}$ over all structures.**
 
@@ -256,7 +256,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | Ag, 550 nm | 0.322 | 0.361 |
 | low loss, 550 nm | 0.274 | 0.366 |
 
-**Fig. S2 | Composition window for all devices and wavelengths.** $S_{40\text{–}60}$ of the multi-pass output against $\eta_{\mathrm{sta}}$ for all 38 structures; rows, Al, Ag, and low-loss devices; columns, 500, 550, and 600 nm; dotted line, Lambertian partition (0.337). Monte Carlo uncertainty of $S_{40\text{–}60}$ is at most 0.003 (ray seeds and realizations, six random and wavy structures). *(`figS2_composition_window.png`)*
+**Fig. S2 | Angular composition of the output for all devices and wavelengths.** $S_{40\text{–}60}$ of the multi-pass output against $\eta_{\mathrm{sta}}$ for all 38 structures; rows, Al, Ag, and low-loss devices; columns, 500, 550, and 600 nm; dotted line, Lambertian partition (0.337). Monte Carlo uncertainty of $S_{40\text{–}60}$ is at most 0.003 (ray seeds and realizations, six random and wavy structures). *(`figS2_composition_window.png`)*
 
 ---
 
@@ -362,20 +362,20 @@ The freeform entries are the designs of the original per-band campaign and of th
 
 **LightTools control.** `opt_fixedcavity_freeform.m` repeats the per-band freeform optimization of `opt_4band_freeform.m` with ETL and HTL fixed at each arm's hemispherical optimum and the hemisphere as the first seed, so that $G_j \ge 1$ holds by construction and any gain is due to the lens shape; it requires the LightTools pipeline and has not been run here.
 
-## Note S9 | Direct ray tracing and blind test
+## Note S9 | Direct ray tracing and out-of-sample test
 
 **Direct ray tracing.** Rays are launched with the first-pass distribution $\mathbf{v}^{(0)}$ (Al, 550 nm; polar angle drawn uniformly in $\sin^2\theta$ within each 1° bin, azimuth and position uniform), traced through the height field, and, when returned, absorbed with probability $1-R(\theta)$ or reflected specularly, keeping their azimuth, and sent to a new uniformly drawn position (the substrate is thick compared with the lattice). $10^6$ rays per case; the standard error is 0.04–0.05 pp. A second run re-randomizes the azimuth at every pass, which is what the chain on polar angle assumes.
 
-**Blind structures.** Nine structures were chosen after the reduced model and its reciprocal redistribution were fixed and were not used to adjust anything: hexagonal arrays of spherical caps (contact angle 60° and 35°), paraboloids $h = 1-\rho^2$, cones of 45° and 60° side angle, truncated Gaussian bumps (peak height 1.5), a 6 × 6 supercell randomly filled with hemispheres and 60° cones (radius spread ±20%, position jitter 15% of the pitch), and quasi-periodic wavy surfaces whose spectrum is concentrated on a ring $|\mathbf{k}| = 2$ (rms slope 0.6 and 1.2). Return matrices: 20,000 rays per bin (10,000 for wavy surfaces); errors over three devices and three wavelengths.
+**Out-of-sample structures.** Nine structures were chosen after the reduced model and its reciprocal redistribution were fixed and were not used to adjust anything: hexagonal arrays of spherical caps (contact angle 60° and 35°), paraboloids $h = 1-\rho^2$, cones of 45° and 60° side angle, truncated Gaussian bumps (peak height 1.5), a 6 × 6 supercell randomly filled with hemispheres and 60° cones (radius spread ±20%, position jitter 15% of the pitch), and quasi-periodic wavy surfaces whose spectrum is concentrated on a ring $|\mathbf{k}| = 2$ (rms slope 0.6 and 1.2). Return matrices: 20,000 rays per bin (10,000 for wavy surfaces); errors over three devices and three wavelengths.
 
-**Table S16 | Direct ray tracing and blind test (Al, 550 nm; reduced and memoryless models minus full series).**
+**Table S16 | Direct ray tracing and out-of-sample test (Al, 550 nm; reduced and fully randomized models minus full series).**
 
-| Structure | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ full series | direct, $(\theta,\phi)$ | direct, $\phi$ re-randomized | reduced − full (pp) | memoryless − full (pp) |
+| Structure | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ full series | direct, $(\theta,\phi)$ | direct, $\phi$ re-randomized | reduced − full (pp) | fully randomized − full (pp) |
 |---|---|---|---|---|---|---|---|---|
-| hemispherical MLA (library) | 0.422 | 7.1 | 0.47 | 0.7918 | 0.7878 ± 0.0004 | 0.7913 | -0.27 | +2.24 |
-| freeform MLA, 40–60° (library) | 0.425 | 7.5 | 0.39 | 0.7887 | 0.7882 ± 0.0004 | 0.7886 | -1.11 | +2.69 |
-| wavy, rms slope 0.2 (library) | 0.402 | 2.2 | 0.35 | 0.6084 | 0.6087 ± 0.0005 | 0.6093 | -2.71 | +19.29 |
-| wavy, rms slope 1.0 (library) | 0.422 | 1.1 | 0.87 | 0.7924 | 0.7916 ± 0.0004 | 0.7917 | -0.07 | +2.15 |
+| hemispherical MLA (main set) | 0.422 | 7.1 | 0.47 | 0.7918 | 0.7878 ± 0.0004 | 0.7913 | -0.27 | +2.24 |
+| freeform MLA, 40–60° (main set) | 0.425 | 7.5 | 0.39 | 0.7887 | 0.7882 ± 0.0004 | 0.7886 | -1.11 | +2.69 |
+| wavy, rms slope 0.2 (main set) | 0.402 | 2.2 | 0.35 | 0.6084 | 0.6087 ± 0.0005 | 0.6093 | -2.71 | +19.29 |
+| wavy, rms slope 1.0 (main set) | 0.422 | 1.1 | 0.87 | 0.7924 | 0.7916 ± 0.0004 | 0.7917 | -0.07 | +2.15 |
 | spherical caps, 60° contact | 0.418 | 2.0 | 0.74 | 0.7761 | — | — | -0.24 | +3.51 |
 | spherical caps, 35° contact | 0.410 | 1.4 | 0.66 | 0.7273 | 0.7258 ± 0.0004 | 0.7260 | -1.82 | +7.90 |
 | paraboloids | 0.425 | 2.7 | 0.71 | 0.8010 | — | — | -0.27 | +1.50 |
@@ -386,9 +386,9 @@ The freeform entries are the designs of the original per-band campaign and of th
 | ring-spectrum wavy, slope 0.6 | 0.413 | 1.3 | 0.76 | 0.7565 | 0.7551 ± 0.0004 | 0.7567 | -0.72 | +5.18 |
 | ring-spectrum wavy, slope 1.2 | 0.424 | 1.2 | 0.86 | 0.7934 | — | — | -0.11 | +2.18 |
 
-Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp; without the two cone arrays (63 cases) 0.48 pp and at most 3.3 pp (35° caps), against 2.62 and 8.8 pp for the memoryless formula and 1.30 and 5.2 pp for isotropic redistribution. The cone arrays fail (mean 6.0 and 4.2 pp, maximum 20 and 14 pp, low-loss device). The 45° cones retroreflect light within 0–4° (0.5% of the étendue) into itself, giving $\lambda_2 = 1$ like the planar interface; the 60° cones have a ladder of slow modes ($\lambda_2$–$\lambda_4$ = 0.985, 0.91, 0.85) spread over most angles. In both cases $1-\lambda_2$ underestimates how fast the light that escapes is redistributed. The direct traces confirm the full series for the 60° cones within 0.6 pp, so the failure is that of the one-rate reduction, not of the angle-resolved model.
+Over all 81 out-of-sample cases the reciprocal reduced model has a mean error of 1.50 pp; without the two cone arrays (63 cases) 0.48 pp and at most 3.3 pp (35° caps), against 2.62 and 8.8 pp for the fully randomized model and 1.30 and 5.2 pp for isotropic redistribution. The cone arrays fail (mean 6.0 and 4.2 pp, maximum 20 and 14 pp, low-loss device). The 45° cones retroreflect light within 0–4° (0.5% of the étendue) into itself, giving $\lambda_2 = 1$ like the planar interface; the 60° cones have a ladder of slow modes ($\lambda_2$–$\lambda_4$ = 0.985, 0.91, 0.85) spread over most angles. In both cases $1-\lambda_2$ underestimates how fast the light that escapes is redistributed. The direct traces confirm the full series for the 60° cones within 0.6 pp, so the failure is that of the one-rate reduction, not of the angle-resolved model.
 
-**Mode occupancy (post hoc).** Because the truncated $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi^{(S)} \propto w s$ (Note S1), the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S17 lists the share of the deviation $u_0/\pi^{(S)} - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in `selectivity/mixing.py` before the blind test, but examined only after it). For the 60° cones the slow modes carry 0.4% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.43 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45° cones the closed retroreflecting set carries 98% of it, and no single rate works. Over the library $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.48 against 0.31 pp, maximum 3.7 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing.
+**Mode occupancy (post hoc).** Because the truncated $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi^{(S)} \propto w s$ (Note S1), the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S17 lists the share of the deviation $u_0/\pi^{(S)} - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in `selectivity/mixing.py` before the out-of-sample test, but examined only after it). For the 60° cones the slow modes carry 0.4% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.43 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45° cones the closed retroreflecting set carries 98% of it, and no single rate works. Over the 38 structures $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.48 against 0.31 pp, maximum 3.7 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing.
 
 **Table S17 | Slow-mode occupancy of the returned light and reduced-model error (mean / max over three devices and three wavelengths, pp).**
 
@@ -398,11 +398,11 @@ Over all 81 blind cases the reciprocal reduced model has a mean error of 1.50 pp
 | freeform MLA, 40–60° | 0.867 | 0.723 | 0.572 | 0.87 / 2.09 | 0.83 / 2.47 |
 | wavy, rms slope 0.2 | 0.540 | 0.195 | 0.000 | 1.98 / 2.99 | 0.72 / 2.33 |
 | random lenslet shapes, $s$ = 1 | 0.487 | 0.376 | 0.000 | 0.12 / 0.23 | 0.19 / 0.82 |
-| spherical caps, 35° (blind) | 0.296 | 0.237 | 0.000 | 1.42 / 3.30 | 1.18 / 2.83 |
-| paraboloids (blind) | 0.636 | 0.379 | 0.000 | 0.33 / 0.83 | 0.37 / 1.51 |
-| cone–hemisphere mix (blind) | 0.634 | 0.397 | 0.000 | 0.27 / 0.82 | 0.38 / 1.27 |
-| cones, 60° (blind) | 0.985 | 0.430 | 0.004 | 4.15 / 14.36 | 0.23 / 0.77 |
-| cones, 45° (blind) | 1.000 | 0.988 | 0.978 | 5.99 / 20.15 | 5.50 / 18.61 |
+| spherical caps, 35° (out-of-sample) | 0.296 | 0.237 | 0.000 | 1.42 / 3.30 | 1.18 / 2.83 |
+| paraboloids (out-of-sample) | 0.636 | 0.379 | 0.000 | 0.33 / 0.83 | 0.37 / 1.51 |
+| cone–hemisphere mix (out-of-sample) | 0.634 | 0.397 | 0.000 | 0.27 / 0.82 | 0.38 / 1.27 |
+| cones, 60° (out-of-sample) | 0.985 | 0.430 | 0.004 | 4.15 / 14.36 | 0.23 / 0.77 |
+| cones, 45° (out-of-sample) | 1.000 | 0.988 | 0.978 | 5.99 / 20.15 | 5.50 / 18.61 |
 
 ## Note S10 | Estimators and numerical diagnostics
 
@@ -428,7 +428,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Detailed balance.** With $F_{ji} = w_i B_R(i\to j)$ below 85°, the relative residual $\lVert F-F^{\mathsf T}\rVert/\lVert F\rVert$ is 0.013–0.154 (median 0.047) over the 37 non-planar structures; entry-wise, $|F_{ji}-F_{ij}|/(F_{ji}+F_{ij})$ has a median of 0.06 and a 90th percentile of 0.25, dominated by weak entries. Projecting onto the nearest reciprocal matrix with the same column sums changes $N_{\mathrm{mix}}$ by at most 2.7%, $\xi$ by 0.005, and $\eta_{\mathrm{sta}}$ by 0.04 pp (Note S1), so the physical conclusions do not depend on Monte Carlo asymmetry.
 
-**Adding method versus direct slab Monte Carlo.** A single trace through the HG slab with the Fresnel face (Lambertian within each 1° input bin) reproduces the adding-method matrices (Table S20; adding / direct). $S_{40\text{–}60}$ differs by up to 0.006 because the library maps substrate bins to air bins after the slab, whereas the direct trace bins the air angle exactly.
+**Adding method versus direct slab Monte Carlo.** A single trace through the HG slab with the Fresnel face (Lambertian within each 1° input bin) reproduces the adding-method matrices (Table S20; adding / direct). $S_{40\text{–}60}$ differs by up to 0.006 because the main calculation maps substrate bins to air bins after the slab, whereas the direct trace bins the air angle exactly.
 
 **Table S20 | Scattering layers: adding method / direct Monte Carlo (Al, 550 nm).** Last column: largest difference in $p(\theta)$ below 85°.
 
@@ -491,7 +491,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 ## Reproducing the figures and data
 
-Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (structure library, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
+Main-text Figs. 1–5 are produced by `selectivity/oe_figs.py` (set of 38 structures, full and reduced models; PNG, PDF, and an Excel workbook of the plotted arrays in `figures_oe/`), with return matrices from `multipass_reset/run_random_sweep.py`. Fig. 6 and Figs. S3, S4, and S6 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S9 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S17 from `selectivity/cutoff_modes.py`; Tables S13–S14 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S15 from `multipass_reset/fixedcav_opt.py`; Table S16 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S2 and Tables S21–S23 from `selectivity/review2_diag.py`; Table S20 from `selectivity/slab_direct_check.py`; Fig. S5 from `make_optimizer_convergence.py`; Table S18 from `multipass_reset/polcheck.py`; Table S19 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

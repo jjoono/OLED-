@@ -45,10 +45,10 @@ for sh, nm, lab in (('planar M', 'Fig1b_planar_M', 'planar interface'), ('hemisp
 # ---------------- Fig. 2
 f = D + 'fig2_complete_mixing.xlsx'
 add('Fig2a_p_mix', 'Fig. 2', 'a', 'Uniform-radiance escape p, its etendue-weighted s.d. sigma_p, and completely mixed escape p_mix = p - sigma_p^2/(1-p), all structures.', rows_of(f, 'a_p_mix'), f)
-add('Fig2b_gain', 'Fig. 2', 'b', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the memoryless formula, vs N_mix (Al, 550 nm).', rows_of(f, 'b_gain'), f)
+add('Fig2b_gain', 'Fig. 2', 'b', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'b_gain'), f)
 # ---------------- Fig. 3 (split one table into panels)
 f = D + 'fig3_reduced_model.xlsx'; C = rows_of(f, 'cases'); key = ['structure', 'class', 'device', 'lambda_nm', 'eta_full']
-for nm, col, desc in (('Fig3a_memoryless', 'eta_memoryless', 'memoryless formula'), ('Fig3b_angle_preserving', 'eta_m0', 'angle-preserving limit (m = 0)'),
+for nm, col, desc in (('Fig3a_fully_randomized', 'eta_fully_randomized', 'fully randomized model'), ('Fig3b_angle_preserving', 'eta_m0', 'angle-preserving limit (m = 0)'),
                       ('Fig3c_reduced_isotropic', 'eta_reduced_w', 'reduced model, m = 1 - lambda2, isotropic q ~ w'),
                       ('Fig3d_reduced_reciprocal', 'eta_reduced_recip', 'reduced model, m = 1 - lambda2, reciprocal q ~ w(1-p)')):
     add(nm, 'Fig. 3', nm[4], f'x = eta_full (full series), y = {col} ({desc}); 342 cases.', pick(C, key + [col]), f)

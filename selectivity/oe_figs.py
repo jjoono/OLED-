@@ -106,7 +106,7 @@ pr = []
 for nm, (c, BT, BR) in LIB.items():
     pT = BT.sum(1); w_ = W1 / W1.sum(); p = float(pT @ w_); var = float(((pT - p) ** 2) @ w_); pm = p - var / (1 - p)
     col, mk, _ = CLS[c]; bx[0].plot(p, pm, mk, color=col, ms=4, mec='white', mew=0.3); pr.append([nm, c, p, np.sqrt(var), pm])
-bx[0].plot([0, 0.5], [0, 0.5], color=INK2, lw=0.6, ls=':'); bx[0].text(0.21, 0.225, 'p_mix = p (memoryless)', fontsize=5, color=INK2, rotation=38)
+bx[0].plot([0, 0.5], [0, 0.5], color=INK2, lw=0.6, ls=':'); bx[0].text(0.21, 0.225, 'p_mix = p (fully randomized)', fontsize=5, color=INK2, rotation=38)
 bx[0].set_xlim(0.17, 0.45); bx[0].set_ylim(0, 0.45); bx[0].set_xlabel('escape probability p (uniform radiance)'); bx[0].set_ylabel('p_mix = p − σ²/(1 − p)')
 for c, (col, mk, lab) in CLS.items():
     bx[0].plot([], [], mk, color=col, label=lab)
@@ -120,21 +120,21 @@ for nm, (c, BT, BR) in LIB.items():
     bx[1].plot([Nm, Nm], [g_mix, g_mem], color=col, lw=0.4, alpha=0.5)
     bx[1].plot(Nm, g_mix, mk, color=col, ms=4, mec='white', mew=0.3); bx[1].plot(Nm, g_mem, mk, mfc='none', mec=col, ms=4, mew=0.6)
 pl = [h for h in hd if h[1] == 'planar'][0]
-bx[1].text(25, 19.3, f'planar (off-scale):\nmixing +{pl[6]:.0f} pp, memoryless +{pl[7]:.0f} pp', fontsize=4.6, color=INK2, ha='right', va='top')
-bx[1].plot([], [], 'o', color=INK2, ms=4, label='complete reciprocal mixing'); bx[1].plot([], [], 'o', mfc='none', mec=INK2, ms=4, label='memoryless formula')
+bx[1].text(25, 19.3, f'planar (off-scale):\nmixing +{pl[6]:.0f} pp, fully randomized +{pl[7]:.0f} pp', fontsize=4.6, color=INK2, ha='right', va='top')
+bx[1].plot([], [], 'o', color=INK2, ms=4, label='complete reciprocal mixing'); bx[1].plot([], [], 'o', mfc='none', mec=INK2, ms=4, label='fully randomized model')
 bx[1].axhline(0, color=INK2, lw=0.5); bx[1].set_xscale('log'); bx[1].set_xlim(1, 30); bx[1].set_xticks([1, 2, 5, 10, 25]); bx[1].set_xticklabels(['1', '2', '5', '10', '∞']); bx[1].minorticks_off()
 bx[1].set_ylim(-1.5, 20); bx[1].set_xlabel('N_mix (log scale)'); bx[1].set_ylabel('predicted gain over actual η_sta (pp)')
 bx[1].legend(fontsize=5, frameon=False, loc='upper left'); bx[1].set_title('(b) what mixing can gain (Al, 550 nm)', loc='left')
 fig2.savefig(f'{OUT}/fig2_complete_mixing.png', dpi=300, bbox_inches='tight'); fig2.savefig(f'{OUT}/fig2_complete_mixing.pdf', bbox_inches='tight'); plt.close(fig2)
 save_xlsx('fig2_complete_mixing', [('a_p_mix', ['structure', 'class', 'p', 'sigma_p', 'p_mix'], pr),
-                                   ('b_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_memoryless', 'gain_mixing_pp', 'gain_memoryless_pp'], hd)])
+                                   ('b_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_fully_randomized', 'gain_mixing_pp', 'gain_fully_randomized_pp'], hd)])
 
 # ------------------------------------------------------------------ Fig. 2
 fig = plt.figure(figsize=(7.2, 3.6)); gs2 = fig.add_gridspec(2, 4, height_ratios=[1, 0.62], wspace=0.38, hspace=0.62)
 ax = [fig.add_subplot(gs2[0, k]) for k in range(4)]; rows = []
 for (nm, dev, lam), e in EV.items():
     rows.append([nm, LIB[nm][0], dev, lam, e['eta'], e['closed'], e['m0'], e['red_w'], e['red'], e['p'], e['lam2'], e['pinf']])
-for k, (j, lab) in enumerate(((5, 'memoryless formula'), (6, 'angle preserving, m = 0'), (7, 'm = 1 − λ₂, q ∝ w'), (8, 'reciprocal, q ∝ w(1 − p)'))):
+for k, (j, lab) in enumerate(((5, 'fully randomized model'), (6, 'angle preserving, m = 0'), (7, 'm = 1 − λ₂, q ∝ w'), (8, 'reciprocal, q ∝ w(1 − p)'))):
     for r in rows:
         col, mk, _ = CLS[r[1]]; ax[k].plot(r[4], r[j], mk, color=col, ms=2.4, mew=0, alpha=0.8)
     err = np.array([abs(r[j] - r[4]) for r in rows]) * 100
@@ -157,7 +157,7 @@ ae.axhline(0, color=INK2, lw=0.5); ae.set_xticks(range(len(xt))); ae.set_xtickla
 for b in (2.5, 5.5): ae.axvline(b, color='#d9d8d3', lw=0.6)
 ae.set_ylabel('reciprocal model − full (pp)'); ae.set_title('(e) error of the reciprocal reduced model by device and wavelength (bar: mean |err|)', loc='left', fontsize=5.8)
 fig.savefig(f'{OUT}/fig3_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
-save_xlsx('fig3_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_memoryless', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
+save_xlsx('fig3_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_fully_randomized', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
 print(f'Fig 2: {len(rows)} cases; reduced(w) mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; recip mean {np.mean([abs(r[8]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[8]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')
 
 # ------------------------------------------------------------------ Fig. 3
@@ -180,7 +180,7 @@ for c, (col, mk, lab) in CLS.items():
     ax[0].plot([], [], mk, color=col, label=lab)
 ax[0].set_yscale('log'); ax[0].set_ylim(1, 26); ax[0].set_xlabel('escape probability p (uniform radiance)'); ax[0].set_ylabel('angular mixing number N_mix (log scale)')
 ax[0].text(0.405, 24, '↑ planar: N_mix = ∞', fontsize=5, color=INK2)
-ax[0].set_title('(a) structure map (η_sta, Al, 550 nm)', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=True, framealpha=0.9, edgecolor='none', loc='lower left', bbox_to_anchor=(0.0, 0.08))
+ax[0].set_title('(a) p and N_mix of all structures (η_sta contours, Al, 550 nm)', loc='left', fontsize=6.5); ax[0].legend(fontsize=4.8, frameon=True, framealpha=0.9, edgecolor='none', loc='lower left', bbox_to_anchor=(0.0, 0.08))
 for pre, lab, col, key in (('A_shape', 'lenslet shape spread s', '#6250d6', 'shape'), ('C_jitter', 'position jitter / pitch', '#2a78d6', 'jitter'),
                            ('W_slope', 'wavy surface, rms slope', '#e87ba4', 'slope'), ('B_aspect', 'height spread', '#eda100', 'aspect')):
     pts = sorted((float(nm.split(key)[1].split('_')[0]), 1 / max(1 - EV[(nm, 'Al', 550.0)]['lam2'], 1e-9)) for nm in LIB if nm.startswith(pre) and not nm.startswith('C2'))
@@ -230,7 +230,7 @@ for c, (col, mk, lab) in CLS.items():
     ax[1].plot([], [], mk, color=col, label=lab)
 ax[1].axhspan(0.33, 0.36, color='#eef4fb', zorder=0); ax[1].axhline(0.337, color=INK2, ls=':', lw=0.7)
 ax[1].set_ylim(0.28, 0.40); ax[1].set_xlabel('η_sta (Al device, 550 nm)'); ax[1].set_ylabel('selectivity S₄₀₋₆₀ of the output')
-ax[1].set_title('(b) composition window of passive structures', loc='left'); ax[1].legend(fontsize=4.8, frameon=False, loc='lower left', ncol=2)
+ax[1].set_title('(b) angular composition of the output', loc='left'); ax[1].legend(fontsize=4.8, frameon=False, loc='lower left', ncol=2)
 fig.savefig(f'{OUT}/fig5_bound_window.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig5_bound_window.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig5_bound_window', [('a_first_pass', ['curve', '0-20', '20-40', '40-60', '60-80', 'total'], rows),
                                 ('b_composition', ['structure', 'class', 'eta_sta', 'S0-20', 'S20-40', 'S40-60', 'S60-80'], win)])
