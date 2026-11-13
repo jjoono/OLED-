@@ -54,6 +54,8 @@ def preset_mats(preset):
             fixed["spacer"] = ("l_SiO2_SJ_RTP", 800.0)
         elif tok == "lowHTL":      # hypothetical low-index HTL (n = 1.55)
             mats["htl"] = (1.55, 1.55)
+        elif tok.startswith("korg"):  # residual organic absorption, e.g. korg1e-4
+            mats["_korg"] = float(tok[4:])
         elif tok == "IZOtop":      # sputtered IZO top anode instead of thin Ag (damage-free limit)
             mats["ag_top"] = "l_IZO_SJ_RTP"
             ag_b = (20.0, 150.0)

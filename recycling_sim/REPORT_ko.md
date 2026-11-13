@@ -706,6 +706,7 @@ Nature Photonics급을 노린다면 **녹색 기록(정면 cd/A와 콘 내 EQE �
 | `optimize.py` | 전역 최적화(differential evolution) |
 | `refine.py` | 국소 재최적화 |
 | `analyze.py` | 상세 평가, 그림, 요약 JSON |
+| `apron.py`, `apron2.py` | 11.4절 2-영역(활성/apron) 3D 광자 MC: 영역별 경계 표, 뱅크 반사, 영역별 산란계수 |
 | `results/` | 최적 설계 JSON, `summary.json`, `figs/` |
 
 검증 결과

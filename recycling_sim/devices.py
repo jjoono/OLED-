@@ -43,6 +43,10 @@ class Ctx:
         self.V = db.V(self.wl)
         self.ones = np.ones_like(self.wl)
         self.k_floor = {"H": 1e-4, "L": 1e-4, "bH": 1e-4, "bL": 1e-4}  # regularises loss-free DBR-guided modes
+        korg = self.mats.pop("_korg", None)  # optional residual absorption (k floor) of all organic layers
+        if korg:
+            for k in ("eil", "etl", "eml", "tcta", "htl", "hatcn"):
+                self.k_floor[k] = float(korg)
 
     def nk(self, spec):
         if spec is None:
