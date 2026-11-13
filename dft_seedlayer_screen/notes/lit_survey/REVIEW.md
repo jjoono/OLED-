@@ -67,3 +67,30 @@
    - (a) Ag_n(n = 1–4)에 대한 Δq(n)을 HATCN과 MoO3에서 비교한다. 문헌 공백 6번이다.
    - (b) 분산 비중이 큰 ETL 두세 개의 E_b를 다른 분산 보정이나 고수준 계산으로 확인한다.
 3. 특허 FTO를 확인한다. Konica [30, 41, 49]와 Kodak [137]의 등록 상태와 청구 범위를 본다.
+
+## 6. 정정: 두 소자 구조를 모두 다룬다 (2026-11-13)
+
+조사 요청서 0절 4번과 이 검토는 "n-ETL / HATCN / Ag 상부 음극"(정구조, CGL형)만 전제했다.
+하지만 연구실은 HATCN을 Ag 아래 **HIL**로도 쓴다(역구조 전면발광). 두 경우를 나눠 다시 정리한다.
+
+| | 역구조 TEOLED (HIL) | 정구조 상부 음극 (CGL형) |
+|---|---|---|
+| 스택 | 음극(ITO)/ETL/EML/**HTL / HATCN / Ag(양극)** | 양극/HTL/EML/**n-ETL / HATCN / Ag(음극)** |
+| HATCN 아래층 | 아민 HTL(NPB, TAPC 등) | n-도핑 ETL(Bphen:Cs₂CO₃) |
+| HATCN 속 전류 | HTL HOMO → HATCN LUMO → Ag. **LUMO로 전자를 나른다** | Ag → HATCN LUMO → n-ETL. **LUMO로 전자를 나른다** |
+| 직접 선례 | **있음**: Najafabadi 2013 (Kippelen, Ag/HAT-CN 상부 양극), Park & Suh 2018 [84](역구조 TEOLED), [87] | 없음 (Ag ≤10 nm 상부 음극) |
+| 아래층 영향 (우리 계산) | 아민 HTL은 HATCN에 전자를 주는 쪽(CT). 환원된 HATCN도 Ag를 잡는다(1.77 eV) | Cs 쪽에서 HATCN 환원. 같은 결론 |
+| 혼합 시드의 전기적 영향 | 상대 물질이 HTL(NPB 등)이면 p-도핑 HTL과 같아 **전기적으로 유리**[85]. 다만 CT 흡수(광학), 아민의 낮은 E_b(0.25 eV) | ETL류를 섞으면 LUMO 경로가 희석되어 불리 |
+| 결정화 기판 | 아민 HTL 위 (Park & Suh는 NPB 100 nm 위) | Bphen 위. 결정성 최고라는 보고가 있다 [95] |
+| 수명 위험 | Cs 없음 | Cs⁺ 이동 (Yb 2 nm 대책) [106] |
+
+정리
+1. 희석 우려는 두 구조 모두에 해당한다. 어느 쪽이든 HATCN 속 전류는 LUMO로 흐르기 때문이다.
+   역구조에서는 아래층 HTL과 섞는 것이 자연스러운 선택이고, 전기적으로도 이미 검증된 조합이다(HAT-CN:NPB 등).
+   남는 문제는 CT 흡수와 Ag 결합 약화다.
+2. Najafabadi 2013과 Park & Suh는 역구조 HIL 사례로서 **직접 비교 대상**이다. 앞의 "전류 방향이 반대"라는 답변은 틀렸다.
+   신규성 표(2절)에서 "HATCN/Ag 상부 전극"은 역구조에 선행이 있다. 남는 신규성은 두 가지다.
+   (a) Ag ≤10 nm에서 HATCN 두께 창을 정량화한 것
+   (b) 정구조 상부 음극에 쓴 것
+3. 조사 공백: Kippelen 그룹 문헌 세 건(Najafabadi 2013, Knauer 2013, Najafabadi 학위논문 4.3절)은 본문을 보지 못했다.
+   PDF를 받으면 Ag 두께, 면저항, 투과율, HATCN 두께, 증착 속도를 표에 추가한다.

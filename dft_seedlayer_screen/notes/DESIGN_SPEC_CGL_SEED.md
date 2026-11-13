@@ -5,6 +5,15 @@ Step 1 of the design programme. The role is fixed first; the ranking (scripts
 
 ## The role
 
+(2026-11-13) Two device contexts, same seed physics: HATCN under a thin top Ag
+is used both as the **HIL of an inverted top-emitting OLED** (HTL / HATCN /
+Ag anode; Najafabadi 2013, Park & Suh 2018) and as the **p-side of a CGL-type
+top cathode** (n-ETL / HATCN / Ag). In both, current crosses HATCN through its
+LUMO, so the EA requirement (axis 1) is the same; only the underlayer (amine
+HTL vs n-doped ETL) and the natural blend partner differ. The spec below was
+written for the CGL case and applies unchanged to the HIL case except where
+noted in notes/lit_survey/REVIEW.md section 6.
+
 ```
  ... / n-ETL (Bphen:Cs2CO3, or Bphen:Liq) / SEED 3-5 nm / Ag 8 nm (top, semi-transparent)
 ```
