@@ -113,6 +113,11 @@ def main():
     mol = job("mol", S, X, 2)
     # deepest first, then the second spin of each, then Ag2
     order = [("Cs4", 1), ("hollow8", 1), ("hollow3", 3), ("Cs4", 3), ("hollow8", 3), ("hollow3", 1)]
+    if os.environ.get("SKIP_SPIN_CHECK"):
+        # the fragment runs (155) already fixed the spin ordering with margins
+        # of 0.18-0.86 eV, and whole vs fragment agree to 0.01 eV: run Ag2
+        # first, the second-spin checks later
+        order = order[:3]
     for site, mult in order:
         ag = np.array(frag["sites"][site]["pos"])
         job(f"{site}_m{mult}", S + ["Ag"], np.vstack([X, ag]), mult)
