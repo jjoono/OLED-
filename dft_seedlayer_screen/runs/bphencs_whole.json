@@ -6,5 +6,81 @@
   "q_Ag": [],
   "q_Cs": 0.7354,
   "S2": 0.7747
+ },
+ "Cs4_m1": {
+  "E": -1198.9117725096435,
+  "conv": true,
+  "sec": 2659,
+  "q_Ag": [
+   -0.4518
+  ],
+  "q_Cs": 0.3675
+ },
+ "hollow8_m1": {
+  "E": -1198.891585426824,
+  "conv": true,
+  "sec": 3299,
+  "q_Ag": [
+   -0.4027
+  ],
+  "q_Cs": 0.3835
+ },
+ "hollow3_m3": {
+  "E": -1198.8832367323366,
+  "conv": true,
+  "sec": 5967,
+  "q_Ag": [
+   -0.0454
+  ],
+  "q_Cs": 0.7381,
+  "S2": 2.0259
+ },
+ "ag2_Cs4": {
+  "E": -1345.8812863513467,
+  "conv": true,
+  "sec": 7497,
+  "q_Ag": [
+   -0.2809,
+   -0.1885
+  ],
+  "q_Cs": 0.6318,
+  "S2": 0.7604
+ },
+ "summary": {
+  "Cs4": {
+   "E_b": 0.8949,
+   "elec": 0.8635,
+   "disp": 0.0314,
+   "state": "singlet",
+   "singlet_minus_triplet_eV": null,
+   "q_Ag": -0.4518,
+   "fragment_155": 0.8865,
+   "whole_minus_fragment": 0.0084
+  },
+  "hollow8": {
+   "E_b": 0.5045,
+   "elec": 0.3142,
+   "disp": 0.1903,
+   "state": "singlet",
+   "singlet_minus_triplet_eV": null,
+   "q_Ag": -0.4027,
+   "fragment_155": 0.5078,
+   "whole_minus_fragment": -0.0033
+  },
+  "hollow3": {
+   "E_b": 0.2488,
+   "elec": 0.087,
+   "disp": 0.1618,
+   "state": "triplet",
+   "singlet_minus_triplet_eV": null,
+   "q_Ag": -0.0454,
+   "fragment_155": 0.2487,
+   "whole_minus_fragment": 0.0001
+  },
+  "ag2": {
+   "q_Ag2_total": -0.4694,
+   "q_Ag1": -0.4518,
+   "dq_Ag1_Ag2": -0.0176
+  }
  }
 }
