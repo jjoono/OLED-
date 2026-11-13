@@ -48,6 +48,7 @@ add('Fig2a_p_mix', 'Fig. 2', 'a', 'Uniform-radiance escape p, its etendue-weight
 add('Fig2b_gain', 'Fig. 2', 'b', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'b_gain'), f)
 add('Fig2c_placement', 'Fig. 2', 'c', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'c_placement'), f)
 add('Fig2d_slab', 'Fig. 2', 'd', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'd_slab'), f)
+add('Fig2d_textured', 'Fig. 2', 'd (symbols)', 'Slab with a textured exit face (hemispherical MLA, wavy rms slope 0.4 and 1.0), isotropic internal source, angle-independent back reflectance R; symbols use R = 0.90 and no mixing. Also Table S28.', rows_of(f, 'd_textured'), f)
 # ---------------- Fig. 3 (split one table into panels)
 f = D + 'fig3_reduced_model.xlsx'; C = rows_of(f, 'cases'); key = ['structure', 'class', 'device', 'lambda_nm', 'eta_full']
 for nm, fig, col, desc in (('FigS2a_fully_randomized', 'Fig. S2', 'eta_fully_randomized', 'fully randomized model'), ('FigS2b_angle_preserving', 'Fig. S2', 'eta_m0', 'angle-preserving limit (m = 0)'),

@@ -142,13 +142,19 @@ for R, ls in ((0.90, '-'), (0.98, '--')):
     bx[3].plot(nn, [z['dev_mix'] for z in sl], ls, color='#2a78d6', lw=1, label='complete mixing at the back reflector or in transmission' if R == 0.90 else None)
     rows_d += [[z['n'], z['R'], z['p'], z['p_mix'], z['none'], z['exit_mix'], z['dev_mix']] for z in sl]
 bx[3].plot([], [], 'k-', lw=1, label='R = 0.90'); bx[3].plot([], [], 'k--', lw=1, label='R = 0.98')
+HI = json.load(open('data/highindex.json')); rows_d2 = []
+for nm, mk, lab, dx in (('hemiMLA', '^', 'hemispherical-MLA face', -0.05), ('wavy0.4', 'D', 'wavy face, slope 0.4', 0.0), ('wavy1.0', 's', 'wavy face, slope 1.0', 0.05)):
+    hz = [z for z in HI if z['structure'] == nm and z['R'] == 0.90]
+    bx[3].plot([z['n'] + dx for z in hz], [z['none'] for z in hz], mk, color='#3a3a38', mfc='white', ms=3.4, mew=0.8, label=lab + ', no mixing (R = 0.90)')
+    rows_d2 += [[z['structure'], z['n'], z['R'], z['p'], z['p_mix'], z['none'], z['exit_mix'], z['rand']] for z in HI if z['structure'] == nm]
 bx[3].set_xlabel('refractive index n of the slab'); bx[3].set_ylabel('extraction efficiency'); bx[3].set_ylim(0, 1); bx[3].set_xlim(1.4, 3.6)
-bx[3].set_title('(d) slab with planar exit face and back reflector', loc='left'); bx[3].legend(fontsize=4.8, frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=3)
+bx[3].set_title('(d) slab with exit face and back reflector', loc='left'); bx[3].legend(fontsize=4.8, frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=2)
 fig2.savefig(f'{OUT}/fig2_complete_mixing.png', dpi=300, bbox_inches='tight'); fig2.savefig(f'{OUT}/fig2_complete_mixing.pdf', bbox_inches='tight'); plt.close(fig2)
 save_xlsx('fig2_complete_mixing', [('a_p_mix', ['structure', 'class', 'p', 'sigma_p', 'p_mix'], pr),
                                    ('b_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_fully_randomized', 'gain_mixing_pp', 'gain_fully_randomized_pp'], hd),
                                    ('c_placement', ['structure', 'class', 'p', 'p_mix', 'p - p_mix', 'eta_actual', 'eta_escape_surface_mixing', 'eta_device_side_mixing', 'eta_fully_randomized', 'device - escape surface (pp)'], rows_c),
-                                   ('d_slab', ['n', 'R', 'p', 'p_mix', 'eta_no_mixing', 'eta_exit_face_mixing', 'eta_back_reflector_mixing (= fully randomized)'], rows_d)])
+                                   ('d_slab', ['n', 'R', 'p', 'p_mix', 'eta_no_mixing', 'eta_exit_face_mixing', 'eta_back_reflector_mixing (= fully randomized)'], rows_d),
+                                   ('d_textured', ['exit face', 'n', 'R', 'p', 'p_mix', 'eta_no_mixing', 'eta_exit_face_mixing', 'eta_back_reflector_mixing (= fully randomized)'], rows_d2)])
 
 # ------------------------------------------------------------------ Fig. 2
 rows = []
