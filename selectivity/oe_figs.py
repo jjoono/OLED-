@@ -132,14 +132,14 @@ for nm, (c, BT, BR) in LIB.items():
     col, mk, _ = CLS[c]; bx[2].plot(x, y, mk, color=col, ms=4, mec='white', mew=0.3)
     rows_c.append([nm, c, v['p'], v['p_mix'], x, v['eta'], v['exit_mix'], v['dev_mix'], v['rand'], y])
 rc = np.corrcoef([r[4] for r in rows_c], [r[9] for r in rows_c])[0, 1]
-bx[2].set_xlabel('p − p_mix = σ²/(1 − p)'); bx[2].set_ylabel('device-side − escape-surface mixing (pp)')
-bx[2].set_title(f'(c) where the light is mixed (Al, 550 nm), r = {rc:.2f}', loc='left')
+bx[2].set_xlabel('p − p_mix = σ²/(1 − p)'); bx[2].set_ylabel('mixing by device − by escape interface (pp)')
+bx[2].set_title(f'(c) reflective mixing: device vs escape interface (Al, 550 nm), r = {rc:.2f}', loc='left', fontsize=6.3)
 rows_d = []
 for R, ls in ((0.90, '-'), (0.98, '--')):
     sl = [z for z in PLC['slab'] if z['R'] == R]; nn = [z['n'] for z in sl]
     bx[3].plot(nn, [z['none'] for z in sl], ls, color='#7d7c76', lw=1, label='no mixing' if R == 0.90 else None)
     bx[3].plot(nn, [z['exit_mix'] for z in sl], ls, color='#eb6834', lw=1, label='complete mixing at the exit face' if R == 0.90 else None)
-    bx[3].plot(nn, [z['dev_mix'] for z in sl], ls, color='#2a78d6', lw=1, label='complete mixing at the back reflector' if R == 0.90 else None)
+    bx[3].plot(nn, [z['dev_mix'] for z in sl], ls, color='#2a78d6', lw=1, label='complete mixing at the back reflector or in transmission' if R == 0.90 else None)
     rows_d += [[z['n'], z['R'], z['p'], z['p_mix'], z['none'], z['exit_mix'], z['dev_mix']] for z in sl]
 bx[3].plot([], [], 'k-', lw=1, label='R = 0.90'); bx[3].plot([], [], 'k--', lw=1, label='R = 0.98')
 bx[3].set_xlabel('refractive index n of the slab'); bx[3].set_ylabel('extraction efficiency'); bx[3].set_ylim(0, 1); bx[3].set_xlim(1.4, 3.6)
@@ -151,21 +151,32 @@ save_xlsx('fig2_complete_mixing', [('a_p_mix', ['structure', 'class', 'p', 'sigm
                                    ('d_slab', ['n', 'R', 'p', 'p_mix', 'eta_no_mixing', 'eta_exit_face_mixing', 'eta_back_reflector_mixing (= fully randomized)'], rows_d)])
 
 # ------------------------------------------------------------------ Fig. 2
-fig = plt.figure(figsize=(7.2, 3.6)); gs2 = fig.add_gridspec(2, 4, height_ratios=[1, 0.62], wspace=0.38, hspace=0.62)
-ax = [fig.add_subplot(gs2[0, k]) for k in range(4)]; rows = []
+rows = []
 for (nm, dev, lam), e in EV.items():
     rows.append([nm, LIB[nm][0], dev, lam, e['eta'], e['closed'], e['m0'], e['red_w'], e['red'], e['p'], e['lam2'], e['pinf']])
-for k, (j, lab) in enumerate(((5, 'fully randomized model'), (6, 'angle preserving, m = 0'), (7, 'm = 1 − λ₂, q ∝ w'), (8, 'reciprocal, q ∝ w(1 − p)'))):
+def _scatter(a, j, lab, tag):
     for r in rows:
-        col, mk, _ = CLS[r[1]]; ax[k].plot(r[4], r[j], mk, color=col, ms=2.4, mew=0, alpha=0.8)
+        col, mk, _ = CLS[r[1]]; a.plot(r[4], r[j], mk, color=col, ms=2.4, mew=0, alpha=0.8)
     err = np.array([abs(r[j] - r[4]) for r in rows]) * 100
-    ax[k].plot([0.3, 1], [0.3, 1], color=INK2, lw=0.6); ax[k].set_xlim(0.3, 1); ax[k].set_ylim(0.3, 1)
-    ax[k].set_title(f"({'abcd'[k]}) {lab}\nmean |err| {err.mean():.2f} pp, max {err.max():.1f} pp", loc='left', fontsize=5.6)
-    ax[k].set_xlabel('η_sta, full series'); ax[k].set_ylabel('η_sta, model' if k == 0 else '')
+    a.plot([0.3, 1], [0.3, 1], color=INK2, lw=0.6); a.set_xlim(0.3, 1); a.set_ylim(0.3, 1)
+    a.set_title(f"({tag}) {lab}\nmean |err| {err.mean():.2f} pp, max {err.max():.1f} pp", loc='left', fontsize=5.8)
+    a.set_xlabel('η_sta, full series')
+# supplementary figure: the three simpler models
+figS, axS = plt.subplots(1, 3, figsize=(7.2, 2.5), gridspec_kw=dict(wspace=0.3))
+for k, (j, lab) in enumerate(((5, 'fully randomized model'), (6, 'angle preserving, m = 0'), (7, 'm = 1 − λ₂, isotropic q ∝ w'))):
+    _scatter(axS[k], j, lab, 'abc'[k])
+axS[0].set_ylabel('η_sta, model')
 for c, (col, mk, lab) in CLS.items():
-    ax[0].plot([], [], mk, color=col, label=lab)
-ax[0].legend(fontsize=4.8, frameon=False, loc='lower right')
-ae = fig.add_subplot(gs2[1, :]); xt = []; DCOL = {'Al': '#52514e', 'Ag': '#2a78d6', 'LL15': '#1baf7a'}; DLAB = {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'low loss'}
+    axS[0].plot([], [], mk, color=col, label=lab)
+axS[0].legend(fontsize=4.8, frameon=False, loc='lower right')
+figS.savefig(f'{OUT}/figS_model_comparison.png', dpi=300, bbox_inches='tight'); figS.savefig(f'{OUT}/figS_model_comparison.pdf', bbox_inches='tight'); plt.close(figS)
+# main Fig. 3: reciprocal reduced model and its error by device and wavelength
+fig = plt.figure(figsize=(7.2, 2.5)); gs2 = fig.add_gridspec(1, 2, width_ratios=[1, 2.3], wspace=0.25)
+a0 = fig.add_subplot(gs2[0]); _scatter(a0, 8, 'reciprocal reduced model, q ∝ w(1 − p)', 'a'); a0.set_ylabel('η_sta, model')
+for c, (col, mk, lab) in CLS.items():
+    a0.plot([], [], mk, color=col, label=lab)
+a0.legend(fontsize=4.6, frameon=False, loc='lower right')
+ae = fig.add_subplot(gs2[1]); xt = []; DCOL = {'Al': '#52514e', 'Ag': '#2a78d6', 'LL15': '#1baf7a'}; DLAB = {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'low loss'}
 for gi, (dv, (_, lam)) in enumerate([(d, w) for d in DEVS for w in WLS]):
     for r in rows:
         if r[2] != dv or r[3] != lam: continue
@@ -176,7 +187,7 @@ for gi, (dv, (_, lam)) in enumerate([(d, w) for d in DEVS for w in WLS]):
     xt.append(f'{DLAB[dv]}\n{lam:.0f} nm')
 ae.axhline(0, color=INK2, lw=0.5); ae.set_xticks(range(len(xt))); ae.set_xticklabels(xt, fontsize=5); ae.set_xlim(-0.6, len(xt) - 0.4)
 for b in (2.5, 5.5): ae.axvline(b, color='#d9d8d3', lw=0.6)
-ae.set_ylabel('reciprocal model − full (pp)'); ae.set_title('(e) error of the reciprocal reduced model by device and wavelength (bar: mean |err|)', loc='left', fontsize=5.8)
+ae.set_ylabel('model − full series (pp)'); ae.set_title('(b) error of (a) by device and wavelength (bar: mean |err|)', loc='left', fontsize=5.8)
 fig.savefig(f'{OUT}/fig3_reduced_model.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/fig3_reduced_model.pdf', bbox_inches='tight'); plt.close(fig)
 save_xlsx('fig3_reduced_model', [('cases', ['structure', 'class', 'device', 'lambda_nm', 'eta_full', 'eta_fully_randomized', 'eta_m0', 'eta_reduced_w', 'eta_reduced_recip', 'p_Lamb', 'lambda2_85', 'p_inf'], rows)])
 print(f'Fig 2: {len(rows)} cases; reduced(w) mean {np.mean([abs(r[7]-r[4]) for r in rows])*100:.2f} max {np.max([abs(r[7]-r[4]) for r in rows])*100:.2f}; recip mean {np.mean([abs(r[8]-r[4]) for r in rows])*100:.2f} pp, max {np.max([abs(r[8]-r[4]) for r in rows])*100:.2f}; memoryless mean {np.mean([abs(r[5]-r[4]) for r in rows])*100:.2f}, max {np.max([abs(r[5]-r[4]) for r in rows])*100:.1f}')

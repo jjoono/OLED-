@@ -23,12 +23,13 @@ FIGFILES = {
     '4': 'figures/fig4_structure_map.pdf',
     '5': 'figures/fig6_hemisphere_benchmark.pdf',
     'S1': 'figures/figS11_device_inputs.pdf',
-    'S2': 'figures/figS2_composition_window.pdf',
-    'S3': 'figures/fig5_bound_window.pdf',
-    'S4': 'figures/fig1_platform.pdf',
-    'S5': 'figures/figS5_optimizer_convergence.pdf',
-    'S6': 'figures/figS1_restart_control.pdf',
-    'S7': 'figures/fig3_efficiency_composition.pdf',
+    'S2': 'figures/figS_model_comparison.pdf',
+    'S3': 'figures/figS2_composition_window.pdf',
+    'S4': 'figures/fig5_bound_window.pdf',
+    'S5': 'figures/fig1_platform.pdf',
+    'S6': 'figures/figS5_optimizer_convergence.pdf',
+    'S7': 'figures/figS1_restart_control.pdf',
+    'S8': 'figures/fig3_efficiency_composition.pdf',
 }
 # source of every figure PDF (copied into oe_submission/figures/ on each run)
 import shutil
