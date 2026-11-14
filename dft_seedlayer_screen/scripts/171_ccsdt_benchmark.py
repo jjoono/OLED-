@@ -157,6 +157,23 @@ def cc_e(m):
         mf = mf.newton()
         mf.kernel()
     # frozen core: all-electron 1s on C/N; Ag (ECP28) 4s4p = 4 orbitals
+    if os.environ.get("CC_FNO"):
+        # frozen natural orbitals: UCCSD(T) on the MP2-natural-orbital space
+        # (occupation > 1e-4), plus the MP2 energy of the discarded virtuals.
+        # Plain UCCSD(T)/SVP on Ag-pyridine was OOM-killed at 14 GB.
+        from pyscf import mp
+        pt = mp.MP2(mf, frozen=frozen(m))
+        pt.kernel()
+        fz, no = pt.make_fno(thresh=float(os.environ.get("CC_FNO_THRESH", "1e-4")))
+        pt2 = mp.MP2(mf, frozen=fz, mo_coeff=no)
+        pt2.kernel()
+        d_mp2 = pt.e_corr - pt2.e_corr
+        c = cc.CCSD(mf, frozen=fz, mo_coeff=no)
+        c.max_cycle = 100
+        c.conv_tol = 1e-8
+        c.kernel()
+        et = c.ccsd_t()
+        return float(mf.e_tot + c.e_corr + et + d_mp2), bool(c.converged)
     c = cc.CCSD(mf, frozen=frozen(m))
     c.direct = True
     c.max_cycle = 100
@@ -217,6 +234,8 @@ def run(name, smi, test=False):
     # CCSD(T)/TZVP directly is out of reach on 15 GB for the aromatics, so
     # focal point: CCSD(T)/SVP + [MP2/TZVP - MP2/SVP] (all CP). For MeCN the
     # direct CCSD(T)/TZVP is attempted too, to check the focal-point estimate.
+    if os.environ.get("CC_FNO"):
+        put(name, "cc_fno_thresh", float(os.environ.get("CC_FNO_THRESH", "1e-4")))
     tasks = [("pbe0_svp_noCP", "pbe0", "def2-svp", False),
              ("pbe0_tzvp_CP", "pbe0", "def2-tzvp", True),
              ("ccsdt_svp_CP", "cc", "def2-svp", True),

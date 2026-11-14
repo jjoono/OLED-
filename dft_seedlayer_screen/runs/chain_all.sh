@@ -12,3 +12,5 @@ RETRY_UNCONVERGED=1 python3 scripts/172_n1s_dscf.py >> runs/n1s_dscf.log 2>&1
 CC_MEM_MB=5000 python3 scripts/171_ccsdt_benchmark.py pyridine pyrazine benzene >> runs/ccsdt_benchmark.log 2>&1
 CC_MEM_MB=6000 python3 scripts/171_ccsdt_benchmark.py MeCN >> runs/ccsdt_benchmark.log 2>&1
 RETRY_UNCONVERGED=1 python3 scripts/172_n1s_dscf.py >> runs/n1s_dscf.log 2>&1   # ion pair (anion retries skipped)
+# aromatics again with frozen natural orbitals (plain UCCSD(T)/SVP OOM at 14 GB on pyridine)
+CC_FNO=1 CC_MEM_MB=5000 python3 scripts/171_ccsdt_benchmark.py pyridine pyrazine benzene >> runs/ccsdt_benchmark.log 2>&1
