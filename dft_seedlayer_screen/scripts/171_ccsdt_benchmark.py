@@ -22,6 +22,10 @@ Protocol per system:
      def2-TZVP (CP), and UCCSD(T)/def2-TZVP (CP, frozen core incl. Ag 4s4p),
      plus UCCSD(T)/def2-SVP at d-0.15/d/d+0.15 A to see whether the CCSD(T)
      minimum sits at a different distance.
+     UCCSD(T)/def2-TZVP directly does not fit in 15 GB for the aromatics
+     (OOM at 14 GB on Ag-MeCN), so the TZVP reference is the focal-point
+     estimate CCSD(T)/SVP + [MP2/TZVP - MP2/SVP], checked against a direct
+     CCSD(T)/TZVP on MeCN with the integrals out of core.
 CP = Boys-Bernardi counterpoise, ghost basis on the partner.
 """
 import json
@@ -111,9 +115,39 @@ def dft_e(m):
     return e
 
 
+def frozen(m):
+    # all-electron 1s on C/N; Ag (ECP28) 4s4p = 4 orbitals; ghosts carry none
+    return sum({"C": 1, "N": 1, "Ag": 4}.get(m.atom_pure_symbol(k), 0)
+               for k in range(m.natm) if m.atom_charge(k) > 0)
+
+
+def hf(m):
+    from pyscf import scf
+    mf = (scf.UHF(m) if m.spin else scf.RHF(m))
+    mf.conv_tol = 1e-10
+    mf.max_cycle = 200
+    mf.level_shift = 0.2
+    mf.kernel()
+    if not mf.converged:
+        mf = mf.newton()
+        mf.kernel()
+    return mf
+
+
+def mp2_e(m):
+    from pyscf import mp
+    mf = hf(m)
+    pt = mp.MP2(mf, frozen=frozen(m))
+    pt.kernel()
+    return float(mf.e_tot + pt.e_corr)
+
+
 def cc_e(m):
-    """UCCSD(T) (RCCSD(T) for closed shell) on an HF reference, frozen core."""
+    """UCCSD(T) (RCCSD(T) for closed shell) on an HF reference, frozen core.
+    max_memory is capped so the 4-index integrals go out of core: the first
+    TZVP attempt on Ag-MeCN was OOM-killed at 14 GB."""
     from pyscf import scf, cc
+    m.max_memory = int(os.environ.get("CC_MEM_MB", "5000"))
     mf = (scf.UHF(m) if m.spin else scf.RHF(m))
     mf.conv_tol = 1e-10
     mf.max_cycle = 200
@@ -123,9 +157,7 @@ def cc_e(m):
         mf = mf.newton()
         mf.kernel()
     # frozen core: all-electron 1s on C/N; Ag (ECP28) 4s4p = 4 orbitals
-    nfz = sum({"C": 1, "N": 1, "Ag": 4}.get(m.atom_pure_symbol(k), 0)
-              for k in range(m.natm) if m.atom_charge(k) > 0)
-    c = cc.CCSD(mf, frozen=nfz)
+    c = cc.CCSD(mf, frozen=frozen(m))
     c.direct = True
     c.max_cycle = 100
     c.conv_tol = 1e-8
@@ -171,7 +203,7 @@ def run(name, smi, test=False):
     P = pos(dmin)
 
     def eb(method, basis, cp, P=P):
-        fn = dft_e if method == "pbe0" else (lambda m: cc_e(m)[0])
+        fn = {"pbe0": dft_e, "mp2": mp2_e, "cc": lambda m: cc_e(m)[0]}[method]
         e_cx = fn(mol(SA, P, 1, basis))
         if cp:
             e_m = fn(mol(SA, P, 0, basis, ghost=(n,)))
@@ -182,17 +214,31 @@ def run(name, smi, test=False):
         disp = (d3(SA, P) - d3(S, X)) * EV if method == "pbe0" else 0.0
         return round((e_m + e_a - e_cx) * EV - disp, 4)
 
+    # CCSD(T)/TZVP directly is out of reach on 15 GB for the aromatics, so
+    # focal point: CCSD(T)/SVP + [MP2/TZVP - MP2/SVP] (all CP). For MeCN the
+    # direct CCSD(T)/TZVP is attempted too, to check the focal-point estimate.
     tasks = [("pbe0_svp_noCP", "pbe0", "def2-svp", False),
              ("pbe0_tzvp_CP", "pbe0", "def2-tzvp", True),
-             ("ccsdt_svp_CP", "cc", "def2-svp", True)]
-    if not test:
+             ("ccsdt_svp_CP", "cc", "def2-svp", True),
+             ("mp2_svp_CP", "mp2", "def2-svp", True),
+             ("mp2_tzvp_CP", "mp2", "def2-tzvp", True)]
+    if not test and name == "MeCN":
         tasks.append(("ccsdt_tzvp_CP", "cc", "def2-tzvp", True))
     for key, meth, bas, cp in tasks:
         if key in load()[name]:
             continue
         t0 = time.time()
-        put(name, key, eb(meth, bas, cp))
+        try:
+            put(name, key, eb(meth, bas, cp))
+        except MemoryError as ex:
+            put(name, key + "_error", repr(ex))
+            print(name, key, "MemoryError", flush=True)
+            continue
         print(name, key, load()[name][key], f"{time.time()-t0:.0f}s", flush=True)
+    r = load()[name]
+    if all(k in r for k in ("ccsdt_svp_CP", "mp2_svp_CP", "mp2_tzvp_CP")) and "ccsdt_tzvp_est" not in r:
+        put(name, "ccsdt_tzvp_est", round(r["ccsdt_svp_CP"] + r["mp2_tzvp_CP"] - r["mp2_svp_CP"], 4))
+        print(name, "ccsdt_tzvp_est", load()[name]["ccsdt_tzvp_est"], flush=True)
     if not test and "ccsdt_svp_CP_curve" not in load()[name]:
         curve = []
         for dd in (-0.15, 0.15):
@@ -213,11 +259,13 @@ def main():
     summ = {}
     for nm in SYSTEMS:
         r = d.get(nm, {})
-        if "ccsdt_tzvp_CP" in r:
+        ref = r.get("ccsdt_tzvp_CP", r.get("ccsdt_tzvp_est"))
+        if ref is not None:
             summ[nm] = {"d_min_pbe0": r["d_min"], "screen_level": r["pbe0_svp_noCP"],
-                        "pbe0_tzvp_CP": r["pbe0_tzvp_CP"], "ccsdt_tzvp_CP": r["ccsdt_tzvp_CP"],
-                        "screen_over_ccsdt": round(r["pbe0_svp_noCP"] / r["ccsdt_tzvp_CP"], 3)
-                        if r["ccsdt_tzvp_CP"] > 0 else None}
+                        "pbe0_tzvp_CP": r["pbe0_tzvp_CP"], "ccsdt_tzvp_est": r.get("ccsdt_tzvp_est"),
+                        "ccsdt_tzvp_CP": r.get("ccsdt_tzvp_CP"), "reference": ref,
+                        "screen_minus_ref": round(r["pbe0_svp_noCP"] - ref, 3),
+                        "screen_over_ref": round(r["pbe0_svp_noCP"] / ref, 3) if ref > 0.02 else None}
     if summ:
         d["summary"] = summ
         json.dump(d, open(OUT, "w"), indent=1)

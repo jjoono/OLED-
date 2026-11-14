@@ -8,3 +8,6 @@ python3 scripts/172_n1s_dscf.py > runs/n1s_dscf.log 2>&1
 QC_MEM_MB=11000 python3 scripts/171_ccsdt_benchmark.py > runs/ccsdt_benchmark.log 2>&1
 python3 scripts/169_bphencs_whole.py >> runs/bphencs_whole.log 2>&1
 RETRY_UNCONVERGED=1 python3 scripts/172_n1s_dscf.py >> runs/n1s_dscf.log 2>&1
+# CCSD(T) rerun after the OOM: aromatics first (focal point), MeCN last (its direct TZVP CCSD(T) may hit memory)
+CC_MEM_MB=5000 python3 scripts/171_ccsdt_benchmark.py pyridine pyrazine benzene >> runs/ccsdt_benchmark.log 2>&1
+CC_MEM_MB=6000 python3 scripts/171_ccsdt_benchmark.py MeCN >> runs/ccsdt_benchmark.log 2>&1
