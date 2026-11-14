@@ -52,7 +52,7 @@
    "elec": 0.8635,
    "disp": 0.0314,
    "state": "singlet",
-   "singlet_minus_triplet_eV": null,
+   "singlet_minus_triplet_eV": -0.8686,
    "q_Ag": -0.4518,
    "fragment_155": 0.8865,
    "whole_minus_fragment": 0.0084
@@ -62,7 +62,7 @@
    "elec": 0.3142,
    "disp": 0.1903,
    "state": "singlet",
-   "singlet_minus_triplet_eV": null,
+   "singlet_minus_triplet_eV": -0.1813,
    "q_Ag": -0.4027,
    "fragment_155": 0.5078,
    "whole_minus_fragment": -0.0033
@@ -72,7 +72,7 @@
    "elec": 0.087,
    "disp": 0.1618,
    "state": "triplet",
-   "singlet_minus_triplet_eV": null,
+   "singlet_minus_triplet_eV": 0.2083,
    "q_Ag": -0.0454,
    "fragment_155": 0.2487,
    "whole_minus_fragment": 0.0001
@@ -102,5 +102,14 @@
   ],
   "q_Cs": 0.6909,
   "S2": 2.0273
+ },
+ "hollow3_m1": {
+  "E": -1198.8755810457737,
+  "conv": true,
+  "sec": 3238,
+  "q_Ag": [
+   -0.5298
+  ],
+  "q_Cs": 0.7515
  }
 }
