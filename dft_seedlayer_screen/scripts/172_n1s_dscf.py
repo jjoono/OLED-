@@ -144,7 +144,7 @@ def main():
             continue
         # isolated anions are not comparable to a film (net -1 charge in
         # vacuum); the ion pair below replaces them, so no retry is spent
-        if "BE" in prev and tag.startswith("anion_"):
+        if "BE" in prev and (tag.startswith("anion_") or prev.get("retried")):
             continue
         t0 = time.time()
         m = build(Sx, Xx, ch, sp, tgt)
@@ -152,7 +152,8 @@ def main():
         c, wcore = core_hole(g, tgt)
         be = (c.e_tot - g.e_tot) * EV
         put(tag, {"BE": round(float(be), 3), "gs_conv": bool(g.converged), "ch_conv": bool(c.converged),
-                  "core_weight": round(wcore, 3), "sec": round(time.time() - t0)})
+                  "core_weight": round(wcore, 3), "sec": round(time.time() - t0),
+                  "retried": bool(os.environ.get("RETRY_UNCONVERGED"))})
         print(tag, load()[tag], flush=True)
     # A bare anion's N 1s is shifted ~5 eV by its net negative charge in
     # vacuum, which a film screens: the reduced HATCN a lab measures sits next
