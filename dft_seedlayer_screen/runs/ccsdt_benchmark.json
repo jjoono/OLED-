@@ -73,7 +73,9 @@
   "pbe0_tzvp_CP": 0.0986,
   "ccsdt_svp_CP": 0.0215,
   "mp2_svp_CP": 0.0206,
-  "mp2_tzvp_CP": 0.032
+  "mp2_tzvp_CP": 0.032,
+  "ccsdt_tzvp_est": 0.0329,
+  "ccsdt_tzvp_CP_error": "direct UCCSD(T)/def2-TZVP OOM-killed at 14 GB (CC_MEM_MB=6000 not honoured by UCCSD); FNO run queued"
  },
  "pyridine": {
   "geom": {
