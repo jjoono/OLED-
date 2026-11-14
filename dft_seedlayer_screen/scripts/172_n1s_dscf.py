@@ -96,6 +96,13 @@ def core_hole(mf0, target):
     mf.grids.level = 4
     mf.conv_tol = 1e-8
     mf.max_cycle = 150
+    if os.environ.get("RETRY_UNCONVERGED"):
+        # second pass for core holes that did not converge: heavier damping,
+        # level shift and a longer budget
+        mf.level_shift = 0.5
+        mf.damp = 0.5
+        mf.diis_space = 12
+        mf.max_cycle = 400
     mf = scf.addons.mom_occ(mf, mf0.mo_coeff, occ)
     dm = mf.make_rdm1(mf0.mo_coeff, occ)
     mf.kernel(dm)
@@ -132,7 +139,8 @@ def main():
     put("_meta", {"aza_bonded_d_Ag": round(dN[aza[0]], 3), "aza_far_d_Ag": round(dN[aza[-1]], 3),
                   "nitrile_d_Ag": round(dN[nit[0]], 3)})
     for tag, Sx, Xx, ch, sp, tgt in cases:
-        if tag in load() and "BE" in load()[tag]:
+        prev = load().get(tag, {})
+        if "BE" in prev and (prev.get("ch_conv") or not os.environ.get("RETRY_UNCONVERGED")):
             continue
         t0 = time.time()
         m = build(Sx, Xx, ch, sp, tgt)
