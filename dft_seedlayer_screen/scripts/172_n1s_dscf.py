@@ -142,6 +142,10 @@ def main():
         prev = load().get(tag, {})
         if "BE" in prev and (prev.get("ch_conv") or not os.environ.get("RETRY_UNCONVERGED")):
             continue
+        # isolated anions are not comparable to a film (net -1 charge in
+        # vacuum); the ion pair below replaces them, so no retry is spent
+        if "BE" in prev and tag.startswith("anion_"):
+            continue
         t0 = time.time()
         m = build(Sx, Xx, ch, sp, tgt)
         g = ground(m)
