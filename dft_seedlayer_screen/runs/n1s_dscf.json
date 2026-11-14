@@ -26,11 +26,13 @@
   "sec": 3305
  },
  "Ag_aza_far": {
-  "BE": 405.511,
+  "BE": 400.782,
   "gs_conv": true,
   "ch_conv": false,
   "core_weight": 0.976,
-  "sec": 7515
+  "sec": 17455,
+  "retried": true,
+  "unreliable": "core hole did not converge in two attempts: 405.511 eV (150 cycles), 400.782 eV (400 cycles, damped); do not use"
  },
  "Ag_nitrile": {
   "BE": 405.381,
