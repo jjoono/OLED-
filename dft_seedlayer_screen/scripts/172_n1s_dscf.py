@@ -150,6 +150,36 @@ def main():
         put(tag, {"BE": round(float(be), 3), "gs_conv": bool(g.converged), "ch_conv": bool(c.converged),
                   "core_weight": round(wcore, 3), "sec": round(time.time() - t0)})
         print(tag, load()[tag], flush=True)
+    # A bare anion's N 1s is shifted ~5 eV by its net negative charge in
+    # vacuum, which a film screens: the reduced HATCN a lab measures sits next
+    # to its counter-charge (Cs+ from the n-ETL, or an HTL cation). So the
+    # comparable "reduced HATCN" is the ion pair HATCN(-)Cs(+) of script 157
+    # (Cs 3.5 A under the face, GFN2-placed), core holes on the N farthest
+    # from Cs (the molecule's own response, not the contact).
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("s157", os.path.join(HERE, "157_reduced_hatcn_pbe0.py"))
+    s157 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(s157)
+    Sp, Xp, _, _ = s157.geometries()["ion_pair"]
+    Xp = np.asarray(Xp, float)
+    kcs = Sp.index("Cs")
+    Np = [i for i, s_ in enumerate(Sp) if s_ == "N"]
+    nitp = [i for i in Np if any(Sp[j] == "C" and np.linalg.norm(Xp[j] - Xp[i]) < 1.25 for j in range(len(Sp)))]
+    azap = [i for i in Np if i not in nitp]
+    far = lambda L: max(L, key=lambda i: np.linalg.norm(Xp[i] - Xp[kcs]))  # noqa: E731
+    for tag, tgt in (("ionpair_aza", far(azap)), ("ionpair_nitrile", far(nitp))):
+        prev = load().get(tag, {})
+        if "BE" in prev and (prev.get("ch_conv") or not os.environ.get("RETRY_UNCONVERGED")):
+            continue
+        t0 = time.time()
+        m = build(Sp, Xp, 0, 1, tgt)
+        g = ground(m)
+        c, wcore = core_hole(g, tgt)
+        put(tag, {"BE": round(float((c.e_tot - g.e_tot) * EV), 3), "gs_conv": bool(g.converged),
+                  "ch_conv": bool(c.converged), "core_weight": round(wcore, 3),
+                  "d_Cs": round(float(np.linalg.norm(Xp[tgt] - Xp[kcs])), 3), "sec": round(time.time() - t0)})
+        print(tag, load()[tag], flush=True)
+    cases += [("ionpair_aza",), ("ionpair_nitrile",)]
     d = load()
     ref_a, ref_n = d["neutral_aza"]["BE"], d["neutral_nitrile"]["BE"]
     put("shifts_vs_neutral", {k: round(d[k]["BE"] - (ref_n if "nitrile" in k else ref_a), 3)
