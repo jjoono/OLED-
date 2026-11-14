@@ -740,7 +740,115 @@
     "E_adh": 2.9569,
     "E_adh_per_Ag": 0.9856,
     "sec": 696
+   },
+   "3_up": {
+    "E_cx": -1321.5701443379933,
+    "E_free": -440.86926703532595,
+    "conv": true,
+    "q_Ag": [
+     0.2862,
+     0.2562,
+     0.3025
+    ],
+    "q_tot": 0.845,
+    "E_adh": 3.2162,
+    "E_adh_per_Ag": 1.0721,
+    "sec": 901
    }
+  }
+ },
+ "summary": {
+  "HATCN": {
+   "1": {
+    "q_tot_flat": 0.5759,
+    "q_tot_up": null,
+    "E_adh_flat": 1.6079,
+    "E_adh_up": null,
+    "dE_2D3D": null
+   },
+   "2": {
+    "q_tot_flat": 0.1673,
+    "q_tot_up": 0.2301,
+    "E_adh_flat": 0.6011,
+    "E_adh_up": 0.8821,
+    "dE_2D3D": 0.3019
+   },
+   "3": {
+    "q_tot_flat": 0.4505,
+    "q_tot_up": 0.4461,
+    "E_adh_flat": 2.9031,
+    "E_adh_up": 2.5995,
+    "dE_2D3D": -0.237
+   },
+   "4": {
+    "q_tot_flat": 0.33,
+    "q_tot_up": 0.3429,
+    "E_adh_flat": 1.24,
+    "E_adh_up": 1.31,
+    "dE_2D3D": -0.2181
+   }
+  },
+  "Mo3O9": {
+   "1": {
+    "q_tot_flat": 0.7222,
+    "q_tot_up": null,
+    "E_adh_flat": 2.1635,
+    "E_adh_up": null,
+    "dE_2D3D": null
+   },
+   "2": {
+    "q_tot_flat": 0.7667,
+    "q_tot_up": 0.5385,
+    "E_adh_flat": 1.1506,
+    "E_adh_up": 0.8451,
+    "dE_2D3D": -0.2335
+   },
+   "3": {
+    "q_tot_flat": 0.8284,
+    "q_tot_up": 0.845,
+    "E_adh_flat": 2.9569,
+    "E_adh_up": 3.2162,
+    "dE_2D3D": 0.2715
+   },
+   "4": {
+    "q_tot_flat": 0.9606,
+    "q_tot_up": 1.0748,
+    "E_adh_flat": 1.0952,
+    "E_adh_up": 2.0196,
+    "dE_2D3D": 1.2413
+   }
+  }
+ },
+ "shape_preference_D3": {
+  "HATCN_2": {
+   "dE_flat_minus_up": 0.282,
+   "free_flat_minus_up": 0.001,
+   "substrate_part": 0.281
+  },
+  "HATCN_3": {
+   "dE_flat_minus_up": -0.236,
+   "free_flat_minus_up": 0.068,
+   "substrate_part": -0.304
+  },
+  "HATCN_4": {
+   "dE_flat_minus_up": -0.078,
+   "free_flat_minus_up": -0.165,
+   "substrate_part": 0.087
+  },
+  "Mo3O9_2": {
+   "dE_flat_minus_up": -0.31,
+   "free_flat_minus_up": -0.004,
+   "substrate_part": -0.306
+  },
+  "Mo3O9_3": {
+   "dE_flat_minus_up": 0.216,
+   "free_flat_minus_up": -0.043,
+   "substrate_part": 0.259
+  },
+  "Mo3O9_4": {
+   "dE_flat_minus_up": 1.351,
+   "free_flat_minus_up": 0.384,
+   "substrate_part": 0.967
   }
  }
 }
