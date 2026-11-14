@@ -45,5 +45,21 @@
   "ch_conv": true,
   "core_weight": 0.976,
   "sec": 4402
+ },
+ "anion_nitrile": {
+  "BE": 402.651,
+  "gs_conv": true,
+  "ch_conv": false,
+  "core_weight": 0.977,
+  "sec": 7937
+ },
+ "shifts_vs_neutral": {
+  "neutral_aza": 0.0,
+  "neutral_nitrile": 0.0,
+  "Ag_aza_bonded": -0.891,
+  "Ag_aza_far": -0.373,
+  "Ag_nitrile": 0.054,
+  "anion_aza": -5.185,
+  "anion_nitrile": -2.676
  }
 }
