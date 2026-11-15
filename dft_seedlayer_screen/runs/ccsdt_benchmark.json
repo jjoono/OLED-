@@ -295,6 +295,8 @@
   "d_min": 2.565,
   "cc_fno_thresh": 0.0001,
   "pbe0_svp_noCP": 0.3059,
-  "pbe0_tzvp_CP": 0.2122
+  "pbe0_tzvp_CP": 0.2122,
+  "ccsdt_svp_CP": 0.1103,
+  "mp2_svp_CP": 0.1129
  }
 }
