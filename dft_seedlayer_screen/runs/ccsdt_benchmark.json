@@ -75,7 +75,8 @@
   "mp2_svp_CP": 0.0206,
   "mp2_tzvp_CP": 0.032,
   "ccsdt_tzvp_est": 0.0329,
-  "ccsdt_tzvp_CP_error": "direct UCCSD(T)/def2-TZVP OOM-killed at 14 GB (CC_MEM_MB=6000 not honoured by UCCSD); FNO run queued"
+  "ccsdt_tzvp_CP_error": "direct UCCSD(T)/def2-TZVP OOM-killed at 14 GB (CC_MEM_MB=6000 not honoured by UCCSD); FNO run queued",
+  "cc_fno_thresh": 0.0001
  },
  "pyridine": {
   "geom": {
@@ -427,6 +428,62 @@
   "ccsdt_svp_CP": 0.0363,
   "mp2_svp_CP": 0.0564,
   "mp2_tzvp_CP": 0.1042,
-  "ccsdt_tzvp_est": 0.0841
+  "ccsdt_tzvp_est": 0.0841,
+  "ccsdt_svp_CP_curve": [
+   [
+    2.987,
+    0.0089
+   ],
+   [
+    3.137,
+    0.0363
+   ],
+   [
+    3.287,
+    0.0499
+   ]
+  ]
+ },
+ "summary": {
+  "MeCN": {
+   "d_min_pbe0": 2.616,
+   "screen_level": 0.1856,
+   "pbe0_tzvp_CP": 0.0986,
+   "ccsdt_tzvp_est": 0.0329,
+   "ccsdt_tzvp_CP": null,
+   "reference": 0.0329,
+   "screen_minus_ref": 0.153,
+   "screen_over_ref": 5.641
+  },
+  "pyridine": {
+   "d_min_pbe0": 2.5,
+   "screen_level": 0.373,
+   "pbe0_tzvp_CP": 0.2701,
+   "ccsdt_tzvp_est": 0.1767,
+   "ccsdt_tzvp_CP": null,
+   "reference": 0.1767,
+   "screen_minus_ref": 0.196,
+   "screen_over_ref": 2.111
+  },
+  "pyrazine": {
+   "d_min_pbe0": 2.565,
+   "screen_level": 0.3059,
+   "pbe0_tzvp_CP": 0.2122,
+   "ccsdt_tzvp_est": 0.1198,
+   "ccsdt_tzvp_CP": null,
+   "reference": 0.1198,
+   "screen_minus_ref": 0.186,
+   "screen_over_ref": 2.553
+  },
+  "benzene": {
+   "d_min_pbe0": 3.137,
+   "screen_level": 0.2051,
+   "pbe0_tzvp_CP": 0.1679,
+   "ccsdt_tzvp_est": 0.0841,
+   "ccsdt_tzvp_CP": null,
+   "reference": 0.0841,
+   "screen_minus_ref": 0.121,
+   "screen_over_ref": 2.439
+  }
  }
 }
