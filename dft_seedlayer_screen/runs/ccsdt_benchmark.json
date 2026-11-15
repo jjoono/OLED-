@@ -77,7 +77,21 @@
   "ccsdt_tzvp_est": 0.0329,
   "ccsdt_tzvp_CP_error": "direct UCCSD(T)/def2-TZVP OOM-killed at 14 GB (CC_MEM_MB=6000 not honoured by UCCSD); FNO run queued",
   "cc_fno_thresh": 0.0001,
-  "ccsdt_tzvp_CP": 0.031
+  "ccsdt_tzvp_CP": 0.031,
+  "ccsdt_svp_CP_curve": [
+   [
+    2.466,
+    0.0034
+   ],
+   [
+    2.616,
+    0.0215
+   ],
+   [
+    2.766,
+    0.0463
+   ]
+  ]
  },
  "pyridine": {
   "geom": {
@@ -451,10 +465,10 @@
    "screen_level": 0.1856,
    "pbe0_tzvp_CP": 0.0986,
    "ccsdt_tzvp_est": 0.0329,
-   "ccsdt_tzvp_CP": null,
-   "reference": 0.0329,
-   "screen_minus_ref": 0.153,
-   "screen_over_ref": 5.641
+   "ccsdt_tzvp_CP": 0.031,
+   "reference": 0.031,
+   "screen_minus_ref": 0.155,
+   "screen_over_ref": 5.987
   },
   "pyridine": {
    "d_min_pbe0": 2.5,
