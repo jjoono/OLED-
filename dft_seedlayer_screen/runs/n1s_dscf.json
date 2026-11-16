@@ -59,10 +59,12 @@
   "neutral_aza": 0.0,
   "neutral_nitrile": 0.0,
   "Ag_aza_bonded": -0.891,
-  "Ag_aza_far": -0.373,
+  "Ag_aza_far": -5.102,
   "Ag_nitrile": 0.054,
   "anion_aza": -5.185,
-  "anion_nitrile": -2.676
+  "anion_nitrile": -2.676,
+  "ionpair_aza": -3.28,
+  "ionpair_nitrile": -2.773
  },
  "ionpair_aza": {
   "BE": 402.604,
@@ -71,5 +73,13 @@
   "core_weight": 0.976,
   "d_Cs": 3.885,
   "sec": 23576
+ },
+ "ionpair_nitrile": {
+  "BE": 402.554,
+  "gs_conv": true,
+  "ch_conv": false,
+  "core_weight": 0.977,
+  "d_Cs": 6.693,
+  "sec": 22864
  }
 }
