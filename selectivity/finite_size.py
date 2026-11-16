@@ -75,9 +75,9 @@ def mc(struct, planar, Rin, Rout, P, a=1 / T_MM, W=12.5 / T_MM, Wp=None, rc=np.i
     r0 = a * np.sqrt(rng.random(N)); f0 = 2 * np.pi * rng.random(N)
     x = r0 * np.cos(f0); y = r0 * np.sin(f0); phi = 2 * np.pi * rng.random(N); g = np.ones(N)
     x += TAN[th] * np.cos(phi); y += TAN[th] * np.sin(phi)
-    esc = 0.0; edge = 0.0
+    esc = 0.0; side = 0.0
     for it in range(maxit):
-        x, y, phi, g, l = _edges(x, y, phi, g, th, W, edge); edge += l
+        x, y, phi, g, l = _edges(x, y, phi, g, th, W, edge); side += l
         keep = g > 1e-7; th, x, y, phi, g = th[keep], x[keep], y[keep], phi[keep], g[keep]
         if g.size == 0: break
         ins = (np.abs(x) <= Wp) & (np.abs(y) <= Wp)
@@ -92,12 +92,12 @@ def mc(struct, planar, Rin, Rout, P, a=1 / T_MM, W=12.5 / T_MM, Wp=None, rc=np.i
             phi[ins] = phi[ins] + (np.minimum(k, AZ['NA'] - 1) + rng.random(ins.sum())) * 2 * np.pi / AZ['NA']
         th = new
         x += TAN[th] * np.cos(phi); y += TAN[th] * np.sin(phi)
-        x, y, phi, g, l = _edges(x, y, phi, g, th, W, edge); edge += l
+        x, y, phi, g, l = _edges(x, y, phi, g, th, W, edge); side += l
         g = g * np.where(np.hypot(x, y) <= rc, Rin[th], Rout[th])
         x += TAN[th] * np.cos(phi); y += TAN[th] * np.sin(phi)
         alive = g > 1e-7
         th, x, y, phi, g = th[alive], x[alive], y[alive], phi[alive], g[alive]
-    return esc / N, edge / N
+    return esc / N, side / N
 
 
 def dev(name, i):
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     BTp, BRp = LIB['planar'][1:]; PL = kernel(BTp, BRp); p_pl = BTp.sum(1)
     for nm in ('MLA hemi_total', 'W_slope0.2'):           # check of the infinite limit
         BT, BR = LIB[nm][1:]; P, R = dev('Al', 75)
-        print(f'check {nm}: MC {mc(kernel(BT, BR), PL, R, R, P, W=np.inf)[0]:.4f} vs eta_sta {ref_inf(BT, BR, P, R, "actual"):.4f}')
+        print(f'check {nm}: MC infinite {mc(kernel(BT, BR), PL, R, R, P, W=np.inf)[0]:.4f}, mirror sides {mc(kernel(BT, BR), PL, R, R, P, edge="mirror")[0]:.4f} vs eta_sta {ref_inf(BT, BR, P, R, "actual"):.4f}', flush=True)
     # ---- 1. benchmark geometry
     for d in DEVS:
         P, R = dev(d, 75)
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         for var in ('actual', 'exit_mix', 'rand'):
             az = AZDEF.get(nm, 'random') if var == 'actual' else 'random'
             for Wt in (1, 2, 4, 8, 9.65, 16, 32, 64, 128, 256):
-                e, ed = mc(kernel(BT, BR, var), PL, R, R, P, W=Wt, az=az, seed=2)
+                e, ed = mc(kernel(BT, BR, var), PL, R, R, P, W=Wt, az=az, seed=2, edge='fresnel')
                 out['size'].append(dict(structure=nm, variant=var, az=az, W_over_t=Wt, eta=e, edge=ed, eta_inf=ref_inf(BT, BR, P, R, var)))
     print('size done', flush=True)
     # ---- 3. stack reflectance only under the emitting disc (radius a); outside black or glass/air
@@ -153,7 +153,7 @@ if __name__ == '__main__':
             for var in ('actual', 'exit_mix', 'rand'):
                 az = AZDEF.get(nm, 'random') if var == 'actual' else 'random'
                 for at in (0.05, 0.1, 0.2, 0.5, A0, 2, 5, 10, 20, 50):
-                    e, ed = mc(kernel(BT, BR, var), PL, R, Rout, P, a=at, W=at + W0, rc=at, az=az, seed=3)
+                    e, ed = mc(kernel(BT, BR, var), PL, R, Rout, P, a=at, W=at + W0, rc=at, az=az, seed=3, edge='fresnel')
                     out['pixel'].append(dict(outside=rout_name, structure=nm, variant=var, az=az, a_over_t=at, eta=e, edge=ed, eta_inf=ref_inf(BT, BR, P, R, var)))
     print('pixel done', flush=True)
     json.dump(out, open('data/finite_size.json', 'w'), indent=1)

@@ -18,7 +18,7 @@ for nm, (c, lab) in NM.items():
         rows += [[nm, var, r['az'], r['W_over_t'], r['eta'], r['edge'], r['eta_inf']] for r in z]
 ax[0].axvline(12.5 / 1.295, color=INK2, lw=0.6); ax[0].text(12.5 / 1.295 * 1.08, 0.33, 'benchmark', fontsize=5.5, color=INK2)
 ax[0].set_xscale('log'); ax[0].set_xlabel('substrate half-width / thickness'); ax[0].set_ylabel('η_sta')
-ax[0].set_ylim(0.3, 0.85); ax[0].set_title('(a) substrate size (absorbing sides)', loc='left')
+ax[0].set_ylim(0.3, 0.85); ax[0].set_title('(a) substrate size (glass/air sides)', loc='left')
 ax[0].legend(fontsize=5, frameon=False, loc='lower right')
 sheets.append(('a_size', ['structure', 'variant', 'azimuth', 'W/t', 'eta', 'side loss', 'eta_infinite'], rows))
 # (b) stack reflectance only under the emitting disc
