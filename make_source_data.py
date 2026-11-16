@@ -88,11 +88,9 @@ add('FigS4a_first_pass', 'Fig. S4', 'a', 'First-pass power into each polar band 
 add('FigS4b_composition', 'Fig. S4', 'b', 'S40-60 of the multi-pass output vs eta_sta, all structures (Al, 550 nm); shaded band 0.33-0.36, Lambertian 0.337.', rows_of(f, 'b_composition'), f)
 # ---------------- Fig. 6
 f = D + 'fig5_experiment.xlsx'
-add('Fig5b_sim_profiles', 'Fig. 5', 'b', 'Simulated normalized angular intensity (5-degree moving average).', rows_of(f, 'b_sim_profiles'), f)
-add('Fig5b_meas_hemi', 'Fig. 5', 'b', 'Measured normalized angular intensity, hemispherical-MLA devices.', rows_of(f, 'b_measured_hemi'), f)
-add('Fig5c_angular_factor', 'Fig. 5', 'c', 'Angular factor: simulated (3 and 10 mm patch) and measured per device.', rows_of(f, 'c_angular_factor'), f)
-add('Fig5d_EQE_vs_patch', 'Fig. 5', 'd', 'Simulated EQE vs lens patch width, scaled by 0.89.', rows_of(f, 'd_EQE_vs_patch'), f)
-add('Fig5d_meas_EQE', 'Fig. 5', 'd', 'Measured EQE (max at >= 3.4 V) per device.', rows_of(f, 'd_measured_EQE'), f)
+add('Fig5bc_profiles', 'Fig. 5', 'b,c', 'Normalized angular intensity: model range over the measurement geometries (3 mm patch) and measured devices (orange: per device; green: tilt-corrected mean and s.d.).', rows_of(f, 'bc_profiles'), f)
+add('Fig5d_angular_factor', 'Fig. 5', 'd', 'Angular factor: model range (3 mm patch), model for a 10 mm patch, and measured values per device or trial.', rows_of(f, 'd_angular_factor'), f)
+add('Fig5e_ratios', 'Fig. 5', 'e', 'Lens-device/bare ratio of on-axis (Lambertian-equivalent) and total EQE: model (3 and 10 mm patch) and measured devices.', rows_of(f, 'e_ratios'), f)
 f = D + 'fig6_hemisphere_benchmark.xlsx'
 add('FigS9a_profiles', 'Fig. S9', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
 add('FigS9b_best_EQE', 'Fig. S9', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
