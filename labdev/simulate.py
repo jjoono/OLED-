@@ -88,7 +88,7 @@ if __name__ == '__main__':
                 air[k] = eS @ BTn(S) + eP @ BTn(PL); eta[k] = air[k].sum(); side[k] = sd; einf[k] = infinite(S, Rin, P)
             wq = Q * s * F * fsub / norm                                   # photons into the substrate per electron, per lambda
             A = wq[:, None] * air                                          # photons per electron into each air bin
-            I0 = (A[:, :3].sum(1) / dOm[:3].sum())                         # photons / sr / electron near 0 deg (0-3 deg)
+            I0 = (A[:, :5].sum(1) / dOm[:5].sum())                         # photons / sr / electron near 0 deg (0-5 deg average)
             cdA = float(np.sum(I0 * 683 * ybar(L) * 1239.84 / L))
             band = {b: float(A[:, lo:hi].sum()) for b, (lo, hi) in {'0-20': (0, 20), '20-40': (20, 40), '40-60': (40, 60), '60-80': (60, 80), '80-90': (80, 90)}.items()}
             key = f'{nm}|{outside}'
