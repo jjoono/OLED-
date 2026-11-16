@@ -63,5 +63,13 @@
   "Ag_nitrile": 0.054,
   "anion_aza": -5.185,
   "anion_nitrile": -2.676
+ },
+ "ionpair_aza": {
+  "BE": 402.604,
+  "gs_conv": true,
+  "ch_conv": false,
+  "core_weight": 0.976,
+  "d_Cs": 3.885,
+  "sec": 23576
  }
 }
