@@ -69,7 +69,11 @@ def mc_abs(K, PL, R, P, t, hp, beta, N, seed, maxit=5000):
 
 def gonio(L, H, t, zc, phis, s=5.0, thg=np.arange(-85, 86, 1.0), nw=5):
     th_c = np.arange(90) + 0.5; dO = (np.cos(np.radians(th_c - 0.5)) - np.cos(np.radians(th_c + 0.5))) * DPS
-    Lr = L / dO[:, None]; Lr = np.c_[Lr, Lr[:, :1]]                       # periodic in phi
+    # lens kernels are traced at bin-centre incidence angles, so light refracted by the flat glass between the lenslets
+    # forms a comb (teeth every 1.51 deg) in theta; a power-weighted 3-bin average (mirrored at the normal) removes it
+    Lp = np.r_[L[:1], L, L[-1:]]; Op = np.r_[dO[:1], dO, dO[-1:]]
+    Lr = (Lp[:-2] + Lp[1:-1] + Lp[2:]) / (Op[:-2] + Op[1:-1] + Op[2:])[:, None]
+    Lr = np.c_[Lr, Lr[:, :1]]                                              # periodic in phi
     m = H > H.max() * 1e-4; X, Y = np.meshgrid(XC, XC, indexing='ij'); xs0, ys0, wt = X[m], Y[m], H[m]
     ps = np.radians(phis); xs = xs0 * np.cos(ps) + ys0 * np.sin(ps); yp = -xs0 * np.sin(ps) + ys0 * np.cos(ps)
     w = s / 2 / D; al = np.linspace(-w, w, nw); I = np.zeros(thg.size)
@@ -92,6 +96,28 @@ def summarize(thg, I):
     return dict(sym=sym.tolist(), pos=pos.tolist(), neg=neg.tolist(), PE=float(PE))
 
 
+def scan_all(L, H, t):
+    out = {}
+    for zc_name, zc in (('device', 0.0), ('middle', t / 2), ('surface', t)):
+        for phis in (0.0, 45.0, 90.0):
+            for s in (5.0, 10.0):
+                thg, I = gonio(L, H, t, zc, phis, s); out[f'{zc_name}|phis{phis:g}|s{s:g}'] = summarize(thg, I)
+    return out
+
+
+def rescan(path):
+    """Re-evaluate the goniometer scans of a saved result file (L and H stored per case)."""
+    res = json.load(open(path))
+    for key, v in res.items():
+        if isinstance(v, dict) and 'L' in v:
+            t = 0.7 if key.startswith('bare') else 1.4
+            v['scans'] = scan_all(np.array(v['L']), np.array(v['H']), t)
+    json.dump(res, open(path, 'w'))
+
+
+if __name__ == '__main__' and sys.argv[1] == 'rescan':
+    rescan(sys.argv[2]); sys.exit()
+
 if __name__ == '__main__':
     N = 300000; NCH = int(sys.argv[4]) if len(sys.argv) > 4 else 10; PL = SM.planar_kernel()
     if sys.argv[1] == 'orange':                     # orange devices (device.npz, layout_stacks.npz), every second wavelength
@@ -113,11 +139,8 @@ if __name__ == '__main__':
         az = L.sum(1) / (2 * np.pi * dOm); ref = GJ.rel(az)[0]
         key = f'{nm}|beta{beta:g}'; res[key] = dict(EQE=float(L.sum()), azavg_rel=ref.tolist(), L=L.tolist(), H=H.tolist(), scans={})
         print(f'{key}: EQE {L.sum()*100:.1f}%  azimuth-averaged I/I0 ' + ' '.join(f'{v:.3f}' for v in ref[1:7]), flush=True)
-        for zc_name, zc in (('device', 0.0), ('middle', t / 2), ('surface', t)):
-            for phis in (0.0, 45.0, 90.0):
-                for s in (5.0, 10.0):
-                    thg, I = gonio(L, H, t, zc, phis, s); sm = summarize(thg, I)
-                    res[key]['scans'][f'{zc_name}|phis{phis:g}|s{s:g}'] = sm
+        res[key]['scans'] = scan_all(L, H, t)
+        for zc_name in ('device', 'middle', 'surface'):
             sm = res[key]['scans'][f'{zc_name}|phis0|s5']; sm9 = res[key]['scans'][f'{zc_name}|phis90|s5']
             print(f'   axis {zc_name:7s} scan x : ' + ' '.join(f'{v:.3f}' for v in sm['sym'][1:7]) + f"  PE {sm['PE']:.3f}  +/-asym@40 {sm['pos'][4]/sm['neg'][4]:.3f}", flush=True)
             print(f'   axis {zc_name:7s} scan y : ' + ' '.join(f'{v:.3f}' for v in sm9['sym'][1:7]) + f"  PE {sm9['PE']:.3f}  +/-asym@40 {sm9['pos'][4]/sm9['neg'][4]:.3f}", flush=True)
