@@ -87,10 +87,20 @@ f = D + 'fig5_bound_window.xlsx'
 add('FigS4a_first_pass', 'Fig. S4', 'a', 'First-pass power into each polar band / substrate power (Al, 550 nm): bounds and four structures.', rows_of(f, 'a_first_pass'), f)
 add('FigS4b_composition', 'Fig. S4', 'b', 'S40-60 of the multi-pass output vs eta_sta, all structures (Al, 550 nm); shaded band 0.33-0.36, Lambertian 0.337.', rows_of(f, 'b_composition'), f)
 # ---------------- Fig. 6
+f = D + 'fig5_experiment.xlsx'
+add('Fig5b_sim_profiles', 'Fig. 5', 'b', 'Simulated normalized angular intensity (5-degree moving average).', rows_of(f, 'b_sim_profiles'), f)
+add('Fig5b_meas_hemi', 'Fig. 5', 'b', 'Measured normalized angular intensity, hemispherical-MLA devices.', rows_of(f, 'b_measured_hemi'), f)
+add('Fig5c_angular_factor', 'Fig. 5', 'c', 'Angular factor: simulated (3 and 10 mm patch) and measured per device.', rows_of(f, 'c_angular_factor'), f)
+add('Fig5d_EQE_vs_patch', 'Fig. 5', 'd', 'Simulated EQE vs lens patch width, scaled by 0.89.', rows_of(f, 'd_EQE_vs_patch'), f)
+add('Fig5d_meas_EQE', 'Fig. 5', 'd', 'Measured EQE (max at >= 3.4 V) per device.', rows_of(f, 'd_measured_EQE'), f)
 f = D + 'fig6_hemisphere_benchmark.xlsx'
-add('Fig5a_profiles', 'Fig. 5', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
-add('Fig5b_best_EQE', 'Fig. 5', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
-add('Fig5c_searches', 'Fig. 5', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
+add('FigS9a_profiles', 'Fig. S9', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
+add('FigS9b_best_EQE', 'Fig. S9', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
+add('FigS9c_searches', 'Fig. S9', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
+f = D + 'figS_finite_size.xlsx'
+add('FigS10a_size', 'Fig. S10', 'a', 'eta_sta vs substrate half-width / thickness (glass/air sides).', rows_of(f, 'a_size'), f)
+add('FigS10b_pixel', 'Fig. S10', 'b', 'eta_sta vs pixel radius / thickness, stack only under the pixel.', rows_of(f, 'b_pixel'), f)
+add('FigS10c_mixing_gain', 'Fig. S10', 'c', 'Gain from complete mixing at the escape interface.', rows_of(f, 'c_mixing_gain'), f)
 # ---------------- Supplement
 f = D + 'figS11_device_inputs.xlsx'
 add('FigS1_device_inputs', 'Fig. S1', 'a-b', 'First-pass substrate radiance (a) and angle-resolved reflectance R (b) of the three devices at 550 nm.', rows_of(f, 'devices_550nm'), f)

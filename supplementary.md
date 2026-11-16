@@ -336,7 +336,7 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 
 ## Note S8 | Lens versus cavity
 
-**Table S15 | Benchmark optima on the $(p, N_{\mathrm{mix}})$ plane (main text, Sec. 4.5).** Values are for 550 nm, and $\eta_{\mathrm{sta}}$ is for the Al device in the multi-pass model. The 0–20° freeform optimum has a vertical sidewall and is omitted.
+**Table S15 | Benchmark optima on the $(p, N_{\mathrm{mix}})$ plane (Note S12).** Values are for 550 nm, and $\eta_{\mathrm{sta}}$ is for the Al device in the multi-pass model. The 0–20° freeform optimum has a vertical sidewall and is omitted.
 
 | Design | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ |
 |---|---|---|---|---|
@@ -639,11 +639,92 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 | low loss | Wavy, rms slope 1.0 | 0.962 | 0.963 | 0.964 | 0.965 | 0.967 |
 
 
+## Note S12 | Freeform benchmark
+
+This note collects the LightTools benchmark of the Al platform (Notes S5, S6, S8). An axisymmetric freeform MLA with 13 variables (spline profile, height, and ETL and HTL thicknesses) is compared with an equally optimized hemispherical MLA with 3 variables on the Al platform, using LightTools ray tracing validated against fabricated devices [11,12]. The hemisphere is contained in the freeform design space (Table S12). Total EQE and the EQE in four polar bands (0–20°, 20–40°, 40–60°, and 60–80°) are optimized separately by surrogate optimization and pattern search in MATLAB. Each optimum is re-evaluated three times at full fidelity, and a restart control repeats every search from the hemispherical optimum (Note S6).
+
+The band-optimized freeform profiles differ visibly from the hemisphere (Fig. S9a), but the efficiency gains are small. The ratio $G_j$ of the best freeform EQE to the best hemispherical EQE is 1.003, 1.002, 1.070, and 1.036 for the four bands and 1.013 for total EQE (Fig. S9b, Table S31). For the 40–60° band and for total EQE, these ratios correspond to absolute EQE gains of 1.3 and 0.71 pp.
+
+Independent searches give similar ratios: 1.046–1.070 for 40–60°, 1.020–1.036 for 60–80°, and 1.005–1.013 for total EQE. At 0–40°, no search improves the EQE by more than 0.3%; the lower original values at 0–40° (0.946, 0.966) are search failures, since the hemisphere lies in the freeform design space. We use the spread over independent searches as the uncertainty (Fig. S9c, Fig. S6).
+
+**Table S31 | Freeform versus hemisphere (Al platform, LightTools).** The last column gives the freeform/hemisphere ratio over independent searches, with the number of searches in parentheses (data in Table S13).
+
+| Objective | Hemisphere | Best freeform | $G_j$ | Independent searches |
+|---|---|---|---|---|
+| 0–20° | 0.06682 | 0.06699 | 1.003 | 0.946–1.003 (2) |
+| 20–40° | 0.16591 | 0.16628 | 1.002 | 0.966–1.002 (2) |
+| 40–60° | 0.18503 | 0.19802 | 1.070 | 1.046–1.070 (2) |
+| 60–80° | 0.13589 | 0.14075 | 1.036 | 1.020–1.036 (2) |
+| Total EQE | 0.54679 | 0.5539 | 1.013 | 1.005–1.013 (4) |
+
+On the $(p, N_{\mathrm{mix}})$ plane, the nine optima span only $p$ = 0.417–0.429, which corresponds to about 0.7 pp of $\eta_{\mathrm{sta}}$, whereas $N_{\mathrm{mix}}$ spans 3.0–8.0 and $\xi$ spans 0.39–0.79 (Table S15). Shape freedom therefore changes a design mainly along the $N_{\mathrm{mix}}$ axis, along which the efficiency contours are flat.
+
+Because the benchmark optimizes the cavity together with the lens, we separated the two effects (Note S8). With a fixed stack, a lens-only optimization increases the 40–60° band EQE by 9.0% but $\eta_{\mathrm{sta}}$ by only 1.25%. At unchanged $p$, the optimized lens relaxes faster ($N_{\mathrm{mix}}$ 7.1 → 2.1) and recovers 1.0 of the 1.4 pp that complete mixing would add. At a fixed cavity, the lens shape thus redistributes power among the bands but raises the total only through faster mixing.
+
+**Fig. S9 | Freeform versus an equally optimized hemisphere.** (a) Band-optimized freeform profiles and the hemispherical reference. Profiles are drawn from the optimized control points with a monotone spline. (b) Best EQE of each lens class for each objective, labelled with $G_j$. (c) Freeform/hemisphere ratio for each independent search: the original per-band search (circles), restarts from the hemispherical optimum (squares), and three random starts for total EQE (triangles). Ratios below one indicate search failures, because the hemisphere is contained in the freeform design space. *(`fig6_hemisphere_benchmark.png`)*
+
+## Note S13 | Fabricated devices and the finite-geometry model
+
+**Devices and layout.** The devices of main-text Sec. 4.5 share one substrate design (main-text Fig. 5a): 25.4 × 25.4 mm glass of 0.7 mm thickness, ITO on the upper half, five Al fingers (width 2.78 mm, pitch 3.99 mm, straight length 9.93 mm, semicircular ends) and an Al rectangle near the upper edge. A pixel-defining layer opens a circle of 1 mm radius centred on the upper end-cap of the middle finger. The stack is ITO (150 nm) / TAPC (50 nm) / TCTA (10 nm) / TCTA:B3PyMPM (1:1):Ir(dmppy-ph)$_2$tmd (4 wt%, 25 nm) / B3PyMPM (45 nm) / LiF (1 nm) / Al (100 nm), with the emission zone at the centre of the EML and a horizontal dipole ratio of 0.865. Lens devices carry a second 0.7 mm glass, coupled with index-matching oil, with a hexagonal close-packed array of hemispherical or freeform lenslets (radius 10 µm, index-matched) on a 3 × 3 mm square centred on the pixel. The freeform profile was digitized from its seven-point spline (height 2.28 lens radii at the axis, maximum 2.50 at 0.46 radii, vertical sidewall at the rim). The substrate sides were blackened.
+
+**Measurement.** Current–voltage–luminance curves and angle-resolved spectra were recorded with a photodiode goniometer (photodiode at 59 mm from the rotation axis), from +40° to −80° in 10° steps with four readings per angle. The EQE is the on-axis EQE, inferred for a Lambertian emitter, multiplied by the angular factor $2\int_0^{\pi/2}[I(\theta)/I(0)]\sin\theta\,d\theta$ (natural cubic spline of the negative-angle side, $I(90°) = 0$). Table S32 lists the maximum EQE above turn-on and the maximum EQE at 3.4 V and above, which avoids the low-luminance range near turn-on, where the photodiode dark current contributes 3–5% of the signal. The main text uses the latter. Device S4D3 (freeform) is excluded: its intensity maximum lies at −40°, only one angular file exists, and its EQE exceeds the optical ceiling of the simulation.
+
+**Model.** Device optics follow Sec. 3 (CPS, PLQY 0.98 with the Purcell factor of the stack, 400–700 nm in 10 nm steps). The back-face reflectance seen from the glass is computed for four regions: pixel (full stack), Al-covered with or without ITO, and uncovered (organics/air) with or without ITO; the pixel-defining layer is neglected. Each encounter with the front face inside the lens patch uses the traced 1° return and transmission kernels of the lens array, including the change of azimuth (height-field tracer of Note S2, $2\times10^4$ rays per bin); outside the patch, the planar glass/air face acts specularly with Fresnel transmission. Between encounters, light moves laterally by $2t\tan\theta$ with $t$ = 1.4 mm (0.7 mm for bare devices), and light that reaches the blackened sides is lost. Light leaving the front face is binned in air angle. With mirror sides, the estimator reproduces $\eta_{\mathrm{sta}}$ of the infinite substrate to $2\times10^{-4}$. A photodiode model with the 59 mm geometry, three rotation-axis positions (device plane, mid-substrate, lens surface) and photodiode sizes of 3–10 mm changes the angular factor by at most 0.04 and the EQE by at most 0.4 pp for the 3 × 3 mm patch; the far-field values are used in the main text. Fig. S10 shows the same model for a generic substrate.
+
+**Table S32 | Measured devices.** EQE$_{\max}$: maximum above turn-on (voltage, luminance). EQE$_{\geq 3.4\,\mathrm{V}}$: maximum at 3.4 V and above (main text). Angular factor at EQE$_{\max}$.
+
+| Device | Structure | EQE$_{\max}$ (%) | at V (cd/m²) | EQE$_{\geq 3.4\,\mathrm{V}}$ (%) | Angular factor |
+|---|---|---|---|---|---|
+| S1D1 | bare | 31.3 | 3.0 (24) | 29.7 | 1.01 |
+| S1D2 | bare | 30.6 | 2.2 (1.6) | 27.7 | 1.08 |
+| S2D2 | bare | 33.3 | 2.2 (2.2) | 30.7 | 0.95 |
+| S4D1 | bare | 34.1 | 2.4 (5.6) | 31.4 | 1.02 |
+| S5D2 | bare | 31.8 | 2.6 (70) | 30.8 | 0.97 |
+| S1D3 | freeform | 25.9 | 2.3 (1.1) | 22.9 | 1.13 |
+| S2D3 | freeform | 31.4 | 2.2 (2.3) | 26.7 | 0.99 |
+| S3D3 | freeform | 30.4 | 2.2 (2.6) | 23.7 | 1.11 |
+| S5D3 | freeform | 33.7 | 2.2 (3.3) | 28.7 | 1.03 |
+| S1D4 | hemispherical | 23.8 | 2.6 (38) | 22.9 | 0.63 |
+| S2D4 | hemispherical | 27.7 | 2.6 (84) | 27.1 | 0.69 |
+| S3D2 | hemispherical | 24.4 | 2.2 (2.0) | 22.5 | 0.63 |
+| S4D2 | hemispherical | 25.9 | 2.4 (9.0) | 25.3 | 0.71 |
+| S5D4 | hemispherical | 24.7 | 2.6 (92) | 24.1 | 0.66 |
+
+On the EQE$_{\max}$ basis, the measured means are 32.2% (bare), 30.3% (freeform) and 25.3% (hemispherical); the order of the structures is the same on both bases. Over eleven angular measurements of the five hemispherical devices, the angular factor is 0.62–0.73 and the rms deviation of $I/I(0)$ from the simulation for the 3 × 3 mm patch is 0.048 (10–80°); a 0.5 mm offset of the patch raises it to 0.067, and patches of 5 and 10 mm give 0.094 and 0.118.
+
+**Table S33 | Lens-array variants in the device layout (3 × 3 mm patch, unscaled simulation).** Caps: spherical caps with height/base-radius ratio $a$. Gaps: hemispheres of base radius $r_b$ (in units of the cell radius) with flat glass between them. Measured (EQE$_{\geq 3.4\,\mathrm{V}}$ / 0.89): 27.3%, angular factor 0.62–0.73.
+
+| Lenslet | EQE (%) | EQE$_{0°}$ (%) | Angular factor | $I/I(0)$ at 20°, 40°, 60° |
+|---|---|---|---|---|
+| hemisphere | 31.7 | 47.8 | 0.66 | 0.93, 0.53, 0.23 |
+| cap, $a$ = 0.7 | 30.6 | 44.0 | 0.70 | 0.94, 0.57, 0.24 |
+| cap, $a$ = 0.5 | 29.4 | 37.4 | 0.79 | 0.97, 0.66, 0.30 |
+| gaps, $r_b$ = 0.95 | 31.4 | 45.7 | 0.69 | 1.01, 0.55, 0.22 |
+| gaps, $r_b$ = 0.9 | 31.2 | 44.0 | 0.71 | 1.06, 0.57, 0.22 |
+| gaps, $r_b$ = 0.85 | 31.3 | 42.1 | 0.74 | 1.13, 0.59, 0.22 |
+| gaps, $r_b$ = 0.8 | 31.4 | 40.4 | 0.78 | 1.20, 0.62, 0.21 |
+| gaps, $r_b$ = 0.7 | 31.7 | 37.0 | 0.86 | 1.31, 0.67, 0.20 |
+
+**Table S34 | Simulated EQE and angular factor against the width of the lens patch (device layout, unscaled).** Bare device: 33.7%, angular factor 1.00.
+
+| Patch width (mm) | Hemispherical EQE (%) | Angular factor | Freeform EQE (%) | Angular factor |
+|---|---|---|---|---|
+| 2 | 30.9 | 0.87 | 31.0 | 1.40 |
+| 3 | 31.7 | 0.66 | 31.8 | 0.99 |
+| 4 | 35.6 | 0.70 | 35.0 | 0.91 |
+| 5 | 39.3 | 0.76 | 37.7 | 0.93 |
+| 7 | 42.8 | 0.81 | 40.4 | 0.96 |
+| 10 | 45.4 | 0.85 | 43.1 | 0.98 |
+| 14 | 47.1 | 0.88 | 45.0 | 1.01 |
+| 20 | 48.5 | 0.90 | 46.6 | 1.03 |
+
+**Fig. S10 | Finite lateral size for a generic substrate (Al device, 550 nm; disc source of 1 mm radius, 1.295 mm glass).** (a) $\eta_{\mathrm{sta}}$ against the half-width of the substrate (glass/air sides) without additional mixing (solid) and with complete reciprocal mixing at the escape interface (dashed); dotted lines mark the infinite substrate. (b) $\eta_{\mathrm{sta}}$ against the pixel radius when the stack reflectance is present only under the pixel and the back face outside it is glass/air (solid) or absorbing (dashed). (c) Gain from complete mixing at the escape interface for the infinite substrate, for the benchmark size, and for the benchmark size with an absorbing back face outside the pixel. *(`figS_finite_size.png`)*
+
 ---
 
 ## Reproducing the figures and data
 
-Main-text Figs. 1–4 and Fig. S4 are produced by `selectivity/oe_figs.py`; panels (c) and (d) of Fig. 2 and Tables S26–S27 use `selectivity/placement.py`, Table S25 uses `selectivity/device_side_slabs.py`, Table S28 uses `multipass_reset/run_highindex.py` and `selectivity/highindex_slabs.py`, and Tables S29–S30 use `selectivity/spectral_placement.py`. `oe_figs.py` evaluates the 38 structures with the full and reduced models, takes the return matrices from `multipass_reset/run_random_sweep.py`, and writes PNG, PDF, and an Excel workbook of the plotted arrays to `figures_oe/`. Main-text Fig. 5 and Figs. S5, S7, and S8 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S11 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S20 from `selectivity/cutoff_modes.py`; Tables S16–S17 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S18 from `multipass_reset/fixedcav_opt.py`; Table S19 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S3 and Tables S22–S24 from `selectivity/review2_diag.py`; Table S21 from `selectivity/slab_direct_check.py`; Fig. S6 from `make_optimizer_convergence.py`; Table S7 from `multipass_reset/polcheck.py`; Table S10 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
+Main-text Figs. 1–4 and Fig. S4 are produced by `selectivity/oe_figs.py`; panels (c) and (d) of Fig. 2 and Tables S26–S27 use `selectivity/placement.py`, Table S25 uses `selectivity/device_side_slabs.py`, Table S28 uses `multipass_reset/run_highindex.py` and `selectivity/highindex_slabs.py`, and Tables S29–S30 use `selectivity/spectral_placement.py`. `oe_figs.py` evaluates the 38 structures with the full and reduced models, takes the return matrices from `multipass_reset/run_random_sweep.py`, and writes PNG, PDF, and an Excel workbook of the plotted arrays to `figures_oe/`. Fig. S9 (former benchmark figure) and Figs. S5, S7, and S8 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; main-text Fig. 5 and Tables S32–S34 come from `labdev/` (`device.py`, `layout_stacks.py`, `trace_lenses.py`, `layout.py`, `layout_sweep.py`, `trace_variants.py`, `layout_variants.py`, `gonio_pd.py`, `fig_experiment.py`); Fig. S10 from `selectivity/finite_size.py` and `selectivity/fig_finite_size.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S11 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S20 from `selectivity/cutoff_modes.py`; Tables S16–S17 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S18 from `multipass_reset/fixedcav_opt.py`; Table S19 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S3 and Tables S22–S24 from `selectivity/review2_diag.py`; Table S21 from `selectivity/slab_direct_check.py`; Fig. S6 from `make_optimizer_convergence.py`; Table S7 from `multipass_reset/polcheck.py`; Table S10 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

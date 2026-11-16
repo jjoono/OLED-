@@ -31,10 +31,11 @@ const FIGS = {
   '2': 'figures_oe/fig2_complete_mixing.png',
   '3': 'figures_oe/fig3_reduced_model.png',
   '4': 'figures_oe/fig4_structure_map.png',
-  '5': 'figures_oe/fig6_hemisphere_benchmark.png',
+  '5': 'figures_oe/fig5_experiment.png',
   'S1': 'figures_oe/figS11_device_inputs.png', 'S2': 'figures_oe/figS_model_comparison.png', 'S3': 'figures_oe/figS2_composition_window.png',
   'S4': 'figures_oe/fig5_bound_window.png', 'S5': 'fig1_platform.png', 'S6': 'figures_oe/figS5_optimizer_convergence.png',
   'S7': 'figS1_restart_control.png', 'S8': 'fig3_efficiency_composition.png',
+  'S9': 'figures_oe/fig6_hemisphere_benchmark.png', 'S10': 'figures_oe/figS_finite_size.png',
 };
 
 // ---------- PNG size from IHDR ----------
