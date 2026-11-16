@@ -14,7 +14,7 @@ for nm, c in C.items():
     ax[1].errorbar(3, pe, yerr=[[pe - pr[0]], [pr[1] - pe]], fmt='s', color=c, mec='k', ms=6, capsize=3, zorder=5)
 for a in ax:
     a.set_xscale('log'); a.set_xticks(P); a.set_xticklabels([str(p) for p in P]); a.set_xlabel('lens patch width (mm, square, centred)'); a.spines[['top', 'right']].set_visible(False)
-    a.axvline(3, color='k', lw=0.4, ls=':')
+    a.axvline(3, color='k', lw=0.4, ls=':'); a.minorticks_off()
 ax[0].set_ylabel('EQE (%)'); ax[0].set_title('(a) EQE vs lens patch size (squares: measured, 3 mm)', loc='left', fontsize=8); ax[0].legend(fontsize=6, frameon=False, loc='lower right')
 ax[1].set_ylabel('PE factor = EQE / (π I(0))'); ax[1].set_ylim(0.5, 1.5); ax[1].set_title('(b) angular factor (squares: measured)', loc='left', fontsize=8)
 fig.savefig('patch_sweep.png', dpi=200, bbox_inches='tight')
