@@ -5,7 +5,9 @@ import sys, numpy as np
 sys.path.insert(0, '../selectivity'); import sel
 from sel import cps2
 import device as DV
-TH_H = 0.77; HTL = 105.0; ETL = 42.0
+import os
+TH_H = 0.77; HTL = 105.0; ETL = float(os.environ.get('GREEN_ETL', '42'))
+SFX = '' if ETL == 42.0 else f'_etl{ETL:g}'
 out = {k: [] for k in ('f_sub', 'P', 'F', 'R_pix', 'R_noAl', 'wg', 'spp', 'abs')}; reg = {k: [] for k in ('ITO_Al', 'noITO_Al', 'ITO_noAl', 'noITO_noAl')}
 for j, lam in zip(DV.J, DV.LAMS):
     org = lambda m, d: (sel.D['n_' + m + '_o'][j].real, sel.D['n_' + m + '_e'][j].real, d)
@@ -29,7 +31,7 @@ for j, lam in zip(DV.J, DV.LAMS):
             reg[('ITO' if ito else 'noITO') + '_' + ('Al' if al else 'noAl')].append(np.clip(np.real(cps2.stack_reflectance(S2, DV.TH)), 0, 1))
     out['R_noAl'].append(reg['ITO_noAl'][-1])
 s = sel.D['s_Ir(ppy)2acac'][DV.J] * DV.LAMS; s = s / s.sum()
-np.savez('device_green.npz', lam=DV.LAMS, s=s, **{k: np.array(v) for k, v in out.items()})
-np.savez('layout_stacks_green.npz', **{k: np.array(v) for k, v in reg.items()})
+np.savez(f'device_green{SFX}.npz', lam=DV.LAMS, s=s, **{k: np.array(v) for k, v in out.items()})
+np.savez(f'layout_stacks_green{SFX}.npz', **{k: np.array(v) for k, v in reg.items()})
 k = list(DV.LAMS).index(520.0)
 print('520 nm: f_sub %.3f wg %.3f spp %.3f abs %.3f F %.3f | s-weighted f_sub %.3f F %.3f' % (out['f_sub'][k], out['wg'][k], out['spp'][k], out['abs'][k], out['F'][k], (s * np.array(out['f_sub'])).sum(), (s * np.array(out['F'])).sum()))

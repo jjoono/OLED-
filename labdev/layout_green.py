@@ -2,7 +2,9 @@
 3 x 3 mm patch (1.4 mm glass), plus 10 x 10 mm for reference. Same model as layout.py with the green device optics."""
 import json, numpy as np
 import simulate as SM, layout as LY
-dv = np.load('device_green.npz'); st = np.load('layout_stacks_green.npz'); L = dv['lam']; s = dv['s']; F = dv['F']; fsub = dv['f_sub']
+import os
+SFX = os.environ.get('GREEN_SFX', '')
+dv = np.load(f'device_green{SFX}.npz'); st = np.load(f'layout_stacks_green{SFX}.npz'); L = dv['lam']; s = dv['s']; F = dv['F']; fsub = dv['f_sub']
 Q = SM.Q; wq = Q * s * F * fsub / (Q * np.sum(s * F) + 1 - Q)
 PL = SM.planar_kernel(); E = np.arange(91); dOm = 2 * np.pi * (np.cos(np.radians(E[:-1])) - np.cos(np.radians(E[1:])))
 BTn = lambda K: K['BT'] / np.maximum(K['p'][:, None], 1e-15)
@@ -20,4 +22,4 @@ for nm, t, hp in [('bare', 0.7, 0.0)] + [(n, 1.4, h) for n in ('hemisphere', 'fr
     key = f'{nm}|patch{2 * hp:g}mm'
     res[key] = dict(EQE=eqe, front_EQE=fr, PE=eqe / fr, side=float((wq * side).sum() / wq.sum()), rel=rel, profile=prof.tolist())
     print(f"{key:22s} EQE {eqe*100:.1f}%  front {fr*100:.1f}%  PE {eqe/fr:.2f}  side {res[key]['side']:.3f}  I/I0: " + ' '.join(f'{v:.2f}' for v in rel), flush=True)
-json.dump(res, open('layout_green_results.json', 'w'))
+json.dump(res, open(f'layout_green_results{SFX}.json', 'w'))
