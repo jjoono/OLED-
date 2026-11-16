@@ -13,6 +13,10 @@ EMITTERS = {   # peak nm, FWHM nm, PLQY, Theta (horizontal fraction)
     'PyCNTPA-12': (747, 100, 0.786, 0.80),  # 12 wt% in CBP, TADF; Theta 'high' (not given) -> 0.80 assumed
     'PyCNTPA-24': (761, 100, 0.467, 0.80),  # 24 wt% in CBP
     'Ir-tmd': (760, 80, 0.032, 0.80),       # Ir(mCPDTiq)2tmd, Sci. Rep. 2023 (PLQY 3.2 %, Theta 0.80)
+    # Lumtec-available emitters (2026-11): PLQY partly unconfirmed -> also reported at q = 0.5/0.7/0.9/1 (EQE_q*)
+    'DTN': (674, 90, 0.80, 0.93),           # LT-N7047; Adv. Funct. Mater. 2025 e202529822: Theta 0.93, EQE 20.1 % at 674 nm; PLQY/FWHM assumed
+    'BF2': (721, 80, 0.70, 2 / 3),          # LT-N7003; Kim, D'Aleo, Adachi Nat. Photon. 2018: EL 721 nm (6 wt% CBP), PLQY ~0.70, EQE ~10 %; Theta unknown
+    'PtTPBP': (765, 30, 0.45, 2 / 3),       # LT-N734; Borek et al. 2007: 765 nm, PLQY 0.26-0.7 (0.45 mid), EQE 8-9 %; Theta unknown
 }
 CASES = [('ITO', 1.5, 0, 'flat'), ('ITO', 1.8, 0, 'mla'), ('ITO', 1.8, 4, 'mla'), ('IZO', 1.8, 0, 'mla'), ('IZO', 1.8, 4, 'mla'),
          ('Ag', 1.5, 4, 'mla'), ('Ag', 1.8, 4, 'mla')]
@@ -53,7 +57,7 @@ if __name__ == '__main__':
             for s in starts:
                 m = minimize(lambda x: -ev(x, 5), s, method='Nelder-Mead', options=dict(maxiter=300 if nd else 150, xatol=0.5, fatol=1e-5))
                 xr = np.clip(m.x, lo, hi)
-                fin = N.evaluate(xr, te, nd, nsub, step=2, npts=3000, kind=kind, mapper=pool.map, qs=(q, 1.0))
+                fin = N.evaluate(xr, te, nd, nsub, step=2, npts=3000, kind=kind, mapper=pool.map, qs=tuple(sorted({q, 0.5, 0.7, 0.9, 1.0})))
                 if best is None or fin[key] > best[0][key]: best = (fin, xr)
             fin, xb = best
             names = ['d_ETL', 'd_HTL', 'd_TE'] + [('SiO2_' if k % 2 == 0 else 'TiO2_') + str(k // 2 + 1) for k in range(2 * nd)]
