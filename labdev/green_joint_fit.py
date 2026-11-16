@@ -19,12 +19,9 @@ def rel(prof):
     return np.array([1.0] + [(p[a - 3:a + 3] * dOm[a - 3:a + 3]).sum() / dOm[a - 3:a + 3].sum() / i0 for a in range(10, 90, 10)]), np.pi * i0
 
 
-def run(args):
-    etl, htl = args[:2]; hk = args[2] if len(args) > 2 else 'hemisphere'
-    PL = SM.planar_kernel(); KER = {'bare': PL, 'hemisphere': SM.lens_kernel(hk), 'freeform': SM.lens_kernel('green_freeform')}
-    BTn = lambda K: K['BT'] / np.maximum(K['p'][:, None], 1e-15)
-    s = sel.D['s_Ir(ppy)2acac'][J] * LAMS; s = s / s.sum()
-    air = {k: np.zeros((len(J), 90)) for k in KER}; Fs = []; fs = []
+def stacks(etl, htl):
+    """Per-wavelength source angular distribution P, back reflectances R (pixel + 4 regions) and spectral weights wq."""
+    s = sel.D['s_Ir(ppy)2acac'][J] * LAMS; s = s / s.sum(); out = []; Fs = []; fs = []
     for jj, (j, lam) in enumerate(zip(J, LAMS)):
         org = lambda m, d: (sel.D['n_' + m + '_o'][j].real, sel.D['n_' + m + '_e'][j].real, d)
         met = lambda m, d: (sel.D['n_' + m][j], sel.D['n_' + m][j], d)
@@ -38,11 +35,20 @@ def run(args):
             for al in (True, False):
                 S2 = cps2.Stack(lam, eml, 25.0, Z0, above=cath if al else [org('B3', etl)], below=[org('TCTA', 10.0), org('TAPC', htl)] + ([met('ITO', 150.0)] if ito else []), n_sub=1.51, n_top=1.0, h=TH_H)
                 R[('ITO' if ito else 'noITO') + '_' + ('Al' if al else 'noAl')] = np.clip(np.real(cps2.stack_reflectance(S2, DV.TH)), 0, 1)
-        Fs.append(r['P_tot'] / ref['P_tot']); fs.append(r['air'] + r['sub'])
+        Fs.append(r['P_tot'] / ref['P_tot']); fs.append(r['air'] + r['sub']); out.append((P, R))
+    Fs = np.array(Fs); fs = np.array(fs); wq = Q * s * Fs * fs / (Q * np.sum(s * Fs) + 1 - Q)
+    return out, wq
+
+
+def run(args):
+    etl, htl = args[:2]; hk = args[2] if len(args) > 2 else 'hemisphere'
+    PL = SM.planar_kernel(); KER = {'bare': PL, 'hemisphere': SM.lens_kernel(hk), 'freeform': SM.lens_kernel('green_freeform')}
+    BTn = lambda K: K['BT'] / np.maximum(K['p'][:, None], 1e-15)
+    ST, wq = stacks(etl, htl); air = {k: np.zeros((len(J), 90)) for k in KER}
+    for jj, (P, R) in enumerate(ST):
         for nm, (t, hp) in {'bare': (0.7, 0.0), 'hemisphere': (1.4, 1.5), 'freeform': (1.4, 1.5)}.items():
             eS, eP, sd = LY.mc(KER[nm], PL, R, P, t, hp, True, N=40000, seed=jj)
             air[nm][jj] = eS @ BTn(KER[nm]) + eP @ BTn(PL)
-    Fs = np.array(Fs); fs = np.array(fs); wq = Q * s * Fs * fs / (Q * np.sum(s * Fs) + 1 - Q)
     out = dict(etl=etl, htl=htl, hemi_kernel=hk)
     for nm in KER:
         A = wq[:, None] * air[nm]; rl, fr = rel(A.sum(0) / dOm); out[nm] = dict(EQE=float(A.sum()), front=float(fr), PE=float(A.sum() / fr), rel=rl.tolist())

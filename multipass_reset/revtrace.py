@@ -160,3 +160,41 @@ def kernel(r, z, n=1.51, N=20000, max_ev=300, NA=36, seed=1, rings=2):
             m = oc == o; rb = np.minimum(d[m].astype(int), 89); ab = np.minimum((dp[m] / (2 * np.pi) * NA).astype(int), NA - 1)
             np.add.at(A[i], (rb, ab), 1.0 / N)
     return BT, K, lost, KT
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Lattice-resolved kernels. The hexagonal lattice (nearest neighbour along 0 deg) has mirror lines every 30 deg, so an
+# incident azimuth phi is reduced to a in [0, 30] deg with a sign s (+1 rotation, -1 mirror); the outgoing azimuth is
+# phi_out = phi + s * psi. KTa[in, a_bin, air, psi_bin] and Ka[in, a_bin, sub, psi_bin] are fractions of the rays
+# incident at (theta_in, a_bin).
+def reduce_az(phi):
+    r = np.degrees(phi) % 60.0; s = np.where(r <= 30.0, 1.0, -1.0); a = np.where(r <= 30.0, r, 60.0 - r)
+    return a, s
+
+
+@njit(parallel=True)
+def _batch_abs(th, N, n, seg, H, offs, max_ev, seed):
+    oc = np.empty(N, np.int64); to = np.empty(N); pi_ = np.empty(N); po_ = np.empty(N)
+    for i in prange(N):
+        np.random.seed(seed + i)
+        u = np.random.random(); w = np.random.random()
+        sx = u * 2.0 + w * 1.0; sy = w * SQ3
+        phi = 2 * np.pi * np.random.random()
+        a, b, po = _trace(th, phi, sx, sy, n, seg, H, offs, max_ev)
+        oc[i] = a; to[i] = b; pi_[i] = phi; po_[i] = po
+    return oc, to, pi_, po_
+
+
+def kernel_abs(r, z, n=1.51, N=60000, max_ev=300, NA=72, NB=6, seed=1, rings=2):
+    seg = segments(np.asarray(r, float), np.asarray(z, float)); H = float(np.max(z)); offs = offsets(rings)
+    KTa = np.zeros((90, NB, 90, NA), np.float32); Ka = np.zeros((90, NB, 90, NA), np.float32); cnt = np.zeros((90, NB))
+    for i in range(90):
+        oc, to, pin, pout = _batch_abs(np.radians(i + 0.5), N, n, seg, H, offs, max_ev, seed * 7919 + i * 100003)
+        a, s = reduce_az(pin); ab = np.minimum((a / (30.0 / NB)).astype(int), NB - 1)
+        cnt[i] = np.bincount(ab, minlength=NB)
+        psi = (s * (pout - pin)) % (2 * np.pi); pb = np.minimum((psi / (2 * np.pi) * NA).astype(int), NA - 1)
+        d = np.minimum(np.degrees(to).astype(int), 89)
+        for o, A in ((0, KTa), (1, Ka)):
+            m = oc == o; np.add.at(A[i], (ab[m], d[m], pb[m]), 1.0)
+        KTa[i] /= cnt[i][:, None, None]; Ka[i] /= cnt[i][:, None, None]
+    return KTa, Ka
