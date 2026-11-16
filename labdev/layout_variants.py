@@ -17,4 +17,4 @@ for nm in sys.argv[1:]:
     rel = [float((prof[a - 1:a + 1] * dOm[a - 1:a + 1]).sum() / dOm[a - 1:a + 1].sum() / i0) for a in A10]
     res[nm] = dict(EQE=eqe, front_EQE=fr, PE=eqe / fr, rel=rel, profile=prof.tolist())
     print(f"{nm:12s} EQE {eqe*100:.1f}% (x0.955 {eqe*95.5:.1f})  front {fr*100:.1f}%  PE {eqe/fr:.2f}  I/I0 10-80: " + ' '.join(f'{v:.2f}' for v in rel), flush=True)
-json.dump(res, open('layout_variants.json', 'w'))
+json.dump(res, open('layout_variants_' + '_'.join(sys.argv[1:]) + '.json', 'w'))
