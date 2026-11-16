@@ -71,6 +71,10 @@ def ybar(l):
     return 0.821 * g(l, 568.8, 46.9, 40.5) + 0.286 * g(l, 530.9, 16.3, 31.1)
 
 
+import os
+PATCH_MM = float(os.environ.get('PATCH_MM', '10'))          # full width of the square lens patch
+SFX = '' if PATCH_MM == 10 else f'_patch{PATCH_MM:g}'
+
 if __name__ == '__main__':
     dv = np.load('device.npz'); L = dv['lam']; s = dv['s']; F = dv['F']; fsub = dv['f_sub']
     PL = planar_kernel(); KER = {'bare': PL, 'hemisphere': lens_kernel('hemisphere'), 'freeform': lens_kernel('freeform')}
@@ -83,7 +87,7 @@ if __name__ == '__main__':
             air = np.zeros((len(L), 90)); eta = np.zeros(len(L)); side = np.zeros(len(L)); einf = np.zeros(len(L))
             for k in range(len(L)):
                 P, Rin = dv['P'][k], dv['R_pix'][k]; Rout = Rin if outside == 'Al' else dv['R_noAl'][k]
-                eS, eP, sd = mc(S, PL, Rin, Rout, P, T_MM[nm], Wp_mm=(0.0 if nm == 'bare' else 5.0), seed=k)
+                eS, eP, sd = mc(S, PL, Rin, Rout, P, T_MM[nm], Wp_mm=(0.0 if nm == 'bare' else PATCH_MM / 2), seed=k)
                 BTn = lambda K: K['BT'] / np.maximum(K['p'][:, None], 1e-15)
                 air[k] = eS @ BTn(S) + eP @ BTn(PL); eta[k] = air[k].sum(); side[k] = sd; einf[k] = infinite(S, Rin, P)
             wq = Q * s * F * fsub / norm                                   # photons into the substrate per electron, per lambda
@@ -98,4 +102,4 @@ if __name__ == '__main__':
             ang[key] = A.sum(0) / dOm                                        # photons / sr / electron vs air angle
             print(key, json.dumps({k: (round(v, 4) if isinstance(v, float) else {b: round(x, 4) for b, x in v.items()}) for k, v in res[key].items()}), flush=True)
     res['_meta'] = dict(PLQY=Q, purcell_weighted=float(np.sum(s * F)), q_eff=float(Q * np.sum(s * F) / norm))
-    json.dump(res, open('results.json', 'w'), indent=1); np.savez('results.npz', **{k.replace('|', '_'): v for k, v in ang.items()})
+    json.dump(res, open(f'results{SFX}.json', 'w'), indent=1); np.savez(f'results{SFX}.npz', **{k.replace('|', '_'): v for k, v in ang.items()})

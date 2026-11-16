@@ -56,6 +56,10 @@ def run(S, PL, SA, PA, Rin, Rout, P, t_mm, Wp_mm, N=60000, seed=0, maxit=5000, a
     return E / N, H / N, tot / N
 
 
+import os
+PATCH_MM = float(os.environ.get('PATCH_MM', '10'))          # full width of the square lens patch
+SFX = '' if PATCH_MM == 10 else f'_patch{PATCH_MM:g}'
+
 if __name__ == '__main__':
     PL = SM.planar_kernel(); PA = G.kernel_air(PL); KER = {'bare': (PL, PA)}
     for nm in ('hemisphere', 'freeform'):
@@ -68,10 +72,10 @@ if __name__ == '__main__':
             Ea = np.zeros((len(AXES), len(SIZES), len(TMAX))); Ha = np.zeros((len(AXES), len(SIZES), 90)); tot = 0.0
             for k in range(0, len(L), 2):
                 Rin = dv['R_pix'][k]; Rout = Rin if o == 'Al' else dv['R_noAl'][k]
-                Ek, Hk, tk = run(S, PL, SA, PA, Rin, Rout, dv['P'][k], T[nm], 0.0 if nm == 'bare' else 5.0, seed=200 + k)
+                Ek, Hk, tk = run(S, PL, SA, PA, Rin, Rout, dv['P'][k], T[nm], 0.0 if nm == 'bare' else PATCH_MM / 2, seed=200 + k)
                 Ea += wq[k] * Ek; Ha += wq[k] * Hk; tot += wq[k] * tk
             sc = wq.sum() / wq[::2].sum(); Ea *= sc; Ha *= sc; tot *= sc
             PE = Ea[:, :, 0] / (np.pi * Ha[:, :, :5].sum(2) / dOm)
             res[f'{nm}|{o}'] = dict(total=tot, EQE_meas=Ea.tolist(), PE=PE.tolist(), hist=Ha.tolist())
             print(nm, o, f'total {tot*100:.1f}%', ' | '.join(f"{ax}: " + ', '.join(f"s{s:g} {Ea[i, j, 0]*100:.1f}/PE {PE[i, j]:.2f}" for j, s in enumerate(SIZES)) for i, ax in enumerate(AXES)), flush=True)
-    json.dump(res, open('gonio_pd.json', 'w'))
+    json.dump(res, open(f'gonio_pd{SFX}.json', 'w'))
