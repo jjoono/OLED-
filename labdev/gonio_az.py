@@ -93,9 +93,15 @@ def summarize(thg, I):
 
 
 if __name__ == '__main__':
-    etl, htl = float(sys.argv[1]), float(sys.argv[2]); N = 300000; NCH = int(sys.argv[4]) if len(sys.argv) > 4 else 10
-    ST, wq = GJ.stacks(etl, htl); PL = SM.planar_kernel()
-    KS = {'hemisphere': load_abs('hemisphere'), 'freeform': load_abs('green_freeform')}
+    N = 300000; NCH = int(sys.argv[4]) if len(sys.argv) > 4 else 10; PL = SM.planar_kernel()
+    if sys.argv[1] == 'orange':                     # orange devices (device.npz, layout_stacks.npz), every second wavelength
+        etl, htl = 45.0, 50.0; dv = np.load('device.npz'); stk = np.load('layout_stacks.npz'); ks = range(0, len(dv['lam']), 2)
+        ST = [(dv['P'][k], {'pix': dv['R_pix'][k], **{n: stk[n][k] for n in stk.files}}) for k in ks]
+        wq0 = SM.Q * dv['s'] * dv['F'] * dv['f_sub'] / (SM.Q * np.sum(dv['s'] * dv['F']) + 1 - SM.Q); wq = wq0[list(ks)] * wq0.sum() / wq0[list(ks)].sum()
+        KS = {'hemisphere': load_abs('hemisphere'), 'freeform': load_abs('freeform')}
+    else:
+        etl, htl = float(sys.argv[1]), float(sys.argv[2]); ST, wq = GJ.stacks(etl, htl)
+        KS = {'hemisphere': load_abs('hemisphere'), 'freeform': load_abs('green_freeform')}
     cases = [('bare', None, 0.7, 0.0, 0.0)] + [(nm, KS[nm], 1.4, 1.5, b) for nm in KS for b in (0.0, 30.0)]
     res = dict(etl=etl, htl=htl, N=N * NCH)
     for nm, K, t, hp, beta in cases:
