@@ -31,9 +31,9 @@ def lens_kernel(name):
     return dict(BT=BT, p=BT.sum(1), cdf=cdf, cond=cond, NA=NA)
 
 
-def mc(S, PL, Rin, Rout, P, t_mm, a_mm=1.0, W_mm=12.5, Wp_mm=5.0, N=100000, seed=0, maxit=5000):
+def mc(S, PL, Rin, Rout, P, t_mm, a_mm=1.0, W_mm=12.5, Wp_mm=5.0, N=100000, seed=0, maxit=5000, dx_mm=0.0):
     """Returns escape weight per incident bin for the structure (inside patch) and the planar face, and side loss."""
-    rng = np.random.default_rng(seed); a, W, Wp = a_mm / t_mm, W_mm / t_mm, Wp_mm / t_mm
+    rng = np.random.default_rng(seed); a, W, Wp, dx = a_mm / t_mm, W_mm / t_mm, Wp_mm / t_mm, dx_mm / t_mm
     th = np.minimum(np.searchsorted(np.cumsum(P) / P.sum(), rng.random(N)), 89)
     r0 = a * np.sqrt(rng.random(N)); f0 = 2 * np.pi * rng.random(N)
     x = r0 * np.cos(f0); y = r0 * np.sin(f0); phi = 2 * np.pi * rng.random(N); g = np.ones(N)
@@ -43,7 +43,7 @@ def mc(S, PL, Rin, Rout, P, t_mm, a_mm=1.0, W_mm=12.5, Wp_mm=5.0, N=100000, seed
         out = (np.abs(x) > W) | (np.abs(y) > W); side += g[out].sum()
         k = ~out; th, x, y, phi, g = th[k], x[k], y[k], phi[k], g[k]
         if g.size == 0: break
-        ins = (np.abs(x) <= Wp) & (np.abs(y) <= Wp)
+        ins = (np.abs(x - dx) <= Wp) & (np.abs(y) <= Wp)
         pp = np.where(ins, S['p'][th], PL['p'][th])
         np.add.at(eS, th[ins], (g * pp)[ins]); np.add.at(eP, th[~ins], (g * pp)[~ins]); g = g * (1 - pp)
         u = rng.random(g.size); new = th.copy()
@@ -73,7 +73,8 @@ def ybar(l):
 
 import os
 PATCH_MM = float(os.environ.get('PATCH_MM', '10'))          # full width of the square lens patch
-SFX = '' if PATCH_MM == 10 else f'_patch{PATCH_MM:g}'
+DX_MM = float(os.environ.get('PATCH_DX', '0'))                # lateral offset of the patch centre from the pixel centre
+SFX = ('' if PATCH_MM == 10 else f'_patch{PATCH_MM:g}') + ('' if DX_MM == 0 else f'_dx{DX_MM:g}')
 
 if __name__ == '__main__':
     dv = np.load('device.npz'); L = dv['lam']; s = dv['s']; F = dv['F']; fsub = dv['f_sub']
@@ -87,7 +88,7 @@ if __name__ == '__main__':
             air = np.zeros((len(L), 90)); eta = np.zeros(len(L)); side = np.zeros(len(L)); einf = np.zeros(len(L))
             for k in range(len(L)):
                 P, Rin = dv['P'][k], dv['R_pix'][k]; Rout = Rin if outside == 'Al' else dv['R_noAl'][k]
-                eS, eP, sd = mc(S, PL, Rin, Rout, P, T_MM[nm], Wp_mm=(0.0 if nm == 'bare' else PATCH_MM / 2), seed=k)
+                eS, eP, sd = mc(S, PL, Rin, Rout, P, T_MM[nm], Wp_mm=(0.0 if nm == 'bare' else PATCH_MM / 2), seed=k, dx_mm=DX_MM)
                 BTn = lambda K: K['BT'] / np.maximum(K['p'][:, None], 1e-15)
                 air[k] = eS @ BTn(S) + eP @ BTn(PL); eta[k] = air[k].sum(); side[k] = sd; einf[k] = infinite(S, Rin, P)
             wq = Q * s * F * fsub / norm                                   # photons into the substrate per electron, per lambda
