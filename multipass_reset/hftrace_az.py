@@ -1,7 +1,8 @@
 """Azimuth-resolved return kernel of the hexagonal lenslet array (same physics as hftrace.py).
 For each incident substrate polar bin i (azimuth uniform over the cell), records the transmitted fraction and the
 joint distribution of the returned polar bin r and the change of the lateral propagation azimuth
-dphi = phi_out - phi_in (0: lateral motion continues, pi: reversed).
+dphi = phi_out - phi_in (0: lateral motion continues, pi: reversed); with transmitted=True also KT[i, j_air, a],
+the joint distribution of the air polar bin and the azimuth change of the transmitted light.
 Returns BT[i, j_air] (escape into air polar bin j), K[i, r, a] (returned fraction into polar bin r and azimuth-change bin a, NA bins)."""
 import inspect, numpy as np
 from numba import njit, prange
@@ -10,7 +11,7 @@ import hftrace as T
 src = inspect.getsource(T._trace.py_func)
 src = src[src.index('def _trace('):].replace('def _trace(', 'def _trace_az(')
 src = src.replace('return 1, np.arccos(min(1.0, -dz))', 'return 1, np.arccos(min(1.0, -dz)), np.arctan2(dy, dx)')
-src = src.replace('return 0, np.arccos(min(1.0, dz))', 'return 0, np.arccos(min(1.0, dz)), 0.0')
+src = src.replace('return 0, np.arccos(min(1.0, dz))', 'return 0, np.arccos(min(1.0, dz)), np.arctan2(dy, dx)')
 src = src.replace('return 2, 0.0', 'return 2, 0.0, 0.0')
 ns = dict(np=np, _surf=T._surf)
 exec(src, ns)
@@ -30,17 +31,20 @@ def _batch_az(th, N, n, htab, dtab, hmax, lip, max_ev, seed):
     return oc, to, dp
 
 
-def kernel(rho, h, n=1.51, N=20000, max_ev=80, NA=36, seed=1):
+def kernel(rho, h, n=1.51, N=20000, max_ev=80, NA=36, seed=1, transmitted=False):
     htab, dtab = T.tables(rho, h)
     hmax = float(htab.max()) + 1e-6; lip = float(np.abs(dtab).max())
-    BT = np.zeros((90, 90)); K = np.zeros((90, 90, NA)); lost = np.zeros(90)
+    BT = np.zeros((90, 90)); K = np.zeros((90, 90, NA)); lost = np.zeros(90); KT = np.zeros((90, 90, NA))
     for i in range(90):
         oc, to, dp = _batch_az(np.radians(i + 0.5), N, n, htab, dtab, hmax, lip, max_ev, seed * 7919 + i * 100003)
         BT[i] = np.histogram(np.degrees(to[oc == 0]), np.linspace(0, 90, 91))[0] / N; lost[i] = np.mean(oc == 2)
         m = oc == 1
         r = np.minimum((np.degrees(to[m])).astype(int), 89); a = np.minimum((dp[m] / (2 * np.pi) * NA).astype(int), NA - 1)
         np.add.at(K[i], (r, a), 1.0 / N)
-    return BT, K, lost
+        m = oc == 0
+        r = np.minimum((np.degrees(to[m])).astype(int), 89); a = np.minimum((dp[m] / (2 * np.pi) * NA).astype(int), NA - 1)
+        np.add.at(KT[i], (r, a), 1.0 / N)
+    return (BT, K, lost, KT) if transmitted else (BT, K, lost)
 
 
 if __name__ == '__main__':
