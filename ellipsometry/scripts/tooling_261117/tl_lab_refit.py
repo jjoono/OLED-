@@ -26,7 +26,12 @@ the fit.  So NPB runs twice:
                    (transparent no5 glass, backside on, % 1st Reflection fitted)
 each with the dispersion fixed (old n,k) and refitted with the lab's flags.
 Backside beams: Re(n_glass) at the interfaces, Beer-Lambert through the 1 mm
-substrate, film axis-averaged on the back path; 'normalised' N,C,S."""
+substrate, film axis-averaged on the back path; 'normalised' N,C,S.
+
+Thickness prior: the deposition is expected within 5 % of nominal (10 / 30 /
+50 nm), so every thickness is bounded to nominal x (1 +- TOL).  The thickness-
+only fits are also run unbounded, and every bounded result that ends on a
+bound is flagged: there the number is the constraint, not the data."""
 import os as _os
 ELLIPS_DATA = _os.environ.get('ELLIPS_DATA', '.')
 ELLIPS_OUT  = _os.environ.get('ELLIPS_OUT', '.')
@@ -43,6 +48,11 @@ EVAP_ZIP = _os.environ.get('EVAP_ZIP', _os.path.join(ELLIPS_DATA, 'Tooling_Evapo
 HC = 1239.841984
 WL = (245.0, 1690.0, 2)
 T_SUB = 1.0e6                                   # nm: 'Substrate Thickness' 1.0E7 A in every model
+TOL = float(_os.environ.get('THICK_TOL', '0.05'))
+NOMINAL = {'1_21': 30, '1_31': 30, '1_22': 50, '1_32': 50, '1_23': 10, '1_33': 10, '1_24': 50, '1_34': 50,
+           '2_21': 50, '2_22': 50, '2_31': 50, '2_32': 50, '2_23': 10, '2_24': 10, '2_33': 10, '2_34': 10}
+def dbounds(sh, bounded):
+    return (NOMINAL[sh] * (1 - TOL), NOMINAL[sh] * (1 + TOL)) if bounded else (0.0, 300.0)
 PL = re.compile(r"^\t*([-\d.eE+]+|NaN)\t([TF])\t([-\d.eE+]+)\t([-\d.eE+]+)\t[TF]\t'([^']*)'", re.M)
 
 
@@ -199,13 +209,14 @@ def resid(m, s):
     return np.concatenate([(m[k] - s['meas'][k]).ravel() for k in range(3)])
 
 
-def fit_thickness(film, s):
+def fit_thickness(film, s, bounded=False):
     """One set, dispersion fixed: d (and f on glass with backside), grid start in d."""
-    nf = 1 if s['back'] else 0; best = None
-    for d0 in np.arange(1.0, 121.0, 4.0):
+    nf = 1 if s['back'] else 0; best = None; dlo, dhi = dbounds(s['sh'], bounded)
+    grid = np.linspace(dlo + 1e-3, dhi - 1e-3, 5) if bounded else np.arange(1.0, 121.0, 4.0)
+    for d0 in grid:
         x0 = [d0] + [0.7] * nf
         r = least_squares(lambda x: resid(model_ncs(film, s, x[0], x[1] if nf else 0.0), s), x0,
-                          bounds=([0.0] + [0.0] * nf, [300.0] + [1.0] * nf))
+                          bounds=([dlo] + [0.0] * nf, [dhi] + [1.0] * nf))
         if best is None or r.cost < best.cost: best = r
     return best
 
@@ -220,11 +231,17 @@ def flagged(film):
     return out
 
 
-def run(name, refit):
+def on_bound(sh, d, bounded):
+    lo, hi = dbounds(sh, bounded)
+    return bool(bounded and min(d - lo, hi - d) < 1e-3)
+
+
+def run(name, refit, bounded=True):
     mdl, sets = setup(name); film = mdl['film']
-    res = [fit_thickness(film, s) for s in sets]
+    res = [fit_thickness(film, s, bounded) for s in sets]
     d = [float(r.x[0]) for r in res]; f = [float(r.x[1]) if s['back'] else None for r, s in zip(res, sets)]
-    out = dict(run=name, refit=False, sets=[s['sh'] for s in sets], d=d, f=f,
+    out = dict(run=name, refit=False, bounded=bounded, sets=[s['sh'] for s in sets], d=d, f=f,
+               d_on_bound=[on_bound(s['sh'], v, bounded) for s, v in zip(sets, d)],
                mse={s['sh']: float(M.mse_ncs(r.fun, len(r.x))) for s, r in zip(sets, res)})
     if not refit:
         allr = np.concatenate([r.fun for r in res]); out['mse_all'] = float(M.mse_ncs(allr, sum(len(r.x) for r in res)))
@@ -232,8 +249,8 @@ def run(name, refit):
     fp = flagged(film); npf = len(fp)
     gi = [j for j, s in enumerate(sets) if s['back']]
     x0 = np.r_[[p['v'] for _, p in fp], d, [f[j] for j in gi]]
-    lo = np.r_[[p['lo'] for _, p in fp], [0.0] * len(sets), [0.0] * len(gi)]
-    hi = np.r_[[p['hi'] for _, p in fp], [300.0] * len(sets), [1.0] * len(gi)]
+    lo = np.r_[[p['lo'] for _, p in fp], [dbounds(s['sh'], bounded)[0] for s in sets], [0.0] * len(gi)]
+    hi = np.r_[[p['hi'] for _, p in fp], [dbounds(s['sh'], bounded)[1] for s in sets], [1.0] * len(gi)]
     span = np.maximum(hi - lo, 1e-6); x0 = np.clip(x0, lo + 1e-6 * span, hi - 1e-6 * span)
     def unpack(x):
         return {id(p): v for (_, p), v in zip(fp, x[:npf])}
@@ -248,7 +265,9 @@ def run(name, refit):
     wl = np.array([350.0, 450.0, 550.0, 633.0]); E = HC / wl
     nk = {k: [[float(v.real), float(v.imag)] for v in B.sqrtc(eps(film[k], E, vals))] for k in (('o', 'e') if film['kind'] == 'uniaxial' else ('o',))}
     nk0 = {k: [[float(v.real), float(v.imag)] for v in B.sqrtc(eps(film[k], E))] for k in nk}
-    return dict(run=name, refit=True, sets=[s['sh'] for s in sets], d=[float(v) for v in x[npf:npf + len(sets)]],
+    dd = [float(v) for v in x[npf:npf + len(sets)]]
+    return dict(run=name, refit=True, bounded=bounded, sets=[s['sh'] for s in sets], d=dd,
+                d_on_bound=[on_bound(s['sh'], v, bounded) for s, v in zip(sets, dd)],
                 d_ci90=[float(v) for v in ci[npf:npf + len(sets)]],
                 f=[float(x[npf + len(sets) + gi.index(j)]) if j in gi else None for j in range(len(sets))],
                 mse={s['sh']: float(M.mse_ncs(per(x, j), npf / len(sets) + 1 + (1 if j in gi else 0))) for j, s in enumerate(sets)},
@@ -261,15 +280,17 @@ def run(name, refit):
 
 def main():
     from multiprocessing import Pool
-    jobs = [('NPB as saved', False), ('NPB + TAPC glass', False), ('TAPC', False), ('Bphen', False),
-            ('NPB as saved', True), ('NPB + TAPC glass', True)]
+    jobs = ([('NPB as saved', True, True), ('NPB + TAPC glass', True, True)]
+            + [(n, False, b) for n in ('NPB as saved', 'NPB + TAPC glass', 'TAPC', 'Bphen') for b in (True, False)])
     with Pool(4) as pool:
         res = pool.starmap(run, jobs)
     json.dump(res, open(W + 'lab_refit.json', 'w'), indent=1)
     for r in res:
-        print('\n== %s, %s   overall MSE %.2f' % (r['run'], 'dispersion REFITTED with the lab flags (%d film parameters)' % r['n_fit_film'] if r['refit'] else 'dispersion fixed (old n,k)', r['mse_all']))
+        print('\n== %s, %s, %s   overall MSE %.2f' % (r['run'], 'dispersion REFITTED with the lab flags (%d film parameters)' % r['n_fit_film'] if r['refit'] else 'dispersion fixed (old n,k)',
+              'd within nominal +-%.0f%%' % (100 * TOL) if r['bounded'] else 'd free', r['mse_all']))
         for j, sh in enumerate(r['sets']):
-            print('   %s %-5s d = %6.2f nm %s MSE %7.2f' % (sh, 'glass' if is_glass(sh) else 'Si', r['d'][j],
+            print('   %s %-5s nominal %2d  d = %6.2f nm %s %s MSE %7.2f' % (sh, 'glass' if is_glass(sh) else 'Si', NOMINAL[sh], r['d'][j],
+                  'ON BOUND' if r['d_on_bound'][j] else '        ',
                   ('f = %.2f' % r['f'][j]) if r['f'][j] is not None else '        ', r['mse'][sh]))
         if r['refit']:
             for k in r['nk_new']:
