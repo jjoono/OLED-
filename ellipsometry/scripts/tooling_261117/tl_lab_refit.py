@@ -171,6 +171,8 @@ RUNS = {
     'NPB + TAPC glass':      dict(snap='NPB_tooling_S8_S13', sets=['1_21', '1_23', '1_22', '1_33', '1_31', '1_32'], glass_from='TAPC_S11_tooling'),
     'TAPC':                  dict(snap='TAPC_S11_tooling', sets=['1_24', '1_34'], template_sets=[0, 1], glass_from=None),
     'Bphen':                 dict(snap='BPhen_S12_tooling', sets=['2_21', '2_22', '2_23', '2_24', '2_31', '2_32', '2_33', '2_34'], glass_from=None),
+    # the Bphen model fits Si with NTVE 0; the NPB and TAPC models use 14.5 A - same footing:
+    'Bphen, NTVE 14.5 A':    dict(snap='BPhen_S12_tooling', sets=['2_21', '2_22', '2_23', '2_24', '2_31', '2_32', '2_33', '2_34'], glass_from=None),
 }
 is_glass = lambda sh: sh.split('_')[1].startswith('3')
 
@@ -180,19 +182,19 @@ def setup(run):
     glass, back = mdl['glass'], mdl['back']
     if R['glass_from']:
         glass = parse(R['glass_from'])['glass']; back = True
-    if run == 'Bphen':
+    if run.startswith('Bphen'):
         back = True                         # glass sets: the TAPC model's handling (the S12 sets were all Si)
     msa = mdl['msa']; tidx = R.get('template_sets', list(range(len(R['sets']))))
     sets = []
     for j, sh in enumerate(R['sets']):
         g = is_glass(sh)
-        if run == 'Bphen':
-            dox = 0.0
+        if run.startswith('Bphen'):
+            dox = 0.0 if (g or run == 'Bphen') else 1.45
         else:
             dox = msa['Thickness # 1'][tidx[j]]['v'] / 10 if 'Thickness # 1' in msa else mdl['ntve']['v'] / 10
             if g: dox = 0.0
         ema = 100.0 if g else 0.0
-        if run != 'Bphen' and 'EMA % (Mat 2)' in msa:
+        if not run.startswith('Bphen') and 'EMA % (Mat 2)' in msa:
             assert msa['EMA % (Mat 2)'][tidx[j]]['v'] == ema, (run, sh)
         wl, P, D, ang = L.se(sh, *WL); E = HC / wl
         sets.append(dict(sh=sh, glass=g, dox=dox, wl=wl, E=E, ang=ang, meas=L.ncs(P, D),
@@ -238,7 +240,10 @@ def on_bound(sh, d, bounded):
     return bool(bounded and min(d - lo, hi - d) < 1e-3)
 
 
-def run(name, refit, bounded=True):
+def run(name, refit, bounded=True, physical=False):
+    """physical: the refit keeps the lab's structure and flags but bounds Gaussian
+    amplitudes >= 0, Einf >= 1 and Br >= 0.05 eV (the lab bounds allow amplitudes
+    to -100, and a free refit used them: negative eps2 = gain)."""
     mdl, sets = setup(name); film = mdl['film']
     res = [fit_thickness(film, s, bounded) for s in sets]
     d = [float(r.x[0]) for r in res]; f = [float(r.x[1]) if s['back'] else None for r, s in zip(res, sets)]
@@ -253,6 +258,9 @@ def run(name, refit, bounded=True):
     x0 = np.r_[[p['v'] for _, p in fp], d, [f[j] for j in gi]]
     lo = np.r_[[p['lo'] for _, p in fp], [dbounds(s['sh'], bounded)[0] for s in sets], [0.0] * len(gi)]
     hi = np.r_[[p['hi'] for _, p in fp], [dbounds(s['sh'], bounded)[1] for s in sets], [1.0] * len(gi)]
+    if physical:
+        floor = {'Amp': 0.0, 'Einf': 1.0, 'Br': 0.05}
+        lo[:npf] = [max(l, floor.get(p['name'], l)) for l, (_, p) in zip(lo[:npf], fp)]
     span = np.maximum(hi - lo, 1e-6); x0 = np.clip(x0, lo + 1e-6 * span, hi - 1e-6 * span)
     def unpack(x):
         return {id(p): v for (_, p), v in zip(fp, x[:npf])}
@@ -268,7 +276,7 @@ def run(name, refit, bounded=True):
     nk = {k: [[float(v.real), float(v.imag)] for v in B.sqrtc(eps(film[k], E, vals))] for k in (('o', 'e') if film['kind'] == 'uniaxial' else ('o',))}
     nk0 = {k: [[float(v.real), float(v.imag)] for v in B.sqrtc(eps(film[k], E))] for k in nk}
     dd = [float(v) for v in x[npf:npf + len(sets)]]
-    return dict(run=name, refit=True, bounded=bounded, sets=[s['sh'] for s in sets], d=dd,
+    return dict(run=name, refit=True, bounded=bounded, physical=physical, sets=[s['sh'] for s in sets], d=dd,
                 d_on_bound=[on_bound(s['sh'], v, bounded) for s, v in zip(sets, dd)],
                 d_ci90=[float(v) for v in ci[npf:npf + len(sets)]],
                 f=[float(x[npf + len(sets) + gi.index(j)]) if j in gi else None for j in range(len(sets))],
@@ -282,13 +290,18 @@ def run(name, refit, bounded=True):
 
 def main():
     from multiprocessing import Pool
-    jobs = ([('NPB as saved', True, True), ('NPB + TAPC glass', True, True)]
-            + [(n, False, b) for n in ('NPB as saved', 'NPB + TAPC glass', 'TAPC', 'Bphen') for b in (True, False)])
+    extra = sys.argv[1:] == ['extra']
+    if extra:     # second pass: physically bounded refit, Bphen on the NPB/TAPC oxide convention
+        jobs = [('NPB + TAPC glass', True, True, True), ('NPB as saved', True, True, True),
+                ('Bphen, NTVE 14.5 A', False, True), ('Bphen, NTVE 14.5 A', False, False)]
+    else:
+        jobs = ([('NPB as saved', True, True), ('NPB + TAPC glass', True, True)]
+                + [(n, False, b) for n in ('NPB as saved', 'NPB + TAPC glass', 'TAPC', 'Bphen') for b in (True, False)])
     with Pool(4) as pool:
         res = pool.starmap(run, jobs)
-    json.dump(res, open(W + 'lab_refit.json', 'w'), indent=1)
+    json.dump(res, open(W + ('lab_refit_extra.json' if extra else 'lab_refit.json'), 'w'), indent=1)
     for r in res:
-        print('\n== %s, %s, %s   overall MSE %.2f' % (r['run'], 'dispersion REFITTED with the lab flags (%d film parameters)' % r['n_fit_film'] if r['refit'] else 'dispersion fixed (old n,k)',
+        print('\n== %s, %s, %s   overall MSE %.2f' % (r['run'], ('dispersion REFITTED with the lab flags (%d film parameters)%s' % (r['n_fit_film'], ', physical bounds' if r.get('physical') else '')) if r['refit'] else 'dispersion fixed (old n,k)',
               'd within nominal +-5 %% (10 nm: +-10 %%)' if r['bounded'] else 'd free', r['mse_all']))
         for j, sh in enumerate(r['sets']):
             print('   %s %-5s nominal %2d  d = %6.2f nm %s %s MSE %7.2f' % (sh, 'glass' if is_glass(sh) else 'Si', NOMINAL[sh], r['d'][j],
