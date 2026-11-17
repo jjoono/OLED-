@@ -7,7 +7,8 @@ Measured values (summary statistics only):
          (negative-angle side); S4D3 excluded (intensity maximum at -40 deg, single file, EQE above the optical ceiling).
   green (Ir(ppy)2acac, 251120 series): tilt-corrected profiles (tilt fitted to the +/- asymmetry over 5-30 deg),
          angular factor per trial with the lab definition (70-80 deg taken from the simulation where not measured;
-         freeform 70-80 deg excluded because of stray light, Note S13); Lambertian-equivalent on-axis EQE per device."""
+         freeform 70-80 deg excluded because of stray light, Note S13); hemispherical scan 7 excluded (outliers at 40 and
+         60 deg); Lambertian-equivalent on-axis EQE per device."""
 import json, numpy as np, matplotlib
 matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle, FancyBboxPatch
@@ -24,12 +25,12 @@ PROF_O = {'S3D2': [1.00, 0.97, 0.86, 0.71, 0.49, 0.32, 0.28, 0.13, 0.08], 'S2D4'
           'S5D4': [1.00, 0.96, 0.83, 0.64, 0.44, 0.32, 0.26, 0.23, 0.15]}
 # ---------------- measured: green emitter (tilt-corrected; mean and s.d. over trials)
 PROF_G = {'bare': ([1.0, 0.980, 0.931, 0.854, 0.768, 0.679, 0.554, 0.339, 0.162], [0, 0.005, 0.006, 0.006, 0.015, 0.024, 0.026, 0.032, 0.039]),
-          'hemisphere': ([1.0, 0.954, 0.866, 0.754, 0.544, 0.428, 0.247], [0, 0.002, 0.005, 0.010, 0.001, 0.015, 0.005]),
+          'hemisphere': ([1.0, 0.958, 0.859, 0.768, 0.547, 0.450, 0.266], [0, 0.004, 0.008, 0.016, 0.005, 0.024, 0.021]),
           'freeform': ([1.0, 0.943, 0.844, 0.732, 0.609, 0.524, 0.463], [0, 0.010, 0.025, 0.045, 0.052, 0.035, 0.025])}
-PE_G = {'bare': [1.028, 1.030, 0.990, 1.005, 1.029, 1.020, 1.009], 'hemisphere': [0.685, 0.690, 0.700],
+PE_G = {'bare': [1.028, 1.030, 0.990, 1.005, 1.029, 1.020, 1.009], 'hemisphere': [0.685, 0.690, 0.700, 0.724, 0.729, 0.733],
         'freeform': [0.819, 0.830, 0.827, 0.820, 0.870, 0.875, 0.849, 0.899, 0.899, 0.902, 0.893, 0.888]}
 FRONT_G = {'bare': [22.38, 21.90], 'hemisphere': [26.89], 'freeform': [21.09, 22.40, 22.70]}          # per device
-PEDEV_G = {'bare': [1.013, 1.019], 'hemisphere': [0.692], 'freeform': [0.824, 0.878, 0.894]}           # device means
+PEDEV_G = {'bare': [1.013, 1.019], 'hemisphere': [0.710], 'freeform': [0.824, 0.878, 0.894]}           # device means
 EQE_G = {k: [f * p for f, p in zip(FRONT_G[k], PEDEV_G[k])] for k in FRONT_G}
 FRONT_O = {k: [e / p for e, p in zip(EQE_O[k], PE_O[k])] for k in EQE_O}
 # ---------------- simulated
@@ -62,9 +63,9 @@ px, py = 12.7, 14.4882
 a.add_patch(Rectangle((px - 5, py - 5), 10, 10, fill=False, ec='k', ls='--', lw=0.6))
 a.add_patch(Rectangle((px - 1.5, py - 1.5), 3, 3, fill=False, ec=C['hemisphere'], lw=1.1))
 a.add_patch(Circle((px, py), 1.0, color='#f2b134'))
-a.text(px + 5.3, py - 6.4, '10 mm\n(model)', fontsize=5, color='k'); a.text(px + 1.8, py + 1.6, '3 mm lens\npatch', fontsize=5, color=C['hemisphere'])
+a.text(px + 1.8, py + 1.6, '3 mm lens\npatch', fontsize=5, color=C['hemisphere'])
 a.annotate('pixel\nr = 1 mm', (px - 0.7, py - 0.7), (px - 12.3, py - 4.2), fontsize=5, arrowprops=dict(arrowstyle='-', lw=0.5)); a.text(0.6, 23.6, 'ITO', fontsize=5, color='#4a6a8a'); a.text(17.0, 1.3, 'Al fingers', fontsize=5, color='#55554f')
-a.text(0.0, -0.6, 'glass 25.4 mm; bare 0.7 mm,\nMLA 0.7 + 0.7 mm (oil-coupled)', fontsize=4.8, va='top')
+a.text(0.0, -0.6, 'glass 25.4 mm; bare 0.7 mm, MLA 0.7 + 0.7 mm\n(oil-coupled); dashed: 10 mm patch (model only)', fontsize=4.8, va='top')
 a.set_title('(a) layout', loc='left')
 # (b, c) normalized angular intensity
 rows_b = []
@@ -83,9 +84,10 @@ for axp, em, title in ((ax_b, 'orange', '(b) orange emitter'), (ax_c, 'green', '
             rows_b += [[em, nm, 'measured mean', *m], [em, nm, 'measured sd', *sd]]
     axp.set_xlim(0, 82); axp.set_ylim(0, 1.08); axp.set_xticks([0, 20, 40, 60, 80]); axp.set_xlabel('angle (°)'); axp.set_ylabel('I(θ) / I(0°)'); axp.set_title(title, loc='left')
 for nm, lab in (('bare', 'bare'), ('hemisphere', 'hemispherical'), ('freeform', 'freeform')):
-    ax_b.fill_between([], [], [], color=C[nm], alpha=0.35, lw=0, label=lab)
-ax_b.legend(fontsize=5, frameon=False, loc='lower left', title='model (3 mm patch)', title_fontsize=5)
-ax_c.plot([], [], '^', color='#777', ms=3, label='measured (mean ± s.d.)'); ax_c.plot([], [], 'o', mfc='none', color='#777', ms=3, label='measured, orange (b)')
+    ax_b.fill_between([], [], [], color=C[nm], alpha=0.35, lw=0, label='model, ' + lab)
+ax_b.plot([], [], 'o', mfc='none', color=C['hemisphere'], ms=3, label='measured, hemi. (5 devices)')
+ax_b.legend(fontsize=5, frameon=False, loc='lower left', handlelength=1.2)
+ax_c.plot([], [], '^', color='#777', ms=3, label='measured, tilt-corrected\n(mean ± s.d.; open: freeform)')
 ax_c.legend(fontsize=5, frameon=False, loc='lower left')
 sheets.append(('bc_profiles', ['emitter', 'structure', 'series'] + [f'{x}deg' for x in A10], rows_b))
 # (d) angular factor
@@ -100,7 +102,7 @@ for i, nm in enumerate(names):
 d.add_patch(Rectangle((0, 0), 0, 0, fc='#d8d7d2', ec='k', lw=0.7, label='model, 3 mm patch (geometry range)'))
 d.plot([], [], 'D', ms=3.6, mfc='white', mec='k', label='model, 10 mm patch'); d.plot([], [], 'o', color='#777', ms=3, label='measured, orange'); d.plot([], [], '^', mfc='white', color='#777', ms=3, label='measured, green')
 d.axhline(1, color=INK2, lw=0.4, ls=':'); d.set_xticks(range(3)); d.set_xticklabels(names[:2] + ['hemispherical']); d.set_xlim(-0.55, 2.55)
-d.set_ylim(0.55, 1.25); d.set_ylabel('angular factor  EQE / EQE$_{0°}$'); d.legend(fontsize=5, frameon=False, loc='upper right', ncol=2)
+d.set_ylim(0.55, 1.3); d.set_ylabel('angular factor  EQE / EQE$_{0°}$'); d.legend(fontsize=5, frameon=False, loc='lower left', ncol=1)
 d.set_title('(d) angular factor', loc='left'); sheets.append(('d_angular_factor', ['emitter', 'structure', 'sim3_min', 'sim3_max', 'sim10', 'measured...'], rows_d))
 # (e) lens/bare ratios of on-axis (Lambertian-equivalent) and total EQE
 e = ax_e; groups = [('orange', 'hemisphere'), ('green', 'hemisphere'), ('orange', 'freeform')]; rows_e = []; xt = []; xl = []
