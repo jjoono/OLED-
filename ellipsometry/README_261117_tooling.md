@@ -420,3 +420,31 @@ the 3x bound). The no-film Si/void layer stays far ahead (MSE 14.0 / 14.7 at
 MSE 7.47) to `tooling_mod/Src10/`; all three read back and re-score to the
 same MSE. No anisotropic `.mod`: no CompleteEASE-saved anisotropic model was
 supplied to take the format from.
+
+## 9. Si + glass joint fit, NTVE 1.5 nm (`tl_joint_siglass.py`)
+
+The lab's multi-sample snapshots (e.g. `NPB_tooling_S8_S13`: Biaxial film,
+NTVE_JAW ~1.45 nm, EMA substrate) fit Si and glass pieces together. Same here,
+per material: one shared constrained Gen-Osc (§6 rules), thickness per piece,
+backside fraction per glass piece, NTVE 1.5 nm on Si, this set's glass.
+Biaxial = Gaussian amplitudes × a_x, a_y, a_z with mean 1; UV pole isotropic.
+
+| material | model | mean MSE | Si d (nm) | glass d (nm) | a_x / a_y / a_z |
+|---|---|---|---|---|---|
+| NPB 30 / 50 / 10 | iso | 10.6 | 27.7 / 48.0 / 10.1 | 29.2 / 48.1 / 10.4 | - |
+| NPB 30 / 50 / 10 | biaxial | **6.95** | 29.1 / 49.3 / 10.8 | 30.1 / 50.2 / 10.4 | 1.15 / 1.12 / 0.73 |
+| TAPC 50 | iso | 5.5 | 48.7 | 48.4 | - |
+| TAPC 50 | biaxial | 4.25 | 48.8 | 48.8 | 1.05 / 1.03 / 0.92 |
+| Bphen 50 (2 + 2) | iso | 3.98 | 46.8 / 45.8 | 46.4 / 47.1 | - |
+| Bphen 50 (2 + 2) | biaxial | 4.01 | same | same | 1.00 / 1.00 / 1.00 |
+
+* With Si and glass fitted together, NPB wants anisotropy: MSE 10.6 -> 6.95, with
+  the out-of-plane bands weaker (a_z 0.73; S = -0.14, lying molecules). The
+  in-plane split that single-azimuth fits on Si alone produced (§8) nearly
+  vanishes here (a_x 1.15 vs a_y 1.12), so the NPB film reads as uniaxial.
+* TAPC is mildly anisotropic, and Bphen stays isotropic.
+* At NTVE 1.5 nm, Si and glass twins agree to ≤ 1.0 nm (NPB biaxial: 29.1 vs
+  30.1, 49.3 vs 50.2, 10.8 vs 10.4; TAPC 48.8 vs 48.8; Bphen within 1.4 nm).
+  §7's glass-twin argument for a thinner oxide than 33.68 Å is consistent with
+  this.
+* Per-piece MSE and n,k per axis: `$ELLIPS_OUT/joint_siglass.json`.
