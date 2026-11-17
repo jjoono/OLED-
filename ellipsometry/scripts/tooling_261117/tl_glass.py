@@ -20,19 +20,29 @@ OSC = json.load(open(W + 'osc.json'))
 def n_glass(wl, A, B):
     return A + B / (wl / 1000.0)**2 + 0j
 
-def ncs_glass(wl, Nf, d, ng, ang, f=0.0, nb=20):
-    """N,C,S of film-on-thick-glass with a fraction f of the incoherent backside beams."""
+def ncs_glass(wl, Nf, d, ng, ang, f=0.0, nb=20, t_sub_nm=1.0e6):
+    """N,C,S of film-on-thick-glass with a fraction f of the incoherent backside beams.
+
+    The interfaces use Re(ng); a glass k only attenuates the backside beams,
+    Beer-Lambert over the substrate thickness t_sub_nm (1 mm, as the lab
+    template's 'Substrate Thickness' 1.0E7 A).  Passing the complex ng to tmm()
+    instead is wrong: from an absorbing incidence medium the Snell invariant is
+    complex and tmm()'s Im(q) >= 0 branch rule flips q in air, so even k = 1e-9
+    gives a back-surface |r|^2 of ~80.  With k = 0 nothing changes."""
     air = R.n_air(wl); ng = np.asarray(ng, complex) * np.ones(len(wl))
+    kg = ng.imag; ng = ng.real + 0j
     out = []
     for th in ang:
         rp, rs = tmm(wl, [air, Nf, ng], [d], th)
         Ip = np.abs(rp)**2; Is = np.abs(rs)**2; X = np.conj(rp) * rs
         if f > 0:
             thg = np.rad2deg(np.arcsin(np.sin(np.deg2rad(th)) / ng.real))
+            att = np.exp(-4 * np.pi * kg * t_sub_nm / (wl * np.cos(np.deg2rad(thg))))   # round-trip amplitude
             tdp, tds = M.t_amp(wl, [air, Nf, ng], [d], th)
             tup, tus = M.t_amp(wl, [ng, Nf, air], [d], thg)
             rip, ris = tmm(wl, [ng, Nf, air], [d], thg)          # front stack seen from inside
             rbp, rbs = tmm(wl, [ng, air], [], thg)                # bare back surface
+            rbp = rbp * att; rbs = rbs * att                      # each backside bounce = one round trip
             ap = tdp * rbp * tup; as_ = tds * rbs * tus
             for _ in range(nb):
                 Ip = Ip + f * np.abs(ap)**2; Is = Is + f * np.abs(as_)**2; X = X + f * np.conj(ap) * as_

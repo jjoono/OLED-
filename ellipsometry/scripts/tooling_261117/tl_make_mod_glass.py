@@ -1,4 +1,7 @@
-"""Glass-piece .mod files - UNVERIFIED FORMAT, test-load one before using the rest.
+"""SUPERSEDED by tl_make_mod_glass2.py, which builds the glass files on the lab's
+own CompleteEASE-saved tooling model (BPhen_S12_tooling.SEsnap) instead.
+
+Glass-piece .mod files - UNVERIFIED FORMAT, test-load one before using the rest.
 
 None of the supplied files has a glass substrate, so two things are inferred
 from the Si template rather than copied from a CompleteEASE-saved glass model:

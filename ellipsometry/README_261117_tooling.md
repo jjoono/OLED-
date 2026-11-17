@@ -30,9 +30,17 @@ python tl_ce_genosc.py    # the same in CompleteEASE's frame: SI_JAW + NTVE_JAW 
 python tl_ce_thickness.py # every continuous Si piece, at the lab oxide and at 15 A
 python tl_ce_glass.py     # glass pieces with those dispersions; glass as Einf 1 + UV pole
 python tl_make_mod.py     # Si .mod files, each read back and re-scored
-python tl_make_mod_glass.py   # glass .mod files - unverified format, see §6
 python tl_mod_report.py   # parameter table, n,k CSVs, figure -> $ELLIPS_OUT/tooling_mod/
+
+# The lab's tooling template (§7) - ELLIPS_DATA also holds BPhen_S12_tooling.SEsnap
+python tl_s5_extract.py   # the model inside the snapshot -> $ELLIPS_OUT/S5_template.mod
+python tl_s5.py           # its Bphen and no5 glass against this set
+python tl_ce_glass2.py    # glass pieces with a backside fraction per piece
+python tl_ce_thickness_ntve0.py   # Si thickness in the template's NTVE 0 A convention
+python tl_make_mod_glass2.py      # glass .mod files on the template's structure
+python tl_make_mod_ntve0.py       # Si .mod files at NTVE 0 A, for like-with-like tooling
 ```
+(`tl_make_mod_glass.py`, the first, inferred-format glass writer, is superseded.)
 
 Reuses the corrected TMM and reference constants of `joint_nk_260910/`
 (Green 2008 Si, Malitson native oxide fixed at 2 nm) and the CompleteEASE
@@ -67,6 +75,10 @@ every piece that carries a continuous film.**
 | 1_24 / 1_34 | TAPC | 50 | 48.6 | 49.2 |
 | 2_21, 2_22 / 2_31, 2_32 | Bphen | 50 | 47.0, 46.0 | 45.5, 46.4 |
 | 2_23, 2_24 / 2_33, 2_34 | Bphen | 10 | none detectable | none, 3.4 |
+
+These are this pipeline's own frame (2 nm Malitson oxide). The numbers in the
+`.mod` files - CompleteEASE frame, measured 33.68 Å oxide, and the lab
+template's NTVE 0 Å convention - are tabled in §7.
 
 Si: ±1 nm for a ±1 nm native-oxide assumption, which is the dominant
 uncertainty. Glass: the spread over the three depolarization conventions below
@@ -132,6 +144,13 @@ depolarized N,C,S into Ψ/Δ; three readings were tried and the data prefer
 normalising the N,C,S vector (MSE 10.5, vs 10.9 raw and 13.1 for Ψ from N
 alone). The glass thicknesses carry that spread.
 
+One f for all pieces is too stiff: the lab template carries `% 1st Reflection`
+per sample, and freeing it per piece (`tl_ce_glass2.py`, glass still shared)
+gives f = 0.24–0.77 on the 1_3x pieces and 0.68–1.0 on the 2_3x pieces, with
+2_31 going from MSE 8.2 to 3.5 and 2_34 from 7.1 to 4.7. The collected fraction
+depends on how each piece sat on the stage (backside contact, size against the
+beam), so a per-piece value is physical.
+
 ## 5. Dispersions, and what to trust in them
 
 * **NPB** is fitted to the 30 nm and 50 nm pieces together. Fitted alone, the
@@ -186,9 +205,107 @@ tested per material: NPB 0, TAPC 0.3 nm (no gain), Bphen ~2 nm (11 % better MSE)
 lab's BsBCZ models put roughness at 9–10 nm, pinned on their 100 Å bound;
 nothing here asks for that.
 
-**Glass `.mod` files are unverified.** No glass-substrate model was supplied, so
-the substrate (a Gen-Osc layer with no oscillators: Einf 1 + UV pole, |Δn| ≤ 0.003
-from the fitted glass Cauchy) and the back-surface switch (the flag before
-`'# Back Reflections'`, with `'% 1st Reflection'` = 46 and free) are inferred.
-They round-trip in this pipeline's model; whether CompleteEASE reads them the
-same way has to be checked by loading one.
+**Glass `.mod` files**: the first set inferred the glass-substrate format and
+was marked unverified. It is replaced by files built on the lab's own
+CompleteEASE-saved glass-capable model - see §7.
+
+## 7. The lab's tooling template (`BPhen_S12_tooling.SEsnap`)
+
+A `.SEsnap` is a zip of the data file and `_FitLog`; the fit log carries the
+whole model ('Bphen_S5') as CompleteEASE saved it. `tl_s5_extract.py` takes it
+out unchanged (one level of tab nesting removed) as `S5_template.mod`. No
+depolarization export came with it.
+
+**What the template is.** Substrate: a Bruggeman EMA of SI_JAW and a Gen-Osc
+glass ('no5_glass_sub_genosc': Einf 1.42, one Tauc-Lorentz with Eg 3.27 eV, UV
+and IR poles), 1 mm thick, so one model serves Si (`EMA % (Mat 2)` = 0) and
+glass (100). Then NTVE_JAW at 0 Å, then Bphen as Gen-Osc (Einf 0.66, Gaussians
+at 315 / 282 / 225 nm, UV pole 186 eV² at 11 eV). Back reflections switched
+on, `% 1st Reflection` per sample. Two samples fitted together, 54.8 nm and
+13.8 nm of Bphen, both at EMA % 0, i.e. both on Si.
+
+**Bphen.** The lab dispersion and this set's agree to 0.002 in n across the
+visible (n 1.778 / 1.731 / 1.712 vs 1.780 / 1.733 / 1.713 at 450 / 550 / 633 nm;
+k(350) 0.020 vs 0.013). That is an independent check of §5/§6. On 2_21 / 2_22
+the lab Bphen gives MSE 7.8 vs 6.4 / 6.9 with this set's, and thicknesses ~0.4 nm apart.
+
+**Bphen 10 nm.** The template model reads 2_23 / 2_24 the same way §3 does: MSE
+41–43 at any thickness, its best d 3.5–6.8 nm depending on the oxide, and a
+roughness layer goes to 0. The same model was used for the 13.8 nm film in the
+snapshot, so a real ~10 nm Bphen film is within what it reads; §3 stands.
+
+**Glass.** The lab's no5 glass has n lower by 0.014 at 550 nm and a weak UV
+absorption. With the lab Bphen it fits 2_31 / 2_32 / 2_33 nearly as well as
+this set's glass (MSE 4.5 / 4.4 / 9.0 vs 3.8 / 4.5 / 8.8, thickness within
+1 nm), but not 2_34 (8.3 vs 4.7). This set's shared glass is kept. Dropping the
+no5 absorption (`no5 k=0`) makes 2_31 / 2_32 worse and leaves 2_33 / 2_34 about
+the same, so a weak UV absorption in this glass is possible but not
+established; this set's glass is left lossless.
+
+> Correction: the first run of this comparison reported MSE > 370 for no5.
+> The backside model handed the absorbing glass to `tmm()` as the incidence
+> medium. The Snell invariant is then complex, and `tmm()`'s Im(q) ≥ 0 branch
+> rule flips q in air, so even k = 1e-9 gave a back-surface |r|² of ~80.
+> `tl_glass.ncs_glass` now uses Re(n) at the interfaces and Beer-Lambert
+> through the 1 mm bulk. The shared `lib/tmm_fix.py` is unchanged. Every other
+> glass result here used a lossless Cauchy (k exactly 0), so none of them change.
+
+**Glass `.mod` files** (`tl_make_mod_glass2.py`, `$ELLIPS_OUT/tooling_mod/glass/`)
+are `S5_template.mod` with values changed:
+
+| field | template | written |
+|---|---|---|
+| `EMA % (Mat 2)` | 0, fit on | 100 (glass), fit off |
+| glass material | no5: Einf 1.42, TL Amp 0.0137, Eg 3.27, UV pole 99.3 @ 11, IR pole 0.016 | renamed `tooling2611_glass`: Einf 1, UV pole 138.5 eV² @ 10.55 eV (≤ 0.0023 from the fitted Cauchy), IR pole 0; TL kept but parked: Amp 0.001 (its lower bound), Eg 6.0, Eo 7.0 |
+| NTVE_JAW | 0 Å, fit on | 0 Å, fit off |
+| film | Bphen Gen-Osc | this set's NPB / TAPC / Bphen Gen-Osc (§6), d ± 10 nm free |
+| `# Back Reflections` | 0 | 5, fit off |
+| `% 1st Reflection` | 100 | 100·f of the piece, fit on |
+| MultiSamp | 2 samples | single-sample block, copied from the ADNC file |
+| angle offset, roughness | 0 | 0, fit off, bounds narrowed |
+
+The TL is parked rather than left at Amp 0.001, Eg 3.27: even that gives k ~ 1e-6
+below 379 nm, which over 1 mm takes ~16 % off the 300 nm backside beam, and
+these fits assumed a lossless glass. With Eg above the data (≤ 5.04 eV) the
+glass has k = 0 everywhere measured. Each file is read back and re-scored; all
+eight reproduce their fit MSE within 0.15:
+
+| piece | material | d (nm) | % 1st Reflection | MSE |
+|---|---|---|---|---|
+| 1_31 | NPB | 29.18 | 41.4 | 13.98 |
+| 1_32 | NPB | 48.22 | 23.6 | 18.80 |
+| 1_33 | NPB | 10.35 | 76.7 | 6.22 |
+| 1_34 | TAPC | 48.94 | 27.0 | 8.97 |
+| 2_31 | Bphen | 46.53 | 71.1 | 3.52 |
+| 2_32 | Bphen | 47.25 | 67.8 | 4.06 |
+| 2_33 | Bphen | 0.74 (bare) | 100 | 8.27 |
+| 2_34 | Bphen | 4.41 | 98.9 | 4.77 |
+
+Not verifiable here: the template's own samples were on Si, where the
+backside does nothing, so how CompleteEASE counts `# Back Reflections` and
+applies `% 1st Reflection` has not been seen on glass. Load 2_31 and press
+Generate. If the MSE is far from 3.5, those two fields are the first suspects.
+
+**Oxide convention, and what the glass twins say.** The template fits Si with
+NTVE 0 Å; §6 uses the measured 33.68 Å. Both are given
+(`tl_ce_thickness_ntve0.py`; `.mod` files in
+`tooling_mod/Si_NTVE0_template_convention/`, all six re-scored OK):
+
+| Si / glass | material | Si, NTVE 33.68 Å: d (MSE) | Si, NTVE 0 Å: d (MSE) | glass twin: d (MSE) |
+|---|---|---|---|---|
+| 1_21 / 1_31 | NPB | 25.94 (9.7) | 29.28 (14.3) | 29.18 (14.0) |
+| 1_22 / 1_32 | NPB | 46.44 (9.3) | 49.86 (12.5) | 48.22 (18.8) |
+| 1_23 / 1_33 | NPB | 8.33 (3.5) | 11.55 (5.9) | 10.35 (6.2) |
+| 1_24 / 1_34 | TAPC | 47.16 (3.7) | 50.58 (6.1) | 48.94 (9.0) |
+| 2_21 / 2_31 | Bphen | 43.94 + 1.9 rough (3.8) | 47.76 + 0.8 rough (6.4) | 46.53 (3.5) |
+| 2_22 / 2_32 | Bphen | 42.87 + 2.1 rough (4.1) | 46.65 + 1.1 rough (6.7) | 47.25 (4.1) |
+
+The two pulls disagree. MSE prefers 33.68 Å on every Si piece (by 35–67 %).
+The glass twins, which have no oxide question, land on average 0.9 nm below the
+NTVE 0 Å values and 2.6 nm above the 33.68 Å ones. If each Si / glass pair saw
+the same flux, that points to a thinner oxide (the 2 nm of §2 sits between). For
+the 10 nm NPB the choice moves the tooling factor by 39 %, so the oxide on these
+wafers is the open question. A bare piece of the same wafer lot, measured with
+these settings, would settle it. Until then, compare tooling factors with earlier
+template runs using the NTVE 0 Å column, and quote the glass twins as the
+oxide-free check.
