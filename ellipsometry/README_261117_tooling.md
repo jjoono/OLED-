@@ -21,6 +21,15 @@ python tl_glass_sub.py    # backside reflection test
 python tl_glass_global.py # one glass + one backside fraction for all glass pieces
 python tl_tail.py         # is the k ~ 0.01 visible tail of TAPC / Bphen required?
 python tl_report.py; python tl_notail_csv.py       # -> $ELLIPS_OUT/tooling_nk/
+
+# Gen-Osc .mod files (§6) - ELLIPS_DATA also holds the two lab .mod files below
+python tl_genosc.py       # constrained Gen-Osc in this pipeline's own frame (method check)
+python tl_ce_genosc.py    # the same in CompleteEASE's frame: SI_JAW + NTVE_JAW 33.68 A
+python tl_ce_thickness.py # every continuous Si piece, at the lab oxide and at 15 A
+python tl_ce_glass.py     # glass pieces with those dispersions; glass as Einf 1 + UV pole
+python tl_make_mod.py     # Si .mod files, each read back and re-scored
+python tl_make_mod_glass.py   # glass .mod files - unverified format, see §6
+python tl_mod_report.py   # parameter table, n,k CSVs, figure -> $ELLIPS_OUT/tooling_mod/
 ```
 
 Reuses the corrected TMM and reference constants of `joint_nk_260910/`
@@ -110,3 +119,47 @@ alone). The glass thicknesses carry that spread.
 Outputs (`$ELLIPS_OUT/tooling_nk/`): `thickness_summary.csv`,
 `nk_{NPB,TAPC,Bphen}.csv` and variants on a 1 nm grid 250–1000 nm,
 `n_glass_substrate.csv`, `fit_parameters.json`, two figures.
+
+## 6. Gen-Osc model files for CompleteEASE
+
+`tl_make_mod.py` writes one `.mod` per continuous-film piece. Structure is the
+lab's own CompleteEASE-saved Gen-Osc file (`ADNC_ITO_GenOSC_v2_claude.mod`,
+SI_JAW / NTVE_JAW / Gen-Osc, model v2); only the Gen-Osc layer, thickness,
+oxide, roughness and angle offset are rewritten. Fits are redone in that frame
+— SI_JAW and NTVE_JAW decoded out of the file, oxide fixed at 33.68 Å from
+`Nativeoxide_180sO2plasma_Si_wafer.mod` — so Generate alone reproduces the data.
+Every file is read back and re-scored; all twelve reproduce their fit MSE.
+
+**What "realistic for an organic" was taken to mean**, and enforced:
+
+| | rule | why |
+|---|---|---|
+| Einf | fixed at 1 | the UV pole carries the transitions above the data; a free Einf trades with it and means nothing |
+| UV pole | 6–12 eV, amplitude ≥ 0 | σ→σ*/π→π* above the measured 5.06 eV |
+| Gaussians | amplitude ≥ 0, FWHM 0.10–1.20 eV, centre above the measured absorption onset | vibronic bands; no negative oscillators cancelling each other |
+| sub-gap | ε₂ penalised below the onset during the fit | a broad band centred above the gap can still leak a visible tail; these are wide-gap films |
+| count | fewest Gaussians within 10 % of the best MSE | NPB 5, TAPC 4, Bphen 4 |
+| locking | fit flag OFF if the 90 % CI > 50 % or on a bound | only TAPC G4 En (on its 5.6 eV bound) |
+
+Results, CompleteEASE frame:
+
+| material | UV pole | bands (nm) | n(550) | k(450) | MSE |
+|---|---|---|---|---|---|
+| NPB | 76 eV² @ 8.27 eV | 384, 359, 337, 281, 223 | 1.772 | 5e-4 | 9.3, 9.7 |
+| TAPC | 84 eV² @ 8.21 eV | 320, 311, 285, 221 | 1.649 | 0 | 3.7 |
+| Bphen | 95 eV² @ 8.54 eV | 315, 281, 276, 228 | 1.733 | 0 | 3.8, 4.1 |
+
+The lab oxide beats a 15 Å bare-wafer oxide on every Si piece (e.g. 1_23 MSE
+3.50 vs 4.39, 1_24 3.66 vs 4.65), so the tooling wafers look plasma-treated like
+the reference wafer; at 15 Å every film would be ~1.9 nm thicker. Roughness was
+tested per material: NPB 0, TAPC 0.3 nm (no gain), Bphen ~2 nm (11 % better MSE)
+— written only for Bphen, which is also the material that crystallizes. The
+lab's BsBCZ models put roughness at 9–10 nm, pinned on their 100 Å bound;
+nothing here asks for that.
+
+**Glass `.mod` files are unverified.** No glass-substrate model was supplied, so
+the substrate (a Gen-Osc layer with no oscillators: Einf 1 + UV pole, |Δn| ≤ 0.003
+from the fitted glass Cauchy) and the back-surface switch (the flag before
+`'# Back Reflections'`, with `'% 1st Reflection'` = 46 and free) are inferred.
+They round-trip in this pipeline's model; whether CompleteEASE reads them the
+same way has to be checked by loading one.
