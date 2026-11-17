@@ -448,3 +448,51 @@ Biaxial = Gaussian amplitudes × a_x, a_y, a_z with mean 1; UV pole isotropic.
   §7's glass-twin argument for a thinner oxide than 33.68 Å is consistent with
   this.
 * Per-piece MSE and n,k per axis: `$ELLIPS_OUT/joint_siglass.json`.
+
+## 10. The lab's tooling models with this set's data (`tl_lab_refit.py`)
+
+The models are read straight from the snapshots in `Tooling_Evaporator.zip`:
+`NPB_tooling_S8_S13` (uniaxial Gen-Osc, the lab refits the whole dispersion,
+NTVE 14.5 Å), `TAPC_S11_tooling` (isotropic, thickness-only, backside on for
+glass, NTVE 14.5 Å) and `BPhen_S12_tooling` (isotropic, thickness-only, NTVE 0).
+The current Si and glass data are put in set for set, and the fit uses the
+lab's flags, bounds and range (245.8-1688 nm). Thickness is bounded to nominal
+± 5 % (10 nm films: ± 10 %), and free fits run alongside to show where the
+bound binds.
+
+| piece | nominal | NPB / TAPC / Bphen: lab model | free (dispersion fixed) | note |
+|---|---|---|---|---|
+| 1_21 Si / 1_31 glass | NPB 30 | 28.7 / 29.3 | 28.9 / 29.9 | |
+| 1_22 Si / 1_32 glass | NPB 50 | 49.0 / 48.9 | 49.3 / 50.0 | |
+| 1_23 Si / 1_33 glass | NPB 10 | 10.6 / 10.3 | 10.5 / 10.7 | |
+| 1_24 Si / 1_34 glass | TAPC 50 | 48.5 / 48.9 | same | |
+| 2_21, 2_22 Si | Bphen 50 | 47.5 (bound) / 47.5 (bound) | 47.1 / 46.1 | NTVE 14.5 Å; 48.5 / 47.6 at the model's own 0 Å |
+| 2_31, 2_32 glass | Bphen 50 | 47.5 (bound) / 47.5 | 46.8 / 47.5 | |
+| 2_23, 2_24 / 2_33, 2_34 | Bphen 10 | 9.0 (bound), MSE 26-49 | 5.4-5.6 / 0.4, 3.8 | no 10 nm film (§3) |
+
+The NPB column is the lab's uniaxial model refitted under physical bounds,
+with the TAPC model's glass handling (MSE 4.03). The free column holds the
+old n,k fixed (MSE 6.98).
+
+* **The NPB model's glass handling does not work for glass pieces.** Its glass
+  absorbs (k 0.0025-0.005, so a 1 mm substrate would be opaque) and back
+  reflections are off. Its glass sets land on bounds with MSE 14-22, which is
+  why the lab left them out of the fit. With the TAPC model's glass (transparent
+  no5, backside on, % 1st Reflection fitted), all six NPB pieces fit inside
+  the tolerance without the bound acting.
+* **The NPB dispersion refit with the lab's own bounds is not physical.**
+  Amplitudes are allowed to -100. With TAPC glass it reaches MSE 3.81 with
+  ε2 < 0 (gain) on the extraordinary axis across 450-633 nm. As saved, both
+  Einf go to 0. Refitted with amplitudes ≥ 0, Einf ≥ 1 and Br ≥ 0.05 eV, it
+  reaches MSE 4.03 with the same thicknesses (≤ 0.6 nm change). It still
+  carries an in-plane k ≈ 0.006 in the visible, below the k ≈ 0.01 that
+  these films resolve (§5).
+* **Bphen 50 is about 6 % thin.** The glass pieces (no oxide question) give
+  46.8 / 47.5 nm, and Si on the NPB/TAPC oxide convention gives 47.1 / 46.1 nm.
+  Holding Si at the 5 % bound costs 2_22 MSE 6.8 -> 32.6. The Bphen model's own
+  NTVE 0 gives 48.5 / 47.6 on Si, which is why it looked in tolerance. Across
+  the lab's models the oxide convention is not uniform (14.5 Å NPB / TAPC,
+  0 Å Bphen); compare tooling factors on one convention.
+* The TL glass in the NPB snapshot is overdamped (Br 14 eV > 2 Eo); see the
+  `lib/ce_osc.tauc_lorentz` fix in this session.
+* Results: `$ELLIPS_OUT/lab_refit.json`, `lab_refit_extra.json`.
