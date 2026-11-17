@@ -76,6 +76,7 @@ export ELLIPS_OUT=/path/to/output          # fits (.json/.npz), n,k CSV, figures
 | What | Used by | Notes |
 |---|---|---|
 | `summary.xlsx` (260819 ThinAg) | `thin_ag_260819/*`, `joint_nk_260910/*` | 16 sheets, 5 angles, 245.8–1688.1 nm |
+| `tooling.xlsx` (NPB/TAPC/Bphen tooling) | `tooling_261117/*` | 16 sheets, AnE Psi/Delta, 5 angles, 245.8–1688.1 nm, no depolarization |
 | `se추출.xlsx` (260813 ITO/IZO) | `ito_izo_v2/*` | 5 sheets, 3 angles, 192.4–1688.3 nm |
 | `*_GenOSC_*.mod` | `completeease_mod/*` | CompleteEASE model file used as a structural template |
 | `ag_seed_result.json`, `ag_v3_result.json`, `ce_v13_result.json` | most fit scripts | written by the pipeline; regenerate by running it |

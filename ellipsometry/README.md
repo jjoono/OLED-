@@ -92,3 +92,12 @@ data instead — and reaches the same seed dispersion as the 260819 pass. For Ag
 HATCN one dielectric function now describes both measurements to 0.15 %p in
 absolute T/R, which retires the SE-vs-T/R disagreement in n reported in §5 of the
 260820 notes; Ag on MoOx still needs an inhomogeneous model.
+
+## Session 2026-11-17
+
+NPB / TAPC / Bphen tooling pieces on Si and glass, material and thickness both
+unknown going in (`scripts/tooling_261117/`, see
+[README_261117_tooling.md](README_261117_tooling.md)). The absorption bands
+identify every continuous film independently and the NPB dispersion reproduces
+`data/nk/NPB.csv`; Si and glass thicknesses agree to ±2 nm once the glass back
+surface is modelled. The Bphen 10 nm pieces fit no continuous film.
