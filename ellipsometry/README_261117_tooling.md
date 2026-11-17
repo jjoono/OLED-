@@ -303,9 +303,50 @@ NTVE 0 Å; §6 uses the measured 33.68 Å. Both are given
 The two pulls disagree. MSE prefers 33.68 Å on every Si piece (by 35–67 %).
 The glass twins, which have no oxide question, land on average 0.9 nm below the
 NTVE 0 Å values and 2.6 nm above the 33.68 Å ones. If each Si / glass pair saw
-the same flux, that points to a thinner oxide (the 2 nm of §2 sits between). For
+the same flux, that points to a thinner oxide (the 2 nm of §2 sits between).
+The Si data themselves never ask for 0 Å: fitting d and the oxide together
+(the NPB UV bands make that possible on a thin film, §8) returns 3.41 nm on
+1_23 - the lab value - and 4.2-4.6 nm on 1_21 / 1_22, where the
+shared-dispersion compromise of §5 leaks in. For
 the 10 nm NPB the choice moves the tooling factor by 39 %, so the oxide on these
 wafers is the open question. A bare piece of the same wafer lot, measured with
 these settings, would settle it. Until then, compare tooling factors with earlier
 template runs using the NTVE 0 Å column, and quote the glass twins as the
 oxide-free check.
+
+## 8. Src10_10nm: a nominal 10 nm organic film on Si, material not given
+
+`tl_src10.py` (`SRC10_XLSX=.../Src10_10nm.xlsx`; same export layout, one
+sheet). Same CompleteEASE frame and footing as the tooling set; the three NPB
+tooling pieces are refitted alongside as the like-for-like reference.
+
+**It is NPB, at NPB band strength.** Its Ψ at 65° tracks 1_23 (8.3 nm NPB)
+point for point from 260 to 900 nm. Against every picture tried:
+
+| model | d (nm) | MSE |
+|---|---|---|
+| NPB film (oxide 33.68 Å) | 9.31 | 4.00 |
+| NPB film, band amplitudes × s free | 9.41 (s = 0.91) | 3.91 |
+| NPB film, oxide free | 7.98 (oxide 4.76 nm) | 3.47 |
+| NPB film + Si/void EMA layer | 7.39 (+ 2.75 nm at 81 % void: a low-index interlayer) | 2.99 |
+| NPB film, NTVE 0 Å (template convention) | 12.54 | 7.47 |
+| TAPC / Bphen film, best variant | 5.1 / 5.4 | 8.9 / 10.1 |
+| transparent Cauchy film | 8.6 | 11.2 |
+| no film: bare Si / Si damage only | - | 13.2 / 10.9 |
+
+Only three dispersions are on hand, so "NPB" means "absorbs where and as
+strongly as NPB" - α-NPD-type hole transporters would read the same.
+
+**Thickness: 9.3 nm** in the convention of the tooling set (§6 files, where
+1_23 is 8.3 nm). Statistical 90 % intervals are ±0.01-0.06 nm; the spread is
+the interface. Unlike the tooling NPB pieces, Src10 asks for a little more
+than the lab oxide: freed, the oxide goes to 4.8 nm (on 1_23 the same fit
+returns 3.41 nm, the lab value), and a Si/void EMA layer, which comes out
+81 % void (oxide-like, not damaged Si), does the same job.
+Either way the film reads 7.4-8.0 nm. Read 9.3 nm as the comparable number
+and 7.4-9.4 nm as the range. A different wafer batch or clean would explain a
+thicker oxide; a bare piece of the same wafer would settle it.
+
+`tl_make_mod_src10.py` writes the NPB Gen-Osc `.mod` at 33.68 Å (9.3 nm, MSE
+4.00) and at NTVE 0 Å (12.5 nm, MSE 7.47) to `tooling_mod/Src10/`; both read
+back and re-score to the same MSE.

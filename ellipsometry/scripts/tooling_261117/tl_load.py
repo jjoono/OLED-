@@ -6,11 +6,14 @@ import sys, os, re, numpy as np
 REPO = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'joint_nk_260910')
 sys.path.insert(0, REPO); sys.path.insert(0, os.path.join(REPO, '..', 'lib'))
 XL = _os.path.join(ELLIPS_DATA, 'tooling.xlsx')
-CACHE = _os.path.join(ELLIPS_OUT, 'tooling.npz')
+# another export of the same layout: pass xl=<path> (cached as <stem>.npz)
+_cache = lambda xl: _os.path.join(ELLIPS_OUT, _os.path.splitext(_os.path.basename(xl))[0] + '.npz')
+CACHE = _cache(XL)
 
-def _read():
+def _read(xl=None):
     import openpyxl
-    wb = openpyxl.load_workbook(XL, data_only=True, read_only=True)
+    xl = xl or XL
+    wb = openpyxl.load_workbook(xl, data_only=True, read_only=True)
     out = {}
     for sh in wb.sheetnames:
         rows = list(wb[sh].iter_rows(values_only=True))
@@ -30,16 +33,18 @@ def _read():
             rec.append([wl] + psi + dl)
         out[sh] = np.array(rec)
         out['ANG_' + sh] = np.array(angs)
-    np.savez_compressed(CACHE, **out)
+    np.savez_compressed(_cache(xl), **out)
 
-def sheets():
-    if not os.path.exists(CACHE): _read()
-    z = np.load(CACHE)
+def sheets(xl=None):
+    c = _cache(xl or XL)
+    if not os.path.exists(c): _read(xl)
+    z = np.load(c)
     return [k for k in z.files if not k.startswith('ANG_')]
 
-def se(sh, lo=245.0, hi=1690.0, step=1):
-    if not os.path.exists(CACHE): _read()
-    z = np.load(CACHE); A = z[sh]; ang = z['ANG_' + sh]; na = len(ang)
+def se(sh, lo=245.0, hi=1690.0, step=1, xl=None):
+    c = _cache(xl or XL)
+    if not os.path.exists(c): _read(xl)
+    z = np.load(c); A = z[sh]; ang = z['ANG_' + sh]; na = len(ang)
     m = (A[:, 0] >= lo) & (A[:, 0] <= hi); A = A[m][::step]
     return A[:, 0], A[:, 1:1 + na], A[:, 1 + na:1 + 2 * na], ang
 
