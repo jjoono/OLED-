@@ -45,10 +45,10 @@ for sh, nm, lab in (('planar M', 'Fig1b_planar_M', 'planar interface'), ('hemisp
 # ---------------- Fig. 2
 f = D + 'fig2_complete_mixing.xlsx'
 add('Fig2a_p_mix', 'Fig. 2', 'a', 'Uniform-radiance escape p, its etendue-weighted s.d. sigma_p, and completely mixed escape p_mix = p - sigma_p^2/(1-p), all structures.', rows_of(f, 'a_p_mix'), f)
-add('Fig2b_gain', 'Fig. 2', 'b', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'b_gain'), f)
-add('Fig2c_placement', 'Fig. 2', 'c', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'c_placement'), f)
-add('Fig2d_slab', 'Fig. 2', 'd', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'd_slab'), f)
-add('Fig2d_textured', 'Fig. 2', 'd (symbols)', 'Slab with a textured exit face (hemispherical MLA, wavy rms slope 0.4 and 1.0), isotropic internal source, angle-independent back reflectance R; symbols use R = 0.90 and no mixing. Also Table S28.', rows_of(f, 'd_textured'), f)
+add('Fig2d_gain', 'Fig. 2', 'd', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'd_gain'), f)
+add('Fig2b_placement', 'Fig. 2', 'b', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'b_placement'), f)
+add('Fig2c_slab', 'Fig. 2', 'c', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'c_slab'), f)
+add('Fig2c_textured', 'Fig. 2', 'c (symbols)', 'Slab with a textured exit face (hemispherical MLA, wavy rms slope 0.4 and 1.0), isotropic internal source, angle-independent back reflectance R; symbols use R = 0.90 and no mixing. Also Table S28.', rows_of(f, 'c_textured'), f)
 # ---------------- Fig. 3 (split one table into panels)
 f = D + 'fig3_reduced_model.xlsx'; C = rows_of(f, 'cases'); key = ['structure', 'class', 'device', 'lambda_nm', 'eta_full']
 for nm, fig, col, desc in (('FigS2a_fully_randomized', 'Fig. S2', 'eta_fully_randomized', 'fully randomized model'), ('FigS2b_angle_preserving', 'Fig. S2', 'eta_m0', 'angle-preserving limit (m = 0)'),
@@ -83,6 +83,8 @@ B += [['reference line: hemispherical MLA', None, None, ref['MLA hemi_total'], '
 add('Fig4b_randomness', 'Fig. 4', 'b', 'N_mix against each randomness parameter normalized by its maximum (Al, 550 nm); dotted reference lines at the end.', B, f)
 add('Fig4c_xi', 'Fig. 4', 'c', 'Late-pass escape ratio xi = p_inf / p~ against N_mix (Al, 550 nm).', pick(S, ['structure', 'class', 'N_mix', 'p_inf', 'xi']), f)
 # ---------------- Fig. 5
+f = D + 'fig3c_applicability.xlsx'
+add('Fig3c_applicability', 'Fig. 3', 'c', 'Applicability of the reduced model: lambda_2, light-weighted relaxation lambda_eff of the first returned light (Al, 550 nm), their gap, slow-mode share, and mean/max error over three devices and three wavelengths; closed_set marks a reducible chain.', rows_of(f, 'structures'), f)
 f = D + 'fig5_bound_window.xlsx'
 add('FigS4a_first_pass', 'Fig. S4', 'a', 'First-pass power into each polar band / substrate power (Al, 550 nm): bounds and four structures.', rows_of(f, 'a_first_pass'), f)
 add('FigS4b_composition', 'Fig. S4', 'b', 'S40-60 of the multi-pass output vs eta_sta, all structures (Al, 550 nm); shaded band 0.33-0.36, Lambertian 0.337.', rows_of(f, 'b_composition'), f)
