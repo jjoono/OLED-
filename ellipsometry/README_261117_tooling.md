@@ -131,6 +131,35 @@ polished one; the depolarization export of these four from the .SE files (rough
 Si and island scattering both depolarize); an optical-microscope or AFM look for
 crystallites; a bare piece of the 2_23/2_24 wafer.
 
+**Visible only, then a B-spline expanded into the UV** (`tl_bphen10_bspline.py`,
+NTVE 1.5 nm), the CompleteEASE workflow for thin films. Same procedure on two
+controls with known films:
+
+| | 2_23 / 2_24 | Src10 (NPB ~10 nm) | 2_21 (Bphen ~47 nm) |
+|---|---|---|---|
+| visible 420-1000 nm, material Gen-Osc: d (MSE) | 8.6 / 8.3 nm (15.6 / 15.3) | 11.2 nm (1.6) | 46.9 nm (3.2) |
+| visible, transparent Cauchy: d, n(550) | 9.7 / 9.5 nm, **2.41 / 2.43** | 11.1 nm, 1.77 | 47.2 nm, 1.65 |
+| visible, no film (Si/void layer): MSE | **4.3 / 4.2** | 1.7 | 123 |
+| Gen-Osc carried to 245 nm unchanged: MSE | 56 / 54 | 5.8 | 9.7 |
+| B-spline expanded to 245 nm: MSE | 9.7 / 9.3 | 1.4 | 6.2 |
+| extracted k peaks | one broad, **445 nm** | 281, 351 nm (NPB's) | 277 nm (Bphen's) |
+| extracted n, k at 550 nm | **1.50, 0.39** | 1.78, 0.01 | 1.73, 0.00 |
+
+On the controls the procedure recovers the known material: NPB's bands on a
+10 nm film, Bphen's n,k to the second decimal on 47 nm. On 2_23 / 2_24 it does
+not find Bphen:
+* Even in the visible, Bphen fits poorly (MSE 15 vs 4 for the no-film layer),
+  and a free transparent film wants n = 2.4, not an organic's 1.7.
+* Expanded, the "film" turns into an absorber across the whole visible
+  (k ≈ 0.3-0.44, where Bphen has k = 0) with n 1.1-1.6, and no 277 nm band.
+
+So the ~8.5 nm from the visible-only fit is the thickness a Bphen film would
+need to mimic the visible signal, not a measured Bphen thickness. On a 10 nm
+film the visible alone cannot tell an organic film from a modified Si surface
+(Src10's visible is fitted almost as well by a Si/void layer, MSE 1.7 vs 1.6).
+It is the UV that tells them apart, and on 2_23 / 2_24 it points away from
+Bphen. Figure: `$ELLIPS_OUT/bphen10_bspline_nk.png` (`tl_bphen10_bspline_plot.py`).
+
 ## 4. Glass needs its back surface
 
 Front-surface-only fits leave MSE 13–20 and put every glass piece ~10 % thinner
