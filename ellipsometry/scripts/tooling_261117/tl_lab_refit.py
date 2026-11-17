@@ -28,8 +28,9 @@ each with the dispersion fixed (old n,k) and refitted with the lab's flags.
 Backside beams: Re(n_glass) at the interfaces, Beer-Lambert through the 1 mm
 substrate, film axis-averaged on the back path; 'normalised' N,C,S.
 
-Thickness prior: the deposition is expected within 5 % of nominal (10 / 30 /
-50 nm), so every thickness is bounded to nominal x (1 +- TOL).  The thickness-
+Thickness prior: the deposition is expected within 5 % of nominal for 30 and
+50 nm and within 10 % for the thin 10 nm films, so every thickness is bounded
+to nominal x (1 +- TOL[nominal]).  The thickness-
 only fits are also run unbounded, and every bounded result that ends on a
 bound is flagged: there the number is the constraint, not the data."""
 import os as _os
@@ -48,11 +49,12 @@ EVAP_ZIP = _os.environ.get('EVAP_ZIP', _os.path.join(ELLIPS_DATA, 'Tooling_Evapo
 HC = 1239.841984
 WL = (245.0, 1690.0, 2)
 T_SUB = 1.0e6                                   # nm: 'Substrate Thickness' 1.0E7 A in every model
-TOL = float(_os.environ.get('THICK_TOL', '0.05'))
+TOL = {10: 0.10, 30: 0.05, 50: 0.05}             # relative, by nominal thickness
 NOMINAL = {'1_21': 30, '1_31': 30, '1_22': 50, '1_32': 50, '1_23': 10, '1_33': 10, '1_24': 50, '1_34': 50,
            '2_21': 50, '2_22': 50, '2_31': 50, '2_32': 50, '2_23': 10, '2_24': 10, '2_33': 10, '2_34': 10}
 def dbounds(sh, bounded):
-    return (NOMINAL[sh] * (1 - TOL), NOMINAL[sh] * (1 + TOL)) if bounded else (0.0, 300.0)
+    n = NOMINAL[sh]
+    return (n * (1 - TOL[n]), n * (1 + TOL[n])) if bounded else (0.0, 300.0)
 PL = re.compile(r"^\t*([-\d.eE+]+|NaN)\t([TF])\t([-\d.eE+]+)\t([-\d.eE+]+)\t[TF]\t'([^']*)'", re.M)
 
 
@@ -287,7 +289,7 @@ def main():
     json.dump(res, open(W + 'lab_refit.json', 'w'), indent=1)
     for r in res:
         print('\n== %s, %s, %s   overall MSE %.2f' % (r['run'], 'dispersion REFITTED with the lab flags (%d film parameters)' % r['n_fit_film'] if r['refit'] else 'dispersion fixed (old n,k)',
-              'd within nominal +-%.0f%%' % (100 * TOL) if r['bounded'] else 'd free', r['mse_all']))
+              'd within nominal +-5 %% (10 nm: +-10 %%)' if r['bounded'] else 'd free', r['mse_all']))
         for j, sh in enumerate(r['sets']):
             print('   %s %-5s nominal %2d  d = %6.2f nm %s %s MSE %7.2f' % (sh, 'glass' if is_glass(sh) else 'Si', NOMINAL[sh], r['d'][j],
                   'ON BOUND' if r['d_on_bound'][j] else '        ',
