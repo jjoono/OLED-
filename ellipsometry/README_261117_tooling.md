@@ -15,7 +15,9 @@ python tl_pointnk.py      # model-free n,k at that thickness -> absorption finge
 python tl_osc.py          # KK-consistent Gaussian dispersion per material
 python tl_npb_sep.py      # NPB fitted per piece, to see the shared-dispersion compromise
 python tl_si_id.py        # every Si piece against every material, d only
-python tl_thin_diag.py; python tl_thin_diag2.py    # why 2_23 / 2_24 fit nothing
+python tl_thin_diag.py; python tl_thin_diag2.py    # why 2_23 / 2_24 fit nothing (first pass)
+python tl_bphen10_signal.py; python tl_bphen10.py; python tl_bphen10_sub.py; python tl_bphen10_sub2.py
+python tl_bphen10_back.py; python tl_bphen10_plot.py   # Bphen 10 nm, in depth (section 3)
 python tl_glass.py        # glass pieces, front surface only
 python tl_glass_sub.py    # backside reflection test
 python tl_glass_global.py # one glass + one backside fraction for all glass pieces
@@ -64,29 +66,56 @@ every piece that carries a continuous film.**
 | 1_23 / 1_33 | NPB | 10 | 9.9 | 9.4 |
 | 1_24 / 1_34 | TAPC | 50 | 48.6 | 49.2 |
 | 2_21, 2_22 / 2_31, 2_32 | Bphen | 50 | 47.0, 46.0 | 45.5, 46.4 |
-| 2_23, 2_24 / 2_33, 2_34 | Bphen? | 10 | — | (0.7, 3.8) |
+| 2_23, 2_24 / 2_33, 2_34 | Bphen | 10 | none detectable | none, 3.4 |
 
 Si: ±1 nm for a ±1 nm native-oxide assumption, which is the dominant
 uncertainty. Glass: the spread over the three depolarization conventions below
 is up to 1.8 nm. Si and glass pieces agree to ±2 nm once the glass model is
 right (§4).
 
-## 3. The Bphen 10 nm pieces are not a continuous film
+## 3. The Bphen 10 nm pieces: no 10 nm film on any of the four
 
-2_23 and 2_24 fit **no** homogeneous layer — any of the three dispersions, free
-oxide, a Bruggeman void fraction, an angle offset: MSE 34–42 against 4–10 for
-everything else, residual in every band including 500–1000 nm. A free
-absorbing Cauchy does best (MSE ~21) only by going to n = 1.2 with a flat
-k ≈ 0.08 — a low-density, light-losing layer, which is what a dewetted or
-crystallized island film looks like to a specular model. The glass twins say
-the same from the other side: 2_33 reads as bare glass (0.7 nm equivalent),
-2_34 as 3.8 nm, both with a Bphen-like 277 nm feature.
+Re-examined in depth (`tl_bphen10*.py`) because the data matter. Every picture
+below was fitted to all four pieces, in CompleteEASE's frame for the Si pieces.
 
-NPB at the same nominal 10 nm (1_23) is a perfectly ordinary film (MSE 4). Bphen
-(T_g ≈ 62 °C) is known to crystallize where NPB (T_g ≈ 95 °C) does not, so the
-likely story is morphology, not deposition — but that is an inference; an AFM or
-optical-microscope look at 2_23 would settle it. Either way, no tooling factor
-can be taken from these four pieces.
+**The measured signal is not a Bphen signal.** Subtracting the bare-substrate
+model from 2_23 leaves a Ψ change of up to −6.4° with its extrema at Si's E1
+(365 nm) and E2 (~290 nm) critical points (`tl_bphen10_signal.py`). Any Bphen
+film raises Ψ there; NPB at the same nominal 10 nm (1_23) follows its 10 nm
+prediction closely.
+
+| 2_23 / 2_24 on Si | MSE | what it says |
+|---|---|---|
+| Bphen film, ± roughness, ± void fraction | 41–42 | roughness → 0, void → 0, d ≈ 3.6 nm |
+| uniaxial Bphen (order parameter) | 40–41 | S pinned at −0.5, no help |
+| islands next to bare substrate (incoherent area mix) | 30 | fixes 500–1000 nm only |
+| oxide thickness free | 41–43 | no help |
+| **rough / damaged Si surface, no Bphen** | **13–14** | ~8 nm Si + 34 % void |
+| the same + a Bphen overlayer | 13–14 | overlayer → 0 |
+| rough Si with the valleys filled by Bphen | 18–19 | worse than air-filled |
+| islands + Si damage | 17 | 3.7 % coverage → ~2 nm Bphen-equivalent |
+
+The Bphen 50 nm pair from the same run (2_21, 2_22) does **not** want that
+substrate layer (it fits to 0.04–0.06 nm), so 2_23/2_24 sit on a different
+surface - another wafer, or the other side of one.
+
+| glass | best | front film | back-surface film only |
+|---|---|---|---|
+| 2_33 | bare glass | 0.5 nm | 0 (MSE 11) |
+| 2_34 | Bphen 3.4 nm on the measured face (MSE 7.1; 3–6 nm across all models) | 3.4 nm | 0 (MSE 18) |
+
+The glass test rules out the tidy explanation (deposit on the far face, the
+measured face bare): the back-film fits are worse on both pieces.
+
+**Reading:** these four pieces did not receive a 10 nm Bphen film. Best
+estimates - 2_23, 2_24: none detectable, ≤ 2-4 nm Bphen-equivalent depending on
+the substrate model; 2_33: none; 2_34: ~3.4 nm. The 50 nm Bphen pieces came in at
+0.86-0.92 of nominal, so this is not a tooling factor; it points at the
+deposition or the sample handling (shutter, mask, plume position, labels). What
+would settle it: which face of 2_23/2_24 was measured and whether it is the
+polished one; the depolarization export of these four from the .SE files (rough
+Si and island scattering both depolarize); an optical-microscope or AFM look for
+crystallites; a bare piece of the 2_23/2_24 wafer.
 
 ## 4. Glass needs its back surface
 
