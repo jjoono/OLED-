@@ -29,7 +29,11 @@ def gaussian(E, A, Br, En):
 
 
 def tauc_lorentz(E, A, C, E0, Eg):
-    """Jellison-Modine Tauc-Lorentz, analytic eps1 (APL 69, 371 + erratum)."""
+    """Jellison-Modine Tauc-Lorentz, analytic eps1 (APL 69, 371 + erratum).
+
+    Overdamped oscillators (C > 2 E0, alpha imaginary) are evaluated with a
+    complex alpha and the real part kept; checked against a numerical KK
+    integral.  The underdamped path is unchanged."""
     E = np.asarray(E, float)
     e2 = np.where(E > Eg,
                   (A * E0 * C * (E - Eg)**2) /
@@ -38,7 +42,8 @@ def tauc_lorentz(E, A, C, E0, Eg):
 
     aln  = (Eg**2 - E0**2) * E**2 + Eg**2 * C**2 - E0**2 * (E0**2 + 3.0 * Eg**2)
     aatn = (E**2 - E0**2) * (E0**2 + Eg**2) + Eg**2 * C**2
-    alpha = np.sqrt(max(4.0 * E0**2 - C**2, 1e-30))
+    over = 4.0 * E0**2 - C**2 < 0
+    alpha = np.sqrt(4.0 * E0**2 - C**2 + 0j) if over else np.sqrt(max(4.0 * E0**2 - C**2, 1e-30))
     gam2  = E0**2 - C**2 / 2.0
     zeta4 = (E**2 - gam2)**2 + alpha**2 * C**2 / 4.0
 
@@ -54,6 +59,8 @@ def tauc_lorentz(E, A, C, E0, Eg):
     t5 = (2.0 * A * E0 * C * Eg) / (np.pi * zeta4) * \
          np.log(np.maximum(d, 1e-12) * (E + Eg) /
                 np.sqrt((E0**2 - Eg**2)**2 + Eg**2 * C**2))
+    if over:
+        return (t1 + t2 + t3 + t4 + t5).real, e2
     return t1 + t2 + t3 + t4 + t5, e2
 
 
