@@ -1,6 +1,8 @@
 """Src10_10nm .mod files: NPB Gen-Osc on Si, as tl_make_mod.py writes the tooling
-pieces, at the measured oxide (33.68 A) and in the lab template's NTVE 0 A
-convention.  The material is not given; NPB is what tl_src10.py identifies.
+pieces, at the measured oxide (33.68 A), at a bare-wafer 1.5 nm, and in the lab
+template's NTVE 0 A convention.  Isotropic only: no CompleteEASE-saved
+anisotropic model is on hand to copy the format from (tl_aniso.py has the fits).
+The material is not given; NPB is what tl_src10.py identifies.
 
 SRC10_XLSX=/path/to/Src10_10nm.xlsx (default $ELLIPS_DATA/Src10_10nm.xlsx)."""
 import os as _os
@@ -24,7 +26,7 @@ def main():
     rec = json.load(open(W + 'ce_genosc.json'))['NPB']['pick']
     out = {}
     print('%-22s %8s %8s %8s  %s' % ('oxide', 'd (nm)', 'MSE fit', 'MSE file', 'check'))
-    for lab, dox in (('NTVE 33.68 A', C.D_OX), ('NTVE 0 A (template)', 0.0)):
+    for lab, dox in (('NTVE 33.68 A', C.D_OX), ('NTVE 1.5 nm', 1.5), ('NTVE 0 A (template)', 0.0)):
         d, mse, _ = C.fit_thickness(SHEET, np.array(rec['p']), dox, False)
         fn = 'Src10_NPB_%.1fnm_on_NTVE%sA_Si_GenOsc.mod' % (d, '%.1f' % (dox * 10) if dox else '0')
         MM.write_si(tpl, 'NPB', rec, d, OUTDIR + fn, dox, 0.0)

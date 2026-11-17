@@ -121,8 +121,10 @@ measured face bare): the back-film fits are worse on both pieces.
 
 **Reading:** these four pieces did not receive a 10 nm Bphen film. Best
 estimates - 2_23, 2_24: none detectable, ≤ 2-4 nm Bphen-equivalent depending on
-the substrate model; 2_33: none; 2_34: ~3.4 nm. The 50 nm Bphen pieces came in at
-0.86-0.92 of nominal, so this is not a tooling factor; it points at the
+the substrate model; 2_33: none; 2_34: ~3.4 nm (4.4 nm with a per-piece
+backside fraction, §7). A uniaxial or biaxial Bphen film (§8, NTVE 1.5 nm or
+33.68 Å) does not change this: MSE 38-40, with unphysical amplitudes. The 50 nm
+Bphen pieces came in at 0.86-0.92 of nominal, so this is not a tooling factor; it points at the
 deposition or the sample handling (shutter, mask, plume position, labels). What
 would settle it: which face of 2_23/2_24 was measured and whether it is the
 polished one; the depolarization export of these four from the .SE files (rough
@@ -347,6 +349,45 @@ Either way the film reads 7.4-8.0 nm. Read 9.3 nm as the comparable number
 and 7.4-9.4 nm as the range. A different wafer batch or clean would explain a
 thicker oxide; a bare piece of the same wafer would settle it.
 
-`tl_make_mod_src10.py` writes the NPB Gen-Osc `.mod` at 33.68 Å (9.3 nm, MSE
-4.00) and at NTVE 0 Å (12.5 nm, MSE 7.47) to `tooling_mod/Src10/`; both read
-back and re-score to the same MSE.
+**NTVE fixed at 1.5 nm, and anisotropic films** (`tl_aniso.py`). The Gen-Osc
+band amplitudes get a scale per axis (UV pole isotropic): uniaxial a_o, a_e;
+biaxial a_x (in the plane of incidence), a_y (along s), a_z (normal). One
+azimuth measures only these three, so this is the most anisotropy the data can
+carry.
+
+| piece | NTVE | iso: d (MSE) | uniaxial: d (MSE), a_o / a_e | biaxial: d (MSE), a_x / a_y / a_z |
+|---|---|---|---|---|
+| Src10 | 1.5 nm | 11.1 (5.75) | 12.3 (3.76), 0.79 / 0.45 | 12.5 (3.40), 0.70 / 0.58 / 0.39 |
+| Src10 | 3.37 nm | 9.3 (4.00) | 10.0 (3.50), 0.90 / 0.59 | 10.2 (3.15), 0.80 / 0.66 / 0.50 |
+| 1_23 | 1.5 nm | 10.1 (4.39) | 10.9 (3.53), 0.83 / 0.58 | 11.0 (3.34), 0.73 / 0.61 / 0.53 |
+| 1_23 | 3.37 nm | 8.3 (3.50) | 8.5 (3.44), 1.02 / 0.86 | 8.7 (3.27), 0.89 / 0.74 / 0.74 |
+
+* At 1.5 nm an isotropic NPB film fits clearly worse (5.75). A uniaxial one
+  recovers it (3.76) with weaker out-of-plane bands: order parameter
+  S = (a_e - a_o) / (a_e + 2 a_o) = -0.17, i.e. lying molecules, the expected
+  sign for evaporated NPB-type films. At the 3.37 nm oxide, S = -0.13.
+* Anisotropy and the oxide trade: at 1.5 nm both pieces need it, at 3.37 nm
+  1_23 hardly does (3.50 -> 3.44). The data prefer the thicker oxide in every
+  variant, but with anisotropy the gap is small (3.40 vs 3.15).
+* The biaxial in-plane split (a_x > a_y) is the same on Src10 and 1_23, and a
+  film evaporated at normal incidence has no reason to be in-plane
+  anisotropic. It is a systematic of this setup, not a film property, so
+  uniaxial is the model to use. A second azimuth (sample turned 90°) would
+  show it: real in-plane anisotropy swaps a_x and a_y.
+* The overall band strength drops as d rises (uniaxial at 1.5 nm: mean a
+  0.67, d 12.3 nm). d and band strength trade on a 10 nm film, so the
+  anisotropic thicknesses carry that correlation.
+
+So for Src10: 9.3 nm (isotropic, 33.68 Å, comparable with the tooling set),
+11.1 nm (isotropic, 1.5 nm), 12.3 nm (uniaxial, 1.5 nm).
+
+The same test on 2_23 / 2_24 (Bphen, §3): biaxial gives MSE 38-40 against 41-43
+isotropic, and only by going unphysical (a_z -> 0 and in-plane amplitudes at
+the 3x bound). The no-film Si/void layer stays far ahead (MSE 14.0 / 14.7 at
+1.5 nm: 12.3 nm, 30 % void). Anisotropy does not rescue a Bphen film there.
+
+`tl_make_mod_src10.py` writes the isotropic NPB Gen-Osc `.mod` at 33.68 Å
+(9.3 nm, MSE 4.00), at 1.5 nm (11.1 nm, MSE 5.75) and at NTVE 0 Å (12.5 nm,
+MSE 7.47) to `tooling_mod/Src10/`; all three read back and re-score to the
+same MSE. No anisotropic `.mod`: no CompleteEASE-saved anisotropic model was
+supplied to take the format from.
