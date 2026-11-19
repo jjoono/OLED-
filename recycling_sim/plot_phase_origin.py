@@ -169,6 +169,11 @@ def panels():
         ax.set_ylim(lo - 0.08 * (hi - lo), hi + 0.22 * (hi - lo))
     axs[-1].set_xlabel("Round-trip loss $A'$ (%)")
     axs[1].legend(loc="upper right", frameon=False, fontsize=14, bbox_to_anchor=(1.0, 0.86))
+    from matplotlib.lines import Line2D
+    mh = [Line2D([], [], marker=m, ls="", ms=11, mfc="none", mec="k", mew=1.6, label=t) for m, t in
+          (("o", "IZO"), ("D", "Ideal thin Ag"), ("s", "Measured Ag 8 nm"), ("^", "Measured Ag 7 nm"), ("v", "Measured Ag 5 nm"))]
+    axs[-1].legend(handles=mh, loc="upper right", bbox_to_anchor=(1.0, 0.86), frameon=False, fontsize=14,
+                   handletextpad=0.4, labelspacing=0.35)
     fig.tight_layout(h_pad=0.4)
     for ext in ("png", "svg", "pdf"):
         fig.savefig(os.path.join(FIG, f"amap_panels_origin.{ext}"), dpi=300 if ext == "png" else None)
