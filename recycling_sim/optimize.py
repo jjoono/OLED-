@@ -54,11 +54,12 @@ def preset_mats(preset):
             fixed["spacer"] = ("l_SiO2_SJ_RTP", 800.0)
         elif tok == "lowHTL":      # hypothetical low-index HTL (n = 1.55)
             mats["htl"] = (1.55, 1.55)
-        elif tok == "Ag8meas":     # lab-measured 8-nm Ag on 5-nm HATCN (T/R inversion, QCM thickness), fixed 8 nm
-            a = np.loadtxt(os.path.join(HERE, "data", "Ag8nm_on_HATCN5_measured.csv"), delimiter=",", skiprows=1)
+        elif tok in ("Ag5meas", "Ag7meas", "Ag8meas"):  # lab-measured Ag on 5-nm HATCN (T/R inversion, QCM thickness)
+            dm = float(tok[2:-4])                        # thickness is fixed at the measured value
+            a = np.loadtxt(os.path.join(HERE, "data", f"Ag{int(dm)}nm_on_HATCN5_measured.csv"), delimiter=",", skiprows=1)
             g = np.arange(400.0, 801.0)
             mats["ag_top"] = ("Ag8meas", np.interp(g, a[:, 0], a[:, 1]) + 1j * np.interp(g, a[:, 0], a[:, 2]))
-            ag_b = (7.99, 8.01)
+            ag_b = (dm - 0.01, dm + 0.01)
         elif tok.startswith("korg"):  # residual organic absorption, e.g. korg1e-4
             mats["_korg"] = float(tok[4:])
         elif tok == "IZOtop":      # sputtered IZO top anode instead of thin Ag (damage-free limit)
