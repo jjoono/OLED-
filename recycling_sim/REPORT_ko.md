@@ -912,9 +912,15 @@ Nature Photonics급을 노린다면 **녹색 기록(정면 cd/A와 콘 내 EQE �
 - 발광체는 530 nm 피크, 에너지 Gaussian, FWHM 10–80 nm, 진동 어깨 없음입니다.
 - 강공진 기준은 FWHM마다 Ag 두께·유기층·CPL을 최적화했습니다(실측 15 nm Ag nk / 이상적 벌크 nk). FWHM ≤ 25 nm는 0.5 nm 격자로 평가했습니다.
 
-![A′–FWHM 지도](results/figs/amap_map.png)
-![A′ 단면](results/figs/amap_cuts.png)
-![FWHM 의존성](results/figs/amap_vs_fwhm.png)
+**어느 쪽이 이기나 — 승패 지도** (가로 FWHM, 세로 A′(위로 갈수록 손실이 작음). 초록 = 재순환 우세, 빨강 = 강공진 우세, 점 옆 숫자 = 실제 소자의 강공진(실측 Ag) 대비 배수)
+
+![승패 지도](results/figs/amap_phase.png)
+
+**FWHM별 단면** (초록 곡선이 빨간 실선 위에 있으면 재순환 우세. 점선 세로선이 교차 A′\*)
+
+![FWHM별 단면](results/figs/amap_panels.png)
+
+보조 그림: [cd/A 등고선 지도](results/figs/amap_map.png), [A′ 단면 전체](results/figs/amap_cuts.png), [FWHM 의존성](results/figs/amap_vs_fwhm.png)
 
 **정면 cd/A (모델값)**
 
@@ -928,6 +934,8 @@ Nature Photonics급을 노린다면 **녹색 기록(정면 cd/A와 콘 내 EQE �
 | 재순환, A′ 12% | 568 | 576 | 542 | 519 | 472 | 443 | 409 | 373 |
 | **교차 A′\* (실측 Ag 강공진과 같아지는 A′)** | 8.0% | 8.8% | 9.7% | 11.1% | 13.7% | 17.5% | >20% | >20% |
 | **교차 A′\* (이상적 Ag 강공진 대비)** | 4.5% | 6.0% | 7.1% | 8.1% | 10.5% | 14.4% | 17.2% | 19.2% |
+| 강공진(실측 Ag)의 ×1.5가 되는 A′ | 4.2% | 4.7% | 5.1% | 6.2% | 7.7% | 10.3% | 11.9% | 13.1% |
+| 강공진(실측 Ag)의 ×2가 되는 A′ | – | – | – | 3.7% | 4.4% | 6.5% | 7.7% | 8.5% |
 
 **읽는 법**
 - **재순환이 강공진을 이기는 조건은 A′ < A′\*(FWHM)입니다.** FWHM 10–50 nm에서는 대략 다음과 같습니다.

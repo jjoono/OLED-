@@ -267,5 +267,109 @@ def plot():
     print(json.dumps(summ, indent=1))
 
 
+def plot_intuitive():
+    """(1) win/lose phase diagram (FWHM vs A'), (2) small multiples cd/A vs A' with strong-cavity lines."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    R, S = load()
+    fw = np.array(sorted(R), float)
+    Ag = np.linspace(0.035, 0.20, 67)
+    M = np.array([envelope(R, int(f), Ag) for f in fw])
+    sR = np.array([S["realAg"][int(f)] for f in fw]); sI = np.array([S["idealAg"][int(f)] for f in fw])
+    cmp = json.load(open(os.path.join(HERE, "results", "compare_anodes.json")))
+    TOP = 20.0
+
+    def crossing(ref, g):
+        out = []
+        for i in range(len(fw)):
+            d = M[i] - g * ref[i]; ok = ~np.isnan(d)
+            dd, aa = d[ok], 100 * Ag[ok]
+            if (dd > 0).all():
+                out.append(TOP + 5)          # recycling wins over the whole range shown
+            elif (dd < 0).all():
+                out.append(np.nan)
+            else:
+                j = int(np.argmax(dd < 0))   # first A' where recycling drops below
+                out.append(float(np.interp(0.0, [-dd[j - 1], -dd[j]], [aa[j - 1], aa[j]])))
+        return np.array(out)
+
+    b1 = crossing(sR, 1.0); b15 = crossing(sR, 1.5); b2 = crossing(sR, 2.0); bI = crossing(sI, 1.0)
+
+    # ---------- (1) phase diagram ----------
+    fig, ax = plt.subplots(figsize=(7.6, 5.4))
+    ax.fill_between(fw, 3.0, np.minimum(b1, TOP + 5), color="#cfe8cf", zorder=0)
+    ax.fill_between(fw, np.minimum(b1, TOP + 5), TOP + 5, color="#f3d2cf", zorder=0)
+    ax.plot(fw, b1, "-", color="k", lw=2.2, label="break-even vs strong cavity (measured Ag)")
+    ax.plot(fw, bI, "--", color="k", lw=1.4, label="break-even vs strong cavity (ideal Ag)")
+    for b, lab in ((b15, "x1.5"), (b2, "x2")):
+        ok = ~np.isnan(b) & (b < TOP)
+        ax.plot(fw[ok], b[ok], ":", color="0.35", lw=1.0)
+        if ok.any():
+            k = np.nonzero(ok)[0][-1]
+            ax.text(fw[k] + 1, b[k], lab, fontsize=8, color="0.3", va="center")
+    ax.text(58, 6.0, "RECYCLING WINS", fontsize=13, weight="bold", color="#2e7d32", ha="center")
+    ax.text(22, 17.5, "STRONG CAVITY WINS", fontsize=13, weight="bold", color="#b23b2e", ha="center")
+    pts = [("IZO", "o"), ("Ag_ideal", "D"), ("Ag8", "s"), ("Ag7", "<"), ("Ag5", "v")]
+    names = {"IZO": "IZO", "Ag_ideal": "ideal Ag", "Ag8": "Ag 8 nm", "Ag7": "Ag 7 nm", "Ag5": "Ag 5 nm"}
+    off = {("n15", "Ag8"): (6, 6), ("n15", "Ag7"): (6, -9), ("irppy", "Ag8"): (-62, 6), ("irppy", "Ag7"): (6, -2)}
+    for em, x in (("n15", 15.0), ("irppy", 64.0)):
+        ref = cmp["ref_real"][em]["CE"]
+        for key, mk in pts:
+            r = cmp[key][em]
+            y = 100 * r["Aprime"]; g = r["CE"] / ref
+            ax.plot(x, y, mk, ms=8, mfc="#2e7d32" if g > 1 else "#b23b2e", mec="k", zorder=5)
+            dx, dy = off.get((em, key), (6, 0))
+            ax.annotate(f"{names[key]}  x{g:.2f}", (x, y), xytext=(dx, dy), textcoords="offset points",
+                        fontsize=7.5, va="center")
+    sec = ax.secondary_xaxis("top")
+    sec.set_xticks([15, 64]); sec.set_xticklabels(["532/15 nm emitter", "Ir(ppy)2acac (real spectrum)"], fontsize=8)
+    for xv in (15, 64):
+        ax.axvline(xv, color="0.5", lw=0.6, ls="-", zorder=1)
+    ax.set_xlim(8, 82); ax.set_ylim(TOP, 3.0)   # low loss at the top = better
+    ax.set_xlabel("emitter FWHM (nm)")
+    ax.set_ylabel("round-trip loss A' (%)   (better = up)")
+    ax.set_title("Which wins on-axis cd/A?   (label = recycling / strong cavity with measured Ag)", fontsize=10, pad=22)
+    ax.plot([], [], ":", color="0.35", lw=1.0, label="recycling = x1.5 / x2 of strong cavity (measured Ag)")
+    ax.legend(fontsize=7.5, loc="lower right")
+    ax.grid(alpha=0.25)
+    fig.tight_layout(); fig.savefig(os.path.join(FIG, "amap_phase.png"), dpi=170); plt.close(fig)
+
+    # ---------- (2) small multiples ----------
+    sel = [15, 25, 50, 65]
+    fig, axs = plt.subplots(1, 4, figsize=(13.5, 3.9), sharey=False)
+    for ax, f in zip(axs, sel):
+        i = int(np.nonzero(fw == f)[0][0]); A = 100 * Ag; c = M[i]
+        ax.plot(A, c, color="#2e7d32", lw=2.4, label="recycling")
+        ax.axhline(sR[i], color="#b23b2e", lw=1.8, label="strong cavity, measured Ag")
+        ax.axhline(sI[i], color="#b23b2e", lw=1.2, ls="--", label="strong cavity, ideal Ag")
+        ax.fill_between(A, sR[i], c, where=c >= sR[i], color="#2e7d32", alpha=0.15)
+        ax.fill_between(A, c, sR[i], where=c < sR[i], color="#b23b2e", alpha=0.15)
+        if b1[i] < TOP:
+            ax.axvline(b1[i], color="k", ls=":", lw=1)
+            ax.text(b1[i] + 0.3, ax.get_ylim()[1] * 0.97 if False else max(c[~np.isnan(c)]) * 0.97,
+                    f"A'* = {b1[i]:.1f}%", fontsize=8, va="top")
+        em = "n15" if f == 15 else ("irppy" if f == 65 else None)
+        if em:
+            for key, mk in pts:
+                r = cmp[key][em]
+                ax.plot(100 * r["Aprime"], r["CE"], mk, ms=7, mfc="none", mec="k")
+        ax.set_title(f"FWHM {f} nm" + (" (+ Ir(ppy)2acac devices)" if f == 65 else (" (+ 532/15 devices)" if f == 15 else "")),
+                     fontsize=9)
+        ax.set_xlabel("A' (%)"); ax.set_xlim(3, 20); ax.grid(alpha=0.25)
+    axs[0].set_ylabel("on-axis cd/A")
+    axs[0].legend(fontsize=7, loc="lower left")
+    fig.suptitle("Green curve above the solid red line = recycling wins.  Markers (real devices): IZO o, ideal Ag D, "
+                 "measured Ag 8/7/5 nm s < v.  65-nm panel: devices use the real Ir(ppy)2acac spectrum.", fontsize=9)
+    fig.tight_layout(); fig.savefig(os.path.join(FIG, "amap_panels.png"), dpi=170); plt.close(fig)
+    print("A'* (measured-Ag cavity):", dict(zip(fw.astype(int).tolist(), np.round(b1, 1).tolist())))
+    print("A' for x1.5:", dict(zip(fw.astype(int).tolist(), np.round(b15, 1).tolist())))
+    print("A' for x2  :", dict(zip(fw.astype(int).tolist(), np.round(b2, 1).tolist())))
+
+
 if __name__ == "__main__":
-    run() if sys.argv[1] == "run" else plot()
+    if sys.argv[1] == "run":
+        run()
+    else:
+        plot()
+        plot_intuitive()
