@@ -35,10 +35,11 @@ ROWS = [  # (label, {emitter_key: [candidate tags]})
     ("Ag8", "재순환 + 실측 HATCN/Ag 8 nm",
      {"irppy": ["cmp_irppy_Ag8m_N3", "cmp_irppy_Ag8m_N6"], "n15": ["cmp_n15_Ag8m_N3", "cmp_n15_Ag8m_N6"]}),
     ("Ag_ideal", "재순환 + 이상적 thin Ag(벌크 nk, 두께 최적)",
-     {"irppy": ["cmp_irppy_Ag_N3", "cmp_irppy_Ag_N6"], "n15": ["cmp_n15_Ag_N3", "cmp_n15_Ag_N6"]}),
+     {"irppy": ["cmp_irppy_Ag_N3", "cmp_irppy_Ag_N6", "cmp_irppy_Ag_N6p", "cmp_irppy_Ag_N8"],
+      "n15": ["cmp_n15_Ag_N3", "cmp_n15_Ag_N6", "cmp_n15_Ag_N6p", "cmp_n15_Ag_N8"]}),
     ("IZO", "재순환 + 스퍼터 IZO(HATCN 버퍼)",
-     {"irppy": ["cmp_irppy_IZO_N3", "cmp_irppy_IZO_N6"],
-      "n15": ["prop6_narrow532_15_IZOtop_lowk_korg_tco15"]}),
+     {"irppy": ["cmp_irppy_IZO_N3", "cmp_irppy_IZO_N6", "cmp_irppy_IZO_N6p", "cmp_irppy_IZO_N8"],
+      "n15": ["prop6_narrow532_15_IZOtop_lowk_korg_tco15", "cmp_n15_IZO_N8"]}),
 ]
 
 
