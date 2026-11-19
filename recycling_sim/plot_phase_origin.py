@@ -24,7 +24,7 @@ FIG = os.path.join(HERE, "results", "figs")
 
 plt.rcParams.update({
     "font.family": ["Calibri", "Carlito", "DejaVu Sans"],
-    "font.size": 16, "axes.labelsize": 20, "xtick.labelsize": 16, "ytick.labelsize": 16, "legend.fontsize": 13,
+    "font.size": 17, "axes.labelsize": 21, "xtick.labelsize": 18, "ytick.labelsize": 18, "legend.fontsize": 13,
     "axes.linewidth": 1.6, "xtick.direction": "in", "ytick.direction": "in",
     "xtick.major.size": 7, "ytick.major.size": 7, "xtick.minor.size": 3.5, "ytick.minor.size": 3.5,
     "xtick.major.width": 1.4, "ytick.major.width": 1.4, "xtick.minor.width": 1.1, "ytick.minor.width": 1.1,
@@ -125,5 +125,56 @@ def main():
     plt.close(fig)
 
 
+def panels():
+    """Origin-style per-FWHM cuts, stacked vertically (4 x 1, shared A' axis)."""
+    R, S = amap.load()
+    fw = np.array(sorted(R), float)
+    Ag = np.linspace(0.035, 0.20, 67)
+    M = np.array([amap.envelope(R, int(f), Ag) for f in fw])
+    sR = np.array([S["realAg"][int(f)] for f in fw]); sI = np.array([S["idealAg"][int(f)] for f in fw])
+    b1 = crossing(M, Ag, sR, 1.0)
+    cmp = json.load(open(os.path.join(HERE, "results", "compare_anodes.json")))
+    pts = [("IZO", "o"), ("Ag_ideal", "D"), ("Ag8", "s"), ("Ag7", "^"), ("Ag5", "v")]
+    sel = [15, 25, 50, 65]
+    fig, axs = plt.subplots(4, 1, figsize=(7.2, 15.5), sharex=True)
+    A = 100 * Ag
+    for ax, f in zip(axs, sel):
+        i = int(np.nonzero(fw == f)[0][0]); c = M[i]
+        ax.fill_between(A, sR[i], c, where=c >= sR[i], color="#2e7d32", alpha=0.15, lw=0, interpolate=True)
+        ax.fill_between(A, c, sR[i], where=c < sR[i], color="#b23b2e", alpha=0.15, lw=0, interpolate=True)
+        ax.plot(A, c, color="#2e7d32", lw=3.0, label="Recycling")
+        ax.axhline(sR[i], color="#b23b2e", lw=2.4, label="Strong cavity (measured Ag)")
+        ax.axhline(sI[i], color="#b23b2e", lw=1.8, ls="--", label="Strong cavity (ideal Ag)")
+        if np.isfinite(b1[i]) and b1[i] < 20:
+            ax.axvline(b1[i], color="k", ls=":", lw=1.6)
+            right = b1[i] < 15
+            ax.text(b1[i] + (0.4 if right else -0.4), 0.42, f"$A'^*$ = {b1[i]:.1f}%", transform=ax.get_xaxis_transform(),
+                    fontsize=17, va="center", ha="left" if right else "right",
+                    bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.8))
+        em = "n15" if f == 15 else ("irppy" if f == 65 else None)
+        if em:
+            for key, mk in pts:
+                r = cmp[key][em]
+                ax.plot(100 * r["Aprime"], r["CE"], mk, ms=11, mfc="none", mec="k", mew=1.6, zorder=5)
+        lab = {15: "FWHM 15 nm  (532 nm / 15 nm devices)", 65: "FWHM 65 nm  (Ir(ppy)$_2$acac devices)"}.get(f, f"FWHM {f} nm")
+        ax.text(0.97, 0.93, lab, transform=ax.transAxes, ha="right", va="top", fontsize=17)
+        ax.set_ylabel("On-axis cd/A")
+        from matplotlib.ticker import MultipleLocator
+        ax.xaxis.set_major_locator(MultipleLocator(5)); ax.xaxis.set_minor_locator(MultipleLocator(1))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+        ax.set_xlim(3, 20)
+        lo = min(np.nanmin(c), sR[i]); hi = max(np.nanmax(c), sI[i])
+        if em:
+            hi = max(hi, max(cmp[k][em]["CE"] for k, _ in pts))
+        ax.set_ylim(lo - 0.08 * (hi - lo), hi + 0.22 * (hi - lo))
+    axs[-1].set_xlabel("Round-trip loss $A'$ (%)")
+    axs[1].legend(loc="upper right", frameon=False, fontsize=14, bbox_to_anchor=(1.0, 0.86))
+    fig.tight_layout(h_pad=0.4)
+    for ext in ("png", "svg", "pdf"):
+        fig.savefig(os.path.join(FIG, f"amap_panels_origin.{ext}"), dpi=300 if ext == "png" else None)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     main()
+    panels()
