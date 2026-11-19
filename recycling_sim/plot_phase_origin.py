@@ -180,6 +180,62 @@ def panels():
     plt.close(fig)
 
 
+def ratio_map():
+    """filled contour of on-axis cd/A ratio recycling / strong cavity (measured Ag) vs FWHM and A'."""
+    from matplotlib.colors import TwoSlopeNorm
+    R, S = amap.load()
+    fw = np.array(sorted(R), float)
+    Ag = np.linspace(0.035, 0.20, 67)
+    M = np.array([amap.envelope(R, int(f), Ag) for f in fw])
+    sR = np.array([S["realAg"][int(f)] for f in fw])
+    ratio = M / sR[:, None]
+    ff = np.linspace(10, 80, 281)
+    Z = np.array([PchipInterpolator(fw, ratio[:, j])(ff) for j in range(len(Ag))])  # (nA, nF)
+    # extend the top edge (A' 3.0-3.5 %, below the 8-pair floor) with the 3.5 % values so the IZO points sit on the map
+    Ag = np.r_[0.030, Ag]; Z = np.vstack([Z[:1], Z])
+    cmp = json.load(open(os.path.join(HERE, "results", "compare_anodes.json")))
+
+    fig, ax = plt.subplots(figsize=(9.6, 6.9))
+    norm = TwoSlopeNorm(vmin=0.4, vcenter=1.0, vmax=3.0)
+    levels = np.concatenate([np.linspace(0.4, 1.0, 13), np.linspace(1.0, 3.0, 21)[1:]])
+    cf = ax.contourf(ff, 100 * Ag, np.clip(Z, 0.4, 3.0), levels=levels, cmap="RdYlGn", norm=norm, extend="both")
+    cl = ax.contour(ff, 100 * Ag, Z, levels=[0.6, 0.8, 1.25, 1.5, 2.0, 2.5], colors="0.25", linewidths=1.0)
+    ax.clabel(cl, fmt=lambda v: f"×{v:g}", fontsize=14, inline_spacing=6)
+    c1 = ax.contour(ff, 100 * Ag, Z, levels=[1.0], colors="k", linewidths=2.6)
+    ax.clabel(c1, fmt=lambda v: "×1", fontsize=15, inline_spacing=6)
+
+    ax.text(23, 17.6, "Strong cavity wins\n(ratio < 1)", fontsize=20, weight="bold", color="#8b1a1a", ha="center", va="center",
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.55))
+    ax.text(60, 11.0, "Recycling wins\n(ratio > 1)", fontsize=20, weight="bold", color="#1b5e20", ha="center", va="center",
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.55))
+
+    for em, x in (("n15", 15.0), ("irppy", 64.0)):
+        ref = cmp["ref_real"][em]["CE"]
+        for key, mk, name, dx in (("IZO", "o", "IZO", 9), ("Ag8", "s", "Ag 8 nm", 9 if em == "n15" else -11)):
+            r = cmp[key][em]; y = 100 * r["Aprime"]; g = r["CE"] / ref
+            ax.plot(x, y, mk, ms=11, mfc="white", mec="k", mew=1.6, zorder=5)
+            ax.annotate(f"{name}  ×{g:.2f}", (x, y), xytext=(dx, 0), textcoords="offset points", fontsize=14,
+                        va="center", ha="right" if dx < 0 else "left", zorder=6,
+                        bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.8))
+    ax.set_xlim(10, 80); ax.set_ylim(20, 3.0)
+    ax.tick_params(pad=7)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2)); ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.set_xlabel("Emitter FWHM (nm)")
+    ax.set_ylabel("Round-trip loss $A'$ (%)")
+    sec = ax.secondary_xaxis("top")
+    sec.set_xticks([15, 64]); sec.set_xticklabels(["532 nm / 15 nm", "Ir(ppy)$_2$acac"], fontsize=15)
+    sec.tick_params(direction="in", length=0)
+    cb = fig.colorbar(cf, ax=ax, ticks=[0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0], pad=0.02)
+    cb.set_label("On-axis cd/A ratio (recycling / strong cavity)", fontsize=17)
+    cb.ax.tick_params(labelsize=15, direction="in")
+    cb.outline.set_linewidth(1.4)
+    fig.tight_layout()
+    for ext in ("png", "svg", "pdf"):
+        fig.savefig(os.path.join(FIG, f"amap_ratio_origin.{ext}"), dpi=300 if ext == "png" else None)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     main()
     panels()
+    ratio_map()
