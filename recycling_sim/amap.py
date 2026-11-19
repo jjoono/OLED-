@@ -172,7 +172,7 @@ def plot():
     os.makedirs(FIG, exist_ok=True)
     R, S = load()
     fw = np.array(sorted(R))
-    Ag = np.linspace(0.03, 0.20, 69)
+    Ag = np.linspace(0.035, 0.20, 67)  # below ~3.3 % the 8-pair filter cannot reach: start where all N exist
     M = np.array([envelope(R, f, Ag) for f in fw])
     sR = np.array([S.get("realAg", {}).get(f, np.nan) for f in fw])
     sI = np.array([S.get("idealAg", {}).get(f, np.nan) for f in fw])
@@ -201,13 +201,20 @@ def plot():
     ax.set_xlabel("round-trip loss A' (%)")
     ax.set_ylabel("emitter FWHM (nm), Gaussian @530 nm")
     ax.set_title("Recycling TEOLED: max on-axis cd/A (organic k 1e-4)")
+    ax.set_xlim(3.0, 20)
+    ax.axvspan(3.0, 3.5, color="0.9", zorder=-1)
+    ax.text(3.05, 40, "below platform\nfloor (8 pairs)", fontsize=6, rotation=90, va="center")
+    ax.text(4.0, 72, "recycling wins", color="w", fontsize=9, weight="bold")
+    ax.text(15.5, 14, "strong cavity\nwins", color="w", fontsize=9, weight="bold")
     fig.colorbar(cs, ax=ax, label="on-axis cd/A")
     from matplotlib.lines import Line2D
     h = [Line2D([], [], color="r", ls="-", label="= strong cavity, measured Ag"),
          Line2D([], [], color="r", ls="--", label="= strong cavity, ideal Ag")]
     h += [Line2D([], [], marker=mk, ls="", mfc="none", mec="k", label=lab) for lab, mk in
           (("meas. Ag 5/7/8 nm", "s"), ("ideal thin Ag", "D"), ("IZO", "o"))]
-    ax.legend(handles=h, fontsize=7, loc="upper right")
+    h += [Line2D([], [], marker="o", ls="", mfc="none", mec="w", label="white: 532/15 nm emitter"),
+          Line2D([], [], marker="o", ls="", mfc="none", mec="orange", label="orange: real Ir(ppy)2acac spectrum")]
+    leg = ax.legend(handles=h, fontsize=7, loc="upper right", facecolor="0.85")
     fig.tight_layout(); fig.savefig(os.path.join(FIG, "amap_map.png"), dpi=160); plt.close(fig)
 
     # Figure 2: cuts cd/A vs A' for several FWHM, with strong-cavity levels and device points
@@ -215,14 +222,22 @@ def plot():
     cols = plt.cm.plasma(np.linspace(0.05, 0.85, len(fw)))
     for i, f in enumerate(fw):
         ax.plot(100 * Ag, M[i], color=cols[i], lw=1.8, label=f"{f} nm")
-        ax.plot([3, 20], [sR[i]] * 2, color=cols[i], ls=":", lw=1.0)
+        ax.plot([3.5, 20], [sR[i]] * 2, color=cols[i], ls=":", lw=1.0)
     for lab, A, f, ce, mk, em in dev:
         i = int(np.argmin(abs(fw - f)))
         ax.plot(100 * A, ce, mk, color="k" if em == "n15" else "tab:orange", ms=6, mfc="none")
     ax.set_xlabel("round-trip loss A' (%)"); ax.set_ylabel("on-axis cd/A")
     ax.set_title("solid: recycling (best DBR pairs)   dotted: strong cavity, measured Ag")
-    ax.legend(title="FWHM", fontsize=7, ncol=2)
-    ax.set_xlim(3, 20); ax.grid(alpha=0.3)
+    from matplotlib.lines import Line2D
+    hh, ll = ax.get_legend_handles_labels()
+    l1 = ax.legend(hh, ll, title="FWHM (Gaussian)", fontsize=7, ncol=2, loc="upper right")
+    ax.add_artist(l1)
+    ax.legend(handles=[Line2D([], [], marker=m, ls="", mfc="none", mec="k", label=t) for m, t in
+                       (("v", "meas. Ag 5 nm"), ("<", "meas. Ag 7 nm"), ("s", "meas. Ag 8 nm"), ("D", "ideal thin Ag"), ("o", "IZO"))]
+              + [Line2D([], [], color="k", ls="", marker="s", mfc="none", label="black: 532/15 nm"),
+                 Line2D([], [], color="tab:orange", ls="", marker="s", mfc="none", label="orange: Ir(ppy)2acac (real spectrum)")],
+              fontsize=7, loc="center right")
+    ax.set_xlim(3.0, 20); ax.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig(os.path.join(FIG, "amap_cuts.png"), dpi=160); plt.close(fig)
 
     # Figure 3: cd/A vs FWHM for strong cavity and recycling at fixed A'
