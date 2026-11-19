@@ -17,9 +17,15 @@ EMITTERS = {   # peak nm, FWHM nm, PLQY, Theta (horizontal fraction)
     'DTN': (674, 90, 0.80, 0.93),           # LT-N7047; Adv. Funct. Mater. 2025 e202529822: Theta 0.93, EQE 20.1 % at 674 nm; PLQY/FWHM assumed
     'BF2': (721, 80, 0.70, 2 / 3),          # LT-N7003; Kim, D'Aleo, Adachi Nat. Photon. 2018: EL 721 nm (6 wt% CBP), PLQY ~0.70, EQE ~10 %; Theta unknown
     'PtTPBP': (765, 30, 0.45, 2 / 3),       # LT-N734; Borek et al. 2007: 765 nm, PLQY 0.26-0.7 (0.45 mid), EQE 8-9 %; Theta unknown
+    # band-record emitters (design q assumed; effective q is calibrated afterwards from the reported planar EQE, see band_summary.py)
+    'DCNSPTPA': (696, 90, 0.70, 0.80),      # LT-N7039; Adv. Funct. Mater. 2023, 2304398: 28.2 % at 696 nm (29.3 % at 688, 24.0 % at 716)
+    'DCNSPTPA-neat': (800, 110, 0.10, 0.80),  # LT-N7039 nondoped film: 2.61 % at 800 nm (same paper); FWHM/PLQY/Theta assumed
+    'Pt794': (794, 80, 0.30, 0.80),         # heteroleptic Pt(II), nondoped; Adv. Funct. Mater. 2020, 2002173: 10.6 % at 794 nm
+    'PtazaTBP': (848, 40, 0.15, 2 / 3),     # Pt azatetrabenzoporphyrin; Appl. Phys. Lett. 109, 233302 (2016): 2.8 % at 848 nm
 }
-CASES = [('ITO', 1.5, 0, 'flat'), ('ITO', 1.8, 0, 'mla'), ('ITO', 1.8, 4, 'mla'), ('IZO', 1.8, 0, 'mla'), ('IZO', 1.8, 4, 'mla'),
+CASES_ALL = [('ITO', 1.5, 0, 'flat'), ('ITO', 1.8, 0, 'mla'), ('ITO', 1.8, 4, 'mla'), ('IZO', 1.8, 0, 'mla'), ('IZO', 1.8, 4, 'mla'),
          ('Ag', 1.5, 4, 'mla'), ('Ag', 1.8, 4, 'mla')]
+CASES = CASES_ALL if not os.environ.get('CASES_REDUCED') else [('ITO', 1.5, 0, 'flat'), ('IZO', 1.8, 0, 'mla'), ('IZO', 1.8, 4, 'mla')]
 
 class Obj:                                  # picklable DE objective
     def __init__(self, *a): self.a = a
