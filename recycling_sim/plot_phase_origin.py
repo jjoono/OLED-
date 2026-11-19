@@ -77,16 +77,13 @@ def main():
     b1 = crossing(M, Ag, sR, 1.0); bI = crossing(M, Ag, sI, 1.0)
     b15 = crossing(M, Ag, sR, 1.5); b2 = crossing(M, Ag, sR, 2.0)
 
-    fig, ax = plt.subplots(figsize=(9.0, 7.6))
+    fig, ax = plt.subplots(figsize=(9.0, 6.9))
     x1, y1 = smooth(fw, b1)
     xf = np.linspace(8, 82, 600)
     yb = np.interp(xf, x1, y1, left=y1[0], right=TOP + 5)
     ax.fill_between(xf, 2.5, np.minimum(yb, TOP + 5), color="#dcefdc", lw=0, zorder=0)
     ax.fill_between(xf, np.minimum(yb, TOP + 5), TOP + 5, color="#f8dcd8", lw=0, zorder=0)
 
-    ax.plot(x1, y1, "-", color="k", lw=2.8, label="Break-even (strong cavity, measured Ag)", zorder=3)
-    xi, yi = smooth(fw, bI)
-    ax.plot(xi, yi, "--", color="k", lw=2.0, label="Break-even (strong cavity, ideal Ag)", zorder=3)
     for b, lab in ((b15, "×1.5"), (b2, "×2")):
         xs, ys = smooth(fw, b)
         ax.plot(xs, ys, ":", color="0.35", lw=1.8, zorder=2)
@@ -98,10 +95,9 @@ def main():
 
     for xv in (15, 64):
         ax.axvline(xv, color="0.55", lw=1.0, zorder=1)
-    pts = [("IZO", "o", "IZO"), ("Ag_ideal", "D", "Ideal Ag"), ("Ag8", "s", "Ag 8 nm"),
-           ("Ag7", "^", "Ag 7 nm"), ("Ag5", "v", "Ag 5 nm")]
-    off = {("n15", "IZO"): (9, 0), ("n15", "Ag_ideal"): (9, 0), ("n15", "Ag8"): (12, 2), ("n15", "Ag7"): (-12, -14),
-           ("n15", "Ag5"): (9, 0), ("irppy", "IZO"): (9, 6), ("irppy", "Ag_ideal"): (9, -6),
+    pts = [("IZO", "o", "IZO"), ("Ag8", "s", "Ag 8 nm")]
+    off = {("n15", "IZO"): (9, 0), ("n15", "Ag_ideal"): (9, 0), ("n15", "Ag8"): (12, 0), ("n15", "Ag7"): (-12, -14),
+           ("n15", "Ag5"): (9, 0), ("irppy", "IZO"): (9, 0), ("irppy", "Ag_ideal"): (9, -6),
            ("irppy", "Ag8"): (-11, -2), ("irppy", "Ag7"): (9, -2), ("irppy", "Ag5"): (9, 0)}
     for em, x in (("n15", 15.0), ("irppy", 64.0)):
         ref = cmp["ref_real"][em]["CE"]
@@ -111,11 +107,7 @@ def main():
             dx, dy = off[(em, key)]
             if (em, key) == ("n15", "Ag7"):
                 continue                     # overlaps Ag 8 nm (A' 9.5 vs 9.6 %): labelled together below
-            if (em, key) == ("n15", "Ag8"):
-                g7 = cmp["Ag7"][em]["CE"] / ref
-                name, gl = "Ag 7 / 8 nm", f"×{g7:.2f} / {g:.2f}"
-            else:
-                gl = f"×{g:.2f}"
+            gl = f"×{g:.2f}"
             ax.annotate(f"{name}  {gl}", (x, y), xytext=(dx, dy), textcoords="offset points", fontsize=14,
                         bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.75),
                         va="center", ha="right" if dx < 0 else "left", zorder=6)
@@ -127,8 +119,6 @@ def main():
     sec = ax.secondary_xaxis("top")
     sec.set_xticks([15, 64]); sec.set_xticklabels(["532 nm / 15 nm", "Ir(ppy)$_2$acac"], fontsize=15)
     sec.tick_params(direction="in", length=0)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=2, frameon=False, handlelength=2.6, fontsize=13,
-              columnspacing=1.5)
     fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
         fig.savefig(os.path.join(FIG, f"amap_phase_origin.{ext}"), dpi=300 if ext == "png" else None)
