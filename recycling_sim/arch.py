@@ -84,6 +84,50 @@ def _r_glass_air(beta, pol):
     return np.where(beta >= 1.0, 1.0, np.abs(r) ** 2)
 
 
+def _fresnel(n1, n2, beta, pol):
+    """power reflectance n1 -> n2 (both real, n2 > n1) for in-plane wavevector beta < n1"""
+    c1 = np.sqrt(np.clip(1 - (beta / n1) ** 2, 0, 1)); c2 = np.sqrt(np.clip(1 - (beta / n2) ** 2, 0, 1))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        r = (n1 * c1 - n2 * c2) / (n1 * c1 + n2 * c2) if pol == "s" else (n2 * c1 - n1 * c2) / (n2 * c1 + n1 * c2)
+    return np.where(beta < n1, np.nan_to_num(r * r, nan=1.0), 1.0)
+
+
+def exit_index(exit_, P):
+    return 1.0 if exit_ == "air" else (P["n_low"] if exit_ == "lowNi" else N_GLASS)
+
+
+def exit_props(beta, pol, exit_, n_low, mode):
+    """incoherent region beyond the coherent stack, for light leaving the stack into the exit medium at beta:
+    Rx = fraction that comes back to the stack (multiple incoherent bounces; in 'pixel' mode light that enters the
+    glass at beta >= 1 is lost), Tx = fraction that reaches air."""
+    Rga = _r_glass_air(beta, pol)
+    if exit_ == "lowNi":
+        R1 = _fresnel(n_low, N_GLASS, beta, pol); T1 = 1 - R1
+        d = 1 - R1 * Rga
+        Rx = R1 + _div(T1 * T1 * Rga, d); Tx = _div(T1 * (1 - Rga), d); Rpix = R1
+    else:
+        Rx = Rga; Tx = 1 - Rga; Rpix = 0.0
+    if mode == "pixel":
+        Rx = np.where(beta >= 1.0, Rpix, Rx)
+    return Rx, Tx
+
+
+ODR = [["l_SiO2_SJ_RTP", 800.0]]
+_QH, _QL = ["l_TiO2_SJ_RTP", 530.0 / (4 * 2.35)], ["l_SiO2_SJ_RTP", 530.0 / (4 * 1.45)]
+MIRRORS = {"odr": ODR,                                              # 800-nm SiO2 ODR on Ag (default)
+           "edr": ODR + [_QH, _QL] * 2,                             # dense: SiO2 800 + 2 quarter-wave TiO2/SiO2 pairs on Ag
+           "epr": [[1.2, 1000.0]] + [_QH, _QL] * 2}                 # porous n 1.2 spacer (sealed) + 2 pairs on Ag
+
+
+def mirror_layers(ctx, P):
+    """bottom reflector below the SL (from the SL towards the Ag mirror); default 800-nm SiO2 ODR.
+    P['bot'] = [[material key | real index, thickness nm], ...]"""
+    out = []
+    for m, d in P.get("bot") or ODR:
+        out.append(ctx.layer(complex(m) if isinstance(m, (int, float)) else m, float(d), name=f"bot_{m}"))
+    return [l for l in out if l.d > 0]
+
+
 def _div(a, b):
     a, b = np.broadcast_arrays(np.asarray(a, float), np.asarray(b, float))
     return np.divide(a, b, out=np.zeros(a.shape), where=b > 0)
@@ -121,12 +165,13 @@ def _dipole(wl, n_eml, up, top, dn, bot, du, chunk=None):
     return res
 
 
-def _glass_first_pass(res, nm, beta, edges, gt, mode):
-    """fate of the first-pass emission into the thick glass (incoherent).
-    Returns Pin_x (2, nwl, nth): power that re-enters the SL after reflection at glass/air, binned by SL angle;
-            esc (nwl,): first-pass power that leaves into air, including glass/stack multiple bounces;
-            f0 (nwl,): on-axis factor (1 - R0) / (1 - Rs2(0) R0) for the direct radiance."""
+def _glass_first_pass(res, nm, beta, edges, gt, mode, exit_="glass", n_low=None):
+    """fate of the first-pass emission into the exit medium (incoherent region beyond the stack).
+    Returns Pin_x (2, nwl, nth): power that re-enters the SL after coming back from the exit side, by SL angle;
+            esc (nwl,): first-pass power that reaches air, including exit/stack multiple bounces;
+            f0 (nwl,): on-axis factor Tx(0) / (1 - Rs2(0) Rx(0)) for the direct radiance."""
     u = res["u"]; du = res["du"]; ne = np.real(res["n_eml"]); nmr = np.real(nm)
+    n_x = n_low if exit_ == "lowNi" else N_GLASS
     nwl, nth = len(ne), len(edges) - 1
     Pin_x = np.zeros((2, nwl, nth)); esc = np.zeros(nwl)
     sin_e = np.sin(np.deg2rad(edges)); uu = np.r_[0.0, u + 0.5 * du]
@@ -135,31 +180,31 @@ def _glass_first_pass(res, nm, beta, edges, gt, mode):
         Pt = res[f"Pt_{pol}"] * (2 * u * du)[None, :]
         for i in range(nwl):
             b = ne[i] * u
-            Rga = _r_glass_air(b, pol)
-            ret = Rga if mode == "large" else np.where(b < 1.0, Rga, 0.0)
+            Rx, Tx = exit_props(b, pol, exit_, n_low, mode)
             ts2 = np.interp(b, beta[i], Ts2[i]); l2 = np.interp(b, beta[i], L2[i])
-            den = (1.0 - Rga) + Rga * l2                               # 1 - Rs2 Rga
-            P = np.where(b < N_GLASS, Pt[i], 0.0)
-            esc[i] += np.sum(_div(P * (1.0 - Rga), den))
-            cum = np.r_[0.0, np.cumsum(_div(P * ret * ts2, den))]
+            den = (1.0 - Rx) + Rx * l2                                 # 1 - Rs2 Rx
+            P = np.where(b < n_x, Pt[i], 0.0)
+            esc[i] += np.sum(_div(P * Tx, den))
+            cum = np.r_[0.0, np.cumsum(_div(P * Rx * ts2, den))]
             Pin_x[ip, i] = np.diff(np.interp((nmr[i] / ne[i]) * sin_e, uu, cum))
-    R0 = float(_r_glass_air(np.array([0.0]), "s")[0])
+    Rx0, Tx0 = exit_props(np.array([0.0]), "s", exit_, n_low, mode)
     rs2_0 = 0.5 * (gt["s"][0][:, 0] + gt["p"][0][:, 0])
-    return Pin_x, esc, (1.0 - R0) / (1.0 - rs2_0 * R0)
+    return Pin_x, esc, Tx0[0] / (1.0 - rs2_0 * Rx0[0])
 
 
 def run(ctx, s0, P, arch, exit_, mode="pixel", n_th=121, du=1e-3, dbr=None, chunk=None):
     nm = P["n_m"] * ctx.ones
     up, dn = stacks(ctx, P, arch, exit_, dbr)
     eml = ctx.layer("eml", 20.0)
-    ext = Medium(ctx.ones + 0j) if exit_ == "air" else Medium(N_GLASS * ctx.ones + 0j)
+    n_x = exit_index(exit_, P)
+    ext = Medium(n_x * ctx.ones + 0j)
     res = _dipole(ctx.wl, eml.no, up, ext, dn, Medium(nm + 0j), du, chunk)
     qw, qeff, Fbar = photon_weights(res, s0, 1.0)
     th, wL, edges = rc.angle_grid(n_th)
     stack = list(reversed(dn)) + [eml] + up
     beta = np.real(nm)[:, None] * np.sin(np.deg2rad(th))[None, :]
     sl = Medium(nm + 0j)
-    bot = [ctx.layer("l_SiO2_SJ_RTP", 800.0)]
+    bot = mirror_layers(ctx, P)
     mirror = Medium(ctx.nk(ctx.mats["mirror"]))
     T = {k: [] for k in ("Rt", "Tt", "At", "Rb")}
     gt = {}
@@ -168,15 +213,14 @@ def run(ctx, s0, P, arch, exit_, mode="pixel", n_th=121, du=1e-3, dbr=None, chun
         if exit_ == "air":
             Rt, Tt = Rs, Ts
         else:
-            ok = beta < N_GLASS - 1e-9
+            ok = beta < n_x - 1e-9
             Rs2, Ts2, As2 = stack_RTA(list(reversed(stack)), ext, sl, np.where(ok, beta, 0.0), ctx.wl, pol)
             Ts = np.where(ok, Ts, 0.0); Rs2 = np.where(ok, Rs2, 0.0); Ts2 = np.where(ok, Ts2, 0.0)
             L2 = np.where(ok, np.clip(Ts2 + As2.sum(0), 0.0, 1.0), 1.0)    # 1 - Rs2 without cancellation
-            Rga = _r_glass_air(beta, pol)
-            den = (1.0 - Rga) + Rga * L2                                      # 1 - Rs2 Rga
-            Tt = _div(Ts * (1.0 - Rga), den)
-            back = Rs + _div(Ts * Ts * Rga, den)
-            Rt = back if mode == "large" else np.where(beta >= 1.0, Rs, back)
+            Rx, Tx = exit_props(beta, pol, exit_, P.get("n_low"), mode)
+            den = (1.0 - Rx) + Rx * L2                                        # 1 - Rs2 Rx
+            Tt = _div(Ts * Tx, den)
+            Rt = Rs + _div(Ts * Ts * Rx, den)
             gt[pol] = (Rs2, Ts2, L2)
         At = np.clip(1 - Rt - Tt, 0, 1)
         Rb, _, _ = stack_RTA(bot, sl, mirror, beta, ctx.wl, pol)
@@ -185,7 +229,7 @@ def run(ctx, s0, P, arch, exit_, mode="pixel", n_th=121, du=1e-3, dbr=None, chun
     tables = {k: np.array(v) for k, v in T.items()}
     Pin = rc.emission_into_sl(res, nm, th, edges)
     if exit_ != "air":
-        Pin_x, esc, f0 = _glass_first_pass(res, nm, beta, edges, gt, mode)
+        Pin_x, esc, f0 = _glass_first_pass(res, nm, beta, edges, gt, mode, exit_, P.get("n_low"))
         Pin = Pin + Pin_x
     out = rc.analytic(res, tables, nm, ctx.wl, th, wL, Pin, qw)
     if exit_ != "air":
@@ -197,10 +241,14 @@ def run(ctx, s0, P, arch, exit_, mode="pixel", n_th=121, du=1e-3, dbr=None, chun
 
 
 # ----------------------------------------------------------------------------------------------
-def params(x, N, exit_, n_low):
+def params(x, N, exit_, n_low, mir=None):
     P = dict(d_etl=x[0], d_htl=x[1], d_ag=x[2], dbr=dict(N=N, dH1=x[3], dH=x[4], dL=x[5]), n_m=x[6])
+    if mir and mir != "odr":
+        P["bot"] = MIRRORS[mir]
     if exit_ == "lowN":
         P.update(n_low=n_low, d_low=x[8])
+    elif exit_ == "lowNi":
+        P.update(n_low=n_low)
     return P
 
 
@@ -215,7 +263,15 @@ for em in EMITTERS:
         for nl in (1.2, 1.1):
             CASES[f"BE_lowN{nl}_{an}_{em}"] = dict(arch="BE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=nl)
             CASES[f"TE_lowN{nl}_{an}_{em}"] = dict(arch="TE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=nl)
+        for mir in ("edr", "epr"):
+            CASES[f"TE_air-ox-{mir}_{an}_{em}"] = dict(arch="TE", exit="air", mode="pixel", anode=an, emitter=em, dbr="ox", mir=mir)
+            CASES[f"TE_air-{mir}_{an}_{em}"] = dict(arch="TE", exit="air", mode="pixel", anode=an, emitter=em, mir=mir)
+            CASES[f"BE_lowN1.05-inc-{mir}_{an}_{em}"] = dict(arch="BE", exit="lowNi", mode="pixel", anode=an, emitter=em,
+                                                            n_low=1.05, mir=mir)
         CASES[f"BE_lowN1.05_{an}_{em}"] = dict(arch="BE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=1.05)
+        for nl in (1.2, 1.1, 1.05):
+            CASES[f"BE_lowN{nl}-inc_{an}_{em}"] = dict(arch="BE", exit="lowNi", mode="pixel", anode=an, emitter=em, n_low=nl)
+            CASES[f"TE_lowN{nl}-inc_{an}_{em}"] = dict(arch="TE", exit="lowNi", mode="pixel", anode=an, emitter=em, n_low=nl)
         CASES[f"BE_lowN1.1-ev_{an}_{em}"] = dict(arch="BE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=1.1,
                                                  dbr="ev")
 
@@ -224,7 +280,7 @@ G = {}
 
 def _obj(x):
     c = G["case"]
-    P = params(x, int(round(x[7])), c["exit"], c.get("n_low"))
+    P = params(x, int(round(x[7])), c["exit"], c.get("n_low"), c.get("mir"))
     return -run(G["ctx"], G["s0"], P, c["arch"], c["exit"], c["mode"], n_th=91, dbr=c.get("dbr"))["CE"]
 
 
@@ -318,7 +374,7 @@ def optimise(name, popsize=10, maxiter=25):
         pol = pool.starmap(_polish, [(r.x, n, b) for n in Ns])
     fun, x = min([(r.fun, np.array(r.x, float))] + list(pol), key=lambda t: t[0])
     N = int(round(x[7]))
-    P = params(x, N, c["exit"], c.get("n_low"))
+    P = params(x, N, c["exit"], c.get("n_low"), c.get("mir"))
     fin, other = final(c, P)
     out = dict(case=name, **c, N=N, x=list(map(float, x)), params=P, final=fin, other_glass_mode=other,
                objective_grid_CE=float(-fun), n_seeds=len(xs), de_CE=float(-r.fun), de_N=N0,
@@ -353,7 +409,7 @@ def extend(name):
             best, x, N, changed = -fun, xn, N + step, True
     d["polish_CE"] = pol
     if changed:
-        P = params(x, N, c["exit"], c.get("n_low"))
+        P = params(x, N, c["exit"], c.get("n_low"), c.get("mir"))
         fin, other = final(c, P)
         d["pre_extend"] = dict(N=d["N"], x=d["x"], final_CE=d["final"]["CE"], objective_grid_CE=d["objective_grid_CE"])
         d.update(N=N, x=list(map(float, x)), params=P, final=fin, other_glass_mode=other, objective_grid_CE=float(best))

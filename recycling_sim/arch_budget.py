@@ -50,7 +50,8 @@ def budget(name, n_th=121):
     nm = P["n_m"] * ctx.ones
     up, dn = A.stacks(ctx, P, c["arch"], c["exit"], c.get("dbr"))
     eml = ctx.layer("eml", 20.0)
-    ext = Medium(ctx.ones + 0j) if c["exit"] == "air" else Medium(A.N_GLASS * ctx.ones + 0j)
+    n_x = A.exit_index(c["exit"], P)
+    ext = Medium(n_x * ctx.ones + 0j)
     res = A._dipole(ctx.wl, eml.no, up, ext, dn, Medium(nm + 0j), 1e-3, chunk=60)   # spectral weights only
     qw, _, _ = photon_weights(res, s0, 1.0)
     th, wL, edges = rc.angle_grid(n_th)
@@ -68,22 +69,19 @@ def budget(name, n_th=121):
         if c["exit"] == "air":
             esc, back, trap, Aeff = T, R, 0 * T, Al
         else:
-            ok = beta < A.N_GLASS - 1e-9
+            ok = beta < n_x - 1e-9
             R2, T2, A2 = stack_RTA(list(reversed(stack)), ext, sl, np.where(ok, beta, 0.0), ctx.wl, pol)
             T = np.where(ok, T, 0.0); R2 = np.where(ok, R2, 0.0); T2 = np.where(ok, T2, 0.0)
             A2 = np.where(ok[None], A2[::-1], 0.0)                     # back to the stack's layer order
             L2 = np.where(ok, np.clip(T2 + A2.sum(0), 0, 1), 1.0)
-            Rga = A._r_glass_air(beta, pol)
-            if c["mode"] == "pixel":
-                ret = np.where(beta < 1.0, Rga, 0.0); trap = np.where(beta >= 1.0, T, 0.0)
-            else:
-                ret = Rga; trap = 0 * T
-            den = (1 - Rga) + Rga * L2
-            esc = A._div(T * (1 - Rga), den)
-            back = R + A._div(T * ret * T2, den)
-            Aeff = Al + A._div(T * ret, den)[None] * A2
+            Rx, Tx = A.exit_props(beta, pol, c["exit"], P.get("n_low"), c["mode"])
+            den = (1 - Rx) + Rx * L2
+            esc = A._div(T * Tx, den)
+            back = R + A._div(T * Rx * T2, den)
+            Aeff = Al + A._div(T * Rx, den)[None] * A2
+            trap = T * (1 - Rx - Tx) / np.maximum(den, 1e-300) * (den > 0)   # entered the glass and lost (pixel)
             gt[pol] = (R2, T2, L2)
-        Rb, _, _ = stack_RTA([ctx.layer("l_SiO2_SJ_RTP", 800.0)], sl, mirror, beta, ctx.wl, pol)
+        Rb, _, _ = stack_RTA(A.mirror_layers(ctx, P), sl, mirror, beta, ctx.wl, pol)
         acc["escape"] += np.sum(esc * w, 1); acc["trap"] += np.sum(trap * w, 1)
         acc["mirror"] += np.sum(back * (1 - Rb) * w, 1); acc["recirc"] += np.sum(back * Rb * w, 1)
         for g in GROUPS:
@@ -91,7 +89,7 @@ def budget(name, n_th=121):
                 acc[g] += np.sum(Aeff[gidx[g]].sum(0) * w, 1)
         T0 += 0.5 * esc[:, 0]
     if c["exit"] != "air":
-        Pin = Pin + A._glass_first_pass(res, nm, beta, edges, gt, c["mode"])[0]
+        Pin = Pin + A._glass_first_pass(res, nm, beta, edges, gt, c["mode"], c["exit"], P.get("n_low"))[0]
     wts = qw * Pin.sum(axis=(0, 2)); wts = wts / wts.sum()
     out = {k: float(np.sum(wts * v)) for k, v in acc.items()}
     out["closure"] = float(sum(out[k] for k in ("escape", "trap", "mirror", "recirc") + GROUPS))
@@ -106,7 +104,9 @@ SEG = (("escape", "Escape (useful)", "#2e7d32"), ("DBR", "DBR absorption", "#1f5
        ("organics", "Organic/EIL absorption", "#8e44ad"), ("lowN", "Low-n layer", "#76d7c4"),
        ("trap", "Trapped in glass", "#c0392b"), ("mirror", "Mirror (ODR/Ag) loss", "#f1c40f"))
 SHORT = {"TE_air": "TE, air", "TE_air-ox": "TE, air, oxide DBR", "TE_glass": "TE + OCA glass",
-         "TE_lowN1.2": "TE + n1.2 + glass", "BE_glass-pixel": "BE glass (pixel)", "BE_glass-large": "BE glass (large)",
+         "TE_lowN1.2": "TE + n1.2 + glass", "TE_lowN1.1-inc": "TE + n1.1 film + glass",
+         "TE_lowN1.2-inc": "TE + n1.2 film + glass", "BE_lowN1.05-inc": "BE + n1.05 film",
+         "BE_lowN1.1-inc": "BE + n1.1 film", "BE_lowN1.2-inc": "BE + n1.2 film", "BE_glass-pixel": "BE glass (pixel)", "BE_glass-large": "BE glass (large)",
          "BE_lowN1.2": "BE + n1.2", "BE_lowN1.1": "BE + n1.1", "BE_lowN1.05": "BE + n1.05", "BE_lowN1.1-ev": "BE + n1.1, ZnS/LiF DBR"}
 
 
