@@ -26,6 +26,7 @@ LABEL = {
     "BE_glass-large": "BE, TiO2/SiO2 DBR on glass, large area (glass-trapped light recycled)",
     "BE_lowN1.2": "BE, n 1.2 layer between TiO2/SiO2 DBR and glass (pixel)",
     "BE_lowN1.1": "BE, n 1.1 layer between TiO2/SiO2 DBR and glass (pixel)",
+    "BE_lowN1.05": "BE, n 1.05 layer (SiO2 nanorod limit) between TiO2/SiO2 DBR and glass (pixel)",
     "BE_lowN1.1-ev": "BE, n 1.1 layer, ZnS/LiF-quality DBR (k 1e-4) (pixel)",
 }
 ORDER = list(LABEL)
@@ -89,7 +90,7 @@ def figure(df):
     import plot_phase_origin  # noqa: F401  (Origin-style rcParams, Calibri/Carlito)
     short = {"TE_air": "TE\nair", "TE_air-ox": "TE air\noxide DBR", "TE_glass": "TE\n+OCA glass",
              "TE_lowN1.2": "TE\n+n1.2+glass", "BE_glass-pixel": "BE glass\npixel",
-             "BE_glass-large": "BE glass\nlarge area", "BE_lowN1.2": "BE\n+n1.2", "BE_lowN1.1": "BE\n+n1.1",
+             "BE_glass-large": "BE glass\nlarge area", "BE_lowN1.2": "BE\n+n1.2", "BE_lowN1.1": "BE\n+n1.1", "BE_lowN1.05": "BE\n+n1.05",
              "BE_lowN1.1-ev": "BE +n1.1\nZnS/LiF DBR"}
     vs = [v for v in ORDER if v in set(df.variant)]
     fig, axs = plt.subplots(2, 1, figsize=(13, 10), sharex=True)

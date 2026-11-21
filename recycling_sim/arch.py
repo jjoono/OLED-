@@ -215,6 +215,7 @@ for em in EMITTERS:
         for nl in (1.2, 1.1):
             CASES[f"BE_lowN{nl}_{an}_{em}"] = dict(arch="BE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=nl)
             CASES[f"TE_lowN{nl}_{an}_{em}"] = dict(arch="TE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=nl)
+        CASES[f"BE_lowN1.05_{an}_{em}"] = dict(arch="BE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=1.05)
         CASES[f"BE_lowN1.1-ev_{an}_{em}"] = dict(arch="BE", exit="lowN", mode="pixel", anode=an, emitter=em, n_low=1.1,
                                                  dbr="ev")
 

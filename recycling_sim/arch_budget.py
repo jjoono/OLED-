@@ -107,7 +107,7 @@ SEG = (("escape", "Escape (useful)", "#2e7d32"), ("DBR", "DBR absorption", "#1f5
        ("trap", "Trapped in glass", "#c0392b"), ("mirror", "Mirror (ODR/Ag) loss", "#f1c40f"))
 SHORT = {"TE_air": "TE, air", "TE_air-ox": "TE, air, oxide DBR", "TE_glass": "TE + OCA glass",
          "TE_lowN1.2": "TE + n1.2 + glass", "BE_glass-pixel": "BE glass (pixel)", "BE_glass-large": "BE glass (large)",
-         "BE_lowN1.2": "BE + n1.2", "BE_lowN1.1": "BE + n1.1", "BE_lowN1.1-ev": "BE + n1.1, ZnS/LiF DBR"}
+         "BE_lowN1.2": "BE + n1.2", "BE_lowN1.1": "BE + n1.1", "BE_lowN1.05": "BE + n1.05", "BE_lowN1.1-ev": "BE + n1.1, ZnS/LiF DBR"}
 
 
 def plot(allb, emitter="n15", anode="IZO"):
