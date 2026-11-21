@@ -26,6 +26,7 @@ usage: python3 arch.py run <case> [<case> ...]     (case names: see CASES; write
        python3 arch.py all                         (every case not yet done)
        python3 arch.py refinal <case ...|all>      (re-evaluate stored designs with the current model)
        python3 arch.py extend <case ...>           (continue the fixed-N polish while the best N is at the window edge)
+       python3 arch.py adopt <src:dst ...>         (evaluate a stored design as another case, no re-optimisation)
 """
 from __future__ import annotations
 
@@ -419,6 +420,28 @@ def extend(name):
           f"polish {dict(sorted((k, round(v)) for k, v in pol.items()))}", flush=True)
 
 
+def adopt(src, dst):
+    """evaluate the stored design of case `src` as case `dst` (e.g. a coherent low-n design with a thick
+    incoherent film) without re-optimising; saved as results/arch/<dst>.json with 'adopted_from'"""
+    path = os.path.join(OUT, f"{dst}.json")
+    if os.path.exists(path):
+        return
+    d = json.load(open(os.path.join(OUT, f"{src}.json"))); c = CASES[dst]
+    P = {k: v for k, v in d["params"].items() if k not in ("n_low", "d_low", "bot")}
+    if c["exit"] in ("lowN", "lowNi"):
+        P["n_low"] = c["n_low"]
+    if c["exit"] == "lowN":
+        P["d_low"] = d["params"].get("d_low") or 1000.0
+    if c.get("mir") and c["mir"] != "odr":
+        P["bot"] = MIRRORS[c["mir"]]
+    fin, other = final(c, P)
+    out = dict(case=dst, **c, N=d["N"], x=d["x"], params=P, final=fin, other_glass_mode=other, adopted_from=src,
+               objective_grid_CE=None, seconds=0.0)
+    with open(path, "w") as fh:
+        json.dump(out, fh, indent=1, default=float)
+    print(f"{dst:32s} adopted from {src}: CE {fin['CE']:7.1f}  EQE {fin['eqe']:.3f}  A' {100 * fin['Aprime']:.2f}%", flush=True)
+
+
 def refinal(name):
     """re-evaluate a stored design with the current model (keeps the previous evaluation as final_v1)"""
     path = os.path.join(OUT, f"{name}.json")
@@ -435,7 +458,10 @@ def refinal(name):
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
-    if cmd == "extend":
+    if cmd == "adopt":
+        for pair in sys.argv[2:]:
+            adopt(*pair.split(":"))
+    elif cmd == "extend":
         for n in sys.argv[2:]:
             extend(n)
     elif cmd == "refinal":
