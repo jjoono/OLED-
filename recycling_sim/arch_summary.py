@@ -158,17 +158,17 @@ def upgrades(df):
         st = [(v, lab, df[(df.variant == v) & (df.anode == "IZO") & (df.emitter == em)].CE.max()) for v, lab in STEPS]
         ff = os.path.join(HERE, "results", f"freeform_TE_air-ox-epr_IZO_{em}.json")
         if os.path.exists(ff):
-            st.append(("freeform", "+ aperiodic filter\n(thick top spacer)", json.load(open(ff))["final"]["CE"]))
+            st.append(("freeform", "+ 1.1-\u00b5m SiO$_2$ top spacer\n(free-form filter)", json.load(open(ff))["final"]["CE"]))
         st = [s for s in st if np.isfinite(s[2])]
         y = np.arange(len(st))[::-1]
-        xmax = max(q[2] for q in st) * 1.32
+        xmax = max(q[2] for q in st) * 1.45
         for i, (yi, (v, lab, ce)) in enumerate(zip(y, st)):
             ax.barh(yi, ce, color="#2e7d32" if v != "TE_air" else "#7f8c8d", edgecolor="k", lw=1.2, height=0.62)
             gain = f"  (+{100 * (ce / st[i - 1][2] - 1):.0f}%)" if i else ""
             ax.text(ce + 0.015 * xmax, yi, f"{ce:.0f}{gain}", va="center", fontsize=15)
         ax.axvline(REF[em]["real"], color="#b23b2e", lw=2.2, label="Strong cavity (measured Ag)")
         ax.axvline(REF[em]["ideal"], color="#b23b2e", lw=1.6, ls="--", label="Strong cavity (ideal Ag)")
-        ax.legend(loc="lower right", frameon=False, fontsize=12)
+        ax.legend(loc="upper right", frameon=False, fontsize=12)
         ax.set_yticks(y); ax.set_yticklabels([s[1] for s in st], fontsize=14)
         ax.set_xlabel("On-axis cd/A (IZO anode)")
         ax.set_title(emn, fontsize=19)
@@ -192,5 +192,15 @@ if __name__ == "__main__":
             b = pd.DataFrame(json.load(open(bp))).T
             b.index.name = "case"
             b.to_excel(xw, sheet_name="loss budget per round trip")
+        for ffp in sorted(glob.glob(os.path.join(HERE, "results", "freeform_*.json"))):
+            ff = json.load(open(ffp)); P = ff["params"]
+            rows = [("ETL", P["d_etl"]), ("HTL", P["d_htl"]), ("IZO", P["d_ag"]), ("SL index", P["n_m"])]
+            rows += [(("TiO2" if i % 2 == 0 else "SiO2") + f" filter layer {i + 1}" + (" (top spacer)" if i == len(P["dbr"]) - 1 else ""), t)
+                     for i, t in enumerate(P["dbr"])]
+            rows += [("bottom mirror (SL -> Ag)", json.dumps(P.get("bot"))), ("CE periodic (0.5 nm)", ff["periodic_final_CE"]),
+                     ("CE free-form (0.5 nm)", ff["final"]["CE"]), ("EQE free-form", ff["final"]["eqe"])]
+            rows += [(f"thickness error {k}: mean / p10", f"{v['mean']:.0f} / {v['p10']:.0f}") for k, v in ff["robustness"].items()]
+            pd.DataFrame(rows, columns=["item", "value (nm unless noted)"]).to_excel(
+                xw, sheet_name=("free-form " + ff["base"])[:31], index=False)
     figure(df)
     upgrades(df)
