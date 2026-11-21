@@ -151,6 +151,9 @@ def upgrades(df):
     fig, axs = plt.subplots(1, 2, figsize=(15, 6.2))
     for ax, (em, emn) in zip(axs, (("n15", "532 nm / 15 nm"), ("irppy", "Ir(ppy)$_2$acac"))):
         st = [(v, lab, df[(df.variant == v) & (df.anode == "IZO") & (df.emitter == em)].CE.max()) for v, lab in STEPS]
+        ff = os.path.join(HERE, "results", f"freeform_TE_air-ox-epr_IZO_{em}.json")
+        if os.path.exists(ff):
+            st.append(("freeform", "+ aperiodic filter\n(thick top spacer)", json.load(open(ff))["final"]["CE"]))
         st = [s for s in st if np.isfinite(s[2])]
         y = np.arange(len(st))[::-1]
         for yi, (v, lab, ce) in zip(y, st):
