@@ -25,6 +25,7 @@ grid; final evaluation on a 0.5-nm grid (dipole emission in wavelength chunks to
 usage: python3 arch.py run <case> [<case> ...]     (case names: see CASES; writes results/arch/<case>.json)
        python3 arch.py all                         (every case not yet done)
        python3 arch.py refinal <case ...|all>      (re-evaluate stored designs with the current model)
+       python3 arch.py extend <case ...>           (continue the fixed-N polish while the best N is at the window edge)
 """
 from __future__ import annotations
 
@@ -329,6 +330,38 @@ def optimise(name, popsize=10, maxiter=25):
           f"{len(xs)} seeds, {time.time() - t0:.0f}s)", flush=True)
 
 
+def extend(name):
+    """continue the fixed-N polish beyond the N-1..N+1 window while the best N sits at its edge"""
+    path = os.path.join(OUT, f"{name}.json")
+    d = json.load(open(path)); c = CASES[name]
+    pol = {int(k): v for k, v in (d.get("polish_CE") or {}).items()}
+    if not pol:
+        return
+    ctx, s0, ag_b = make(c["emitter"], c["anode"])
+    G.update(ctx=ctx, s0=s0, case=c)
+    b = bounds(c, ag_b)
+    x = np.array(d["x"], float); N = int(d["N"]); best = d["objective_grid_CE"]; changed = False
+    for step in (+1, -1):
+        if not ((step > 0 and N == max(pol)) or (step < 0 and N == min(pol))):
+            continue
+        while 2 <= N + step <= int(NMAX):
+            fun, xn = _polish(x, N + step, b)
+            pol[N + step] = -fun
+            if -fun <= best + 0.5:
+                break
+            best, x, N, changed = -fun, xn, N + step, True
+    d["polish_CE"] = pol
+    if changed:
+        P = params(x, N, c["exit"], c.get("n_low"))
+        fin, other = final(c, P)
+        d["pre_extend"] = dict(N=d["N"], x=d["x"], final_CE=d["final"]["CE"], objective_grid_CE=d["objective_grid_CE"])
+        d.update(N=N, x=list(map(float, x)), params=P, final=fin, other_glass_mode=other, objective_grid_CE=float(best))
+    with open(path, "w") as fh:
+        json.dump(d, fh, indent=1, default=float)
+    print(f"{name:32s} extend: N {d.get('pre_extend', {}).get('N', N)} -> {N}  CE {d['final']['CE']:7.1f}  "
+          f"polish {dict(sorted((k, round(v)) for k, v in pol.items()))}", flush=True)
+
+
 def refinal(name):
     """re-evaluate a stored design with the current model (keeps the previous evaluation as final_v1)"""
     path = os.path.join(OUT, f"{name}.json")
@@ -345,7 +378,10 @@ def refinal(name):
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
-    if cmd == "refinal":
+    if cmd == "extend":
+        for n in sys.argv[2:]:
+            extend(n)
+    elif cmd == "refinal":
         names = sys.argv[2:]
         if names == ["all"]:
             names = [os.path.basename(p)[:-5] for p in sorted(glob.glob(os.path.join(OUT, "*.json")))]
