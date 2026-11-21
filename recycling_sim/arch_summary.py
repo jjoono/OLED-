@@ -18,13 +18,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FIG = os.path.join(HERE, "results", "figs")
 
 LABEL = {
-    "TE_air": "TE, DBR facing air (lab device under a gas-filled lid)",
+    "TE_air": "TE, ZnS/LiF DBR facing air (lab device under a gas-filled lid)",
+    "TE_air-ox": "TE, low-loss TiO2/SiO2 DBR (k 2e-5) facing air",
     "TE_glass": "TE, cover glass bonded with OCA (n 1.5) on the DBR",
     "TE_lowN1.2": "TE, n 1.2 layer between DBR and cover glass",
-    "BE_glass-pixel": "BE, DBR on glass, small pixel (glass-trapped light lost)",
-    "BE_glass-large": "BE, DBR on glass, large area (glass-trapped light recycled)",
-    "BE_lowN1.2": "BE, n 1.2 layer between DBR and glass (pixel)",
-    "BE_lowN1.1": "BE, n 1.1 layer between DBR and glass (pixel)",
+    "BE_glass-pixel": "BE, TiO2/SiO2 DBR on glass, small pixel (glass-trapped light lost)",
+    "BE_glass-large": "BE, TiO2/SiO2 DBR on glass, large area (glass-trapped light recycled)",
+    "BE_lowN1.2": "BE, n 1.2 layer between TiO2/SiO2 DBR and glass (pixel)",
+    "BE_lowN1.1": "BE, n 1.1 layer between TiO2/SiO2 DBR and glass (pixel)",
+    "BE_lowN1.1-ev": "BE, n 1.1 layer, ZnS/LiF-quality DBR (k 1e-4) (pixel)",
 }
 ORDER = list(LABEL)
 REF = {"irppy": {"real": 263.5, "ideal": 302.5}, "n15": {"real": 775.3, "ideal": 1030.1}}
@@ -85,11 +87,12 @@ def figure(df):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import plot_phase_origin  # noqa: F401  (Origin-style rcParams, Calibri/Carlito)
-    short = {"TE_air": "TE\nair", "TE_glass": "TE\n+OCA glass", "TE_lowN1.2": "TE\n+n1.2+glass",
-             "BE_glass-pixel": "BE glass\npixel", "BE_glass-large": "BE glass\nlarge area",
-             "BE_lowN1.2": "BE\n+n1.2", "BE_lowN1.1": "BE\n+n1.1"}
+    short = {"TE_air": "TE\nair", "TE_air-ox": "TE air\noxide DBR", "TE_glass": "TE\n+OCA glass",
+             "TE_lowN1.2": "TE\n+n1.2+glass", "BE_glass-pixel": "BE glass\npixel",
+             "BE_glass-large": "BE glass\nlarge area", "BE_lowN1.2": "BE\n+n1.2", "BE_lowN1.1": "BE\n+n1.1",
+             "BE_lowN1.1-ev": "BE +n1.1\nZnS/LiF DBR"}
     vs = [v for v in ORDER if v in set(df.variant)]
-    fig, axs = plt.subplots(2, 1, figsize=(11, 10), sharex=True)
+    fig, axs = plt.subplots(2, 1, figsize=(13, 10), sharex=True)
     for ax, em, emn in zip(axs, ("n15", "irppy"), ("532 nm / 15 nm", "Ir(ppy)$_2$acac")):
         x = np.arange(len(vs)); w = 0.38
         for k, (an, col, lab) in enumerate((("IZO", "#2e7d32", "IZO anode"), ("Ag8m", "#7f8c8d", "Measured Ag 8 nm"))):
@@ -104,7 +107,7 @@ def figure(df):
         ax.text(0.01, 0.95, emn, transform=ax.transAxes, fontsize=18, va="top")
         ax.set_ylim(0, max(df[df.emitter == em].CE.max(), REF[em]["ideal"]) * 1.18)
     axs[0].legend(loc="upper right", frameon=False, fontsize=13, ncol=2)
-    axs[1].set_xticks(np.arange(len(vs))); axs[1].set_xticklabels([short[v] for v in vs], fontsize=14)
+    axs[1].set_xticks(np.arange(len(vs))); axs[1].set_xticklabels([short[v] for v in vs], fontsize=13)
     fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
         fig.savefig(os.path.join(FIG, f"arch_ranking.{ext}"), dpi=300 if ext == "png" else None)
