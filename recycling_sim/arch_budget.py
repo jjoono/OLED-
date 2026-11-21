@@ -101,9 +101,10 @@ def budget(name, n_th=121):
 
 SEG = (("escape", "Escape (useful)", "#2e7d32"), ("DBR", "DBR absorption", "#1f5fa8"),
        ("anode", "Anode absorption", "#7f8c8d"), ("ITO", "ITO absorption", "#b9770e"),
-       ("organics", "Organic/EIL absorption", "#8e44ad"), ("lowN", "Low-n layer", "#76d7c4"),
-       ("trap", "Trapped in glass", "#c0392b"), ("mirror", "Mirror (ODR/Ag) loss", "#f1c40f"))
-SHORT = {"TE_air": "TE, air", "TE_air-ox": "TE, air, oxide DBR", "TE_glass": "TE + OCA glass",
+       ("organics", "Organic/EIL absorption", "#8e44ad"), ("trap", "Trapped in glass", "#c0392b"),
+       ("mirror", "Mirror (ODR/Ag) loss", "#f1c40f"))
+COHERENT = ("BE_lowN1.05", "BE_lowN1.1", "BE_lowN1.2", "TE_lowN1.2", "BE_lowN1.1-ev")   # uniform-film variants: not plotted
+SHORT = {"TE_air": "TE, air, ZnS/LiF DBR", "TE_air-ox": "TE, air, oxide DBR", "TE_glass": "TE + OCA glass",
          "TE_lowN1.2": "TE + n1.2 + glass", "TE_lowN1.1-inc": "TE + n1.1 film + glass",
          "TE_lowN1.2-inc": "TE + n1.2 film + glass", "TE_lowN1.05-inc": "TE + n1.05 film + glass",
          "TE_air-ox-epr": "TE, air, oxide DBR + enh. mirror", "BE_lowN1.05-inc": "BE + n1.05 film",
@@ -116,8 +117,13 @@ def plot(allb, emitter="n15", anode="IZO"):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import plot_phase_origin  # noqa: F401  (Origin-style rcParams)
-    rows = [(k.rsplit("_", 2)[0], v) for k, v in allb.items() if k.endswith(f"_{anode}_{emitter}")]
+    rows = [(k.rsplit("_", 2)[0], v, k) for k, v in allb.items() if k.endswith(f"_{anode}_{emitter}")]
+    rows = [r for r in rows if r[0] not in COHERENT]
     rows.sort(key=lambda r: r[1]["CE"])
+    adopted = []
+    for r in rows:
+        p = os.path.join(A.OUT, f"{r[2]}.json")
+        adopted.append(bool(os.path.exists(p) and json.load(open(p)).get("adopted_from")))
     fig, ax = plt.subplots(figsize=(12, 0.62 * len(rows) + 2.2))
     y = np.arange(len(rows))
     left = np.zeros(len(rows))
@@ -125,12 +131,15 @@ def plot(allb, emitter="n15", anode="IZO"):
         v = np.array([100 * r[1][key] for r in rows])
         ax.barh(y, v, left=left, color=col, edgecolor="k", lw=0.8, label=lab, height=0.68)
         left += v
-    for yi, (k, b), x in zip(y, rows, left):
-        ax.text(x + 0.3, yi, f"{b['CE']:.0f} cd/A", va="center", fontsize=14)
-    ax.set_yticks(y); ax.set_yticklabels([SHORT.get(k, k) for k, _ in rows], fontsize=15)
+    for yi, (k, bb, _), x, ad in zip(y, rows, left, adopted):
+        ax.text(x + 0.3, yi, f"{bb['CE']:.0f} cd/A" + (" \u2020" if ad else ""), va="center", fontsize=14)
+    ax.set_yticks(y); ax.set_yticklabels([SHORT.get(k, k) for k, _, _ in rows], fontsize=15)
     ax.set_xlabel("Share of the upward flux per round trip (%)")
     ax.set_xlim(0, max(left) * 1.28)
-    ax.legend(loc="lower right", frameon=False, fontsize=12, ncol=2)
+    ax.legend(loc="upper right", frameon=False, fontsize=12, ncol=1)
+    if any(adopted):
+        ax.text(0.99, 0.02, "\u2020 nearest optimised design evaluated (not re-optimised)", transform=ax.transAxes,
+                ha="right", va="bottom", fontsize=11)
     fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
         fig.savefig(os.path.join(HERE, "results", "figs", f"arch_budget_{anode}_{emitter}.{ext}"),

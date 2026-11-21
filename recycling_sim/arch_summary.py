@@ -23,6 +23,7 @@ FIG = os.path.join(HERE, "results", "figs")
 LABEL = {   # (A) architecture comparison: same periodic DBR parametrisation, 800-nm SiO2 ODR mirror
     "TE_air": "TE, ZnS/LiF DBR facing air (N2-gap glass lid)",
     "TE_air-ox": "TE, low-loss TiO2/SiO2 DBR (k 2e-5) facing air",
+    "TE_lowN1.05-inc": "TE, n 1.05 film + cover glass",
     "TE_lowN1.1-inc": "TE, n 1.1 film + cover glass",
     "TE_lowN1.2-inc": "TE, n 1.2 film + cover glass",
     "TE_glass": "TE, cover glass bonded with OCA (n 1.5)",
@@ -33,7 +34,7 @@ LABEL = {   # (A) architecture comparison: same periodic DBR parametrisation, 80
     "BE_lowN1.05-inc": "BE, n 1.05 film (SiO2 nanorod limit) between DBR and glass",
 }
 ORDER = list(LABEL)
-SHORT = {"TE_air": "TE air\nZnS/LiF", "TE_air-ox": "TE air\noxide DBR", "TE_lowN1.1-inc": "TE\n+n1.1+glass",
+SHORT = {"TE_air": "TE air\nZnS/LiF", "TE_air-ox": "TE air\noxide DBR", "TE_lowN1.05-inc": "TE\n+n1.05+glass", "TE_lowN1.1-inc": "TE\n+n1.1+glass",
          "TE_lowN1.2-inc": "TE\n+n1.2+glass", "TE_glass": "TE\n+OCA glass", "BE_glass-pixel": "BE glass\npixel",
          "BE_glass-large": "BE glass\nlarge area", "BE_lowN1.2-inc": "BE\n+n1.2", "BE_lowN1.1-inc": "BE\n+n1.1",
          "BE_lowN1.05-inc": "BE\n+n1.05"}
@@ -121,17 +122,21 @@ def figure(df):
     for ax, (em, emn) in zip(axs, (("n15", "532 nm / 15 nm"), ("irppy", "Ir(ppy)$_2$acac"))):
         x = np.arange(len(vs)); w = 0.38
         for k, (an, col, lab) in enumerate((("IZO", "#2e7d32", "IZO anode"), ("Ag8m", "#7f8c8d", "Measured Ag 8 nm"))):
-            y = np.array([df[(df.variant == v) & (df.anode == an) & (df.emitter == em)].CE.max() for v in vs], float)
+            sel = [df[(df.variant == v) & (df.anode == an) & (df.emitter == em)] for v in vs]
+            y = np.array([s.CE.max() if len(s) else np.nan for s in sel], float)
+            dag = [len(s) and str(s.iloc[0].source).startswith("adopted") for s in sel]
             ax.bar(x + (k - 0.5) * w, np.nan_to_num(y), w, color=col, edgecolor="k", lw=1.2, label=lab)
-            for xi, yi in zip(x + (k - 0.5) * w, y):
+            for xi, yi, dg in zip(x + (k - 0.5) * w, y, dag):
                 if np.isfinite(yi):
-                    ax.text(xi, yi + 18, f"{yi:.0f}", ha="center", va="bottom", fontsize=12)
+                    ax.text(xi, yi + 18, f"{yi:.0f}" + ("\u2020" if dg else ""), ha="center", va="bottom", fontsize=12)
         ax.axhline(REF[em]["real"], color="#b23b2e", lw=2.2, label="Strong cavity (measured Ag)")
         ax.axhline(REF[em]["ideal"], color="#b23b2e", lw=1.6, ls="--", label="Strong cavity (ideal Ag)")
         ax.set_ylabel("On-axis cd/A")
         ax.text(0.01, 0.95, emn, transform=ax.transAxes, fontsize=19, va="top")
-        ax.set_ylim(0, np.nanmax([df[(df.emitter == em) & (df.group == "A")].CE.max(), REF[em]["ideal"]]) * 1.2)
+        ax.set_ylim(0, np.nanmax([df[(df.emitter == em) & (df.group == "A")].CE.max(), REF[em]["ideal"]]) * 1.3)
     axs[0].legend(loc="upper right", frameon=False, fontsize=13, ncol=2)
+    axs[1].text(0.99, 0.95, "\u2020 nearest optimised design evaluated (not re-optimised)", transform=axs[1].transAxes,
+                ha="right", va="top", fontsize=12)
     axs[1].set_xticks(np.arange(len(vs))); axs[1].set_xticklabels([SHORT[v] for v in vs], fontsize=13)
     fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
@@ -156,15 +161,18 @@ def upgrades(df):
             st.append(("freeform", "+ aperiodic filter\n(thick top spacer)", json.load(open(ff))["final"]["CE"]))
         st = [s for s in st if np.isfinite(s[2])]
         y = np.arange(len(st))[::-1]
-        for yi, (v, lab, ce) in zip(y, st):
+        xmax = max(q[2] for q in st) * 1.32
+        for i, (yi, (v, lab, ce)) in enumerate(zip(y, st)):
             ax.barh(yi, ce, color="#2e7d32" if v != "TE_air" else "#7f8c8d", edgecolor="k", lw=1.2, height=0.62)
-            ax.text(ce + 25, yi, f"{ce:.0f}", va="center", fontsize=15)
-        ax.axvline(REF[em]["real"], color="#b23b2e", lw=2.2)
-        ax.axvline(REF[em]["ideal"], color="#b23b2e", lw=1.6, ls="--")
+            gain = f"  (+{100 * (ce / st[i - 1][2] - 1):.0f}%)" if i else ""
+            ax.text(ce + 0.015 * xmax, yi, f"{ce:.0f}{gain}", va="center", fontsize=15)
+        ax.axvline(REF[em]["real"], color="#b23b2e", lw=2.2, label="Strong cavity (measured Ag)")
+        ax.axvline(REF[em]["ideal"], color="#b23b2e", lw=1.6, ls="--", label="Strong cavity (ideal Ag)")
+        ax.legend(loc="lower right", frameon=False, fontsize=12)
         ax.set_yticks(y); ax.set_yticklabels([s[1] for s in st], fontsize=14)
         ax.set_xlabel("On-axis cd/A (IZO anode)")
         ax.set_title(emn, fontsize=19)
-        ax.set_xlim(0, max(s[2] for s in st) * 1.18)
+        ax.set_xlim(0, xmax)
     fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
         fig.savefig(os.path.join(FIG, f"arch_upgrades.{ext}"), dpi=300 if ext == "png" else None)
