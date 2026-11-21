@@ -78,11 +78,12 @@ COMPOUNDS = {
 }
 
 
-def build():
+def build(names):
     from rdkit import Chem
     s147 = _load("147_common_materials_build.py", "s147")
     os.makedirs(STRUCT, exist_ok=True)
-    for name, (smi, *_r) in COMPOUNDS.items():
+    for name in names:
+        smi = COMPOUNDS[name][0]
         p = os.path.join(STRUCT, f"{name}.xyz")
         if os.path.exists(p):
             continue
@@ -223,7 +224,7 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     names = [a for a in args if not a.startswith("--")] or list(COMPOUNDS)
     if "--build" in args:
-        build()
+        build(names)
     if "--survey" in args:
         survey(names)
     if "--pbe0" in args:
