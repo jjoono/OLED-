@@ -1,0 +1,39 @@
+{
+ "n_atoms": 24,
+ "n_sites": 2,
+ "sites": {
+  "hollow6": {
+   "E_b": 0.3805,
+   "q": 0.0698,
+   "near": "C5",
+   "near_el": "C",
+   "d": 2.855,
+   "pos": [
+    2.2063,
+    1.3105,
+    2.1366
+   ]
+  },
+  "hollow4": {
+   "E_b": 0.4105,
+   "q": 0.1001,
+   "near": "C4",
+   "near_el": "C",
+   "d": 2.926,
+   "pos": [
+    0.178,
+    1.4125,
+    2.1684
+   ]
+  }
+ },
+ "pbe0_sites": [
+  "hollow4",
+  "hollow6"
+ ],
+ "deepest_site": "hollow4",
+ "q_Ag1": 0.1001,
+ "q_Ag2_total": -0.0099,
+ "delta_q_Ag1_Ag2": -0.11,
+ "seconds": 262
+}
