@@ -69,5 +69,28 @@
    -5.284
   ],
   "from_site": "hollow18"
+ },
+ "lpN46_open": {
+  "E_b": 0.1056,
+  "elec": -0.0974,
+  "D3": -0.2029,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1178,
+  "frag_atoms": 32,
+  "caps": 2,
+  "mol_atoms": 79,
+  "seconds": 1931,
+  "anchors": "N46",
+  "R_cut": 5.0,
+  "near": "H72",
+  "d_near": 2.322,
+  "d_H_min": 2.322,
+  "n_N_within_3A": 1,
+  "pos": [
+   -1.6791,
+   2.5292,
+   -4.676
+  ],
+  "from_site": "lpN46"
  }
 }
