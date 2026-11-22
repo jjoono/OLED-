@@ -1,47 +1,40 @@
 # Optics Express 투고 패키지
 
-`md2optica.py`가 `manuscript_draft.md` / `supplementary.md`에서 생성한다.
-**원고를 고칠 때는 Markdown을 고치고 변환기를 다시 돌릴 것** — .tex 직접 수정은
-다음 재생성 때 사라진다.
+`md2optica.py`가 `manuscript_draft.md`와 `supplementary.md`에서 생성한다. 원고를 고칠 때는 Markdown을 고치고 변환기를 다시 돌린다(.tex를 직접 고치면 다음 생성 때 사라진다).
 
 ```
-python3 md2optica.py
+python3 tools/cite.py tools/manuscript_en.src.md manuscript_draft.md   # 인용 번호·참고문헌 목록 생성
+python3 md2optica.py                                                  # main.tex, supplement.tex, figures/
 ```
 
 ## 파일
 
 | 파일 | 내용 |
 |---|---|
-| `main.tex` | 본문 (opticajournal.cls 대상) |
-| `supplement.tex` | Supplement 1 (독립 article 클래스 — 바로 컴파일 가능) |
-| `figures/` | Fig. 1–5, S1–S4 (PDF, 300 dpi 소스에서 생성) |
+| `main.tex` | 본문. Optica 공용 템플릿(`optica-article.cls`, `\journal{opticajournal}`, `\articletype{Research Article}`) 대상 |
+| `supplement.tex` | Supplement 1. 표준 article 클래스로 바로 컴파일된다 |
+| `figures/` | 본문 Fig. 1–5와 Fig. S1–S10의 PDF(벡터, 글꼴 내장). 본문 그림 폭은 5.25 in |
 
-## 컴파일 방법
+## 컴파일
 
-`opticajournal.cls`는 Optica 저작권 파일이라 레포에 넣지 않았다. 두 가지 방법:
+`optica-article.cls`와 `opticajnl.bst`는 Optica 배포 파일이라 저장소에 넣지 않았다.
 
-1. **Overleaf (권장)**: New Project → Templates → "Optica journals" 공식 템플릿
-   생성 → 템플릿의 main.tex를 이 `main.tex`로 교체, `figures/` 업로드.
-2. 로컬: https://opg.optica.org/submit/templates.cfm 에서 스타일 패키지를 받아
-   `opticajournal.cls`를 이 디렉토리에 두고 `pdflatex main` ×2.
+1. Overleaf: Optica 공용 템플릿("Optica Publishing Group journal template")으로 프로젝트를 만들고, 템플릿의 본문 파일을 이 `main.tex`로 바꾼 뒤 `figures/`를 올린다.
+2. 로컬: Optica Author Resources의 LaTeX 템플릿 묶음에서 클래스 파일을 받아 이 폴더에 두고 `pdflatex main`을 두 번 실행한다.
 
-`supplement.tex`는 표준 article 클래스라 그대로 `pdflatex supplement` ×2.
+`supplement.tex`는 `pdflatex supplement`를 두 번 실행한다.
 
-## 투고 전 남은 작업 (사람 몫)
+## 양식 점검 결과
 
-1. **저자/소속/이메일** — `main.tex` 상단 `\author` 블록 (마커: `[Affiliation`,
-   `[corresponding@email]`)과 Funding/Acknowledgments 자리표시.
-2. 컴파일 후 그림 배치/줄바꿈 확인 (figure* 3개: Fig. 1, 2, 5).
+- 제목은 문장형 대소문자, 초록은 150단어, 수식은 (1)–(10)으로 번호를 붙였고 본문에서 "Eq. (n)"으로 인용한다.
+- 그림은 "Fig. 1(a)" 형식으로 인용하고 번호 순서대로 처음 인용된다(Fig. 1–5, Table 1–3).
+- 참고문헌 50건은 Optica 양식(저자 3인 + et al., "제목," 학술지 **권**, 쪽 (연도))이며 첫 인용 순서로 번호가 매겨진다. 검증 기록은 `review/reference_check.md`.
+- 뒷부분은 Funding, Acknowledgment, Disclosures, Data availability, Supplemental document 순서이다.
 
-완료된 것: 초록은 ~214단어로 축약 완료(장문판은 git 이력에 있음), 참고문헌
-17건 전부 Optica 형식("A. B. Author, ``Title,'' J. Abbrev. **vol**, pages
-(year). DOI")으로 자동 변환됨 — 서식 규칙은 `md2optica.py`에 있으므로 재생성해도
-유지된다.
+## 투고 전에 사람이 채울 것
 
-## 변환 규칙 요약
-
-- `**bold**`→`\textbf`, `` `code` ``→`\texttt`(밑줄 이스케이프), `[n]`→`\cite{rn}`,
-  "Fig. N"→`Fig.~\ref{fig:N}` (ref. [17] 자체 그림 인용은 보호됨)
-- 유니코드(°, ×, ±, μ, ~)는 `\ensuremath` 매크로로 변환 — pdflatex 안전
-- 그림 캡션 블록은 해당 위치의 `figure`/`figure*` 환경으로 변환
-- back matter는 `\begin{backmatter}` + `\bmsection` (OE 필수 섹션 구조)
+1. 저자, 소속, 교신 이메일(`main.tex`의 `\author`, `\address`, `\email`).
+2. Funding과 Acknowledgment의 `[...]` 자리.
+3. Data availability 문구. 지금은 "요청 시 제공"으로 되어 있다. 자료를 공개 저장소나 Optica의 Dataset으로 올리면 "Data underlying the results presented in this paper are available in Dataset 1, Ref. [n]." 형식으로 바꾸고 참고문헌에 추가한다.
+4. 참고문헌 [14](arXiv 사전공개본)의 출판 여부.
+5. 커버레터(`review/cover_letter_oe.md`)의 추천 심사위원과 관련 논문 문단.

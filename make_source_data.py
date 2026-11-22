@@ -39,13 +39,17 @@ D = 'figures_oe/'
 # ---------------- Fig. 1
 f = D + 'fig1_mixing_concept.xlsx'
 add('Fig1a', 'Fig. 1', 'a', 'Schematic; no plotted data.', [['note'], ['Panel (a) is a schematic.']], f)
-for sh, nm, lab in (('planar M', 'Fig1b_planar_M', 'planar interface'), ('hemispherical MLA M', 'Fig1c_hemiMLA_M', 'hemispherical MLA'),
-                    ('scattering layer M', 'Fig1d_scatter_M', 'scattering layer (g 0.8, tau* 1)')):
+_f1 = load_workbook(f, read_only=True).sheetnames
+for sh, nm, lab in ((_f1[0], 'Fig1b_planar_M', 'planar interface'), (_f1[1], 'Fig1c_hemiMLA_M', 'hemispherical MLA'),
+                    (_f1[2], 'Fig1d_scatter_M', 'scattering layer (g 0.8, tau* 1)')):
     add(nm, 'Fig. 1', nm[4], f'Return matrix M of the {lab}; row = returned 1-deg bin, column = incident 1-deg bin (substrate angle). Plotted as log10 with floor 1e-3.', rows_of(f, sh), f)
+add('Fig1e_pass_resolved', 'Fig. 1', 'e', 'Hemispherical MLA, Al device, 550 nm: total power incident at pass k (first pass = 1) and its angular distribution (% per degree of substrate angle).', rows_of(f, 'e_pass_resolved'), f)
+add('Fig1f_escape_per_pass', 'Fig. 1', 'f', 'Escape probability at pass k for five structures (Al device, 550 nm), with p and p_mix; the panel plots p_k / p.', rows_of(f, 'f_escape_per_pass'), f)
 # ---------------- Fig. 2
 f = D + 'fig2_complete_mixing.xlsx'
 add('Fig2a_p_mix', 'Fig. 2', 'a', 'Uniform-radiance escape p, its etendue-weighted s.d. sigma_p, and completely mixed escape p_mix = p - sigma_p^2/(1-p), all structures.', rows_of(f, 'a_p_mix'), f)
-add('Fig2d_gain', 'Fig. 2', 'd', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'd_gain'), f)
+add('Fig2e_gain', 'Fig. 2', 'e', 'Gain over the actual eta_sta predicted by complete reciprocal mixing and by the fully randomized model, vs N_mix (Al, 550 nm).', rows_of(f, 'd_gain'), f)
+add('Fig2d_HG_volume', 'Fig. 2', 'd', 'eta_sta of non-absorbing Henyey-Greenstein volumes under a planar exit face vs reduced optical thickness tau* (Al, 550 nm). Reference lines: planar 0.384, reflective mixing 0.488, ideal transmissive 0.798.', rows_of(f, 'd_HG_volume'), f)
 add('Fig2b_placement', 'Fig. 2', 'b', 'Complete reciprocal mixing at the escape surface versus at the device for all structures (Al, 550 nm); last column is the plotted difference.', rows_of(f, 'b_placement'), f)
 add('Fig2c_slab', 'Fig. 2', 'c', 'Slab of index n with an isotropic internal source, a planar exit face, and an angle-independent back reflectance R.', rows_of(f, 'c_slab'), f)
 add('Fig2c_textured', 'Fig. 2', 'c (symbols)', 'Slab with a textured exit face (hemispherical MLA, wavy rms slope 0.4 and 1.0), isotropic internal source, angle-independent back reflectance R; symbols use R = 0.90 and no mixing. Also Table S28.', rows_of(f, 'c_textured'), f)
@@ -115,7 +119,7 @@ add('FigS7a_restart_arms', 'Fig. S7', 'a', 'Re-measured hemisphere and restarted
 add('FigS7b_confirm_reps', 'Fig. S7', 'b', 'Five-repeat confirmation of the 20-40 deg arm (repeats).', rows_of(f, 'b_confirmation_reps'), f)
 add('FigS7b_confirm_stats', 'Fig. S7', 'b', 'Five-repeat confirmation (statistics).', rows_of(f, 'b_confirmation_stats'), f)
 f = D + 'figS5_optimizer_convergence.xlsx'
-for sh in ('0–20deg', '20–40deg', '40–60deg', '60–80deg', 'total EQE'):
+for sh in ('0–20deg', '20–40deg', '40–60deg', '60–80deg', 'Total EQE'):
     add('FigS6_' + sh.replace('–', '-').replace(' ', '_'), 'Fig. S6', sh, f'Best-so-far objective vs evaluation count, {sh}.', rows_of(f, sh), f)
 f = 'fig3_efficiency_composition.xlsx'
 add('FigS8a_points', 'Fig. S8', 'a', 'Total EQE vs 40-60 deg EQE: random and optimizer-visited designs.', rows_of(f, 'a_collapse_points'), f)
@@ -132,7 +136,7 @@ def _key(ws):
 wb._sheets.sort(key=_key)
 index.sort(key=lambda r: (1 if r[1].startswith('Fig. S') else 0, int(_re.findall(r'\d+', r[1])[0]), r[0]))
 # ---------------- README
-readme['A1'] = 'Source data for all figures (main text Figs. 1-5, Supplement Figs. S1-S8)'; readme['A1'].font = Font(bold=True, size=12)
+readme['A1'] = 'Source data for all figures (main text Figs. 1-5, Supplement Figs. S1-S10)'; readme['A1'].font = Font(bold=True, size=12)
 readme['A2'] = 'One sheet per panel. Angles are substrate (glass) polar angles in degrees; efficiencies are fractions of the power launched into the substrate unless noted; pp = percentage points.'
 readme['A3'] = 'Structure classes: planar, scatter (g = asymmetry, t = reduced optical depth tau*), MLA hemi/free (benchmark optima per band), A_shape/B_aspect/C_jitter/C2_jitter (randomized lenses), W_slope (wavy surfaces).'
 for j, t in enumerate(['sheet', 'figure', 'panel', 'content', 'generated from']):
