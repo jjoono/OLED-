@@ -46,5 +46,28 @@
   "R_cut": 5.0,
   "d_H_min": 2.438,
   "n_N_within_3A": 1
+ },
+ "lpN40_open": {
+  "E_b": 0.1848,
+  "elec": 0.029,
+  "D3": -0.1558,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1024,
+  "frag_atoms": 31,
+  "caps": 2,
+  "mol_atoms": 88,
+  "seconds": 1816,
+  "anchors": "N40",
+  "R_cut": 5.0,
+  "near": "N40",
+  "d_near": 2.3,
+  "d_H_min": 3.091,
+  "n_N_within_3A": 1,
+  "pos": [
+   -6.8139,
+   -1.3828,
+   3.2215
+  ],
+  "from_site": "lpN40"
  }
 }
