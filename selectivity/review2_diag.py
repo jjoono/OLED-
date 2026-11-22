@@ -91,18 +91,17 @@ for b, v in c9.items():
     v['sd_ray'] = float(np.std([x for x in ray if x is not None], ddof=1)); v['sd_real'] = float(np.std([x for x in real if x is not None], ddof=1))
     print('C9', b, 'S40-60 %.4f  sd(ray) %.4f  sd(realization) %.4f' % (v['lib'], v['sd_ray'], v['sd_real']))
 out['C9'] = c9
-fig, axs = plt.subplots(3, 3, figsize=(7.2, 6.4), sharex=False, sharey=True, gridspec_kw=dict(hspace=0.55, wspace=0.12)); rows9 = []
+fig, axs = plt.subplots(3, 3, figsize=(FS.W, 5.0), sharex=False, sharey=True, gridspec_kw=dict(hspace=0.34, wspace=0.10)); rows9 = []
 for a, dev in enumerate(DEVS):
     for b, (i, lam) in enumerate(WLS):
         ax = axs[a, b]
         for nm, (c, BT, BR) in LIB.items():
             e = EV[(nm, dev, lam)]; col, mk, _ = CLS[c]; ax.plot(e['eta'], e['S'][2], mk, color=col, ms=3, mew=0); rows9.append([dev, lam, nm, c, e['eta'], e['S'][2]])
-        ax.axhline(0.337, color=INK2, ls=':', lw=0.6); ax.set_title(f"{ {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'low loss'}[dev]}, {int(lam)} nm", loc='left', fontsize=6.5)
-        if b == 0: ax.set_ylabel('S₄₀₋₆₀')
-        if a == 2: ax.set_xlabel('η_sta')
-for c, (col, mk, lab) in CLS.items():
-    axs[0, 0].plot([], [], mk, color=col, label=lab)
-axs[0, 0].legend(fontsize=4.6, frameon=False, loc='lower left')
-fig.savefig(f'{OUT}/figS2_composition_window.png', dpi=300, bbox_inches='tight'); fig.savefig(f'{OUT}/figS2_composition_window.pdf', bbox_inches='tight')
+        ax.axhline(0.337, color='k', ls=':', lw=0.7)
+        ax.text(0.05, 0.06, f"({'abcdefghi'[3 * a + b]}) { {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'Low loss'}[dev]}, {int(lam)} nm", transform=ax.transAxes, fontsize=7, va='bottom')
+        if b == 0: ax.set_ylabel(r'$S_{40\mathrm{-}60}$')
+        if a == 2: ax.set_xlabel(ETA)
+axs[2, 0].legend(handles=FS.handles(CLS), fontsize=5.8, loc='lower right', labelspacing=0.25, handletextpad=0.2, borderaxespad=0.3)
+FS.save(fig, f'{OUT}/figS2_composition_window'); plt.close(fig)
 save_xlsx('figS2_composition_window', [('points', ['device', 'lambda_nm', 'structure', 'class', 'eta_sta', 'S40_60'], rows9)])
 json.dump(out, open('data/review2_diag.json', 'w'), indent=1, default=float)

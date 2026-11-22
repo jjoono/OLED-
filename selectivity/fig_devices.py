@@ -2,11 +2,13 @@
 import numpy as np, matplotlib
 matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from openpyxl import Workbook
-plt.rcParams.update({'font.size': 7, 'axes.spines.top': False, 'axes.spines.right': False})
+import sys; sys.path.insert(0, '..')
+import figstyle as FS
+FS.apply()
 DV = np.load('data/devices.npz'); th = np.arange(180) * 0.5 + 0.25
 W = np.diff(np.sin(np.radians(np.linspace(0, 90, 181))) ** 2)
-COL = {'Al': '#52514e', 'Ag': '#2a78d6', 'LL15': '#1baf7a'}; LAB = {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'low loss'}
-fig, ax = plt.subplots(1, 2, figsize=(5.6, 2.2), gridspec_kw=dict(wspace=0.35)); wb = Workbook(); ws = wb.active; ws.title = 'devices_550nm'
+COL = {'Al': '#4d4d4d', 'Ag': '#2a78d6', 'LL15': '#1baf7a'}; LAB = {'Al': 'Al', 'Ag': 'Ag', 'LL15': 'Low loss'}
+fig, ax = plt.subplots(1, 2, figsize=(FS.W, 2.35), gridspec_kw=dict(wspace=0.36)); wb = Workbook(); ws = wb.active; ws.title = 'devices_550nm'
 ws.append(['theta_sub_deg'] + [f'{d}_v0_radiance' for d in COL] + [f'{d}_R' for d in COL])
 cols = []
 for d, c in COL.items():
@@ -14,12 +16,12 @@ for d, c in COL.items():
     L = P / W; L = L / L[:40].mean()                     # radiance relative to its near-normal value
     ax[0].plot(th, L, color=c, label=LAB[d]); ax[1].plot(th, R, color=c, label=LAB[d]); cols.append((L, R))
     A = 1 - float(R @ W / W.sum())
-    ax[1].text(2, 0.40 + 0.06 * list(COL).index(d), f"{LAB[d]}: A' = {A:.3f}", color=c, fontsize=5.5)
+    ax[1].text(3, 0.385 + 0.065 * list(COL).index(d), f"{LAB[d]}: $A'$ = {A:.3f}", color=c, fontsize=6.8)
 for i in range(180):
     ws.append([float(th[i])] + [float(cols[k][0][i]) for k in range(3)] + [float(cols[k][1][i]) for k in range(3)])
-ax[0].axvline(np.degrees(np.arcsin(1 / 1.51)), color='#b5b4ad', lw=0.6, ls=':'); ax[1].axvline(np.degrees(np.arcsin(1 / 1.51)), color='#b5b4ad', lw=0.6, ls=':')
-ax[0].set_xlabel('substrate angle θ (deg)'); ax[0].set_ylabel('radiance into substrate (rel. to 0–20°)'); ax[0].set_title('(a) first-pass radiance v⁽⁰⁾/w', loc='left'); ax[0].legend(frameon=False, fontsize=5.5)
-ax[1].set_xlabel('substrate angle θ (deg)'); ax[1].set_ylabel('device reflectance R(θ)'); ax[1].set_title('(b) angle-resolved reflectance', loc='left'); ax[1].set_ylim(0.35, 1.0)
-for a in ax: a.set_xlim(0, 90)
-fig.savefig('../figures_oe/figS11_device_inputs.png', dpi=300, bbox_inches='tight'); fig.savefig('../figures_oe/figS11_device_inputs.pdf', bbox_inches='tight')
+ax[0].axvline(np.degrees(np.arcsin(1 / 1.51)), color='#8a8a8a', lw=0.7, ls=':'); ax[1].axvline(np.degrees(np.arcsin(1 / 1.51)), color='#8a8a8a', lw=0.7, ls=':')
+ax[0].set_xlabel(r'Substrate angle $\theta$ (°)'); ax[0].set_ylabel('First-pass radiance (normalized)'); FS.label(ax[0], 'a'); ax[0].legend(fontsize=6.8, loc='upper left')
+ax[1].set_xlabel(r'Substrate angle $\theta$ (°)'); ax[1].set_ylabel(r'Device reflectance $R(\theta)$'); FS.label(ax[1], 'b'); ax[1].set_ylim(0.35, 1.0)
+for a in ax: a.set_xlim(0, 90); a.set_xticks([0, 30, 60, 90])
+FS.save(fig, '../figures_oe/figS11_device_inputs')
 wb.save('../figures_oe/figS11_device_inputs.xlsx')

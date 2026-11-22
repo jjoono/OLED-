@@ -32,18 +32,10 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Wedge, Rectangle
 from scipy.io import loadmat
 from scipy.interpolate import PchipInterpolator
 
-plt.rcParams.update({
-    'font.size': 8.5,
-    'axes.titlesize': 9,
-    'axes.labelsize': 8.5,
-    'legend.fontsize': 7.2,
-    'xtick.labelsize': 7.5,
-    'ytick.labelsize': 7.5,
-    'axes.linewidth': 0.8,
-    'figure.dpi': 110,
-    'savefig.dpi': 300,
-    'savefig.bbox': 'tight',
-})
+import re
+import figstyle as FS
+FS.apply()
+plt.rcParams.update({'savefig.dpi': 600, 'savefig.bbox': 'tight', 'legend.fontsize': 6.8})
 
 BANDS = ['0-20', '20-40', '40-60', '60-80']
 BAND_TEX = [r'0-20$^\circ$', r'20-40$^\circ$', r'40-60$^\circ$', r'60-80$^\circ$']
@@ -59,7 +51,26 @@ def note(s):
     print(s)
 
 
+def _oe(fig):
+    """Common figure style: panel labels '(a)' only, capitalized axis labels, no grid."""
+    for ax in fig.axes:
+        t = ax.get_title(loc='left'); mt = re.match(r'^\((\w+)\)', t)
+        if mt:
+            ax.set_title(''); ax.set_title(''.join(['(', mt.group(1), ')']), loc='left', fontsize=9)
+        for get, set_ in ((ax.get_xlabel, ax.set_xlabel), (ax.get_ylabel, ax.set_ylabel)):
+            lab = get()
+            if lab and lab[0].islower(): set_(lab[0].upper() + lab[1:])
+        ax.grid(False)
+        lg = ax.get_legend()
+        if lg is not None:
+            lg.set_frame_on(False)
+            for tx in lg.get_texts():
+                v = tx.get_text()
+                if v and v[0].islower(): tx.set_text(v[0].upper() + v[1:])
+
+
 def save(fig, stem):
+    _oe(fig)
     fig.savefig(stem + '.png')
     fig.savefig(stem + '.pdf')
     plt.close(fig)
