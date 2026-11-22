@@ -114,6 +114,11 @@ d.axhline(1, color='k', lw=0.6, ls=':'); d.set_xticks(range(3)); d.set_xticklabe
 d.set_ylim(0.55, 1.3); d.set_ylabel('Angular factor'); FS.label(d, 'd')
 sheets.append(('d_angular_factor', ['emitter', 'structure', 'sim3_min', 'sim3_max', 'sim10', 'measured_mean', 'measured_sd', 'n', 'individual devices or scans...'], rows_d))
 # (e) lens/bare ratios of on-axis (Lambertian-equivalent) and total EQE
+# Lens-glass loss (lens_loss_test.py): transmission 0.925 per crossing of the oil-coupled interface, fitted to the total EQE of the
+# orange hemispherical devices; the other three device groups are predictions.  f = EQE with loss / lossless EQE; pf = lossless / lossy angular factor.
+LL = json.load(open('lens_loss_test.json'))
+LOSS = {('orange', nm): (LL['interface'][nm]['EQE'] / LL['lossless'][nm]['EQE'], LL['lossless'][nm]['PE'] / LL['interface'][nm]['PE']) for nm in ('hemisphere', 'freeform')}
+LOSS.update({('green', nm): (LL['interface_green'][nm]['ratio'], LL['interface_green'][nm]['PE0'] / LL['interface_green'][nm]['PE']) for nm in ('hemisphere', 'freeform')})
 e = ax_e; groups = [('orange', 'hemisphere'), ('green', 'hemisphere'), ('orange', 'freeform'), ('green', 'freeform')]; rows_e = []; xt = []; xl = []
 for g, (em, nm) in enumerate(groups):
     mb = np.mean((EQE_O if em == 'orange' else EQE_G)['bare']); fb = np.mean((FRONT_O if em == 'orange' else FRONT_G)['bare'])
@@ -121,24 +126,26 @@ for g, (em, nm) in enumerate(groups):
     sb = SIM[em]['bare']; sl = SIM[em][nm]
     sim_tot = sl['EQE'] / sb['EQE']; sim_ax = (sl['front'][0] / np.mean(sb['front']), sl['front'][1] / np.mean(sb['front']))
     t10 = P10[em][nm]['EQE'] / P10[em]['bare']['EQE']; a10 = P10[em][nm]['front_EQE'] / P10[em]['bare']['front_EQE']
-    for j, (lab, smin, smax, s10, mv) in enumerate((('Axial', *sim_ax, a10, meas_ax), ('Total', sim_tot, sim_tot, t10, meas_tot))):
-        x = 2.6 * g + j; xt.append(x); xl.append(lab if j == 0 else '\n' + lab)
-        e.add_patch(Rectangle((x - 0.3, min(smin, smax)), 0.6, max(abs(smax - smin), 0.008), fc='#dcdcdc', ec='k', lw=0.7))
-        e.plot(x, s10, 'D', ms=3.8, mfc='white', mec='k', mew=0.8, zorder=2)
+    f, pf = LOSS[(em, nm)]
+    for j, (lab, smin, smax, s10, mv, fac) in enumerate((('Axial', *sim_ax, a10, meas_ax, f * pf), ('Total', sim_tot, sim_tot, t10, meas_tot, f))):
+        x = 2.6 * g + j; xt.append(x); xl.append(lab if j == 0 else '\n' + lab); lo, hi = min(smin, smax), max(smin, smax)
+        e.add_patch(Rectangle((x - 0.3, lo), 0.6, max(hi - lo, 0.008), fc='none', ec='#6a6a6a', lw=0.8, ls=(0, (2.5, 1.6))))          # lossless model
+        e.add_patch(Rectangle((x - 0.3, lo * fac), 0.6, max((hi - lo) * fac, 0.008), fc='#dcdcdc', ec='k', lw=0.7))                 # with the lens-glass loss
         m_, sd_ = mean_sd(e, x, mv, em, C[nm])
-        rows_e.append([em, nm, lab.lower(), smin, smax, s10, m_, sd_, len(mv)] + mv.tolist())
+        rows_e.append([em, nm, lab.lower(), lo, hi, lo * fac, hi * fac, s10, m_, sd_, len(mv)] + mv.tolist())
     if g: e.axvline(2.6 * g - 0.8, color='#b0b0b0', lw=0.6)
-    e.text(2.6 * g + 0.5, 2.06, em.capitalize(), ha='center', va='top', fontsize=6.4)
-e.axhline(1, color='k', lw=0.6, ls=':'); e.set_xticks(xt); e.set_xticklabels(xl, fontsize=6.2); e.set_xlim(-0.8, 2.6 * 3 + 1.8); e.set_ylim(0.6, 2.1); e.tick_params(axis='x', which='both', top=False, length=0)
+    e.text(2.6 * g + 0.5, 1.71, em.capitalize(), ha='center', va='top', fontsize=6.4)
+e.axhline(1, color='k', lw=0.6, ls=':'); e.set_xticks(xt); e.set_xticklabels(xl, fontsize=6.2); e.set_xlim(-0.8, 2.6 * 3 + 1.8); e.set_ylim(0.6, 1.75); e.tick_params(axis='x', which='both', top=False, length=0)
 e.set_ylabel('Lens device / bare device'); FS.label(e, 'e')
-sheets.append(('e_ratios', ['emitter', 'structure', 'quantity', 'sim3_min', 'sim3_max', 'sim10', 'measured_mean', 'measured_sd', 'n', 'individual devices...'], rows_e))
+sheets.append(('e_ratios', ['emitter', 'structure', 'quantity', 'lossless_min', 'lossless_max', 'with_loss_min', 'with_loss_max', 'sim10_lossless (not plotted)', 'measured_mean', 'measured_sd', 'n', 'individual devices...'], rows_e))
 # legend cell
 lg.axis('off')
 lg.legend(handles=[Patch(fc=C[k], ec='none', label=LAB[k]) for k in ('bare', 'hemisphere', 'freeform')] +
-                  [Patch(fc='#b9b9b9', ec='none', alpha=0.6, label='Model range, 3 mm patch, in (b), (c)'), Patch(fc='#dcdcdc', ec='k', lw=0.7, label='Model range, 3 mm patch, in (d), (e)'),
-                   Line2D([], [], ls='none', marker='D', ms=3.8, mfc='white', mec='k', mew=0.8, label='Model, 10 mm patch'),
+                  [Patch(fc='#b9b9b9', ec='none', alpha=0.6, label='Model range, 3 mm patch, in (b), (c)'), Patch(fc='#dcdcdc', ec='k', lw=0.7, label='Model range, 3 mm patch, in (d)'),
+                   Line2D([], [], ls='none', marker='D', ms=3.8, mfc='white', mec='k', mew=0.8, label='Model, 10 mm patch, in (d)'),
+                   Patch(fc='none', ec='#6a6a6a', lw=0.8, ls=(0, (2.5, 1.6)), label='Lossless model, in (e)'), Patch(fc='#dcdcdc', ec='k', lw=0.7, label='Model with lens-glass loss, in (e)'),
                    Line2D([], [], ls='none', marker='o', ms=3.6, color='#4d4d4d', label='Measured, orange emitter (mean ± s.d.)'), Line2D([], [], ls='none', marker='^', ms=3.6, mfc='white', color='#4d4d4d', mew=0.9, label='Measured, green emitter (mean ± s.d.)')],
-          loc='center left', bbox_to_anchor=(-0.06, 0.5), fontsize=6.8, labelspacing=0.45, handlelength=1.1)
+          loc='center left', bbox_to_anchor=(-0.06, 0.5), fontsize=6.6, labelspacing=0.32, handlelength=1.1)
 FS.save(fig, '../figures_oe/fig5_experiment'); plt.close(fig)
 wb = Workbook(); wb.remove(wb.active)
 for nm, hdr, rows in sheets:
@@ -152,4 +159,5 @@ for em in ('orange', 'green'):
         s = SIM[em][nm]; M = (EQE_O if em == 'orange' else EQE_G)[nm]; P = (PE_O if em == 'orange' else PE_G)[nm]
         print(f"  {nm:10s} sim EQE {s['EQE']*ETA[em]:.1f} (unscaled {s['EQE']:.1f})  meas {np.mean(M):.1f} ± {np.std(M, ddof=1) if len(M) > 1 else 0:.1f}  ratio {np.mean(M)/(s['EQE']*ETA[em]):.2f} | "
               f"PE sim {s['PE'][0]:.2f}-{s['PE'][1]:.2f} meas {min(P):.2f}-{max(P):.2f} | 10 mm EQE {P10[em][nm]['EQE']*100*ETA[em]:.1f} PE {P10[em][nm]['PE']:.2f}")
-for r in rows_e: print('  ', r[:3], 'sim', round(r[3], 2), round(r[4], 2), '10mm', round(r[5], 2), 'meas %.2f ± %.2f (n = %d)' % (r[6], r[7], r[8]))
+for r in rows_e: print('  ', r[:3], 'lossless %.2f-%.2f' % (r[3], r[4]), 'with loss %.2f-%.2f' % (r[5], r[6]), 'meas %.2f ± %.2f (n = %d)' % (r[8], r[9], r[10]))
+print('loss factors (EQE, axial):', {k: (round(v[0], 3), round(v[0] * v[1], 3)) for k, v in LOSS.items()})

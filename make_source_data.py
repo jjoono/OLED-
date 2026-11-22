@@ -95,8 +95,8 @@ add('FigS4b_composition', 'Fig. S4', 'b', 'S40-60 of the multi-pass output vs et
 # ---------------- Fig. 6
 f = D + 'fig5_experiment.xlsx'
 add('Fig5bc_profiles', 'Fig. 5', 'b,c', 'Normalized angular intensity: model range over the measurement geometries (3 mm patch) and measured devices (orange: per device; green: tilt-corrected mean and s.d.).', rows_of(f, 'bc_profiles'), f)
-add('Fig5d_angular_factor', 'Fig. 5', 'd', 'Angular factor: model range (3 mm patch), model for a 10 mm patch, and measured values per device or trial.', rows_of(f, 'd_angular_factor'), f)
-add('Fig5e_ratios', 'Fig. 5', 'e', 'Lens-device/bare ratio of on-axis (Lambertian-equivalent) and total EQE: model (3 and 10 mm patch) and measured devices.', rows_of(f, 'e_ratios'), f)
+add('Fig5d_angular_factor', 'Fig. 5', 'd', 'Angular factor: model range (3 mm patch), model for a 10 mm patch, measured mean, s.d., n (statistics of Table 2), and the individual devices or scans.', rows_of(f, 'd_angular_factor'), f)
+add('Fig5e_ratios', 'Fig. 5', 'e', 'Lens-device/bare ratio of on-axis (Lambertian-equivalent) and total EQE (3 mm patch): lossless model range, model with the lens-glass interface transmission 0.925 (fitted to the total EQE of the orange hemispherical devices), measured mean, s.d., n, and individual devices.', rows_of(f, 'e_ratios'), f)
 f = D + 'fig6_hemisphere_benchmark.xlsx'
 add('FigS9a_profiles', 'Fig. S9', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
 add('FigS9b_best_EQE', 'Fig. S9', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
