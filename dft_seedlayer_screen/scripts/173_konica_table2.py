@@ -153,6 +153,22 @@ def pbe0(names):
                   f"frag {r.get('frag_atoms')} {r['seconds']}s", flush=True)
 
 
+def pyridyl_n(name):
+    """Indices of 2-pyridyl-type N: two-coordinate N in a six-ring that shares
+    no atom with a five-ring (excludes carboline and similar fused N)."""
+    from rdkit import Chem
+    m = Chem.MolFromMolFile(os.path.join(STRUCT, f"{name}.mol"), removeHs=False)
+    rings = m.GetRingInfo().AtomRings()
+    out = set()
+    for a in m.GetAtoms():
+        if a.GetSymbol() != "N" or a.GetDegree() != 2:
+            continue
+        own = [r for r in rings if a.GetIdx() in r and len(r) == 6]
+        if own and not any(len(r2) == 5 and set(r2) & set(own[0]) for r2 in rings):
+            out.add(a.GetIdx())
+    return out
+
+
 def open_sites(names):
     """Crowded GFN2 sites (Ag-H < 2.4 A) re-placed at the nearest open point.
 
@@ -174,6 +190,37 @@ def open_sites(names):
         row = json.load(open(out))
         S, X = read_xyz(os.path.join(STRUCT, f"{name}.xyz"))
         X = np.asarray(X, float)
+        # GFN2 ranks carboline/carbazole-type N above the 2-pyridyl N on No08
+        # (0.84 vs 0.81 eV) while PBE0 gives the pyridyl N of No06/No07
+        # 0.40-0.42 against 0.33-0.34 for No08's carboline N: GFN2's order is
+        # not reliable between N types. So every compound also gets its best
+        # pyridyl lone-pair site scored, if none of its scored sites is one.
+        sv = json.load(open(os.path.join(RUNS, f"survey_{name}.json")))
+        pyr = pyridyl_n(name)
+        scored_n = {int(v["near"][1:]) for v in row.values() if isinstance(v, dict)
+                    and str(v.get("near", "")).startswith("N")}
+        if pyr and not (scored_n & pyr):
+            cand = sorted(((v["E_b"], k) for k, v in sv["sites"].items()
+                           if k.startswith("lpN") and int(k[3:]) in pyr), reverse=True)
+            if cand and cand[0][1] + "_pyridyl" not in row:
+                lab = cand[0][1]
+                ag = np.array(sv["sites"][lab]["pos"])
+                d = np.linalg.norm(X - ag, axis=1)
+                t0 = time.time()
+                try:
+                    r = f149.eb(S, X, ag)
+                except Exception as ex:
+                    r = {"error": repr(ex)[:200]}
+                r.update(seconds=round(time.time() - t0), near=sv["sites"][lab]["near"],
+                         gfn2_E_b=sv["sites"][lab]["E_b"], R_cut=f149.R_CUT,
+                         d_H_min=round(float(min(d[i] for i, s in enumerate(S) if s == "H")), 3),
+                         n_N_within_3A=int(sum(1 for i, s in enumerate(S) if s == "N" and d[i] < 3.0)))
+                row = json.load(open(out))
+                row[lab + "_pyridyl"] = r
+                json.dump(row, open(out, "w"), indent=1)
+                print(f"{name} {lab}_pyridyl near {r['near']} E_b {r.get('E_b', float('nan')):.3f} "
+                      f"(elec {r.get('elec', float('nan')):.3f}) H_min {r['d_H_min']:.2f} {r['seconds']}s",
+                      flush=True)
         for lab in [k for k, v in row.items() if "E_b" in v and v["d_H_min"] < 2.4]:
             key = lab + "_open"
             if key in row:
