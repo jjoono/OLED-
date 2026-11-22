@@ -14,5 +14,21 @@
   "R_cut": 5.0,
   "d_H_min": 1.962,
   "n_N_within_3A": 2
+ },
+ "pocketN14N21": {
+  "E_b": 0.1957,
+  "elec": -0.0537,
+  "D3": -0.2495,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.0849,
+  "frag_atoms": 48,
+  "caps": 1,
+  "mol_atoms": 57,
+  "seconds": 16153,
+  "near": "N21",
+  "gfn2_E_b": 1.0416,
+  "R_cut": 5.0,
+  "d_H_min": 2.48,
+  "n_N_within_3A": 1
  }
 }
