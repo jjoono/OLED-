@@ -197,11 +197,17 @@ def open_sites(names):
         # pyridyl lone-pair site scored, if none of its scored sites is one.
         sv = json.load(open(os.path.join(RUNS, f"survey_{name}.json")))
         pyr = pyridyl_n(name)
+        # a pyridyl site counts as scored only if it actually binds (positive
+        # electronic part): on No09 the two GFN2 "pocket" sites between
+        # crowded pyridyls came out at elec -0.05 and would otherwise block
+        # the open lone-pair sites from ever being scored
         scored_n = {int(v["near"][1:]) for v in row.values() if isinstance(v, dict)
-                    and str(v.get("near", "")).startswith("N")}
+                    and str(v.get("near", "")).startswith("N") and v.get("elec", -1) > 0}
+        done_labs = {k.replace("_pyridyl", "") for k in row}
         if pyr and not (scored_n & pyr):
             cand = sorted(((v["E_b"], k) for k, v in sv["sites"].items()
-                           if k.startswith("lpN") and int(k[3:]) in pyr), reverse=True)
+                           if k.startswith("lpN") and int(k[3:]) in pyr and k not in done_labs
+                           and not (v["near_el"] == "H" and v["d"] < 2.3)), reverse=True)
             if cand and cand[0][1] + "_pyridyl" not in row:
                 lab = cand[0][1]
                 ag = np.array(sv["sites"][lab]["pos"])
