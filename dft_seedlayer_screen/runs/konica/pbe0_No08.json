@@ -14,5 +14,21 @@
   "R_cut": 5.0,
   "d_H_min": 2.594,
   "n_N_within_3A": 1
+ },
+ "atop8": {
+  "E_b": 0.3307,
+  "elec": 0.1799,
+  "D3": -0.1508,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1114,
+  "frag_atoms": 31,
+  "caps": 2,
+  "mol_atoms": 88,
+  "seconds": 1769,
+  "near": "N8",
+  "gfn2_E_b": 0.8321,
+  "R_cut": 5.0,
+  "d_H_min": 2.53,
+  "n_N_within_3A": 1
  }
 }
