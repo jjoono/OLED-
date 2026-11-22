@@ -2,8 +2,8 @@
 md2optica.py -- manuscript_draft.md / supplementary.md -> Optica (Optics Express) LaTeX
 
 Produces
-  oe_submission/main.tex        opticajournal.cls manuscript (class file NOT
-                                included -- see oe_submission/README.md)
+  oe_submission/main.tex        optica-article.cls manuscript (Optica universal template; class
+                                file NOT included -- see oe_submission/README.md)
   oe_submission/supplement.tex  standalone article-class supplement
 
 Deterministic, re-runnable: edit the Markdown, re-run this, get updated .tex.
@@ -79,10 +79,11 @@ def esc_text(t):
         return '\\cite{' + ','.join(keys) + '}'
     t = re.sub(r'\[(\d+(?:\s*[,–-]\s*\d+)*)\]', cite, t)
     # figure references (not supplementary S-figures, not other papers' figures)
-    t = t.replace('Fig. 3 and Table 2 of ref.', '\x01EXTFIG\x01')   # ref-17's own figure
-    t = re.sub(r'(?:Figure|Fig\.)\s?(\d)', r'Fig.~\\ref{fig:\1}', t)
-    t = t.replace('\x01EXTFIG\x01', 'Fig.~3 and Table~2 of ref.')
+    t = re.sub(r'\bFigure\s?(\d)', r'Figure~\\ref{fig:\1}', t)
+    t = re.sub(r'\bFig\.\s?(\d)', r'Fig.~\\ref{fig:\1}', t)
     t = re.sub(r'(?<![\w|])Table (\d)(?![\d|])', r'Table~\\ref{tab:\1}', t)
+    t = re.sub(r'\b(Eq\.|Equation)\s?\((\d+)\)', r'\1~(\\ref{eq:\2})', t)
+    t = re.sub(r'"([^"]+)"', r"``\1''", t)                     # straight quotes -> TeX quotes
     # daggers / arrows (supplement footnotes)
     t = (t.replace('†', '\\ensuremath{\\dagger}')
           .replace('‡', '\\ensuremath{\\ddagger}')
@@ -91,11 +92,9 @@ def esc_text(t):
 
 
 def make_figure(num, caption):
-    wide = '*' if num in ('1', '2', '3', '4') else ''
-    width = '\\textwidth' if wide else '\\linewidth'
-    return (f'\\begin{{figure{wide}}}[t]\n\\centering\n'
-            f'\\includegraphics[width={width}]{{{FIGFILES[num]}}}\n'
-            f'\\caption{{{caption}}}\n\\label{{fig:{num}}}\n\\end{{figure{wide}}}\n')
+    return (f'\\begin{{figure}}[htbp]\n\\centering\n'
+            f'\\includegraphics[width=\\linewidth]{{{FIGFILES[num]}}}\n'
+            f'\\caption{{{caption}}}\n\\label{{fig:{num}}}\n\\end{{figure}}\n')
 
 
 def md_table(block, caption=None, label=None, star=False):
@@ -111,7 +110,7 @@ def md_table(block, caption=None, label=None, star=False):
         if label:
             lines.append('\\label{' + label + '}')
     if star:
-        colspec = '|'.join(['p{%.2f\\textwidth}' % (0.86 / ncol)] * ncol)
+        colspec = ''.join(['p{%.3f\\linewidth}' % (0.92 / ncol - 0.02)] * ncol)
     wrap = (not star) and ncol >= 4
     if not star and not wrap and max(len(c) for r in rows for c in r) > 45:
         w = 0.80 / (ncol - 1) if ncol > 1 else 0.9
@@ -140,74 +139,75 @@ src = Path('manuscript_draft.md').read_text(encoding='utf-8')
 
 title = re.match(r'# (.+)', src).group(1)
 abstract = src.split('## Abstract', 1)[1].split('---', 1)[0].strip()
-body = src.split('## 1. Introduction', 1)[1]
-body = '## 1. Introduction' + body
+body = '## 1. Introduction' + src.split('## 1. Introduction', 1)[1]
 refs_md = body.split('## References', 1)[1]
-body = body.split('---\n\n## Funding', 1)[0]
+body = body.split('## Funding', 1)[0]
 backm = src.split('## Funding', 1)[1].split('## References', 1)[0]
 
-out = []
-out.append(r'''% !TEX program = pdflatex
+CAP = r'\*\*(Fig\.|Table) (\d+)(?: \||\.\*\*)\s*'          # '**Fig. 1.** text' (also the older '**Fig. 1 | text**')
+
+
+def caption_text(p):
+    """Caption without its label and without the trailing file marker."""
+    p = re.sub(r'\s*\*\(`[^`]+`\)\*\s*$', '', p.strip())
+    old = re.match(r'\*\*(?:Fig\.|Table) \d+ \|\s*(.+?)\*\*\s*(.*)$', p, re.S)
+    if old:
+        return (old.group(1) + ' ' + old.group(2)).strip()
+    return re.sub('^' + CAP, '', p).strip()
+
+
+HEAD = r"""% !TEX program = pdflatex
 % ============================================================
 % Optics Express manuscript -- generated from manuscript_draft.md by md2optica.py
-% Requires opticajournal.cls (not distributable; see README.md)
+% Requires the Optica universal template (optica-article.cls, opticajnl.bst; see README.md)
 % ============================================================
-\documentclass[9pt,twocolumn,twoside]{opticajournal}
-\journal{opticajournal}   % Optics Express uses the opticajournal layout
-\usepackage{lineno}
-\linenumbers
+\documentclass{optica-article}
+\journal{opticajournal}
+\articletype{Research Article}
 
 \begin{document}
 
-\title{''' + esc_text(title) + r'''}
+\title{TITLE}
 
 % ---- authors: fill in ----
-\author{Author One\authormark{1}, Author Two\authormark{1} and Author Three\authormark{1,*}}
-\address{\authormark{1}[Affiliation, Address]\\}
+\author{Author One,\authormark{1} Author Two,\authormark{1} and Author Three\authormark{1,*}}
+\address{\authormark{1}[Affiliation, Address]}
 \email{\authormark{*}[corresponding@email]}
-''')
-
+"""
+out = [HEAD.replace('TITLE', esc_text(title))]
 out.append('\\begin{abstract*}\n' + esc_text(abstract) + '\n\\end{abstract*}\n')
 
-# ---- body: walk line groups ----
-paras = body.split('\n\n')
+# ---- body: walk paragraph blocks ----
 pending_table = []
-for p in paras:
+for p in body.split('\n\n'):
     p = p.strip()
     if not p or p == '---':
         continue
     if p.startswith('## '):                              # \section
-        name = re.sub(r'^\d+\.\s*', '', p[3:])
-        out.append('\\section{' + esc_text(name) + '}')
+        out.append('\\section{' + esc_text(re.sub(r'^\d+\.\s*', '', p[3:])) + '}')
     elif p.startswith('### '):                           # \subsection
-        name = re.sub(r'^\d+\.\d+\s*', '', p[4:])
-        out.append('\\subsection{' + esc_text(name) + '}')
-    elif p.startswith('$$'):                             # display equation
-        eq = p.strip('$ \n')
-        out.append('\\begin{equation}\n' + eq + '\n\\end{equation}')
-    elif re.match(r'\*\*Table (\d+) \|', p):           # table caption (+ table)
-        num = re.match(r'\*\*Table (\d+) \|', p).group(1)
-        cap, _, tbl = p.partition('\n\n') if '\n\n' in p else (p, '', '')
-        pending_table[:] = [num, re.sub(r'^\*\*Table \d+ \|\s*(.+?)\*\*$', r'\1', cap.strip())]
-    elif p.startswith('|'):                               # markdown table
+        out.append('\\subsection{' + esc_text(re.sub(r'^\d+\.\d+\s*', '', p[4:])) + '}')
+    elif p.startswith('$$'):                             # display equation, numbered by \tag{n} in the source
+        eq = p.strip('$ \n'); tag = re.search(r'\\tag\{(\d+)\}', eq)
+        eq = re.sub(r'\s*\\tag\{\d+\}', '', eq).strip()
+        out.append('\\begin{equation}\n' + (f'\\label{{eq:{tag.group(1)}}}\n' if tag else '') + eq + '\n\\end{equation}')
+    elif re.match(r'\*\*Table \d+', p):                  # table caption; the table follows
+        pending_table[:] = [re.match(r'\*\*Table (\d+)', p).group(1), caption_text(p)]
+    elif p.startswith('|'):                              # markdown table
         if pending_table:
-            out.append(md_table(p, pending_table[1], 'tab:' + pending_table[0], star=True))
+            out.append(md_table(p, pending_table[1], 'tab:' + pending_table[0], star=True).replace('table*', 'table'))
             pending_table.clear()
         else:
             out.append(md_table(p))
-    elif p.startswith('- '):                              # bullet list
+    elif p.startswith('- '):                             # bullet list
         out.append(md_list(p))
-    elif re.match(r'\*\*Fig\. (\d) \|', p):              # figure caption block
-        num = re.match(r'\*\*Fig\. (\d) \|', p).group(1)
-        cap = re.sub(r'^\*\*Fig\. \d \|\s*', '**', p)
-        cap = re.sub(r'\s*\*\(`[^`]+`\)\*\s*$', '', cap)     # strip file marker
-        out.append(make_figure(num, esc_text(cap)))
+    elif re.match(r'\*\*Fig\. \d+', p):                  # figure caption block
+        out.append(make_figure(re.match(r'\*\*Fig\. (\d+)', p).group(1), esc_text(caption_text(p))))
     else:
         out.append(esc_text(p))
 
 # ---- back matter ----
-bm = {}
-cur = 'Funding'; bm[cur] = []
+bm = {}; cur = 'Funding'; bm[cur] = []
 for line in ('## Funding\n' + backm).split('\n'):
     m = re.match(r'## (.+)', line)
     if m:
@@ -215,69 +215,29 @@ for line in ('## Funding\n' + backm).split('\n'):
     elif line.strip() and line.strip() != '---':
         bm[cur].append(line)
 out.append('\\begin{backmatter}')
-KOREAN_TBD = {'[TBD — 과제/기관 정보 입력 필요]': '[Funding agencies and grant numbers]',
-              '[TBD]': '[Acknowledgments]'}
-for sec in ['Funding', 'Acknowledgments', 'Disclosures', 'Data availability']:
-    raw = '\n'.join(bm.get(sec, [])).strip()
-    for k, v in KOREAN_TBD.items():
-        raw = raw.replace(k, v)
-    body_bm = esc_text(raw)
-    out.append(f'\\bmsection{{{sec}}}\n{body_bm}\n')
-out.append('\\bmsection{Supplemental document}\nSee Supplement 1 for supporting content.\n')
+TBD = {'Funding': '[Funding agencies and grant numbers]', 'Acknowledgment': '[Acknowledgment]'}
+for sec in ['Funding', 'Acknowledgment', 'Disclosures', 'Data availability', 'Supplemental document']:
+    raw = '\n'.join(bm.get(sec, bm.get(sec + 's', []))).strip()
+    if raw == '[TBD]':
+        raw = TBD.get(sec, raw)
+    out.append(f'\\bmsection{{{sec}}}\n{esc_text(raw)}\n')
 out.append('\\end{backmatter}')
 
-# ---- references: Markdown "Last, F. M.; ..." -> Optica "F. M. Last, ..." ----
-def optica_authors(raw):
-    """'Brütting, W.; Frischeisen, J.; et al.' -> 'W. Brütting, J. Frischeisen, et al.'"""
-    parts = [a.strip().rstrip('.') + ('.' if a.strip().endswith('.') else '')
-             for a in raw.split(';') if a.strip()]
-    names, etal = [], False
-    for a in parts:
-        a = a.strip()
-        if a.lower().startswith('et al'):
-            etal = True; continue
-        if ',' in a:                       # "Last(, compound), Initials"
-            last, inits = a.rsplit(',', 1)
-            names.append(inits.strip() + ' ' + last.strip())
-        else:
-            names.append(a)
-    if etal:
-        return names[0] + ' et al.' if names else 'et al.'
-    if len(names) == 1:
-        return names[0]
-    if len(names) == 2:
-        return names[0] + ' and ' + names[1]
-    return ', '.join(names[:-1]) + ', and ' + names[-1]
 
-def optica_item(it):
+# ---- references: already in Optica style in the Markdown ----
+def bib_item(it):
     it = ' '.join(it.split())
-    m = re.match(r'(.+?)\*\*(.+?)\*\*\s*(.*)', it)
-    if not m:
-        return it                                          # 형식 불명 -> 원문 유지
-    authors, title, tail = m.group(1).strip(), m.group(2).strip(), m.group(3).strip()
-    title = title.rstrip('.').rstrip(',')
-    # tail: *Journal* **year**, *vol*, pages/artno .  [ URL/DOI ]
-    jm = re.match(r'\*([^*]+)\*\s+\*\*(\d{4})\*\*,\s*\*(\d+)\*,\s*([\w\u2013\u2014-]+)\.?\s*(.*)', tail)
-    if jm:
-        journal, year, vol, pages, rest = jm.groups()
-        ref = (optica_authors(authors) + ', ``' + title + ',\'\' '
-               + journal.strip() + ' \\textbf{' + vol + '}, ' + pages + ' (' + year + ').')
-    else:
-        # 저널 패턴이 안 잡히면 최소 변환 (저자 순서만 교정)
-        rest = re.sub(r'\*\*(\d{4})\*\*', r'(\1)', tail)
-        rest = re.sub(r'\*([^*]+)\*', r'\1', rest)
-        ref = optica_authors(authors) + ', ``' + title + ',\'\' ' + rest
-    rest_url = re.search(r'https?://\S+', rest if jm else '')
-    if rest_url:
-        ref += ' \\url{' + rest_url.group().rstrip('.') + '}'
-    ref = ref.replace('&', '\\&').replace('%', '\\%')
-    ref = re.sub(r'https?://\S+(?<!\})', lambda m: m.group() if '\\url' in ref[:m.start()][-30:] else m.group(), ref)
-    return ref
+    it = it.replace('&', '\\&').replace('%', '\\%')
+    it = re.sub(r'"([^"]+)"', r"``\1''", it)
+    it = re.sub(r'\*\*([^*]+)\*\*', r'\\textbf{\1}', it)
+    it = re.sub(r'\*([^*]+)\*', r'\\emph{\1}', it)
+    return it
+
 
 items = re.findall(r'^\d+\.\s+(.+?)(?=\n\n\d+\.|\n*$)', refs_md.strip(), re.S | re.M)
 out.append('\\begin{thebibliography}{%d}' % len(items))
 for i, it in enumerate(items, 1):
-    out.append(f'\\bibitem{{r{i}}} {optica_item(it)}\n')
+    out.append(f'\\bibitem{{r{i}}} {bib_item(it)}\n')
 out.append('\\end{thebibliography}\n\n\\end{document}')
 
 (Path(OUT) / 'main.tex').write_text('\n\n'.join(out), encoding='utf-8')
@@ -301,6 +261,13 @@ sout = [r'''% Supplement 1 -- generated from supplementary.md by md2optica.py
 \sloppy
 ''']
 
+def scap(b):
+    """'**Fig. S1.** text' (or the older '**Fig. S1 | text**') -> '**Fig. S1.** text' without the file marker."""
+    b = re.sub(r'\s*\*\(`[^`]+`\)\*\s*$', '', ' '.join(b.split()))
+    m = re.match(r'\*\*((?:Fig\.|Table) S?\d+) \|\s*(.+?)\*\*\s*(.*)$', b)
+    return f'**{m.group(1)}.** {m.group(2)} {m.group(3)}'.strip() if m else b
+
+
 blocks = ssrc.split('\n\n')
 pend = None                                               # caption waiting for its table
 for b in blocks:
@@ -309,15 +276,13 @@ for b in blocks:
         continue
     if b.startswith('## '):
         sout.append('\\section*{' + esc_text(b[3:]) + '}')
-    elif re.match(r'\*\*Table S?\d+ \|', b):
-        pend = re.sub(r'^\*\*(Table S?\d+) \|\s*(.+?)\*\*$', r'\1. \2', b)
-    elif re.match(r'\*\*Fig\. (S\d+) \|', b):
-        sn = re.match(r'\*\*Fig\. (S\d+) \|', b).group(1)
-        cap = re.sub(r'\s*\*\(`[^`]+`\)\*\s*$', '', b)
-        cap = re.sub(r'^\*\*Fig\. S\d+ \|\s*', '**', cap)
+    elif re.match(r'\*\*Table S?\d+', b):
+        pend = scap(b)
+    elif re.match(r'\*\*Fig\. S\d+', b):
+        sn = re.match(r'\*\*Fig\. (S\d+)', b).group(1)
         sout.append(f'\\begin{{figure}}[htbp]\n\\centering\n'
-                    f'\\includegraphics[width=\\linewidth]{{{FIGFILES[sn]}}}\n'
-                    f'\\caption*{{\\textbf{{Fig. {sn}.}} ' + esc_text(cap) + '}\n\\end{figure}')
+                    f'\\includegraphics[width=0.85\\linewidth]{{{FIGFILES[sn]}}}\n'
+                    f'\\caption*{{' + esc_text(scap(b)) + '}\n\\end{figure}')
     elif b.startswith('|'):
         tex = md_table(b)
         if pend:
@@ -325,7 +290,7 @@ for b in blocks:
             pend = None
         sout.append(tex)
     elif b.startswith('$$'):
-        sout.append('\\begin{equation*}\n' + b.strip('$ \n') + '\n\\end{equation*}')
+        sout.append('\\begin{equation*}\n' + re.sub(r'\s*\\tag\{[^}]*\}', '', b.strip('$ \n')) + '\n\\end{equation*}')
     elif b.startswith('- '):
         sout.append(md_list(b))
     elif b.startswith('```'):

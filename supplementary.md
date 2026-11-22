@@ -1,20 +1,20 @@
 # Supplement 1
 
-Reciprocal Angular Transport Explains the Limited Benefit of Mixing in OLED Light Extraction
+Reciprocity separates reflective and transmissive angular mixing in OLED light extraction
 
-Notes S1–S4 support the spectral metrics: model details, the devices and the 38 structures, accuracy and convergence, and the separation of mixing from escape. Notes S5–S8 support the freeform-versus-hemisphere case study, Note S9 reports direct ray tracing and an out-of-sample test, Note S10 gives the estimators and numerical diagnostics, and Note S11 compares reflective mixing at the escape interface with transmissive mixing and with mixing by the device. Main-text references are cited as "main ref. n".
+Notes S1–S4 give the model details, the devices and the 38 structures, the accuracy and convergence checks, and the separation of mixing from escape. Notes S5–S8 document the freeform-versus-hemisphere benchmark. Note S9 reports direct ray tracing, the out-of-sample test, and the prospective test of the reduced model. Note S10 gives the estimators and numerical diagnostics, Note S11 compares reflective mixing at the escape interface with transmissive mixing and with mixing at the device, Note S12 summarizes the freeform benchmark, and Note S13 describes the fabricated devices and the finite-geometry model. The last section lists the scripts that reproduce every figure and table. References of the main text are cited as "main ref. n".
 
 ---
 
-## Note S1 | Model details and numerical checks
+## Note S1. Model details and numerical checks
 
-**Polarization and azimuth.** The transport model is scalar. $R(\theta)$ is the polarization average $(|r_s|^2+|r_p|^2)/2$ of the stack reflectance, $\mathbf{v}^{(0)}$ is the sum of the s- and p-polarized power launched into the substrate, and the tracers apply the unpolarized Fresnel coefficients at every encounter. Textures that are not axisymmetric (hexagonal arrays, supercells, wavy fields) are reduced to a polar-angle kernel by launching rays at the centre angle of each 1° bin, uniformly over the cell and in azimuth, and binning the exit directions by polar angle only; $B_R$ is the position- and azimuth-averaged return operator.
+**Polarization and azimuth.** The transport model is scalar. $R(\theta)$ is the polarization average $(|r_s|^2+|r_p|^2)/2$ of the stack reflectance, $\mathbf{v}^{(0)}$ is the sum of the s- and p-polarized power launched into the substrate, and the tracers apply the unpolarized Fresnel coefficients at every encounter. Textures that are not axisymmetric (hexagonal arrays, supercells, wavy fields) are reduced to a polar-angle kernel by launching rays at the center angle of each 1° bin, uniformly over the cell and in azimuth, and binning the exit directions by polar angle only; $B_R$ is the position- and azimuth-averaged return operator.
 
 **Full series.** $\eta_{\mathrm{sta}}$ is obtained by a direct linear solve on the full 0–90° grid. Over all cases the spectral radius of $\mathrm{diag}\,\mathbf{R}\,B_R$ stays below 0.9991, the residual below $10^{-16}$, and a pass-by-pass sum agrees with the solve to $10^{-14}$.
 
 **Angular cutoff.** Bins near 90° carry almost no étendue but can return light at their own angle, and a few such states can dominate $\lambda_2$ without affecting extraction. The spectral metrics are therefore evaluated on $\theta < 85°$, which excludes 0.76% of the étendue and less than 0.1% of $\mathbf{v}^{(0)}$: $B_R$ is restricted to these bins, $M$ is formed by renormalizing the columns of the sub-block, and $\rho$ is taken from the sub-block. $\eta_{\mathrm{sta}}$, in the full series and in the reduced model, always uses 0–90°. On the full domain detailed balance gives the stationary distribution of $M$ as $\pi \propto w(1-p)$. The renormalized sub-block has stationary distribution $\pi^{(S)}_i \propto w_i s_i$ instead, with $s_i = \sum_{j<85°} B_R(i\to j)$ the fraction returned into the retained bins, because $\sum_i [B_R(i\to j)/s_i]\,w_i s_i = \sum_i w_j B_R(j\to i) = w_j s_j$; $s_i$ differs from $1-p_i$ by the light returned beyond the cutoff (up to 0.25 in the bins next to 85° for the hemispherical MLA). The reduced model and the closed-form reference use $q \propto w(1-p)$ on the full domain; only the spectral metrics use the truncated chain. For every structure $\lambda_2$ is real and positive (0.09–0.88), so $|\lambda_2| = \lambda_2$. $N_{\mathrm{mix}}$ is the relaxation time, not the e-folding pass number $-1/\ln\lambda_2$ (2 against 1.44 at $\lambda_2$ = 0.5).
 
-**Table S1 | Sensitivity of $|\lambda_2|$ to the angular range.**
+**Table S1.** Sensitivity of $|\lambda_2|$ to the angular range.
 
 | Structure | 0–90° | 0–85° | 0–80° | 0–70° | weight of second eigenvector above 80° |
 |---|---|---|---|---|---|
@@ -48,11 +48,11 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 ---
 
-## Note S2 | Devices and the 38 structures
+## Note S2. Devices and the 38 structures
 
-**Devices.** The emitters form a single dipole sheet at the centre of the 25 nm birefringent EML (measured ordinary and extraordinary indices), with a horizontal dipole ratio of 0.865 (Table S2, Fig. S1).
+**Devices.** The emitters form a single dipole sheet at the center of the 25 nm birefringent EML (measured ordinary and extraordinary indices), with a horizontal dipole ratio of 0.865 (Table S2, Fig. S1).
 
-**Table S2 | Device stacks (from the cathode to the substrate).**
+**Table S2.** Device stacks (from the cathode to the substrate).
 
 | Device | Cathode | ETL | EML | HTL-side layers | Anode | Substrate | $A'$ at 550 nm |
 |---|---|---|---|---|---|---|---|
@@ -60,13 +60,13 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 | Ag | Ag 100 nm | B3PyMPM 61.3 nm | as Al | TCTA 10 nm / TAPC 97.5 nm | ITO 150 nm | glass, $n$ = 1.51 | 0.044 |
 | Low loss | Ag 100 nm | B3PyMPM 200 nm | as Al | TAPC 180 nm | ITO 50 nm | glass, $n$ = 1.51 | 0.026 |
 
-**Fig. S1 | Device inputs at 550 nm.** (a) Radiance launched into the substrate on the first pass, $v^{(0)}_k/w_k$, relative to its mean over 0–20°. (b) Angle-resolved reflectance $R(\theta)$ seen from the substrate, with the uniform-radiance round-trip loss $A'$. Dotted line, critical angle of the glass/air interface. *(`figS11_device_inputs.png`)*
+**Fig. S1.** Device inputs at 550 nm. (a) Radiance launched into the substrate on the first pass, $v^{(0)}_k/w_k$, relative to its mean over 0–20°. (b) Angle-resolved reflectance $R(\theta)$ seen from the substrate, with the uniform-radiance round-trip loss $A'$. Dotted line, critical angle of the glass/air interface. *(`figS11_device_inputs.png`)*
 
 **Height-field tracer.** The surface $z = h(x, y)$ separates the index-matched medium ($n = 1.51$) from air; rays are marched with a Lipschitz-safe step, refined by bisection, and reflected or refracted with the unpolarized Fresnel coefficients. 20,000 rays per 1° incidence bin are used (10,000 for wavy surfaces). For a hemispherical lenslet the tracer reproduces the LightTools return matrix of main ref. 14: escape probability 0.4275 against 0.4274, transmittance within 0.008 at every angle, and fewer than 0.1% of rays undetermined. The freeform profiles are rebuilt from the optimized control points with a PCHIP spline.
 
-**Random lens arrays** tile a 6 × 6 supercell periodically. Shape spread $s$ perturbs the five control points of the quarter circle by Gaussian noise of standard deviation $0.25s$ (radial) and $0.4s$ (height), so that $s$ = 1 approaches independent profiles; height spread scales each lenslet by $1\pm s$; position jitter displaces each centre by up to a fraction of the pitch, optionally with ±20% radius spread. Where lenslets overlap the higher surface is taken; profiles with near-vertical walls are rejected. **Wavy surfaces** are periodic Gaussian-correlated height fields on a 12 × 12 box (correlation length one), scaled to a prescribed rms slope; only the slope statistics matter in ray optics. **Scattering layers** are non-absorbing, index-matched Henyey–Greenstein slabs (20,000 rays per 0.5° bin) combined with the flat exit face by the adding method.
+**Random lens arrays** tile a 6 × 6 supercell periodically. Shape spread $s$ perturbs the five control points of the quarter circle by Gaussian noise of standard deviation $0.25s$ (radial) and $0.4s$ (height), so that $s$ = 1 approaches independent profiles; height spread scales each lenslet by $1\pm s$; position jitter displaces each center by up to a fraction of the pitch, optionally with ±20% radius spread. Where lenslets overlap the higher surface is taken; profiles with near-vertical walls are rejected. **Wavy surfaces** are periodic Gaussian-correlated height fields on a 12 × 12 box (correlation length one), scaled to a prescribed rms slope; only the slope statistics matter in ray optics. **Scattering layers** are non-absorbing, index-matched Henyey–Greenstein slabs (20,000 rays per 0.5° bin) combined with the flat exit face by the adding method.
 
-**Table S3 | The 38 structures at 550 nm.** $p$: escape probability for uniform radiance; $N_{\mathrm{mix}}$ and $p_\infty$ on $\theta < 85°$; $\xi = p_\infty/\tilde p$; $\eta$: full series for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60° share of the multi-pass output (Al); last two columns: reciprocal and isotropic ($q \propto w$) reduced model minus full series (Al). A, lenslet shape spread $s$; B, height spread ±$s$; C, position jitter (fraction of the pitch); C2, as C with ±20% radius spread; W, wavy surface of the given rms slope. Scattering layers are labelled by $g$ and $\tau^*$, MLAs by the benchmark objective of the optimum they reproduce.
+**Table S3.** The 38 structures at 550 nm. $p$: escape probability for uniform radiance; $N_{\mathrm{mix}}$ and $p_\infty$ on $\theta < 85°$; $\xi = p_\infty/\tilde p$; $\eta$: full series for the Al, Ag, and low-loss (LL) devices; $S_{40\text{–}60}$: 40–60° share of the multi-pass output (Al); last two columns: reciprocal and isotropic ($q \propto w$) reduced model minus full series (Al). A, lenslet shape spread $s$; B, height spread ±$s$; C, position jitter (fraction of the pitch); C2, as C with ±20% radius spread; W, wavy surface of the given rms slope. Scattering layers are labeled by $g$ and $\tau^*$, MLAs by the benchmark objective of the optimum they reproduce.
 
 | Structure | p | N_mix | p∞ | ξ | η Al | η Ag | η LL | S40–60 (Al) | err. recip. Al (pp) | err. q∝w Al (pp) |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -111,9 +111,9 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 ---
 
-## Note S3 | Accuracy and convergence
+## Note S3. Accuracy and convergence
 
-**Table S4 | Error of the reduced and fully randomized models by structure class (pp; 342 cases, three devices, 500/550/600 nm).**
+**Table S4.** Error of the reduced and fully randomized models by structure class (pp; 342 cases, three devices, 500/550/600 nm).
 
 | Class | cases | reciprocal mean | reciprocal max | q ∝ w mean | q ∝ w max | fully randomized mean | fully randomized max |
 |---|---|---|---|---|---|---|---|
@@ -127,13 +127,13 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 
 Fig. S2 compares the three simpler models of Table S4 with the full series.
 
-**Fig. S2 | Simpler models against the full series.** $\eta_{\mathrm{sta}}$ from (a) the fully randomized model, (b) the angle-preserving limit ($m = 0$), and (c) the reduced model with $m = 1-\lambda_2$ and isotropic redistribution ($q \propto w$), versus the full series (342 cases: three devices and three wavelengths). Symbols indicate the structure class. Main-text Fig. 3a shows the reciprocal reduced model. *(`figS_model_comparison.png`)*
+**Fig. S2.** Simpler models against the full series. $\eta_{\mathrm{sta}}$ from (a) the fully randomized model, (b) the angle-preserving limit ($m = 0$), and (c) the reduced model with $m = 1-\lambda_2$ and isotropic redistribution ($q \propto w$), versus the full series (342 cases: three devices and three wavelengths). Symbols indicate the structure class. Main-text Fig. 3(a) shows the reciprocal reduced model. *(`figS_model_comparison.png`)*
 
 By device, the mean (maximum) reciprocal-model error is 0.41 (2.7) pp for Al, 0.33 (3.0) pp for Ag, and 0.16 (1.8) pp for the low-loss stack; by wavelength 0.38 (2.5), 0.29 (3.0), and 0.23 (2.6) pp at 500, 550, and 600 nm. The model tends to slightly underestimate $\eta_{\mathrm{sta}}$.
 
 **Monte Carlo uncertainty.** Ray noise was estimated by re-tracing with two further ray seeds, and realization spread by drawing two further geometries with the same statistics (Table S5). Ray noise is negligible; realization spread is at most 0.24 in $N_{\mathrm{mix}}$, 0.021 in $\xi$, and 0.23 pp in $\eta_{\mathrm{sta}}$, and changes the reduced-model error by at most 0.03 pp.
 
-**Table S5 | Monte Carlo uncertainty (550 nm).** ±: standard deviation over three ray seeds; in parentheses: over three geometric realizations. Last column: reciprocal reduced model minus full series (Al).
+**Table S5.** Monte Carlo uncertainty (550 nm). ±: standard deviation over three ray seeds; in parentheses: over three geometric realizations. Last column: reciprocal reduced model minus full series (Al).
 
 | Structure | N_mix | ξ | η Al | err. Al (pp) |
 |---|---|---|---|---|
@@ -146,7 +146,7 @@ By device, the mean (maximum) reciprocal-model error is 0.41 (2.7) pp for Al, 0.
 | scatter g0.8_t1.0 | 1.17 ± 0.00 | 0.977 ± 0.000 | 0.7374 ± 0.0000 | -0.08 ± 0.00 |
 | scatter g0.0_t0.25 | 2.25 ± 0.01 | 0.545 ± 0.000 | 0.6754 ± 0.0001 | -2.07 ± 0.01 |
 
-**Table S6 | Convergence with bin width, cutoff, ray count, and domain size (Al, 550 nm).** Wider bins are obtained by étendue-weighted merging.
+**Table S6.** Convergence with bin width, cutoff, ray count, and domain size (Al, 550 nm). Wider bins are obtained by étendue-weighted merging.
 
 | Structure | Variant | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ | reduced − full (pp) |
 |---|---|---|---|---|---|
@@ -185,7 +185,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 
 **Polarization.** The scalar model averages $R$ over s and p and sums $\mathbf{v}^{(0)}$, and the tracers use unpolarized Fresnel coefficients. The opposite limit treats s and p as separate channels that keep their label at every encounter: $\eta = \sum_{s,p} \mathbf{p}_{\sigma}^{\mathsf T}(I-\mathrm{diag}\,\mathbf{R}_{\sigma}B_{R,\sigma})^{-1}\mathbf{v}^{(0)}_{\sigma}$, with return matrices traced with $|r_s|^2$ or $|r_p|^2$ only and polarization-resolved $\mathbf{v}^{(0)}_\sigma$ and $R_\sigma$ (s carries 65–70% of $\mathbf{v}^{(0)}$). The limit is exact for a planar interface; for curved surfaces, which rotate the local plane of incidence, the true value lies between the two (Table S7). The polarization treatment shifts the absolute $\eta_{\mathrm{sta}}$ of the hemispherical MLA and the wavy surface by 0.6–1.5 pp, but the complete-mixing gain by at most 0.4 pp and the reduced-model error by at most 0.1 pp, so the comparisons in the main text are unaffected. For the planar interface the separate-channel result is exact and agrees with the scalar model within 0.11 pp; only its hypothetical complete-mixing reference is 2.6–3.1 pp higher when each polarization is mixed separately, which does not change any conclusion.
 
-**Table S7 | Scalar model versus polarization-resolved limit without s/p conversion (Al).** Last two columns: scalar / polarization-resolved, pp. Planar matrices are integrated within each 1° bin (0.384 at 550 nm, as in Table S3; 0.380 for an exact per-angle sum, Note S3).
+**Table S7.** Scalar model versus polarization-resolved limit without s/p conversion (Al). Last two columns: scalar / polarization-resolved, pp. Planar matrices are integrated within each 1° bin (0.384 at 550 nm, as in Table S3; 0.380 for an exact per-angle sum, Note S3).
 
 | Structure | λ (nm) | $\eta_{\mathrm{sta}}$, scalar | $\eta_{\mathrm{sta}}$, s and p separate | difference (pp) | complete-mixing gain | reduced − full |
 |---|---|---|---|---|---|---|
@@ -201,11 +201,11 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 
 ---
 
-## Note S4 | Mixing versus escape and the angular composition of the output
+## Note S4. Mixing versus escape and the angular composition of the output
 
-**Contour templates.** Fig. 4a of the main text scales the $p(\theta)$ shape of the hemispherical MLA. Table S8 repeats the calculation with the shapes of a scattering layer and a wavy surface: at fixed $p$, the whole range of $N_{\mathrm{mix}}$ is worth 1.2–3.2 pp, whereas 0.01 in $p$ is worth about 0.6 pp for every template.
+**Contour templates.** Fig. 4(a) of the main text scales the $p(\theta)$ shape of the hemispherical MLA. Table S8 repeats the calculation with the shapes of a scattering layer and a wavy surface: at fixed $p$, the whole range of $N_{\mathrm{mix}}$ is worth 1.2–3.2 pp, whereas 0.01 in $p$ is worth about 0.6 pp for every template.
 
-**Table S8 | Sensitivity of $\eta_{\mathrm{sta}}$ to mixing and escape (Al, 550 nm).** Span: change of $\eta_{\mathrm{sta}}$ for $N_{\mathrm{mix}}$ from 1 to 16 at fixed $p$. Slope: change per 0.01 in $p$ at $N_{\mathrm{mix}}$ = 4.
+**Table S8.** Sensitivity of $\eta_{\mathrm{sta}}$ to mixing and escape (Al, 550 nm). Span: change of $\eta_{\mathrm{sta}}$ for $N_{\mathrm{mix}}$ from 1 to 16 at fixed $p$. Slope: change per 0.01 in $p$ at $N_{\mathrm{mix}}$ = 4.
 
 | Template | span at $p$ = 0.30 (pp) | at 0.38 | at 0.42 | slope per 0.01 in $p$ (pp) |
 |---|---|---|---|---|
@@ -215,7 +215,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 
 **Decomposition.** Along the shape sweep, the change of $\eta_{\mathrm{sta}}$ relative to the hemispherical array ($s$ = 0) is split in the reciprocal reduced model into a mixing part ($m$ of the randomized array, $p(\theta)$ of the hemisphere), an escape part (the reverse), and their interaction (Table S9). On Al the escape part dominates at large spread ($-2.20$ against $+0.91$ pp at $s$ = 1), on Ag the two cancel, and on the low-loss stack both stay below 0.15 pp.
 
-**Table S9 | Decomposition of the change in $\eta_{\mathrm{sta}}$ along the shape sweep (550 nm, pp).**
+**Table S9.** Decomposition of the change in $\eta_{\mathrm{sta}}$ along the shape sweep (550 nm, pp).
 
 | $s$ | Device | mixing only | $p(\theta)$ only | interaction | total (reduced) | total (full series) |
 |---|---|---|---|---|---|---|
@@ -231,7 +231,7 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 
 **Mixing gain by device and wavelength.** The complete-mixing reference depends on how the first-pass distribution $\mathbf{v}^{(0)}$ overlaps $p(\theta)$ (Table S10). When the cavity launches light into angles that the hemispherical MLA transmits poorly (first-pass escape probability 0.33–0.38 against $p$ = 0.42: Al and Ag at 500 nm, low loss at 600 nm), complete mixing would add 3–9 pp, and random lenses and wavy surfaces realize most of it. Elsewhere the reference is below about 2 pp. Weighted with the emission spectrum of the emitter (Ir(dmppy-ph)$_2$tmd, peak 572 nm; relative weight 0.01 at 500 nm, 0.52 at 550 nm, 0.71 at 600 nm) and with $\eta_{\mathrm{sub}}(\lambda)$, the reference is at most 1.1, 1.4, and 2.2 pp for the Al, Ag, and low-loss devices.
 
-**Table S10 | Complete-mixing gain and realized randomization gain (pp).** First pass: first-pass escape probability $\mathbf{p}^{\mathsf T}\mathbf{v}^{(0)}$ of the hemispherical MLA ($p$ = 0.422). Random − hemisphere: best random MLA minus the hemispherical array; wavy − hemisphere: wavy surface of slope 1.5 minus the hemispherical MLA.
+**Table S10.** Complete-mixing gain and realized randomization gain (pp). First pass: first-pass escape probability $\mathbf{p}^{\mathsf T}\mathbf{v}^{(0)}$ of the hemispherical MLA ($p$ = 0.422). Random − hemisphere: best random MLA minus the hemispherical array; wavy − hemisphere: wavy surface of slope 1.5 minus the hemispherical MLA.
 
 | Device, wavelength | first pass | gain, hemispherical MLAs | gain, all non-planar | best random − hemisphere | wavy (1.5) − hemisphere |
 |---|---|---|---|---|---|
@@ -248,11 +248,11 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | low loss, 600 nm | 0.382 | 3.2 to 4.0 | -0.1 to 4.3 | +3.0 | +4.0 |
 | low loss, spectrally weighted | — | 1.8 to 2.2 | -0.1 to 2.2 | +2.0 (best random or wavy) | — |
 
-**Band-resolved radiance-ordered bound.** In one encounter, the power that a passive structure can transmit into an output band is bounded by the power obtained when the étendue of the band is filled with the brightest internal radiance first (main refs. 37–39). For uniform radiance, this bound equals the étendue ratio, which is $1/n^2$ for the hemisphere. We evaluate it for each air-side polar band with the actual first-pass radiance of the microcavity, filling the étendue of each band with the substrate bins of highest $v^{(0)}_k/w_k$ first. For the structures, the band power is accumulated through the traced transmission matrix into air bins. For the Al platform at 550 nm, the bound allows 0.085, 0.205, 0.230, and 0.156 of the substrate power into the 0–20°, 20–40°, 40–60°, and 60–80° bands, and 0.540 for the whole hemisphere. MLAs reach 76–80% of the hemispherical bound, wavy surfaces 77%, the planar interface 65%, and scattering layers 35–68% (Fig. S4a).
+**Band-resolved radiance-ordered bound.** In one encounter, the power that a passive structure can transmit into an output band is bounded by the power obtained when the étendue of the band is filled with the brightest internal radiance first (main refs. 48 and 49). For uniform radiance, this bound equals the étendue ratio, which is $1/n^2$ for the hemisphere. We evaluate it for each air-side polar band with the actual first-pass radiance of the microcavity, filling the étendue of each band with the substrate bins of highest $v^{(0)}_k/w_k$ first. For the structures, the band power is accumulated through the traced transmission matrix into air bins. For the Al platform at 550 nm, the bound allows 0.085, 0.205, 0.230, and 0.156 of the substrate power into the 0–20°, 20–40°, 40–60°, and 60–80° bands, and 0.540 for the whole hemisphere. MLAs reach 76–80% of the hemispherical bound, wavy surfaces 77%, the planar interface 65%, and scattering layers 35–68% (Fig. S4(a)).
 
 **Angular composition of the output.** Fig. S4 shows the band-resolved radiance bound and the composition of the output for the Al device at 550 nm. $S_{40\text{–}60} = P_{\mathrm{air}}(40\text{–}60°)/P_{\mathrm{air}}(0\text{–}90°)$, both powers in air including Fresnel losses, over all 38 structures (Table S11). In the low-loss device the lower end (0.274–0.293) belongs to the hemispherical MLAs; all other structures stay within 0.31–0.37.
 
-**Table S11 | Range of $S_{40\text{–}60}$ over all structures.**
+**Table S11.** Range of $S_{40\text{–}60}$ over all structures.
 
 | Device, wavelength | min | max |
 |---|---|---|
@@ -262,21 +262,21 @@ $\eta_{\mathrm{sta}}$ changes by at most 0.3 pp (planar, 3° bins) and 0.06 pp f
 | Ag, 550 nm | 0.322 | 0.361 |
 | low loss, 550 nm | 0.274 | 0.366 |
 
-**Fig. S3 | Angular composition of the output for all devices and wavelengths.** $S_{40\text{–}60}$ of the multi-pass output against $\eta_{\mathrm{sta}}$ for all 38 structures; rows, Al, Ag, and low-loss devices; columns, 500, 550, and 600 nm; dotted line, Lambertian partition (0.337). Monte Carlo uncertainty of $S_{40\text{–}60}$ is at most 0.003 (ray seeds and realizations, six random and wavy structures). *(`figS2_composition_window.png`)*
+**Fig. S3.** Angular composition of the output for all devices and wavelengths. $S_{40\text{–}60}$ of the multi-pass output against $\eta_{\mathrm{sta}}$ for all 38 structures; rows, Al, Ag, and low-loss devices; columns, 500, 550, and 600 nm; dotted line, Lambertian partition (0.337). Monte Carlo uncertainty of $S_{40\text{–}60}$ is at most 0.003 (ray seeds and realizations, six random and wavy structures). *(`figS2_composition_window.png`)*
 
-**Fig. S4 | Radiance bound and angular composition of the output (main text, Sec. 5).** (a) First-pass power into each polar band (Al, 550 nm) for the uniform-radiance bound, the radiance-ordered bound, and four structures. (b) $S_{40\text{–}60}$ of the multi-pass output versus $\eta_{\mathrm{sta}}$ for all structures. The shaded band marks 0.33–0.36, and the dotted line marks the Lambertian value. *(`fig5_bound_window.png`)*
+**Fig. S4.** Radiance bound and angular composition of the output (main text, Sec. 5.2). (a) First-pass power into each polar band (Al, 550 nm) for the uniform-radiance bound, the radiance-ordered bound, and four structures. (b) $S_{40\text{–}60}$ of the multi-pass output versus $\eta_{\mathrm{sta}}$ for all structures. The shaded band marks 0.33–0.36, and the dotted line marks the Lambertian value. *(`fig5_bound_window.png`)*
 
 ---
 
-## Note S5 | Benchmark platform and design space
+## Note S5. Benchmark platform and design space
 
 All campaigns share the platform of Table S12; the hemisphere is a point of the freeform design space. Bands are polar bins of the far field over the full azimuth, with the Lambertian partition 0.117 / 0.296 / 0.337 / 0.220.
 
-**Table S12 | Common platform and design variables.**
+**Table S12.** Common platform and design variables.
 
 | Quantity | Freeform | Hemispherical reference |
 |---|---|---|
-| Source | disc, radius 1 mm, CPS dipole distribution, $\eta_{\mathrm{rad}}$ = 0.98, emission 453–753 nm | same |
+| Source | disk, radius 1 mm, CPS dipole distribution, $\eta_{\mathrm{rad}}$ = 0.98, emission 453–753 nm | same |
 | Substrate, textured patch | glass, 1.295 mm, $n$ = 1.51; 25 × 25 mm | same |
 | Lenslets | hexagonal, ~10 µm radius, N-BK7 index-matched | same |
 | Profile | 7-point spline, end points (0, 1) and (1, 0); $x_2$–$x_6$ in 0–1, ascending; $y_2$–$y_6$ in 0–1.5 | quarter circle |
@@ -287,15 +287,15 @@ All campaigns share the platform of Table S12; the hemisphere is a point of the 
 
 **Searches and fidelity.** Each arm is optimized by MATLAB `surrogateopt` (radial-basis surrogate) followed by `patternsearch` at 10,000 rays and 31 wavelengths; every optimum is re-evaluated three times at 50,000 rays and 151 wavelengths. EQE is the radiative efficiency times the spectrally weighted fraction of generated photons reaching air, over the hemisphere or a band; it includes the cavity's coupling into the substrate and is not directly comparable with $\eta_{\mathrm{sta}}$. Infeasible candidates are returned to the optimizer as constraint violations and not traced. The 25 mm patch underestimates the total of an infinite film by about 4%, but no band share changes by more than 0.24 pp between 15 and 100 mm, and all comparisons are made at equal patch.
 
-**Fig. S5 | Platform and benchmark design.** (a) OLED–substrate–MLA architecture. (b) The hemispherical reference and an axisymmetric freeform profile (40–60° optimum; open circles, free control points) in units of the lens radius. (c) The four polar bands. (d) Optimization workflow. *(`fig1_platform.png`)*
+**Fig. S5.** Platform and benchmark design. (a) OLED–substrate–MLA architecture. (b) The hemispherical reference and an axisymmetric freeform profile (40–60° optimum; open circles, free control points) in units of the lens radius. (c) The four polar bands. (d) Optimization workflow. *(`fig1_platform.png`)*
 
 ---
 
-## Note S6 | Restart control and statistics
+## Note S6. Restart control and statistics
 
 In the original per-band campaign (random seeds plus the best designs of a separate weighted-sum campaign) the 0–20° and 20–40° gains were below unity (0.946, 0.966). Because the hemisphere lies in the freeform design space, this was a search failure. The restart control repeats every search from that arm's hemispherical optimum: the hemisphere and eight perturbations within 8% of each range seed `surrogateopt`, and `patternsearch` runs both from the surrogate winner and directly from the hemisphere. The hemisphere is re-measured in the same session.
 
-**Table S13 | Restart control.** Mean ± standard deviation over three re-evaluations.
+**Table S13.** Restart control. Mean ± standard deviation over three re-evaluations.
 
 | Arm | hemisphere (archived) | hemisphere (re-measured) | dev. | restarted | gain | $t$ | winning branch |
 |---|---|---|---|---|---|---|---|
@@ -307,21 +307,21 @@ In the original per-band campaign (random seeds plus the best designs of a separ
 
 ‡ Settled by re-measuring both stored designs five times each: 0.16583 ± 0.00015 against 0.16631 ± 0.00021, +0.29% at $t$ = 4.1 (threshold 1.86). In Table 2 of the main text, the 40–60° entry is the per-band optimum (0.19802), which the restart did not surpass, and the total is the best of three dedicated starts (0.5539).
 
-**Independent searches.** Freeform/hemisphere ratios: 0–20° 0.946 (original campaign, 60 + 15 evaluations) and 1.003 (restart, about 47); 20–40° 0.966 and 1.002; 40–60° 1.070 and 1.046; 60–80° 1.020 and 1.036; total EQE 1.005, 1.011, and 1.013 (three random starts, 140 evaluations each) and 1.010 (restart). The hemisphere used about 45 evaluations for 3 variables (15 per variable), the freeform searches 47–140 for 13 (4–11 per variable), so the comparison favours the hemisphere. Inverted (concave) and randomly assembled MLA families optimized on the same platform reached total EQEs of 0.517 and 0.522, below the hemisphere.
+**Independent searches.** Freeform/hemisphere ratios: 0–20° 0.946 (original campaign, 60 + 15 evaluations) and 1.003 (restart, about 47); 20–40° 0.966 and 1.002; 40–60° 1.070 and 1.046; 60–80° 1.020 and 1.036; total EQE 1.005, 1.011, and 1.013 (three random starts, 140 evaluations each) and 1.010 (restart). The hemisphere used about 45 evaluations for 3 variables (15 per variable), the freeform searches 47–140 for 13 (4–11 per variable), so the comparison favors the hemisphere. Inverted (concave) and randomly assembled MLA families optimized on the same platform reached total EQEs of 0.517 and 0.522, below the hemisphere.
 
-**What the $t$ values test.** $t = \Delta/(s_p\sqrt{2/n})$ with $n$ = 3 and pooled standard deviation $s_p$ compares two fixed designs against the Monte Carlo noise of one evaluation (about $10^{-4}$ in EQE); with a Holm correction over five objectives [S. Holm, Scand. J. Stat. 6, 65 (1979)] the thresholds are 3.75, 3.50, 3.19, 2.78, and 2.13. The large values ($t$ = 30–115) reflect this small noise. They show that a reported difference is not an evaluation artefact but say nothing about the uncertainty of the optimizer, which only the spread over independent searches above measures. The restart winner is also the best of about seventy noisy evaluations, so its +0.3% residues at 0–40° are upper limits.
+**What the $t$ values test.** $t = \Delta/(s_p\sqrt{2/n})$ with $n$ = 3 and pooled standard deviation $s_p$ compares two fixed designs against the Monte Carlo noise of one evaluation (about $10^{-4}$ in EQE); with a Holm correction over five objectives [S. Holm, Scand. J. Stat. 6, 65 (1979)] the thresholds are 3.75, 3.50, 3.19, 2.78, and 2.13. The large values ($t$ = 30–115) reflect this small noise. They show that a reported difference is not an evaluation artifact but say nothing about the uncertainty of the optimizer, which only the spread over independent searches above measures. The restart winner is also the best of about seventy noisy evaluations, so its +0.3% residues at 0–40° are upper limits.
 
-**Fig. S6 | Best-so-far search curves.** Best objective found so far against the evaluation count, at search fidelity (10,000 rays, 31 wavelengths), for the hemispherical campaign (3 variables), the original freeform per-band campaign, and the restart control; dotted lines, final re-evaluated values (50,000 rays, 151 wavelengths); dots in the total-EQE panel, final values of three independent random starts (140 evaluations each). Search-fidelity maxima are biased upward by noise and can exceed the re-evaluated values. *(`figS5_optimizer_convergence.png`)*
+**Fig. S6.** Best-so-far search curves. Best objective found so far against the evaluation count, at search fidelity (10,000 rays, 31 wavelengths), for the hemispherical campaign (3 variables), the original freeform per-band campaign, and the restart control, for (a)–(d) the four angular bands and (e) the total EQE. Dotted lines mark the final re-evaluated values (50,000 rays, 151 wavelengths), and dots in (e) mark the final values of three independent random starts (140 evaluations each). Search-fidelity maxima are biased upward by noise and can exceed the re-evaluated values. *(`figS5_optimizer_convergence.png`)*
 
-**Fig. S7 | Restart control.** (a) Re-measured hemisphere and restarted optimum for every arm, with standard deviations and $t$. (b) Five-repeat confirmation of the 20–40° arm. *(`figS1_restart_control.png`)*
+**Fig. S7.** Restart control. (a) Re-measured hemisphere and restarted optimum for every arm, with standard deviations and $t$. (b) Five-repeat confirmation of the 20–40° arm. *(`figS1_restart_control.png`)*
 
 ---
 
-## Note S7 | Total efficiency fixes the angular composition
+## Note S7. Total efficiency fixes the angular composition
 
 Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible designs, 492 optimizer-visited), each band EQE is nearly proportional to the total (Table S14, Fig. S8); random designs alone reproduce the collapse. $S_{40\text{–}60}$ spans only 0.336–0.375 (5–95%), and the 40–60° band carries the largest share in every design with total EQE ≥ 0.40. Band-dedicated optima raise their band's share by 1–27% but lose 1–11% of total EQE, for net band-power gains of 1.00–1.22 against the natural composition of the twenty most efficient designs.
 
-**Table S14 | Band EQE against total EQE (least squares, 95% intervals).**
+**Table S14.** Band EQE against total EQE (least squares, 95% intervals).
 
 | Band | slope | intercept | $R^2$ (all 606) | $R^2$ (114 random only) |
 |---|---|---|---|---|
@@ -330,13 +330,13 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 | 40–60° | 0.348 ± 0.005 | 0.003 ± 0.003 | 0.968 | 0.967 |
 | 60–80° | 0.189 ± 0.008 | 0.026 ± 0.004 | 0.769 | 0.724 |
 
-**Fig. S8 | Total efficiency fixes the angular composition.** (a) Total EQE against 40–60° EQE for random (grey) and optimizer-visited (green) designs; line, $R^2$ = 0.968. (b) Selectivity of the band-dedicated optima (red) against the natural composition (grey, 10–90% range) and the Lambertian partition (dashed), labelled with the net band-power gain. (c) Selectivity against total EQE for all bands. *(`fig3_efficiency_composition.png`)*
+**Fig. S8.** Total efficiency fixes the angular composition. (a) Total EQE against 40–60° EQE for random (gray) and optimizer-visited (green) designs; line, $R^2$ = 0.968. (b) Selectivity of the band-dedicated optima (red) against the natural composition (gray, 10–90% range) and the Lambertian partition (dashed), labeled with the net band-power gain. (c) Selectivity against total EQE for all bands. *(`fig3_efficiency_composition.png`)*
 
 ---
 
-## Note S8 | Lens versus cavity
+## Note S8. Lens versus cavity
 
-**Table S15 | Benchmark optima on the $(p, N_{\mathrm{mix}})$ plane (Note S12).** Values are for 550 nm, and $\eta_{\mathrm{sta}}$ is for the Al device in the multi-pass model. The 0–20° freeform optimum has a vertical sidewall and is omitted.
+**Table S15.** Benchmark optima on the $(p, N_{\mathrm{mix}})$ plane (Note S12). Values are for 550 nm, and $\eta_{\mathrm{sta}}$ is for the Al device in the multi-pass model. The 0–20° freeform optimum has a vertical sidewall and is omitted.
 
 | Design | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ |
 |---|---|---|---|---|
@@ -352,7 +352,7 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 
 **Full device model.** The benchmark optimizes the cavity together with the lens. To separate the two, the eight optimized lenses of Table S15 were evaluated in the full device model of the main text (birefringent CPS + TMM, dispersive constants), weighted with the emission spectrum (400–700 nm, 10 nm steps), with $\eta_{\mathrm{rad}}$ = 0.98 and the polar bands of the benchmark (Table S16). "Lens only" places both lenses at the hemisphere's cavity; "cavity only" places the hemisphere at the freeform's cavity.
 
-**Table S16 | Freeform/hemisphere EQE ratio: LightTools and the multi-pass model.**
+**Table S16.** Freeform/hemisphere EQE ratio: LightTools and the multi-pass model.
 
 | Objective | cavity ETL/HTL (nm), hemisphere / freeform | LightTools | model, own cavities | model, lens only | model, cavity only |
 |---|---|---|---|---|---|
@@ -363,7 +363,7 @@ Over the 606 usable evaluations of a weighted-sum campaign (114 random feasible 
 
 The freeform entries are the designs of the original per-band campaign and of the total-EQE campaign (for 60–80° the restart optimum, ratio 1.036, has no traced return matrix). For the hemispheres the model reproduces the LightTools EQE within +0.7% (total) to +3.8% (60–80°); for the freeform optima it lies between −3.2% (total) and +0.5% (20–40°). The two tools therefore agree on the size of the differences (a few percent) but not on their sign below about 5%; the main reason is the profile: the freeform curves are rebuilt with a PCHIP spline, whereas LightTools uses its own spline, and the total-EQE optimum has a non-monotonic profile with an annular trough (control-point heights 1.05, 0.15, 0.19, 0.53, 0.50), for which the reconstruction is least certain. Lens and cavity interact (Table S17): the freeform 40–60° lens gains 0.4%, 1.8%, and 4.1% over the hemispherical one at the hemisphere's band cavity, the total-EQE cavity, and its own cavity when spectrally weighted, and 5.6–9.2% at 550 nm alone, because the cavity resonance moves with wavelength and the spectral average smears the angular distribution that the lens acts on.
 
-**Table S17 | 40–60° band EQE, freeform/hemisphere (40–60° designs of the benchmark), at three cavities.**
+**Table S17.** 40–60° band EQE, freeform/hemisphere (40–60° designs of the benchmark), at three cavities.
 
 | Cavity ETL/HTL (nm) | 550 nm | spectrally weighted |
 |---|---|---|
@@ -373,7 +373,7 @@ The freeform entries are the designs of the original per-band campaign and of th
 
 **Lens-only optimization at a fixed stack.** With the stack fixed (Al, ETL 61.3 / HTL 97.5 nm, 550 nm), the hemisphere's height and an 11-variable freeform profile (5 radial and 5 height control points, height scale; same bounds and feasibility rules as the benchmark) were optimized for the same objective in the multi-pass model with the same tracer: a grid search for the hemisphere and a (1+8) evolution strategy with step-size adaptation, started at the hemispherical optimum, for the freeform (80 evaluations at 4,000 rays per bin; winners re-evaluated at 20,000). Results (Table S18): the freeform gains 1.25% in $\eta_{\mathrm{sta}}$ and 9.0% in the 40–60° band. The total-objective winner keeps $p$ (0.422 against 0.421) but lowers $N_{\mathrm{mix}}$ from 7.1 to 2.1 and raises $p_{\mathrm{mix}}/p$ from 0.91 to 0.93, i.e. it recovers 1.0 of the 1.4 pp that complete reciprocal mixing would add to the hemisphere. The LightTools freeform optima, evaluated at the same stack, reach 0.771 ($\eta_{\mathrm{sta}}$) and 0.284 (40–60°).
 
-**Table S18 | Lens-only optimization at a fixed stack (multi-pass model, Al, 550 nm).**
+**Table S18.** Lens-only optimization at a fixed stack (multi-pass model, Al, 550 nm).
 
 | Objective | lens | $\eta_{\mathrm{sta}}$ | 40–60° power | $p$ | $N_{\mathrm{mix}}$ | $\xi$ |
 |---|---|---|---|---|---|---|
@@ -384,13 +384,13 @@ The freeform entries are the designs of the original per-band campaign and of th
 
 **LightTools control.** `opt_fixedcavity_freeform.m` repeats the per-band freeform optimization of `opt_4band_freeform.m` with ETL and HTL fixed at each arm's hemispherical optimum and the hemisphere as the first seed, so that $G_j \ge 1$ holds by construction and any gain is due to the lens shape; it requires the LightTools pipeline and has not been run here.
 
-## Note S9 | Direct ray tracing and out-of-sample test
+## Note S9. Direct ray tracing and out-of-sample test
 
 **Direct ray tracing.** Rays are launched with the first-pass distribution $\mathbf{v}^{(0)}$ (Al, 550 nm; polar angle drawn uniformly in $\sin^2\theta$ within each 1° bin, azimuth and position uniform), traced through the height field, and, when returned, absorbed with probability $1-R(\theta)$ or reflected specularly, keeping their azimuth, and sent to a new uniformly drawn position (the substrate is thick compared with the lattice). $10^6$ rays per case; the standard error is 0.04–0.05 pp. A second run re-randomizes the azimuth at every pass, which is what the chain on polar angle assumes.
 
 **Out-of-sample structures.** Nine structures were chosen after the reduced model and its reciprocal redistribution were fixed and were not used to adjust anything: hexagonal arrays of spherical caps (contact angle 60° and 35°), paraboloids $h = 1-\rho^2$, cones of 45° and 60° side angle, truncated Gaussian bumps (peak height 1.5), a 6 × 6 supercell randomly filled with hemispheres and 60° cones (radius spread ±20%, position jitter 15% of the pitch), and quasi-periodic wavy surfaces whose spectrum is concentrated on a ring $|\mathbf{k}| = 2$ (rms slope 0.6 and 1.2). Return matrices: 20,000 rays per bin (10,000 for wavy surfaces); errors over three devices and three wavelengths.
 
-**Table S19 | Direct ray tracing and out-of-sample test (Al, 550 nm; reduced and fully randomized models minus full series).**
+**Table S19.** Direct ray tracing and out-of-sample test (Al, 550 nm; reduced and fully randomized models minus full series).
 
 | Structure | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ full series | direct, $(\theta,\phi)$ | direct, $\phi$ re-randomized | reduced − full (pp) | fully randomized − full (pp) |
 |---|---|---|---|---|---|---|---|---|
@@ -410,11 +410,11 @@ The freeform entries are the designs of the original per-band campaign and of th
 
 Over all 81 out-of-sample cases the reciprocal reduced model has a mean error of 1.50 pp; without the two cone arrays (63 cases) 0.48 pp and at most 3.3 pp (35° caps), against 2.62 and 8.8 pp for the fully randomized model and 1.30 and 5.2 pp for isotropic redistribution. The cone arrays fail (mean 6.0 and 4.2 pp, maximum 20 and 14 pp, low-loss device). The 45° cones retroreflect light within 0–4° (0.5% of the étendue) into itself, giving $\lambda_2 = 1$ like the planar interface; the 60° cones have a ladder of slow modes ($\lambda_2$–$\lambda_4$ = 0.985, 0.91, 0.85) spread over most angles. In both cases $1-\lambda_2$ underestimates how fast the light that escapes is redistributed. The direct traces confirm the full series for the 60° cones within 0.6 pp, so the failure is that of the one-rate reduction, not of the angle-resolved model.
 
-**Mode occupancy (post hoc).** Because the truncated $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi^{(S)} \propto w s$ (Note S1), the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S20 lists the share of the deviation $u_0/\pi^{(S)} - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in `selectivity/mixing.py` before the out-of-sample test, but examined only after it). For the 60° cones the slow modes carry 0.4% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.43 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45° cones the closed retroreflecting set carries 98% of it, and no single rate works. Over the 38 structures $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.48 against 0.31 pp, maximum 3.7 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing. Main-text Fig. 3c uses the gap $\lambda_2 - \lambda_{\mathrm{eff}}$ as the measure: all irreducible structures with a gap of at most 0.35 (45 of 47) have a maximum error of 3.3 pp; the 60° cones (gap 0.555) and the reducible 45° cones are the only failures.
+**Mode occupancy (post hoc).** Because the truncated $M$ is self-adjoint in the inner product weighted by its stationary distribution $\pi^{(S)} \propto w s$ (Note S1), the light returned after the first pass, $u_0 \propto B_R\mathbf{v}^{(0)}$, can be expanded in its orthogonal eigenmodes. Table S20 lists the share of the deviation $u_0/\pi^{(S)} - 1$ carried by slow modes ($\lambda > 0.8$) and the relaxation rate weighted by the actual returned light, $\lambda_{\mathrm{eff}} = \sum_{\ell \ge 2} a_\ell^2 \lambda_\ell/\sum_{\ell \ge 2} a_\ell^2$ (defined in `selectivity/mixing.py` before the out-of-sample test, but examined only after it). For the 60° cones the slow modes carry 0.4% of the deviation, $\lambda_{\mathrm{eff}}$ = 0.43 against $\lambda_2$ = 0.985, and the reduced model with $m = 1-\lambda_{\mathrm{eff}}$ is accurate; for the 45° cones the closed retroreflecting set carries 98% of it, and no single rate works. Over the 38 structures $\lambda_{\mathrm{eff}}$ is less accurate than $\lambda_2$ (mean 0.48 against 0.31 pp, maximum 3.7 against 3.0 pp), mainly for hemispherical MLAs, so $\lambda_2$ is kept and a large $\lambda_2$ with a negligible slow-mode share serves as a warning that one rate misstates the mixing. Main-text Fig. 3(c) uses the gap $\lambda_2 - \lambda_{\mathrm{eff}}$ as the measure: all irreducible structures with a gap of at most 0.35 (45 of 47) have a maximum error of 3.3 pp; the 60° cones (gap 0.555) and the reducible 45° cones are the only failures.
 
 **Prospective test.** Because the two conditions were found after the out-of-sample test, twelve further structures were traced afterwards with the same tracer and settings ($2\times10^4$ rays per bin; `multipass_reset/prospective.py`): hexagonal cone arrays with side angles of 30°, 40°, 50°, 55° and 70°, square pyramids (30°, 45°, 54.7°), inverted square pyramids (54.7°), and one-dimensional prism gratings (30°, 45°, 60°). Each structure was classified from $M$ and the Al first-pass distribution at 550 nm as valid ($\lambda_2 \le 0.999$ and gap $\le 0.35$) or outside, and the classification was written to file before the multi-pass series was evaluated (`selectivity/prospective_test.py`). Results (Table S20): the 45° pyramids and 45° prisms are reducible ($\lambda_2$ = 1, $\xi$ = 0.01–0.02), were predicted to fail, and fail (maximum 21 and 23 pp). The gap condition misclassified in both directions: the 55° cones and 54.7° pyramids (gaps 0.37 and 0.52) were flagged but have maximum errors of 2.5 and 2.0 pp, and the eight structures classified as valid have a mean error of 1.4 pp and a maximum of 7.5 pp (40° cones; 5.7 pp for 30° pyramids, 4.9 pp for 30° cones, 4.2 pp for 60° prisms). The fully randomized model has mean errors of 1.8–4.5 pp for these structures. Irreducibility is therefore a necessary condition that predicts the large failures, whereas the gap is not a reliable predictor; faceted structures carry deterministic paths between flat facets that one rate describes less well than the curved structures of the library.
 
-**Table S20 | Slow-mode occupancy of the returned light and reduced-model error (mean / max over three devices and three wavelengths, pp).** Prospective rows: predictions recorded before the multi-pass series was evaluated (`selectivity/data/prospective_predictions.json`).
+**Table S20.** Slow-mode occupancy of the returned light and reduced-model error (mean / max over three devices and three wavelengths, pp). Prospective rows: predictions recorded before the multi-pass series was evaluated (`selectivity/data/prospective_predictions.json`).
 
 | Structure | $\lambda_2$ | $\lambda_{\mathrm{eff}}$ | slow-mode share | error with $\lambda_2$ | error with $\lambda_{\mathrm{eff}}$ |
 |---|---|---|---|---|---|
@@ -440,14 +440,14 @@ Over all 81 out-of-sample cases the reciprocal reduced model has a mean error of
 | square pyramids, 45° (prospective, predicted outside) | 1.000 | 0.986 | 0.988 | 6.61 / 21.09 | — |
 | square pyramids, 54.7° (prospective, predicted outside) | 0.546 | 0.024 | 0.000 | 0.70 / 1.96 | — |
 
-## Note S10 | Estimators and numerical diagnostics
+## Note S10. Estimators and numerical diagnostics
 
 **Estimators.** The traced matrices are built as follows (height-field tracer; the scattering layers use the slab Monte Carlo of `selectivity/slab.py` plus the adding method with the flat Fresnel face).
 
 ```
 for each incidence bin i = 0..89 (1 deg):
     for each of N rays (N = 20,000; 10,000 for wavy surfaces):
-        theta = bin centre i + 0.5 deg; phi ~ U(0, 2 pi); (x, y) ~ U(unit cell or supercell)
+        theta = bin center i + 0.5 deg; phi ~ U(0, 2 pi); (x, y) ~ U(unit cell or supercell)
         start just below the base plane, moving up into the structure
         repeat up to 60-80 interface events:
             march to the next crossing of z = h(x, y) (Lipschitz-safe step, bisection)
@@ -466,7 +466,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Adding method versus direct slab Monte Carlo.** A single trace through the HG slab with the Fresnel face (Lambertian within each 1° input bin) reproduces the adding-method matrices (Table S21; adding / direct). $S_{40\text{–}60}$ differs by up to 0.006 because the main calculation maps substrate bins to air bins after the slab, whereas the direct trace bins the air angle exactly.
 
-**Table S21 | Scattering layers: adding method / direct Monte Carlo (Al, 550 nm).** Last column: largest difference in $p(\theta)$ below 85°.
+**Table S21.** Scattering layers: adding method / direct Monte Carlo (Al, 550 nm). Last column: largest difference in $p(\theta)$ below 85°.
 
 | Slab | $p$ | $N_{\mathrm{mix}}$ | $\xi$ | $\eta_{\mathrm{sta}}$ | $S_{40\text{–}60}$ | max $|\Delta p(\theta)|$ |
 |---|---|---|---|---|---|---|
@@ -477,7 +477,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Signed errors of the reduced model.** The reciprocal reduced model underestimates on average (Table S22); the largest error is −2.99 pp for the wavy surface of rms slope 0.2 on Ag at 550 nm, the structure with the lowest $\xi$ among fast mixers.
 
-**Table S22 | Reciprocal reduced model minus full series (pp).**
+**Table S22.** Reciprocal reduced model minus full series (pp).
 
 | Subset | mean signed | mean absolute | max absolute |
 |---|---|---|---|
@@ -496,7 +496,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Cutoff dependence of $\xi$.** Table S23 gives $\xi$ for representative structures. Hemispherical and random lenses, whose second eigenvector reaches into near-grazing states, change most; thick scattering layers barely change. The shallow wavy surface and the thin isotropic scatterer stay below random lenses of similar $N_{\mathrm{mix}}$ at every cutoff.
 
-**Table S23 | $\xi$ versus cutoff.**
+**Table S23.** $\xi$ versus cutoff.
 
 | Structure | 80° | 85° | 88° | 90° |
 |---|---|---|---|---|
@@ -510,7 +510,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Exceeding the complete-mixing reference.** For the chain started in its stationary distribution $q$, the one-step autocorrelation of the escape probability, $C = \sum_i q_i f_i \sum_j M_{ji} f_j / \sum_i q_i f_i^2$ with $f = p - p_{\mathrm{mix}}$, is zero for complete mixing and positive for angle retention. Table S24 lists the three structures with the lowest $C$ and three typical ones; $C$ and $\eta_{\mathrm{sta}}-\eta_{\mathrm{mix}}$ (Al, 550 nm) are correlated with coefficient -0.76 over the 37 non-planar structures.
 
-**Table S24 | Escape autocorrelation and the gap to the reference (Al, 550 nm).**
+**Table S24.** Escape autocorrelation and the gap to the reference (Al, 550 nm).
 
 | Structure | $C$ | $\eta_{\mathrm{sta}}-\eta_{\mathrm{mix}}$ (pp) |
 |---|---|---|
@@ -525,15 +525,15 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 ---
 
-## Note S11 | Reflective and transmissive mixing
+## Note S11. Reflective and transmissive mixing
 
 **Device-side kernel.** Let the device reflect returned light with a kernel $D(i\to j)$ instead of the specular reflectance $\mathrm{diag}\,\mathbf{R}$. Energy conservation at each incidence angle fixes the column sums, $\sum_j D(i\to j) = R_i$. Reciprocity of the device requires $w_i D(i\to j) = w_j D(j\to i)$. A rank-one kernel $D(i\to j) = a_i b_j$ satisfies the second condition only if $b_j \propto w_j a_j$, and the first condition then gives $a_i \propto R_i$. The result is $D(i\to j) = R_i R_j w_j/\sum_k w_k R_k$ (main text, Sec. 2.5). The multi-pass efficiency is $\eta = \mathbf{p}^{\mathsf T}(I - D\,B_R)^{-1}\mathbf{v}^{(0)}$, where $B_R$ is the return matrix of the structure itself. Light that has been reflected by $D$ is distributed in proportion to $w_j R_j$, independently of its incidence angle. Its escape probability at the next encounter is therefore $p_D = \sum_k w_k R_k p_k/\sum_k w_k R_k$.
 
 **Comparison with reflective mixing at the escape interface.** At the escape interface, the same construction with column sums $1-p_i$ gives the kernel $(1-p_i)\,w_r(1-p_r)/\sum_k w_k(1-p_k)$ of Sec. 2.4. The redistribution weight $1-p$ is then perfectly anticorrelated with the escape probability, which produces the term $-\sigma_p^2/(1-p)$. At the device, the weight is $R$, and the correction is $\mathrm{Cov}_w(R,p)/\langle R\rangle_w$. For the three bottom-emitting stacks of this work, $|p_D - p| < 0.008$ for all structures at 500, 550, and 600 nm.
 
-**Transmissive mixing.** Main-text Fig. 2d compares the ideal case below with non-absorbing Henyey–Greenstein volumes under the planar face (`selectivity/scatter_volume.py`, data in `selectivity/data/scatter_volume.json`): at $\tau^*$ = 0.5 and $g$ = 0.9 they reach 0.764, 0.923 and 0.959 in the Al, Ag and low-loss devices, against 0.798, 0.937 and 0.962 for the ideal randomizer; isotropic volumes ($g$ = 0) reach 0.725, 0.907 and 0.952 at $\tau^*$ = 0.5–1. An ideal lossless randomizer with Lambertian transmission and no reflection, placed between the OLED and a planar glass/air face, gives $\eta_{\mathrm{sta}}$ = 0.798, 0.937, and 0.962 for the Al, Ag, and low-loss stacks at 550 nm. These values equal the fully randomized model $p/[p+(1-p)A']$ to three digits. Every pass through the randomizer distributes the light in proportion to $w$, so the escape probability of the mixed light is $p$, and neither $\sigma_p^2$ nor $\mathrm{Cov}_w(R,p)$ enters. For the six Henyey–Greenstein layers of the main text, placing the layer directly on the OLED or directly under the planar face gives identical $\eta_{\mathrm{sta}}$ (Table S25), because the index-matched glass between them neither absorbs nor changes the angle of the light. Under the hemispherical MLA, the same layers lower $\eta_{\mathrm{sta}}$ from 0.792 to 0.734 for $\tau^*$ = 1. They reflect part of the light back to the device and replace the high escape probability of the lenses by that of the layer. Values in Table S25 use 0.5° bins; the planar face without a layer gives 0.381, 0.351, and 0.654, compared with 0.384, 0.356, and 0.664 at the 1° resolution of the main text.
+**Transmissive mixing.** Main-text Fig. 2(d) compares the ideal case below with non-absorbing Henyey–Greenstein volumes under the planar face (`selectivity/scatter_volume.py`, data in `selectivity/data/scatter_volume.json`): at $\tau^*$ = 0.5 and $g$ = 0.9 they reach 0.764, 0.923 and 0.959 in the Al, Ag and low-loss devices, against 0.798, 0.937 and 0.962 for the ideal randomizer; isotropic volumes ($g$ = 0) reach 0.725, 0.907 and 0.952 at $\tau^*$ = 0.5–1. An ideal lossless randomizer with Lambertian transmission and no reflection, placed between the OLED and a planar glass/air face, gives $\eta_{\mathrm{sta}}$ = 0.798, 0.937, and 0.962 for the Al, Ag, and low-loss stacks at 550 nm. These values equal the fully randomized model $p/[p+(1-p)A']$ to three digits. Every pass through the randomizer distributes the light in proportion to $w$, so the escape probability of the mixed light is $p$, and neither $\sigma_p^2$ nor $\mathrm{Cov}_w(R,p)$ enters. For the six Henyey–Greenstein layers of the main text, placing the layer directly on the OLED or directly under the planar face gives identical $\eta_{\mathrm{sta}}$ (Table S25), because the index-matched glass between them neither absorbs nor changes the angle of the light. Under the hemispherical MLA, the same layers lower $\eta_{\mathrm{sta}}$ from 0.792 to 0.734 for $\tau^*$ = 1. They reflect part of the light back to the device and replace the high escape probability of the lenses by that of the layer. Values in Table S25 use 0.5° bins; the planar face without a layer gives 0.381, 0.351, and 0.654, compared with 0.384, 0.356, and 0.664 at the 1° resolution of the main text.
 
-**Table S25 | Scattering layers on the OLED or under the exit face (550 nm, $\eta_{\mathrm{sta}}$).** "Exit side": layer under the planar glass/air face. "Device side": layer on the OLED, planar face. The hemispherical-MLA column places the layer on the OLED under the MLA.
+**Table S25.** Scattering layers on the OLED or under the exit face (550 nm, $\eta_{\mathrm{sta}}$). "Exit side": layer under the planar glass/air face. "Device side": layer on the OLED, planar face. The hemispherical-MLA column places the layer on the OLED under the MLA.
 
 | Layer ($g$, $\tau^*$) | Al: exit side / device side | Al: hemispherical MLA alone / with layer | Ag: exit side / device side | Low loss: exit side / device side |
 |---|---|---|---|---|
@@ -544,9 +544,9 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 | 0.9, 1.0 | 0.738 / 0.738 | 0.792 / 0.734 | 0.913 / 0.913 | 0.951 / 0.951 |
 | 0.8, 4.0 | 0.579 / 0.579 | 0.792 / 0.575 | 0.838 / 0.838 | 0.901 / 0.901 |
 
-**Strong microcavities.** For a top-emitting microcavity with a 20 nm Ag cathode, an optical clear resin (n = 1.59) as the exit medium, and a planar exit face, the modelled device reflectance seen from the resin is 0.63 inside the escape cone and 0.92 outside it. The device absorbs most strongly at the angles at which it emits. The covariance is then negative, and $p_D$ = 0.316 compared with $p$ = 0.355. Mixing by the device is therefore also reduced in strong microcavities, although less than mixing at the escape interface. This example uses the stack model of `selectivity/advsci_model.py` and is illustrative only.
+**Strong microcavities.** For a top-emitting microcavity with a 20 nm Ag cathode, an optical clear resin (n = 1.59) as the exit medium, and a planar exit face, the modeled device reflectance seen from the resin is 0.63 inside the escape cone and 0.92 outside it. The device absorbs most strongly at the angles at which it emits. The covariance is then negative, and $p_D$ = 0.316 compared with $p$ = 0.355. Mixing by the device is therefore also reduced in strong microcavities, although less than mixing at the escape interface. This example uses the stack model of `selectivity/advsci_model.py` and is illustrative only.
 
-**Table S26 | Gain over the actual $\eta_{\mathrm{sta}}$ for complete reciprocal mixing in reflection at the escape interface and at the device (37 non-planar structures).** The last column gives the difference between mixing by the device and the fully randomized model.
+**Table S26.** Gain over the actual $\eta_{\mathrm{sta}}$ for complete reciprocal mixing in reflection at the escape interface and at the device (37 non-planar structures). The last column gives the difference between mixing by the device and the fully randomized model.
 
 | Device | λ (nm) | Mixing at the escape interface (pp) | Mixing by the device (pp) | Mixing by the device − fully randomized (pp) |
 |---|---|---|---|---|
@@ -562,7 +562,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Slab model.** The slab has refractive index $n$, an internal isotropic source ($\mathbf{v}^{(0)} \propto w$), a planar exit face with unpolarized Fresnel transmission integrated within each 0.25° bin, and an angle-independent back reflectance $R$. No mixing means specular reflection at both faces. Mixing at the exit face uses the kernel of Sec. 2.4 with the Fresnel $p(\theta)$. Mixing at the back reflector uses $D$ with constant $R$, which gives the fully randomized result $p/[p+(1-p)(1-R)]$. A lossless transmissive randomizer in the slab gives the same result.
 
-**Table S27 | Slab with a planar exit face and a back reflector.**
+**Table S27.** Slab with a planar exit face and a back reflector.
 
 | $n$ | $R$ | $p$ | $p_{\mathrm{mix}}$ | No mixing | Mixing at exit face | Mixing at back reflector |
 |---|---|---|---|---|---|---|
@@ -579,7 +579,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Textured exit faces at higher index.** The same slab was traced with an index-matched hemispherical MLA and with two Gaussian wavy surfaces (rms slope 0.4 and 1.0) as the exit face, at $n$ = 1.51, 2.4, and 3.5 (height-field tracer of Note S2; $10^4$–$2\times10^4$ rays per 1° bin, up to 400 surface events, unaccounted power below $6\times10^{-4}$). A textured face transmits a comparable fraction from every internal angle, so $\sigma_p^2$ is small and $p_{\mathrm{mix}}$ is close to $p$ (Table S28). For the hemispherical MLA and the steeper wavy surface, the slab without mixing comes within 2.9 pp of the fully randomized result at $n$ = 1.51 and within 1.1 pp at $n \ge 2.4$, and complete mixing at the exit face changes it by at most 2.0 pp. The shallow wavy surface ($p_{\mathrm{mix}}/p$ = 0.60–0.88) stays 2.8–5.8 pp below the fully randomized result at $R$ = 0.90; complete mixing at its exit face recovers none of this difference, whereas mixing at the back reflector or in transmission recovers all of it. Mixing at the exit face is therefore ineffective in both cases: when $\sigma_p^2$ is small, there is little to gain, and when $\sigma_p^2$ is large, the reduction cancels the gain.
 
-**Table S28 | Slab with a textured exit face and a back reflector.** Isotropic internal source, angle-independent specular back reflectance $R$.
+**Table S28.** Slab with a textured exit face and a back reflector. Isotropic internal source, angle-independent specular back reflectance $R$.
 
 | Exit face | $n$ | $R$ | $p$ | $p_{\mathrm{mix}}$ | No mixing | Mixing at exit face | Mixing at back reflector |
 |---|---|---|---|---|---|---|---|
@@ -604,7 +604,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Spectrally weighted mixing modes.** Table S29 repeats the comparison of Table S26 with the spectral weighting of the main text (400–700 nm in 10 nm steps, emitter spectrum multiplied by $\eta_{\mathrm{sub}}(\lambda)$; device recomputed at each wavelength). For lens arrays in the Al device, mixing by the device adds 1.1–3.3 pp, compared with at most 0.6 pp at the escape interface. In the low-loss device, the three modes give similar gains for lens arrays (0.4–2.9 pp), because there the gain comes mainly from the mismatch between the first-pass distribution and $p(\theta)$ at long wavelengths (Table S10).
 
-**Table S29 | Spectrally weighted gain over the actual $\eta_{\mathrm{sta}}$ for the three mixing modes.** Ranges over each structure class; the number of structures is given in parentheses.
+**Table S29.** Spectrally weighted gain over the actual $\eta_{\mathrm{sta}}$ for the three mixing modes. Ranges over each structure class; the number of structures is given in parentheses.
 
 | Device | Structures | $\eta_{\mathrm{sta}}$ | Mixing at the escape interface (pp) | Mixing by the device (pp) | Transmissive mixing (pp) |
 |---|---|---|---|---|---|
@@ -629,7 +629,7 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 
 **Partially diffuse electrode.** A device that reflects a fraction $m$ of the returned light with the reciprocal kernel $D$ and the rest specularly, $D_m = (1-m)\,\mathrm{diag}\,\mathbf{R} + m D$, is reciprocal for every $m$. Table S30 gives the spectrally weighted $\eta_{\mathrm{sta}}$ for six structures. The gain increases nearly linearly with $m$ for lens arrays and steep wavy surfaces and is at most 2.3 pp at $m$ = 1 in the Al device. For the planar interface and the shallowest wavy surface, a weakly diffuse electrode ($m$ = 0.1) already adds 1.2–29 pp, because these structures retain trapped light at its angle. The product $D_m B_R$ need not have a real spectrum, so the mixing number of Sec. 2.2 is not defined for $m > 0$.
 
-**Table S30 | Spectrally weighted $\eta_{\mathrm{sta}}$ with a partially diffuse electrode (diffuse fraction $m$).**
+**Table S30.** Spectrally weighted $\eta_{\mathrm{sta}}$ with a partially diffuse electrode (diffuse fraction $m$).
 
 | Device | Structure | $m$ = 0 | 0.1 | 0.25 | 0.5 | 1 |
 |---|---|---|---|---|---|---|
@@ -653,15 +653,15 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 | low loss | Wavy, rms slope 1.0 | 0.962 | 0.963 | 0.964 | 0.965 | 0.967 |
 
 
-## Note S12 | Freeform benchmark
+## Note S12. Freeform benchmark
 
-This note collects the LightTools benchmark of the Al platform (Notes S5, S6, S8). An axisymmetric freeform MLA with 13 variables (spline profile, height, and ETL and HTL thicknesses) is compared with an equally optimized hemispherical MLA with 3 variables on the Al platform, using LightTools ray tracing validated against fabricated devices [11,12]. The hemisphere is contained in the freeform design space (Table S12). Total EQE and the EQE in four polar bands (0–20°, 20–40°, 40–60°, and 60–80°) are optimized separately by surrogate optimization and pattern search in MATLAB. Each optimum is re-evaluated three times at full fidelity, and a restart control repeats every search from the hemispherical optimum (Note S6).
+This note collects the LightTools benchmark of the Al platform (Notes S5, S6, S8). An axisymmetric freeform MLA with 13 variables (spline profile, height, and ETL and HTL thicknesses) is compared with an equally optimized hemispherical MLA with 3 variables on the Al platform, using LightTools ray tracing validated against fabricated devices (main refs. 11 and 12). The hemisphere is contained in the freeform design space (Table S12). Total EQE and the EQE in four polar bands (0–20°, 20–40°, 40–60°, and 60–80°) are optimized separately by surrogate optimization and pattern search in MATLAB. Each optimum is re-evaluated three times at full fidelity, and a restart control repeats every search from the hemispherical optimum (Note S6).
 
-The band-optimized freeform profiles differ visibly from the hemisphere (Fig. S9a), but the efficiency gains are small. The ratio $G_j$ of the best freeform EQE to the best hemispherical EQE is 1.003, 1.002, 1.070, and 1.036 for the four bands and 1.013 for total EQE (Fig. S9b, Table S31). For the 40–60° band and for total EQE, these ratios correspond to absolute EQE gains of 1.3 and 0.71 pp.
+The band-optimized freeform profiles differ visibly from the hemisphere (Fig. S9(a)), but the efficiency gains are small. The ratio $G_j$ of the best freeform EQE to the best hemispherical EQE is 1.003, 1.002, 1.070, and 1.036 for the four bands and 1.013 for total EQE (Fig. S9(b), Table S31). For the 40–60° band and for total EQE, these ratios correspond to absolute EQE gains of 1.3 and 0.71 pp.
 
-Independent searches give similar ratios: 1.046–1.070 for 40–60°, 1.020–1.036 for 60–80°, and 1.005–1.013 for total EQE. At 0–40°, no search improves the EQE by more than 0.3%; the lower original values at 0–40° (0.946, 0.966) are search failures, since the hemisphere lies in the freeform design space. We use the spread over independent searches as the uncertainty (Fig. S9c, Fig. S6).
+Independent searches give similar ratios: 1.046–1.070 for 40–60°, 1.020–1.036 for 60–80°, and 1.005–1.013 for total EQE. At 0–40°, no search improves the EQE by more than 0.3%; the lower original values at 0–40° (0.946, 0.966) are search failures, since the hemisphere lies in the freeform design space. We use the spread over independent searches as the uncertainty (Fig. S9(c), Fig. S6).
 
-**Table S31 | Freeform versus hemisphere (Al platform, LightTools).** The last column gives the freeform/hemisphere ratio over independent searches, with the number of searches in parentheses (data in Table S13).
+**Table S31.** Freeform versus hemisphere (Al platform, LightTools). The last column gives the freeform/hemisphere ratio over independent searches, with the number of searches in parentheses (data in Table S13).
 
 | Objective | Hemisphere | Best freeform | $G_j$ | Independent searches |
 |---|---|---|---|---|
@@ -675,11 +675,11 @@ On the $(p, N_{\mathrm{mix}})$ plane, the nine optima span only $p$ = 0.417–0.
 
 Because the benchmark optimizes the cavity together with the lens, we separated the two effects (Note S8). With a fixed stack, a lens-only optimization increases the 40–60° band EQE by 9.0% but $\eta_{\mathrm{sta}}$ by only 1.25%. At unchanged $p$, the optimized lens relaxes faster ($N_{\mathrm{mix}}$ 7.1 → 2.1) and recovers 1.0 of the 1.4 pp that complete mixing would add. At a fixed cavity, the lens shape thus redistributes power among the bands but raises the total only through faster mixing.
 
-**Fig. S9 | Freeform versus an equally optimized hemisphere.** (a) Band-optimized freeform profiles and the hemispherical reference. Profiles are drawn from the optimized control points with a monotone spline. (b) Best EQE of each lens class for each objective, labelled with $G_j$. (c) Freeform/hemisphere ratio for each independent search: the original per-band search (circles), restarts from the hemispherical optimum (squares), and three random starts for total EQE (triangles). Ratios below one indicate search failures, because the hemisphere is contained in the freeform design space. *(`fig6_hemisphere_benchmark.png`)*
+**Fig. S9.** Freeform versus an equally optimized hemisphere. (a) Band-optimized freeform profiles and the hemispherical reference. Profiles are drawn from the optimized control points with a monotone spline. (b) Best EQE of each lens class for each objective, labeled with $G_j$. (c) Freeform/hemisphere ratio for each independent search: the original per-band search (circles), restarts from the hemispherical optimum (squares), and three random starts for total EQE (triangles). Ratios below one indicate search failures, because the hemisphere is contained in the freeform design space. *(`fig6_hemisphere_benchmark.png`)*
 
-## Note S13 | Fabricated devices and the finite-geometry model
+## Note S13. Fabricated devices and the finite-geometry model
 
-**Devices and layout.** The devices of main-text Sec. 4.5 share one substrate design (main-text Fig. 5a): 25.4 × 25.4 mm glass of 0.7 mm thickness, ITO on the upper half, five Al fingers (width 2.78 mm, pitch 3.99 mm, straight length 9.93 mm, semicircular ends) and an Al rectangle near the upper edge. A pixel-defining layer opens a circle of 1 mm radius centred on the upper end-cap of the middle finger. The stack is ITO (150 nm) / TAPC (50 nm) / TCTA (10 nm) / TCTA:B3PyMPM (1:1):Ir(dmppy-ph)$_2$tmd (4 wt%, 25 nm) / B3PyMPM (45 nm) / LiF (1 nm) / Al (100 nm), with the emission zone at the centre of the EML and a horizontal dipole ratio of 0.865. Lens devices carry a second 0.7 mm glass, coupled with index-matching oil, with a hexagonal close-packed array of hemispherical or freeform lenslets (radius 10 µm, index-matched) on a 3 × 3 mm square centred on the pixel. The freeform profile was digitized from its seven-point spline (height 2.28 lens radii at the axis, maximum 2.50 at 0.46 radii, vertical sidewall at the rim). The substrate sides were blackened. The green devices use the same layout and lens arrays with ITO (150 nm) / TAPC (105 nm) / TCTA (10 nm) / TCTA:B3PyMPM:Ir(ppy)$_2$acac (4 wt%, 25 nm) / B3PyMPM (42 nm) / LiF (1 nm) / Al (100 nm), a horizontal dipole ratio of 0.77, and a freeform lenslet of a different profile (cup with a central spike and an undercut, radius 10.2 µm, height 14 µm, taken from the STL model).
+**Devices and layout.** The devices of main-text Sec. 4.5 share one substrate design (main-text Fig. 5(a)): 25.4 × 25.4 mm glass of 0.7 mm thickness, ITO on the upper half, five Al fingers (width 2.78 mm, pitch 3.99 mm, straight length 9.93 mm, semicircular ends) and an Al rectangle near the upper edge. A pixel-defining layer opens a circle of 1 mm radius centered on the upper end-cap of the middle finger. The stack is ITO (150 nm) / TAPC (50 nm) / TCTA (10 nm) / TCTA:B3PyMPM (1:1):Ir(dmppy-ph)$_2$tmd (4 wt%, 25 nm) / B3PyMPM (45 nm) / LiF (1 nm) / Al (100 nm), with the emission zone at the center of the EML and a horizontal dipole ratio of 0.865. Lens devices carry a second 0.7 mm glass, coupled with index-matching oil, with a hexagonal close-packed array of hemispherical or freeform lenslets (radius 10 µm, index-matched) on a 3 × 3 mm square centered on the pixel. The freeform profile was digitized from its seven-point spline (height 2.28 lens radii at the axis, maximum 2.50 at 0.46 radii, vertical sidewall at the rim). The substrate sides were blackened. The green devices use the same layout and lens arrays with ITO (150 nm) / TAPC (105 nm) / TCTA (10 nm) / TCTA:B3PyMPM:Ir(ppy)$_2$acac (4 wt%, 25 nm) / B3PyMPM (42 nm) / LiF (1 nm) / Al (100 nm), a horizontal dipole ratio of 0.77, and a freeform lenslet of a different profile (cup with a central spike and an undercut, radius 10.2 µm, height 14 µm, taken from the STL model).
 
 **Measurement.** Current–voltage–luminance curves and angle-resolved spectra were recorded with a photodiode goniometer (photodiode at 59 mm from the rotation axis), from +40° to −80° in 10° steps with four readings per angle. The EQE is the on-axis EQE, inferred for a Lambertian emitter, multiplied by the angular factor $2\int_0^{\pi/2}[I(\theta)/I(0)]\sin\theta\,d\theta$ (natural cubic spline of the negative-angle side, $I(90°) = 0$). Table S32 lists the maximum EQE above turn-on and the maximum EQE at 3.4 V and above, which avoids the low-luminance range near turn-on, where the photodiode dark current contributes 3–5% of the signal. The main text uses the latter. Device S4D3 (freeform) is excluded: its intensity maximum lies at −40°, only one angular file exists, and its EQE exceeds the optical ceiling of the simulation.
 
@@ -687,11 +687,11 @@ The green devices (Table S33) were measured in the same way, with two to seven a
 
 **Model.** Device optics follow Sec. 3 (CPS, PLQY 0.98 with the Purcell factor of the stack, 400–700 nm in 10 nm steps). The back-face reflectance seen from the glass is computed for four regions: pixel (full stack), Al-covered with or without ITO, and uncovered (organics/air) with or without ITO; the pixel-defining layer is neglected. Each encounter with the front face inside the lens patch uses the traced 1° return and transmission kernels of the lens array, including the change of azimuth (height-field tracer of Note S2, $2\times10^4$ rays per bin); outside the patch, the planar glass/air face acts specularly with Fresnel transmission. Between encounters, light moves laterally by $2t\tan\theta$ with $t$ = 1.4 mm (0.7 mm for bare devices), and light that reaches the blackened sides is lost. Light leaving the front face is binned in air angle. With mirror sides, the estimator reproduces $\eta_{\mathrm{sta}}$ of the infinite substrate to $2\times10^{-4}$.
 
-**Lattice orientation and goniometer.** Because the hexagonal lattice is not axially symmetric, the intensity in a goniometer scan plane depends on the azimuth of the plane relative to the lattice. The lens kernels are therefore also traced with the incident azimuth resolved relative to the lattice (revolved-profile tracer; $6\times10^4$ rays per incident angle; incident azimuth reduced to 0–30° by the mirror symmetry of the lattice in six bins; outgoing azimuth in 5° bins), and the lateral Monte Carlo tracks the absolute azimuth of each ray ($3\times10^6$ rays per wavelength). The goniometer is modelled as a square photodiode of side $s$ at $D$ = 59 mm from the rotation axis: at goniometer angle $\theta_g$, light leaving the front face at lateral offset $x_s$ (in the scan plane) and $y_\perp$ is collected if its in-plane angle lies within $\theta_g - b/D \pm s/2D$, with $b = x_s\cos\theta_g - (t - z_c)\sin\theta_g$, and its out-of-plane angle within $-y_\perp/D \pm s/2D$; the angular factor is evaluated from the 10° points as in the measurement. Because the kernels are traced at the bin-centre incidence angles, light refracted by the flat glass between the lenslets forms a comb with teeth every 1.5° in air, which is removed by a power-weighted three-bin average. Table S34 lists the sensitivity to the lattice orientation $\beta$, scan plane $\phi_s$, rotation axis $z_c$ (device plane, mid-substrate, lens surface) and photodiode size (5 and 10 mm). The lattice orientation dominates: for the hemispherical arrays it changes the angular factor by up to 0.05 and $I(10°)/I(0)$ from 0.955 to 0.983. The rotation axis changes the angular factor by at most 0.03, and the photodiode size by at most 0.02. The ranges in main-text Fig. 5 cover all these geometries.
+**Lattice orientation and goniometer.** Because the hexagonal lattice is not axially symmetric, the intensity in a goniometer scan plane depends on the azimuth of the plane relative to the lattice. The lens kernels are therefore also traced with the incident azimuth resolved relative to the lattice (revolved-profile tracer; $6\times10^4$ rays per incident angle; incident azimuth reduced to 0–30° by the mirror symmetry of the lattice in six bins; outgoing azimuth in 5° bins), and the lateral Monte Carlo tracks the absolute azimuth of each ray ($3\times10^6$ rays per wavelength). The goniometer is modeled as a square photodiode of side $s$ at $D$ = 59 mm from the rotation axis: at goniometer angle $\theta_g$, light leaving the front face at lateral offset $x_s$ (in the scan plane) and $y_\perp$ is collected if its in-plane angle lies within $\theta_g - b/D \pm s/2D$, with $b = x_s\cos\theta_g - (t - z_c)\sin\theta_g$, and its out-of-plane angle within $-y_\perp/D \pm s/2D$; the angular factor is evaluated from the 10° points as in the measurement. Because the kernels are traced at the bin-center incidence angles, light refracted by the flat glass between the lenslets forms a comb with teeth every 1.5° in air, which is removed by a power-weighted three-bin average. Table S34 lists the sensitivity to the lattice orientation $\beta$, scan plane $\phi_s$, rotation axis $z_c$ (device plane, mid-substrate, lens surface) and photodiode size (5 and 10 mm). The lattice orientation dominates: for the hemispherical arrays it changes the angular factor by up to 0.05 and $I(10°)/I(0)$ from 0.955 to 0.983. The rotation axis changes the angular factor by at most 0.03, and the photodiode size by at most 0.02. The ranges in main-text Fig. 5 cover all these geometries.
 
 **Cavity of the green devices.** With the nominal thicknesses, the model gives a bare angular factor of 0.88–0.90 and an rms deviation of 0.08 from the measured bare profile, compared with a measured angular factor of 0.99–1.03. A grid over the B3PyMPM (35–80 nm) and TAPC (80–130 nm) thicknesses fitted to the bare profile alone gives 65–70 nm for B3PyMPM, with the TAPC thickness weakly constrained (80–120 nm; rms deviation ≤ 0.03). Over this set, the predicted angular factors are 0.68–0.72 (hemispherical) and 0.86–0.90 (freeform) with the azimuthally averaged definition. The main text uses 65 and 80 nm. No thickness pair reproduces the lens-device EQEs together with the bare devices: the predicted hemispherical/bare on-axis ratio is at least 1.31 over the whole grid, compared with 1.21 measured. Fig. S10 shows the same model for a generic substrate.
 
-**Table S32 | Measured devices.** EQE$_{\max}$: maximum above turn-on (voltage, luminance). EQE$_{\geq 3.4\,\mathrm{V}}$: maximum at 3.4 V and above (main text). Angular factor at EQE$_{\max}$.
+**Table S32.** Measured devices. EQE$_{\max}$: maximum above turn-on (voltage, luminance). EQE$_{\geq 3.4\,\mathrm{V}}$: maximum at 3.4 V and above (main text). Angular factor at EQE$_{\max}$.
 
 | Device | Structure | EQE$_{\max}$ (%) | at V (cd/m²) | EQE$_{\geq 3.4\,\mathrm{V}}$ (%) | Angular factor |
 |---|---|---|---|---|---|
@@ -712,7 +712,7 @@ The green devices (Table S33) were measured in the same way, with two to seven a
 
 On the EQE$_{\max}$ basis, the measured means are 32.2% (bare), 30.3% (freeform) and 25.3% (hemispherical); the order of the structures is the same on both bases. Over eleven angular measurements of the five hemispherical devices, the angular factor is 0.62–0.73. The rms deviation of $I/I(0)$ from the model for the 3 × 3 mm patch is 0.026–0.056 per device for the best-matching geometry and 0.035–0.070 for the worst (10–80°); above 60°, the measured intensity of four of the five devices exceeds the upper end of the predicted range by up to 0.09. With the azimuthally averaged far-field model, the deviation is 0.055; a 0.5 mm offset of the patch raises it to 0.067, and patches of 5 and 10 mm give 0.094 and 0.118.
 
-**Table S33 | Green devices (prefix G- distinguishes them from the orange devices of Table S32).** Tilt: shift fitted to the ± asymmetry. Angular factor per scan (lab definition; freeform without 70–80°). EQE$_{0°}$: Lambertian-equivalent on-axis EQE. EQE: EQE$_{0°}$ × mean angular factor. Model (bare-calibrated cavity, internal efficiency 0.95): bare 22.5%, hemispherical 22.6%, freeform 20.9%.
+**Table S33.** Green devices (prefix G- distinguishes them from the orange devices of Table S32). Tilt: shift fitted to the ± asymmetry. Angular factor per scan (lab definition; freeform without 70–80°). EQE$_{0°}$: Lambertian-equivalent on-axis EQE. EQE: EQE$_{0°}$ × mean angular factor. Model (bare-calibrated cavity, internal efficiency 0.95): bare 22.5%, hemispherical 22.6%, freeform 20.9%.
 
 | Device | Structure | Scans used | Tilt (°) | Angular factor | EQE$_{0°}$ (%) | EQE (%) |
 |---|---|---|---|---|---|---|
@@ -723,7 +723,7 @@ On the EQE$_{\max}$ basis, the measured means are 32.2% (bare), 30.3% (freeform)
 | G-S2D3 | freeform | 5 | −1.0 to 1.0 | 0.85–0.90 | 22.4 | 19.7 |
 | G-S3D3 | freeform | 3 | −2.0 to −1.2 | 0.89–0.90 | 22.7 | 20.3 |
 
-**Table S34 | Sensitivity of the predicted angular factor to the goniometer geometry (3 × 3 mm patch).** Lattice/scan: range over lattice orientation $\beta$ = 0°, 30° and scan plane $\phi_s$ = 0°, 45°, 90° (mid-substrate axis, 5 mm photodiode). Axis: largest change between rotation axes at the device plane, mid-substrate and lens surface. Photodiode: change from 5 to 10 mm. ±40°: ratio of the intensities at +40° and −40°, which the layout makes asymmetric in the scan plane along the fingers.
+**Table S34.** Sensitivity of the predicted angular factor to the goniometer geometry (3 × 3 mm patch). Lattice/scan: range over lattice orientation $\beta$ = 0°, 30° and scan plane $\phi_s$ = 0°, 45°, 90° (mid-substrate axis, 5 mm photodiode). Axis: largest change between rotation axes at the device plane, mid-substrate and lens surface. Photodiode: change from 5 to 10 mm. ±40°: ratio of the intensities at +40° and −40°, which the layout makes asymmetric in the scan plane along the fingers.
 
 | Emitter | Structure | All geometries | Lattice/scan | Axis | Photodiode | ±40° |
 |---|---|---|---|---|---|---|
@@ -736,7 +736,7 @@ On the EQE$_{\max}$ basis, the measured means are 32.2% (bare), 30.3% (freeform)
 
 **Loss in the attached lens glass.** The measured EQE of the lens devices is 84–91% of the prediction, and the on-axis ratio is lower by a similar factor, whereas the angular factors agree. Three angle-independent or weakly angle-dependent losses were added to the model (azimuthally averaged, orange devices) and scaled to lower the hemispherical EQE by 14% (`labdev/lens_loss_test.py`): a loss of the light transmitted by the lens surface; a transmission $\tau$ = 0.925 per crossing of the oil-coupled interface between the two glasses; and bulk attenuation $\exp(-\alpha\,0.7\,\mathrm{mm}/\cos\theta)$ per crossing of the lens glass with $\alpha$ = 0.094 mm$^{-1}$. All three change the angular factor by at most 0.02 (hemispherical 0.662 → 0.659–0.669, freeform 0.994 → 0.971–0.979), because the lens devices act mainly on first-pass light; the measurement therefore cannot distinguish them. The bulk coefficient is about two orders of magnitude above that of display glass, so the loss is more likely at the coupling interface or in the lens film. With $\tau$ = 0.925 fixed on the orange hemispherical devices, the model gives 0.89 (orange freeform), 0.87 (green hemispherical) and 0.90 (green freeform) of the lossless EQE, compared with 0.90, 0.84 and 0.91 measured (Table S37).
 
-**Table S37 | Candidate causes of the lens-device EQE deficit.** Changes relative to the lossless model of the 3 × 3 mm patch (orange devices unless stated).
+**Table S37.** Candidate causes of the lens-device EQE deficit. Changes relative to the lossless model of the 3 × 3 mm patch (orange devices unless stated).
 
 | Candidate | Lens-device EQE | Angular factor | Consistent with the measurement |
 |---|---|---|---|
@@ -747,7 +747,7 @@ On the EQE$_{\max}$ basis, the measured means are 32.2% (bare), 30.3% (freeform)
 | patch offset of 0.5 mm | +1% (on-axis EQE −5%) | +0.05; profile rms 0.067 instead of 0.055 | no: raises the EQE |
 | loss at the lens surface, interface or in the lens glass | −14% (fitted), −11% to −13% for the other groups | ≤ 0.02 | yes: one parameter reproduces all four lens-device groups within 0.03 |
 
-**Table S35 | Lens-array variants in the device layout (3 × 3 mm patch, unscaled simulation).** Caps: spherical caps with height/base-radius ratio $a$. Gaps: hemispheres of base radius $r_b$ (in units of the cell radius) with flat glass between them. Measured (EQE$_{\geq 3.4\,\mathrm{V}}$ / 0.89): 27.3%, angular factor 0.66 ± 0.04 over five devices (0.63–0.71; 0.62–0.73 over eleven measurements).
+**Table S35.** Lens-array variants in the device layout (3 × 3 mm patch, unscaled simulation). Caps: spherical caps with height/base-radius ratio $a$. Gaps: hemispheres of base radius $r_b$ (in units of the cell radius) with flat glass between them. Measured (EQE$_{\geq 3.4\,\mathrm{V}}$ / 0.89): 27.3%, angular factor 0.66 ± 0.04 over five devices (0.63–0.71; 0.62–0.73 over eleven measurements).
 
 | Lenslet | EQE (%) | EQE$_{0°}$ (%) | Angular factor | $I/I(0)$ at 20°, 40°, 60° |
 |---|---|---|---|---|
@@ -762,7 +762,7 @@ On the EQE$_{\max}$ basis, the measured means are 32.2% (bare), 30.3% (freeform)
 
 For the green devices (B3PyMPM 65 nm, TAPC 80 nm), the hemispherical/bare on-axis ratio is 1.43 for close-packed hemispheres, 1.36, 1.30, 1.19 and 1.09 for base radii of 0.95, 0.9, 0.8 and 0.7, and 1.31 and 1.11 for caps with $a$ = 0.7 and 0.5. The variants that approach the measured 1.21 have angular factors of 0.82–0.83 (azimuthally averaged), above the measured 0.69–0.73, and the gaps also produce a maximum near 10° that the measurement does not show.
 
-**Table S36 | Simulated EQE and angular factor against the width of the lens patch (device layout, unscaled).** Bare device: 33.7%, angular factor 1.00.
+**Table S36.** Simulated EQE and angular factor against the width of the lens patch (device layout, unscaled). Bare device: 33.7%, angular factor 1.00.
 
 | Patch width (mm) | Hemispherical EQE (%) | Angular factor | Freeform EQE (%) | Angular factor |
 |---|---|---|---|---|
@@ -775,13 +775,13 @@ For the green devices (B3PyMPM 65 nm, TAPC 80 nm), the hemispherical/bare on-axi
 | 14 | 47.1 | 0.88 | 45.0 | 1.01 |
 | 20 | 48.5 | 0.90 | 46.6 | 1.03 |
 
-**Fig. S10 | Finite lateral size for a generic substrate (Al device, 550 nm; disc source of 1 mm radius, 1.295 mm glass).** (a) $\eta_{\mathrm{sta}}$ against the half-width of the substrate (glass/air sides) without additional mixing (solid) and with complete reciprocal mixing at the escape interface (dashed); dotted lines mark the infinite substrate. (b) $\eta_{\mathrm{sta}}$ against the pixel radius when the stack reflectance is present only under the pixel and the back face outside it is glass/air (solid) or absorbing (dashed). (c) Gain from complete mixing at the escape interface for the infinite substrate, for the benchmark size, and for the benchmark size with an absorbing back face outside the pixel. *(`figS_finite_size.png`)*
+**Fig. S10.** Finite lateral size for a generic substrate (Al device, 550 nm; disk source of 1 mm radius, 1.295 mm glass). (a) $\eta_{\mathrm{sta}}$ against the half-width of the substrate (glass/air sides) without additional mixing (solid) and with complete reciprocal mixing at the escape interface (dashed); dotted lines mark the infinite substrate. (b) $\eta_{\mathrm{sta}}$ against the pixel radius when the stack reflectance is present only under the pixel and the back face outside it is glass/air (solid) or absorbing (dash-dotted). (c) Gain from complete mixing at the escape interface for the infinite substrate, for the benchmark size, and for the benchmark size with an absorbing back face outside the pixel. *(`figS_finite_size.png`)*
 
 ---
 
 ## Reproducing the figures and data
 
-Main-text Figs. 1–4 and Fig. S4 are produced by `selectivity/oe_figs.py`; panels (b) and (c) of Fig. 2 and Tables S26–S27 use `selectivity/placement.py`, Fig. 3c uses `selectivity/data/cutoff_modes.json` and the prospective test (`multipass_reset/prospective.py`, `selectivity/prospective_test.py`), Fig. 2d uses `selectivity/scatter_volume.py`, Table S25 uses `selectivity/device_side_slabs.py`, Table S28 uses `multipass_reset/run_highindex.py` and `selectivity/highindex_slabs.py`, and Tables S29–S30 use `selectivity/spectral_placement.py`. `oe_figs.py` evaluates the 38 structures with the full and reduced models, takes the return matrices from `multipass_reset/run_random_sweep.py`, and writes PNG, PDF, and an Excel workbook of the plotted arrays to `figures_oe/`. Fig. S9 (former benchmark figure) and Figs. S5, S7, and S8 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; main-text Fig. 5 and Tables S32–S36 come from `labdev/` (`device.py`, `layout_stacks.py`, `trace_lenses.py`, `layout.py`, `layout_sweep.py`, `trace_variants.py`, `layout_variants.py`, `device_green.py`, `trace_green_freeform.py`, `green_joint_fit.py`, `green_patch.py`, `trace_abs.py`, `gonio_az.py`, `fig_experiment.py`); Fig. S10 from `selectivity/finite_size.py` and `selectivity/fig_finite_size.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S11 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S20 from `selectivity/cutoff_modes.py`; Tables S16–S17 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S18 from `multipass_reset/fixedcav_opt.py`; Table S19 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S3 and Tables S22–S24 from `selectivity/review2_diag.py`; Table S21 from `selectivity/slab_direct_check.py`; Fig. S6 from `make_optimizer_convergence.py`; Table S7 from `multipass_reset/polcheck.py`; Table S10 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
+All figures share the style defined in `figstyle.py`. The numbered reference list of the main text is generated from `tools/cite.py`. Main-text Figs. 1–4 and Fig. S4 are produced by `selectivity/oe_figs.py`; panels (b) and (c) of Fig. 2 and Tables S26–S27 use `selectivity/placement.py`, Fig. 3(c) uses `selectivity/data/cutoff_modes.json` and the prospective test (`multipass_reset/prospective.py`, `selectivity/prospective_test.py`), Fig. 2(d) uses `selectivity/scatter_volume.py`, Table S25 uses `selectivity/device_side_slabs.py`, Table S28 uses `multipass_reset/run_highindex.py` and `selectivity/highindex_slabs.py`, and Tables S29–S30 use `selectivity/spectral_placement.py`. `oe_figs.py` evaluates the 38 structures with the full and reduced models, takes the return matrices from `multipass_reset/run_random_sweep.py`, and writes PNG, PDF, and an Excel workbook of the plotted arrays to `figures_oe/`. Fig. S9 (former benchmark figure) and Figs. S5, S7, and S8 come from the campaign archives through `make_figures.py` and `make_supp_figures_and_data.py`; main-text Fig. 5 and Tables S32–S36 come from `labdev/` (`device.py`, `layout_stacks.py`, `trace_lenses.py`, `layout.py`, `layout_sweep.py`, `trace_variants.py`, `layout_variants.py`, `device_green.py`, `trace_green_freeform.py`, `green_joint_fit.py`, `green_patch.py`, `trace_abs.py`, `gonio_az.py`, `fig_experiment.py`); Fig. S10 from `selectivity/finite_size.py` and `selectivity/fig_finite_size.py`; Fig. S1 and Table S2 from `selectivity/fig_devices.py`; Tables S5–S11 from `selectivity/unc_analysis.py`, `selectivity/review_checks.py`, `selectivity/review_traces_analysis.py`, and `selectivity/make_note_s12.py`; the complete-mixing reference (Fig. 2, Note S1) from `selectivity/reciprocal_limit.py`; Tables S1 and S20 from `selectivity/cutoff_modes.py`; Tables S16–S17 from `selectivity/cavity_decomp.py` and `selectivity/cav_lens_cross.py`; Table S18 from `multipass_reset/fixedcav_opt.py`; Table S19 from `multipass_reset/direct_blind.py` and `blind_table.py`; Fig. S3 and Tables S22–S24 from `selectivity/review2_diag.py`; Table S21 from `selectivity/slab_direct_check.py`; Fig. S6 from `make_optimizer_convergence.py`; Table S7 from `multipass_reset/polcheck.py`; Table S10 from `selectivity/data/mixing_gain_by_condition.json` and `mixing_gain_spectral.json`.
 
 ```
 cd multipass_reset && python3 run_random_sweep.py && cd ..

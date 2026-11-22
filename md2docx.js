@@ -209,7 +209,7 @@ const flushPara = (buf) => {
   if (!t) return;
 
   // figure caption block
-  const fm = t.match(/^\*\*(?:Fig\.|그림)\s*(S?\d+)\s*\|/);
+  const fm = t.match(/^\*\*(?:Fig\.|그림)\s*(S?\d+)\s*(?:\||\.\*\*)/);
   if (fm && FIGS[fm[1]]) {
     const f = FIGS[fm[1]];
     const { w, h } = pngSize(f);
@@ -286,10 +286,21 @@ for (; i < lines.length; i++) {
     const eq = [];
     i++;
     while (i < lines.length && !lines[i].trim().startsWith('$$')) { eq.push(lines[i]); i++; }
-    kids.push(new Paragraph({
-      children: mathRuns(eq.join(' ').trim(), { size: 22 }),
-      alignment: AlignmentType.CENTER, spacing: { before: 120, after: 160 },
-    }));
+    let eqs = eq.join(' ').trim();
+    const tag = eqs.match(/\\tag\{([^}]*)\}/);
+    eqs = eqs.replace(/\s*\\tag\{[^}]*\}/, '').trim();
+    if (tag) {                                // numbered equation: centred, number flush right
+      kids.push(new Paragraph({
+        children: [new TextRun({ text: '\t', size: 22 }), ...mathRuns(eqs, { size: 22 }), new TextRun({ text: '\t(' + tag[1] + ')', size: 22, font: BODY_FONT })],
+        tabStops: [{ type: TabStopType.CENTER, position: convertInchesToTwip(3.25) }, { type: TabStopType.RIGHT, position: convertInchesToTwip(6.5) }],
+        spacing: { before: 120, after: 160 },
+      }));
+    } else {
+      kids.push(new Paragraph({
+        children: mathRuns(eqs, { size: 22 }),
+        alignment: AlignmentType.CENTER, spacing: { before: 120, after: 160 },
+      }));
+    }
     continue;
   }
   if (L.trim().startsWith('|')) {            // markdown table
