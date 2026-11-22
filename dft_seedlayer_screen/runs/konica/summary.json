@@ -1,0 +1,69 @@
+{
+ "rows": {
+  "No06": {
+   "patent": {
+    "n": 3,
+    "dE_kcal": -43.768,
+    "s_A2": 821,
+    "dEef": -0.16,
+    "Rs": 769
+   },
+   "E_b": 0.4218,
+   "elec": 0.2236,
+   "disp": 0.1983,
+   "site": "N21",
+   "d_H_min": 3.032,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4218,
+   "dq_Ag1_Ag2": -0.1174,
+   "q_Ag1": 0.0245,
+   "n_lpN_sites": 2,
+   "sasa_A2": 919.8,
+   "n_atoms": 98
+  },
+  "No07": {
+   "patent": {
+    "n": 3,
+    "dE_kcal": -45.834,
+    "s_A2": 739,
+    "dEef": -0.186,
+    "Rs": 3337
+   },
+   "E_b": 0.4149,
+   "elec": 0.216,
+   "disp": 0.1989,
+   "site": "N21",
+   "d_H_min": 3.044,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4149,
+   "dq_Ag1_Ag2": -0.1973,
+   "q_Ag1": 0.0646,
+   "n_lpN_sites": 2,
+   "sasa_A2": 820.6,
+   "n_atoms": 88
+  },
+  "No09": {
+   "patent": {
+    "n": 2,
+    "dE_kcal": -56.976,
+    "s_A2": 479,
+    "dEef": -0.238,
+    "Rs": 122
+   },
+   "E_b": null,
+   "elec": null,
+   "disp": null,
+   "site": null,
+   "d_H_min": null,
+   "n_N_at_site": null,
+   "E_b_open_site": null,
+   "dq_Ag1_Ag2": -0.2527,
+   "q_Ag1": 0.169,
+   "n_lpN_sites": 1,
+   "sasa_A2": 556.2,
+   "n_atoms": 57
+  }
+ },
+ "spearman_vs_minus_log_Rs": {},
+ "note": "Rs unmeasurable (No02) ranked worst. Spearman over the patent's compounds with N."
+}
