@@ -153,6 +153,57 @@ def pbe0(names):
                   f"frag {r.get('frag_atoms')} {r['seconds']}s", flush=True)
 
 
+def open_sites(names):
+    """Crowded GFN2 sites (Ag-H < 2.4 A) re-placed at the nearest open point.
+
+    GFN2 packs Ag against ortho hydrogens, which PBE0 finds repulsive (No09
+    lpN7: Ag-H 1.96 A, E_b 0.07 eV, electronic part negative). Script 151
+    relaxed such sites at PBE-D3, 6-10 h each; for eleven compounds that is
+    too slow, so the start point of 151 (push_out: no H within 2.3 A, no other
+    heavy atom within 2.8 A, closest to the N anchors, between both N for a
+    pocket) is scored directly at PBE0 as in 149. Without the relaxation this
+    is a lower bound on the site's E_b.
+    """
+    f149 = _load("149_fragment_pbe0.py", "f149")
+    s151 = _load("151_crowded_sites_pbe0.py", "s151")
+    from pathgeom import read_xyz
+    for name in names:
+        out = os.path.join(RUNS, f"pbe0_{name}.json")
+        if not os.path.exists(out):
+            continue
+        row = json.load(open(out))
+        S, X = read_xyz(os.path.join(STRUCT, f"{name}.xyz"))
+        X = np.asarray(X, float)
+        for lab in [k for k, v in row.items() if "E_b" in v and v["d_H_min"] < 2.4]:
+            key = lab + "_open"
+            if key in row:
+                continue
+            sv = json.load(open(os.path.join(RUNS, f"survey_{name}.json")))
+            ag0, het = s151.push_out(S, X, np.array(sv["sites"][lab]["pos"]))
+            if ag0 is None:
+                row[key] = {"buried": het}
+                json.dump(row, open(out, "w"), indent=1)
+                print(f"{name} {key} anchors {het} buried", flush=True)
+                continue
+            d = np.linalg.norm(X - ag0, axis=1)
+            t0 = time.time()
+            try:
+                r = f149.eb(S, X, ag0)
+            except Exception as ex:
+                r = {"error": repr(ex)[:200]}
+            r.update(seconds=round(time.time() - t0), anchors=het, R_cut=f149.R_CUT,
+                     near=f"{S[int(d.argmin())]}{int(d.argmin())}", d_near=round(float(d.min()), 3),
+                     d_H_min=round(float(min(d[i] for i, s in enumerate(S) if s == "H")), 3),
+                     n_N_within_3A=int(sum(1 for i, s in enumerate(S) if s == "N" and d[i] < 3.0)),
+                     pos=[round(float(v), 4) for v in ag0], from_site=lab)
+            row = json.load(open(out))
+            row[key] = r
+            json.dump(row, open(out, "w"), indent=1)
+            print(f"{name} {key:<22} anchors {het} E_b {r.get('E_b', float('nan')):.3f} "
+                  f"(elec {r.get('elec', float('nan')):.3f}) H_min {r['d_H_min']:.2f} {r['seconds']}s",
+                  flush=True)
+
+
 def spearman(a, b):
     from scipy.stats import spearmanr
     return round(float(spearmanr(a, b).correlation), 3)
@@ -168,8 +219,10 @@ def summary():
         if not (os.path.exists(sv_p) and os.path.exists(pb_p)):
             continue
         sv, pb = json.load(open(sv_p)), json.load(open(pb_p))
-        ok = {k: v for k, v in pb.items() if "E_b" in v}
-        open_ = {k: v for k, v in ok.items() if v["d_H_min"] >= 2.4}
+        # crowded GFN2 positions (Ag-H < 2.3 A) are artefacts: PBE0 finds them
+        # repulsive; their re-placed "_open" versions stand in for them
+        ok = {k: v for k, v in pb.items() if "E_b" in v and v["d_H_min"] >= 2.3}
+        open_ = {k: v for k, v in ok.items() if v["d_H_min"] >= 2.3}
         best = max(ok, key=lambda k: ok[k]["E_b"]) if ok else None
         best_open = max(open_, key=lambda k: open_[k]["E_b"]) if open_ else None
         # SASA (probe 1.4 A) of the GFN2 structure, our counterpart of the patent's s
@@ -229,5 +282,7 @@ if __name__ == "__main__":
         survey(names)
     if "--pbe0" in args:
         pbe0(names)
+    if "--open" in args:
+        open_sites(names)
     if "--summary" in args:
         summary()
