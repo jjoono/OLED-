@@ -46,5 +46,21 @@
   "R_cut": 5.0,
   "d_H_min": 2.481,
   "n_N_within_3A": 1
+ },
+ "lpN28_pyridyl": {
+  "E_b": 0.37,
+  "elec": 0.113,
+  "D3": -0.257,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1195,
+  "frag_atoms": 48,
+  "caps": 1,
+  "mol_atoms": 57,
+  "seconds": 7338,
+  "near": "H45",
+  "gfn2_E_b": 0.9222,
+  "R_cut": 5.0,
+  "d_H_min": 2.473,
+  "n_N_within_3A": 1
  }
 }
