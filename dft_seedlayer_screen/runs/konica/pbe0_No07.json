@@ -46,5 +46,28 @@
   "R_cut": 5.0,
   "d_H_min": 2.838,
   "n_N_within_3A": 1
+ },
+ "lpN52_open": {
+  "E_b": 0.2281,
+  "elec": 0.07,
+  "D3": -0.1581,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1152,
+  "frag_atoms": 30,
+  "caps": 1,
+  "mol_atoms": 88,
+  "seconds": 1972,
+  "anchors": "N52",
+  "R_cut": 5.0,
+  "near": "N52",
+  "d_near": 2.3,
+  "d_H_min": 2.634,
+  "n_N_within_3A": 1,
+  "pos": [
+   5.6962,
+   -2.8805,
+   0.8914
+  ],
+  "from_site": "lpN52"
  }
 }
