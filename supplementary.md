@@ -1,6 +1,6 @@
 # Supplement 1
 
-Reciprocity separates reflective and transmissive angular mixing in OLED light extraction
+Reflective and transmissive angular mixing affect substrate light extraction differently in organic light-emitting diodes
 
 Notes S1–S4 give the model details, the devices and the 38 structures, the accuracy and convergence checks, and the separation of mixing from escape. Notes S5–S8 document the freeform-versus-hemisphere benchmark. Note S9 reports direct ray tracing, the out-of-sample test, and the prospective test of the reduced model. Note S10 gives the estimators and numerical diagnostics, Note S11 compares reflective mixing at the escape interface with transmissive mixing and with mixing at the device, Note S12 summarizes the freeform benchmark, and Note S13 describes the fabricated devices and the finite-geometry model. The last section lists the scripts that reproduce every figure and table. References of the main text are cited as "main ref. n".
 
@@ -35,6 +35,10 @@ For the freeform 40–60° lens and height-randomized hemispheres the full-range
 (class columns: mean error in pp over three devices and three wavelengths). The cutoff therefore controls the influence of physically minor states (0.76% of the étendue, less than 0.1% of $\mathbf{v}^{(0)}$) rather than tuning the accuracy, which is within 0.02 pp of its best value anywhere between 80° and 85°. The absolute values of $N_{\mathrm{mix}}$ and $\xi$ depend on the cutoff ($\xi$ of the hemispherical MLA is 0.65, 0.47, and 0.31 at 80°, 85°, and 90°), whereas the relative ranking is largely preserved: the rank correlation with the 85° values is 0.96–0.99 for $N_{\mathrm{mix}}$ and 0.90–0.98 for $\xi$ at 80°, 88°, and 90° (Table S6).
 
 **Detailed balance of the traced matrices.** The relative asymmetry $\sum|F-F^{\mathsf T}|/\sum|F|$ of $F_{ji} = w_i B_R(i\to j)$ is 0.05–0.13 on 1° bins, 0.009–0.024 on 5° bins, and 0.002–0.007 on 15° bins, falling as expected for Monte Carlo noise; the planar matrix is exactly symmetric. Symmetrizing $F$ while keeping each column sum changes $N_{\mathrm{mix}}$ by at most 0.20 (2.7%), $\xi$ by 0.005, $\eta_{\mathrm{sta}}$ by 0.04 pp, and the reduced-model error by 0.04 pp over all 37 non-planar structures and three devices.
+
+**Bin width of $p$ and $p_{\mathrm{mix}}$.** Merging the 1° bins (étendue-weighted) into 2°, 3°, and 5° bins leaves $p$ unchanged to $10^{-4}$. $p_{\mathrm{mix}}$ changes by at most 0.0008 for the hemispherical MLA (0.3782 → 0.3790 at 5°), 0.0005 for a random MLA, and 0.0017 for the wavy surface of rms slope 0.2; $\eta_{\mathrm{sta}}$ (Al, 550 nm) changes by at most 0.0006 for these structures up to 3° bins. The planar interface, whose $p(\theta)$ steps at the critical angle, is the most sensitive case: $p_{\mathrm{mix}}$ = 0.054 (native 0.5° Fresnel), 0.056 (1°), 0.058 (2°), and 0.061 (3°), and $\eta_{\mathrm{sta}}$ = 0.3841 (1°) and 0.3864 (3°). Values are in `selectivity/data/rev3_checks.json` (`selectivity/rev3_checks.py`).
+
+**Correlation in main-text Fig. 2(b).** Over the 38 structures (Al, 550 nm), the Pearson correlation between $p - p_{\mathrm{mix}}$ and the device-minus-interface difference of $\eta_{\mathrm{sta}}$ is 0.970 (0.976 without the planar interface, N = 37); the Spearman correlation is 0.949 (0.945 without the planar interface).
 
 **Reciprocal redistribution.** For $B_R(i\to r) = (1-p_i)[(1-m)\delta_{ir} + m q_r]$, detailed balance of the mixing term requires $w_i(1-p_i)q_r = w_r(1-p_r)q_i$, i.e. $q \propto w(1-p)$. The normalized kernel $(1-m)I + m\,q\mathbf{1}^{\mathsf T}$ has eigenvalues 1 and $1-m$, so $m = 1-\lambda_2$ for any $q$.
 
@@ -532,6 +536,23 @@ An encounter starts when a ray leaves the substrate upwards and ends when it esc
 **Comparison with reflective mixing at the escape interface.** At the escape interface, the same construction with column sums $1-p_i$ gives the kernel $(1-p_i)\,w_r(1-p_r)/\sum_k w_k(1-p_k)$ of Sec. 2.4. The redistribution weight $1-p$ is then perfectly anticorrelated with the escape probability, which produces the term $-\sigma_p^2/(1-p)$. At the device, the weight is $R$, and the correction is $\mathrm{Cov}_w(R,p)/\langle R\rangle_w$. For the three bottom-emitting stacks of this work, $|p_D - p| < 0.008$ for all structures at 500, 550, and 600 nm.
 
 **Transmissive mixing.** Main-text Fig. 2(d) compares the ideal case below with non-absorbing Henyey–Greenstein volumes under the planar face (`selectivity/scatter_volume.py`, data in `selectivity/data/scatter_volume.json`): at $\tau^*$ = 0.5 and $g$ = 0.9 they reach 0.764, 0.923 and 0.959 in the Al, Ag and low-loss devices, against 0.798, 0.937 and 0.962 for the ideal randomizer; isotropic volumes ($g$ = 0) reach 0.725, 0.907 and 0.952 at $\tau^*$ = 0.5–1. An ideal lossless randomizer with Lambertian transmission and no reflection, placed between the OLED and a planar glass/air face, gives $\eta_{\mathrm{sta}}$ = 0.798, 0.937, and 0.962 for the Al, Ag, and low-loss stacks at 550 nm. These values equal the fully randomized model $p/[p+(1-p)A']$ to three digits. Every pass through the randomizer distributes the light in proportion to $w$, so the escape probability of the mixed light is $p$, and neither $\sigma_p^2$ nor $\mathrm{Cov}_w(R,p)$ enters. For the six Henyey–Greenstein layers of the main text, placing the layer directly on the OLED or directly under the planar face gives identical $\eta_{\mathrm{sta}}$ (Table S25), because the index-matched glass between them neither absorbs nor changes the angle of the light. Under the hemispherical MLA, the same layers lower $\eta_{\mathrm{sta}}$ from 0.792 to 0.734 for $\tau^*$ = 1. They reflect part of the light back to the device and replace the high escape probability of the lenses by that of the layer. Values in Table S25 use 0.5° bins; the planar face without a layer gives 0.381, 0.351, and 0.654, compared with 0.384, 0.356, and 0.664 at the 1° resolution of the main text.
+
+**Table S38.** Henyey–Greenstein volumes under a planar exit face (Al device, 550 nm): diffuse reflectance of the bare volume for Lambertian incidence, escape probability $p$ of the volume together with its exit face, and $\eta_{\mathrm{sta}}$. The roll-off of main-text Fig. 2(d) at large $\tau^*$ follows the rise of the backscatter: more light returns to the device on each pass.
+
+| $g$ | $\tau^*$ | Volume reflectance | $p$ (volume + face) | $\eta_{\mathrm{sta}}$ |
+|---|---|---|---|---|
+| 0 | 0.1 | 0.084 | 0.392 | 0.578 |
+| 0 | 0.25 | 0.180 | 0.381 | 0.675 |
+| 0 | 0.5 | 0.296 | 0.362 | 0.722 |
+| 0 | 1 | 0.446 | 0.324 | 0.725 |
+| 0 | 2 | 0.610 | 0.263 | 0.676 |
+| 0 | 4 | 0.754 | 0.189 | 0.580 |
+| 0.9 | 0.1 | 0.100 | 0.395 | 0.694 |
+| 0.9 | 0.25 | 0.194 | 0.387 | 0.755 |
+| 0.9 | 0.5 | 0.306 | 0.368 | 0.764 |
+| 0.9 | 1 | 0.451 | 0.326 | 0.738 |
+| 0.9 | 2 | 0.612 | 0.262 | 0.676 |
+| 0.9 | 4 | 0.754 | 0.188 | 0.579 |
 
 **Table S25.** Scattering layers on the OLED or under the exit face (550 nm, $\eta_{\mathrm{sta}}$). "Exit side": layer under the planar glass/air face. "Device side": layer on the OLED, planar face. The hemispherical-MLA column places the layer on the OLED under the MLA.
 

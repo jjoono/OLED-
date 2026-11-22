@@ -138,7 +138,7 @@ print('Fig 1e total incident power by pass:', [round(r_[1], 3) for r_ in rows_e]
 
 # ------------------------------------------------------------------ Fig. 2 (where the light is mixed)
 fig2 = plt.figure(figsize=(FW, 6.7)); g = fig2.add_gridspec(3, 2, wspace=0.36, hspace=0.42)
-A, B, C, D, E, LG = [fig2.add_subplot(g[i, j]) for i in range(3) for j in range(2)]
+A, B, C, LG, D, E = [fig2.add_subplot(g[i, j]) for i in range(3) for j in range(2)]
 pr = []
 for nm, (c, BT, BR) in LIB.items():
     pT = BT.sum(1); w_ = W1 / W1.sum(); p = float(pT @ w_); var = float(((pT - p) ** 2) @ w_); pm = p - var / (1 - p)
@@ -173,21 +173,28 @@ for val, ls, col, lab, below in ((RF['planar']['Al']['rand'], ':', '#2a78d6', 'I
     D.axhline(val, ls=ls, color=col, lw=1.0); D.text(4.3, val + 0.008, lab, fontsize=6.6, color=col, ha='right', va='bottom')
 D.set_xscale('log'); D.set_xlim(0.08, 4.8); D.set_ylim(0.33, 0.93); D.set_xticks([0.1, 0.25, 0.5, 1, 2, 4]); D.set_xticklabels(['0.1', '0.25', '0.5', '1', '2', '4']); D.minorticks_off()
 D.set_xlabel(r'Reduced optical thickness $\tau^*$'); D.set_ylabel(ETA + ' (Al, 550 nm)'); D.legend(fontsize=6.3, loc='upper center', ncol=4, columnspacing=0.7, handlelength=0.9, handletextpad=0.3, borderaxespad=0.35); FS.label(D, 'd')
-hd = []
+hd = []; OFF = []
 for nm, (c, BT, BR) in LIB.items():
     e = EV[(nm, 'Al', 550.0)]; Nm = min(1 / max(1 - e['lam2'], 1e-9), 25); col, mk, _ = CLS[c]
     g_mix = (e['m1'] - e['eta']) * 100; g_mem = (e['closed'] - e['eta']) * 100; hd.append([nm, c, Nm, e['eta'], e['m1'], e['closed'], g_mix, g_mem])
     if c == 'planar': continue
-    E.plot([Nm, Nm], [g_mix, g_mem], color=col, lw=0.5, alpha=0.6)
-    E.plot(Nm, g_mix, mk, color=col, ms=4.6, mec='white', mew=0.4); E.plot(Nm, g_mem, mk, mfc='none', mec=col, ms=4.6, mew=0.8)
+    YTOP = 7.2; gm_plot = min(g_mem, YTOP - 0.25)
+    E.plot([Nm, Nm], [g_mix, gm_plot], color=col, lw=0.5, alpha=0.6)
+    E.plot(Nm, g_mix, mk, color=col, ms=4.6, mec='white', mew=0.4)
+    if g_mem > YTOP:
+        E.plot(Nm, YTOP - 0.25, marker=r'$\uparrow$', color=col, ms=7, mew=0); OFF.append((Nm, g_mem, col))
+    else:
+        E.plot(Nm, g_mem, mk, mfc='none', mec=col, ms=4.6, mew=0.8)
 pl = [h for h in hd if h[1] == 'planar'][0]; print(f'Fig 2e planar (off scale): reflective mixing +{pl[6]:.1f} pp, fully randomized +{pl[7]:.1f} pp')
 E.axhline(0, color='k', lw=0.6); E.set_xscale('log'); E.set_xlim(1, 12); E.set_xticks([1, 2, 5, 10]); E.set_xticklabels(['1', '2', '5', '10']); E.minorticks_off()
-E.set_ylim(-1.5, 21); E.set_xlabel('Angular mixing number ' + NMIX); E.set_ylabel('Predicted gain in ' + ETA + ' (pp)')
-E.legend(handles=[Line2D([], [], ls='none', marker='o', color='k', ms=4.6, label='Reflective mixing'), Line2D([], [], ls='none', marker='o', mfc='none', color='k', ms=4.6, mew=0.8, label='Fully randomized')], fontsize=6.6, loc='upper right', handletextpad=0.2); FS.label(E, 'e')
+for k_, (x_, v_, c_) in enumerate(sorted(OFF)):
+    E.text(x_ * (0.93 if k_ % 2 else 1.07), 6.55, f'{v_:.0f}', fontsize=6.2, color=c_, va='center', ha='right' if k_ % 2 else 'left')
+E.set_ylim(-1.9, 7.2); E.set_xlabel('Angular mixing number ' + NMIX); E.set_ylabel('Predicted gain in ' + ETA + ' (pp)')
+E.legend(handles=[Line2D([], [], ls='none', marker='o', color='k', ms=4.6, label='Reflective mixing'), Line2D([], [], ls='none', marker='o', mfc='none', color='k', ms=4.6, mew=0.8, label='Fully randomized')], fontsize=6.4, loc='lower right', ncol=2, columnspacing=0.8, handletextpad=0.2, borderaxespad=0.25); FS.label(E, 'e')
 LG.axis('off')
 LG.legend(handles=[Line2D([], [], color='#7d7c76', label='No mixing'), Line2D([], [], color='#eb6834', label='Complete mixing at the exit face'), Line2D([], [], color='#2a78d6', label='Complete mixing at the back\nreflector or in transmission'),
                    Line2D([], [], color='k', ls='-', label=r'$R$ = 0.90'), Line2D([], [], color='k', ls='--', label=r'$R$ = 0.98')] + [Line2D([], [], ls='none', marker=mk, color='k', mfc='white', ms=4.2, mew=0.9, label=lab + r' ($R$ = 0.90)') for _, mk, lab, _ in TEX],
-          loc='upper left', bbox_to_anchor=(-0.08, 1.04), title='Curves and symbols in (c)', fontsize=6.8, alignment='left', labelspacing=0.5)
+          loc='center left', bbox_to_anchor=(-0.12, 0.5), title='Curves and symbols in (c)', fontsize=6.6, alignment='left', labelspacing=0.4)
 FS.save(fig2, f'{OUT}/fig2_complete_mixing'); plt.close(fig2)
 save_xlsx('fig2_complete_mixing', [('a_p_mix', ['structure', 'class', 'p', 'sigma_p', 'p_mix'], pr),
                                    ('d_gain', ['structure', 'class', 'N_mix (capped 25)', 'eta_full', 'eta_complete_reciprocal_mixing', 'eta_fully_randomized', 'gain_mixing_pp', 'gain_fully_randomized_pp'], hd),
@@ -227,7 +234,7 @@ ae.axhline(0, color='k', lw=0.6); ae.set_xticks(range(len(xt))); ae.set_xticklab
 for b in (2.5, 5.5): ae.axvline(b, color='#b0b0b0', lw=0.6)
 ae.set_ylabel('Reduced model $-$ full series (pp)'); ae.set_xlabel('Device and wavelength (nm)'); FS.label(ae, 'b')
 ac = fig.add_subplot(gs2[1, 0]); CM = json.load(open('data/cutoff_modes.json'))['modes']; rows_c = []; PCOL = '#b8860b'
-ac.axvspan(0.35, 0.62, color='#ececec', lw=0)
+ac.axvspan(0.35, 0.62, color='#ececec', lw=0); ac.text(0.485, 24.0, 'Gap > 0.35', fontsize=6.6, ha='center', va='top', color='#4d4d4d')
 for nm, m in CM.items():
     if nm == 'planar': continue
     blind = nm.startswith('blind:'); c = LIB[nm][0] if not blind else None

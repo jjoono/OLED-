@@ -4,7 +4,7 @@
 
 Dear Editor,
 
-We submit the manuscript "Reciprocity separates reflective and transmissive angular mixing in OLED light extraction" for consideration as a Research Article in *Optics Express*.
+We submit the manuscript "Reflective and transmissive angular mixing affect substrate light extraction differently in organic light-emitting diodes" for consideration as a Research Article in *Optics Express*.
 
 Outcoupling structures for OLEDs are usually discussed with the fully randomized model of statistical ray optics, in which light that is mixed in angle escapes with the average escape probability of the structure. Our manuscript shows that optical reciprocity makes this assumption depend on where the light is mixed. An escape interface that mixes light in reflection must return it preferentially to the angles from which it cannot escape, and the escape probability of the mixed light falls by the angular variance of the escape probability divided by the trapped fraction. Mixing in transmission through a weakly absorbing volume has no such penalty and recovers the fully randomized model. Mixing at the device is penalized only if its reflectance is correlated with the escape probability.
 
