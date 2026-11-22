@@ -62,5 +62,28 @@
   "R_cut": 5.0,
   "d_H_min": 2.473,
   "n_N_within_3A": 1
+ },
+ "lpN7_open": {
+  "E_b": 0.2908,
+  "elec": 0.1034,
+  "D3": -0.1874,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1574,
+  "frag_atoms": 30,
+  "caps": 3,
+  "mol_atoms": 57,
+  "seconds": 2804,
+  "anchors": "N7,N35",
+  "R_cut": 5.0,
+  "near": "N7",
+  "d_near": 2.3,
+  "d_H_min": 2.307,
+  "n_N_within_3A": 1,
+  "pos": [
+   1.6436,
+   2.097,
+   3.5524
+  ],
+  "from_site": "lpN7"
  }
 }
