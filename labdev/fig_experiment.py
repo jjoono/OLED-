@@ -82,8 +82,9 @@ for axp, em, letter, title in ((ax_b, 'orange', 'b', 'Orange emitter'), (ax_c, '
         axp.plot(A10, s['pmid'], '-', color=C[nm], lw=0.9)
         rows_b += [[em, nm, 'sim_min', *s['pmin'].tolist()], [em, nm, 'sim_max', *s['pmax'].tolist()]]
     if em == 'orange':
-        for k, v in PROF_O.items(): axp.plot(A10, v, MK[em], ms=3.0, color=C['hemisphere'], mec='white', mew=0.3, zorder=3)
-        rows_b += [[em, 'hemisphere', f'measured {k}', *v] for k, v in PROF_O.items()]
+        PO = np.array(list(PROF_O.values())); mo, so = PO.mean(0), PO.std(0, ddof=1)
+        axp.errorbar(A10, mo, yerr=so, fmt=MK[em], ms=3.4, color=C['hemisphere'], mec='white', mew=0.3, elinewidth=0.7, capsize=1.4, zorder=3)
+        rows_b += [[em, 'hemisphere', 'measured mean', *mo.tolist()], [em, 'hemisphere', 'measured sd', *so.tolist()]] + [[em, 'hemisphere', f'measured {k}', *v] for k, v in PROF_O.items()]
     else:
         for nm, (m, sd) in PROF_G.items():
             n = len(m); axp.errorbar(A10[:n], m, yerr=sd, fmt=MK[em], ms=3.4, color=C[nm], mfc='white', mew=0.9, elinewidth=0.7, capsize=1.4, zorder=3)
@@ -91,18 +92,27 @@ for axp, em, letter, title in ((ax_b, 'orange', 'b', 'Orange emitter'), (ax_c, '
     axp.set_xlim(-2.5, 83); axp.set_ylim(0, 1.08); axp.set_xticks([0, 20, 40, 60, 80]); axp.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0]); axp.set_xlabel('Viewing angle (°)'); axp.set_ylabel(r'Normalized intensity')
     axp.text(0.96, 0.94, title, transform=axp.transAxes, ha='right', va='top', fontsize=7); FS.label(axp, letter)
 sheets.append(('bc_profiles', ['emitter', 'structure', 'series'] + [f'{x}deg' for x in A10], rows_b))
+def mean_sd(ax, x, v, em, col):
+    """Mean with the standard deviation (n >= 3) of the measured values; orange filled circles, green open triangles."""
+    v = np.asarray(v, float); m = v.mean(); sd = v.std(ddof=1) if len(v) >= 3 else 0.0
+    ax.errorbar(x, m, yerr=sd if sd else None, fmt=MK[em], ms=4.2, color=col, mfc=col if em == 'orange' else 'white', mec='white' if em == 'orange' else col,
+                mew=0.3 if em == 'orange' else 0.9, ecolor=col, elinewidth=0.9, capsize=2.0, zorder=3)
+    return m, sd
+
+
 # (d) angular factor
 d = ax_d; names = ['bare', 'freeform', 'hemisphere']; rng = np.random.default_rng(1); rows_d = []
 for i, nm in enumerate(names):
     for em, dx in (('orange', -0.2), ('green', 0.2)):
         lo, hi = SIM[em][nm]['PE']; d.add_patch(Rectangle((i + dx - 0.14, lo), 0.28, max(hi - lo, 0.004), fc='#dcdcdc', ec='k', lw=0.7))
-        v = (PE_O if em == 'orange' else PE_G)[nm]
-        d.plot(i + dx + rng.uniform(-0.08, 0.08, len(v)), v, MK[em], ms=3.4, color=C[nm], mfc=C[nm] if em == 'orange' else 'white', mec='white' if em == 'orange' else C[nm], mew=0.3 if em == 'orange' else 0.9, zorder=3)
+        v = (PE_O if em == 'orange' else PE_G)[nm]                       # per device (orange) or per scan (green)
+        vs = v if (em == 'orange' or len(PEDEV_G[nm]) == 1) else PEDEV_G[nm]  # statistics as in Table 2: over devices, or over scans for a single device
+        m_, sd_ = mean_sd(d, i + dx, vs, em, C[nm])
         if nm != 'bare': d.plot(i + dx, P10[em][nm]['PE'], 'D', ms=3.8, mfc='white', mec='k', mew=0.8, zorder=2)
-        rows_d.append([em, nm, lo, hi, P10[em][nm]['PE'] if nm != 'bare' else None] + list(v))
+        rows_d.append([em, nm, lo, hi, P10[em][nm]['PE'] if nm != 'bare' else None, m_, sd_, len(vs)] + list(v))
 d.axhline(1, color='k', lw=0.6, ls=':'); d.set_xticks(range(3)); d.set_xticklabels(['Bare', 'Freeform\nMLA', 'Hemispherical\nMLA'], fontsize=7); d.set_xlim(-0.55, 2.55); d.tick_params(axis='x', which='both', top=False, length=0)
 d.set_ylim(0.55, 1.3); d.set_ylabel('Angular factor'); FS.label(d, 'd')
-sheets.append(('d_angular_factor', ['emitter', 'structure', 'sim3_min', 'sim3_max', 'sim10', 'measured...'], rows_d))
+sheets.append(('d_angular_factor', ['emitter', 'structure', 'sim3_min', 'sim3_max', 'sim10', 'measured_mean', 'measured_sd', 'n', 'individual devices or scans...'], rows_d))
 # (e) lens/bare ratios of on-axis (Lambertian-equivalent) and total EQE
 e = ax_e; groups = [('orange', 'hemisphere'), ('green', 'hemisphere'), ('orange', 'freeform'), ('green', 'freeform')]; rows_e = []; xt = []; xl = []
 for g, (em, nm) in enumerate(groups):
@@ -115,19 +125,19 @@ for g, (em, nm) in enumerate(groups):
         x = 2.6 * g + j; xt.append(x); xl.append(lab if j == 0 else '\n' + lab)
         e.add_patch(Rectangle((x - 0.3, min(smin, smax)), 0.6, max(abs(smax - smin), 0.008), fc='#dcdcdc', ec='k', lw=0.7))
         e.plot(x, s10, 'D', ms=3.8, mfc='white', mec='k', mew=0.8, zorder=2)
-        e.plot(x + rng.uniform(-0.14, 0.14, len(mv)), mv, MK[em], ms=3.4, color=C[nm], mfc=C[nm] if em == 'orange' else 'white', mec='white' if em == 'orange' else C[nm], mew=0.3 if em == 'orange' else 0.9, zorder=3)
-        rows_e.append([em, nm, lab.lower(), smin, smax, s10] + mv.tolist())
+        m_, sd_ = mean_sd(e, x, mv, em, C[nm])
+        rows_e.append([em, nm, lab.lower(), smin, smax, s10, m_, sd_, len(mv)] + mv.tolist())
     if g: e.axvline(2.6 * g - 0.8, color='#b0b0b0', lw=0.6)
     e.text(2.6 * g + 0.5, 2.06, em.capitalize(), ha='center', va='top', fontsize=6.4)
 e.axhline(1, color='k', lw=0.6, ls=':'); e.set_xticks(xt); e.set_xticklabels(xl, fontsize=6.2); e.set_xlim(-0.8, 2.6 * 3 + 1.8); e.set_ylim(0.6, 2.1); e.tick_params(axis='x', which='both', top=False, length=0)
 e.set_ylabel('Lens device / bare device'); FS.label(e, 'e')
-sheets.append(('e_ratios', ['emitter', 'structure', 'quantity', 'sim3_min', 'sim3_max', 'sim10', 'measured...'], rows_e))
+sheets.append(('e_ratios', ['emitter', 'structure', 'quantity', 'sim3_min', 'sim3_max', 'sim10', 'measured_mean', 'measured_sd', 'n', 'individual devices...'], rows_e))
 # legend cell
 lg.axis('off')
 lg.legend(handles=[Patch(fc=C[k], ec='none', label=LAB[k]) for k in ('bare', 'hemisphere', 'freeform')] +
                   [Patch(fc='#b9b9b9', ec='none', alpha=0.6, label='Model range, 3 mm patch, in (b), (c)'), Patch(fc='#dcdcdc', ec='k', lw=0.7, label='Model range, 3 mm patch, in (d), (e)'),
                    Line2D([], [], ls='none', marker='D', ms=3.8, mfc='white', mec='k', mew=0.8, label='Model, 10 mm patch'),
-                   Line2D([], [], ls='none', marker='o', ms=3.6, color='#4d4d4d', label='Measured, orange emitter'), Line2D([], [], ls='none', marker='^', ms=3.6, mfc='white', color='#4d4d4d', mew=0.9, label='Measured, green emitter')],
+                   Line2D([], [], ls='none', marker='o', ms=3.6, color='#4d4d4d', label='Measured, orange emitter (mean ± s.d.)'), Line2D([], [], ls='none', marker='^', ms=3.6, mfc='white', color='#4d4d4d', mew=0.9, label='Measured, green emitter (mean ± s.d.)')],
           loc='center left', bbox_to_anchor=(-0.06, 0.5), fontsize=6.8, labelspacing=0.45, handlelength=1.1)
 FS.save(fig, '../figures_oe/fig5_experiment'); plt.close(fig)
 wb = Workbook(); wb.remove(wb.active)
@@ -142,4 +152,4 @@ for em in ('orange', 'green'):
         s = SIM[em][nm]; M = (EQE_O if em == 'orange' else EQE_G)[nm]; P = (PE_O if em == 'orange' else PE_G)[nm]
         print(f"  {nm:10s} sim EQE {s['EQE']*ETA[em]:.1f} (unscaled {s['EQE']:.1f})  meas {np.mean(M):.1f} ± {np.std(M, ddof=1) if len(M) > 1 else 0:.1f}  ratio {np.mean(M)/(s['EQE']*ETA[em]):.2f} | "
               f"PE sim {s['PE'][0]:.2f}-{s['PE'][1]:.2f} meas {min(P):.2f}-{max(P):.2f} | 10 mm EQE {P10[em][nm]['EQE']*100*ETA[em]:.1f} PE {P10[em][nm]['PE']:.2f}")
-for r in rows_e: print('  ', r[:3], 'sim', round(r[3], 2), round(r[4], 2), '10mm', round(r[5], 2), 'meas', np.round(np.mean(r[6:]), 2))
+for r in rows_e: print('  ', r[:3], 'sim', round(r[3], 2), round(r[4], 2), '10mm', round(r[5], 2), 'meas %.2f ± %.2f (n = %d)' % (r[6], r[7], r[8]))
