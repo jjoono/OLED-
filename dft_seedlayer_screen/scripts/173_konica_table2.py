@@ -227,7 +227,8 @@ def open_sites(names):
                 print(f"{name} {lab}_pyridyl near {r['near']} E_b {r.get('E_b', float('nan')):.3f} "
                       f"(elec {r.get('elec', float('nan')):.3f}) H_min {r['d_H_min']:.2f} {r['seconds']}s",
                       flush=True)
-        for lab in [k for k, v in row.items() if "E_b" in v and v["d_H_min"] < 2.4]:
+        for lab in [k for k, v in row.items() if "E_b" in v and v["d_H_min"] < 2.4
+                    and not k.endswith(("_open", "_pyridyl"))]:
             key = lab + "_open"
             if key in row:
                 continue
