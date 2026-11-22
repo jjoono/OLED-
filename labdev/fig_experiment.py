@@ -12,8 +12,12 @@ Measured values (summary statistics only):
 import json, numpy as np, matplotlib
 matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle, FancyBboxPatch
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 from openpyxl import Workbook
-plt.rcParams.update({'font.size': 7, 'axes.titlesize': 7.5, 'axes.spines.top': False, 'axes.spines.right': False})
+import sys; sys.path.insert(0, '..')
+import figstyle as FS
+FS.apply()
 C = {'bare': '#7d7c76', 'hemisphere': '#2a78d6', 'freeform': '#eb6834'}; INK2 = '#52514e'
 MK = {'orange': 'o', 'green': '^'}
 A10 = np.arange(0, 90, 10)
@@ -49,80 +53,83 @@ def sim(em, nm):
 
 SIM = {em: {nm: sim(em, nm) for nm in ('bare', 'hemisphere', 'freeform')} for em in GZ}
 ETA = {'orange': np.mean(EQE_O['bare']) / SIM['orange']['bare']['EQE'], 'green': np.mean(EQE_G['bare']) / SIM['green']['bare']['EQE']}
-fig = plt.figure(figsize=(7.1, 5.6)); gs = fig.add_gridspec(2, 6, hspace=0.5, wspace=1.1)
-ax_a = fig.add_subplot(gs[0, 0:2]); ax_b = fig.add_subplot(gs[0, 2:4]); ax_c = fig.add_subplot(gs[0, 4:6]); ax_d = fig.add_subplot(gs[1, 0:3]); ax_e = fig.add_subplot(gs[1, 3:6])
-sheets = []
+fig = plt.figure(figsize=(FS.W, 6.0)); gs = fig.add_gridspec(3, 2, height_ratios=[0.86, 1, 1], hspace=0.5, wspace=0.36)
+ax_a = fig.add_subplot(gs[0, 0]); lg = fig.add_subplot(gs[0, 1]); ax_b = fig.add_subplot(gs[1, 0]); ax_c = fig.add_subplot(gs[1, 1]); ax_d = fig.add_subplot(gs[2, 0]); ax_e = fig.add_subplot(gs[2, 1])
+sheets = []; LAB = {'bare': 'Bare', 'hemisphere': 'Hemispherical MLA', 'freeform': 'Freeform MLA'}
 # (a) layout
-a = ax_a; a.set_aspect('equal'); a.set_xlim(-0.5, 26); a.set_ylim(-3.5, 26); a.axis('off')
-a.add_patch(Rectangle((0, 0), 25.4, 25.4, fill=False, lw=0.8, ec='k'))
+a = ax_a; a.set_aspect('equal'); a.set_xlim(-9, 34.5); a.set_ylim(-1.0, 26.4); a.axis('off')
+a.add_patch(Rectangle((0, 0), 25.4, 25.4, fill=False, lw=0.9, ec='k'))
 a.add_patch(Rectangle((0, 12.7), 25.4, 12.7, color='#d9e6f2', lw=0))
 for xc in 25.4 - np.array([4.7, 8.6898, 12.6796, 16.6694, 20.6592]):
     a.add_patch(FancyBboxPatch((xc - 1.3919, 4.5618 - 1.3919), 2 * 1.3919, 9.9263 + 2 * 1.3919, boxstyle='round,pad=0,rounding_size=1.3919', fc='#c9c9c4', ec='#8a8a85', lw=0.4))
 a.add_patch(Rectangle((1.7, 25.4 - 1.7497 - 4.57), 22.0, 4.57, fc='#c9c9c4', ec='#8a8a85', lw=0.4))
 px, py = 12.7, 14.4882
-a.add_patch(Rectangle((px - 5, py - 5), 10, 10, fill=False, ec='k', ls='--', lw=0.6))
-a.add_patch(Rectangle((px - 1.5, py - 1.5), 3, 3, fill=False, ec=C['hemisphere'], lw=1.1))
+a.add_patch(Rectangle((px - 5, py - 5), 10, 10, fill=False, ec='k', ls='--', lw=0.7))
+a.add_patch(Rectangle((px - 1.5, py - 1.5), 3, 3, fill=False, ec=C['hemisphere'], lw=1.2))
 a.add_patch(Circle((px, py), 1.0, color='#f2b134'))
-a.text(px + 1.8, py + 1.6, '3 mm lens\npatch', fontsize=5, color=C['hemisphere'])
-a.annotate('pixel\nr = 1 mm', (px - 0.7, py - 0.7), (px - 12.3, py - 4.2), fontsize=5, arrowprops=dict(arrowstyle='-', lw=0.5)); a.text(0.6, 23.6, 'ITO', fontsize=5, color='#4a6a8a'); a.text(17.0, 1.3, 'Al fingers', fontsize=5, color='#55554f')
-a.text(0.0, -0.6, 'glass 25.4 mm; bare 0.7 mm, MLA 0.7 + 0.7 mm\n(oil-coupled); dashed: 10 mm patch (model only)', fontsize=4.8, va='top')
-a.set_title('(a) layout', loc='left')
+kw = dict(fontsize=6.4, va='center', arrowprops=dict(arrowstyle='-', lw=0.5, shrinkA=1, shrinkB=0))
+a.annotate('3 mm lens patch', (px + 1.5, py + 0.9), (26.6, 19.5), color=C['hemisphere'], ha='left', **kw)
+a.annotate('Pixel, $r$ = 1 mm', (px + 0.7, py - 0.3), (26.6, 14.4), ha='left', **kw)
+a.annotate('10 mm patch\n(model only)', (px + 5, py - 4.0), (26.6, 8.6), ha='left', **kw)
+a.annotate('ITO', (1.0, 23.0), (-1.2, 23.0), ha='right', **kw); a.annotate('Al', (4.74, 6.0), (-1.2, 6.0), ha='right', **kw)
+a.plot([0, 25.4], [-0.9, -0.9], color='k', lw=0.6); a.text(12.7, -1.5, '25.4 mm', fontsize=6.4, ha='center', va='top')
+FS.label(a, 'a', x=0.0, y=1.0)
 # (b, c) normalized angular intensity
 rows_b = []
-for axp, em, title in ((ax_b, 'orange', '(b) orange emitter'), (ax_c, 'green', '(c) green emitter')):
-    shown = ('bare', 'hemisphere', 'freeform')
-    for nm in shown:
-        s = SIM[em][nm]; axp.fill_between(A10, s['pmin'], s['pmax'], color=C[nm], alpha=0.22, lw=0)
-        axp.plot(A10, s['pmid'], '-', color=C[nm], lw=0.8)
+for axp, em, letter, title in ((ax_b, 'orange', 'b', 'Orange emitter'), (ax_c, 'green', 'c', 'Green emitter')):
+    for nm in ('bare', 'hemisphere', 'freeform'):
+        s = SIM[em][nm]; axp.fill_between(A10, s['pmin'], s['pmax'], color=C[nm], alpha=0.25, lw=0)
+        axp.plot(A10, s['pmid'], '-', color=C[nm], lw=0.9)
         rows_b += [[em, nm, 'sim_min', *s['pmin'].tolist()], [em, nm, 'sim_max', *s['pmax'].tolist()]]
     if em == 'orange':
-        for k, v in PROF_O.items(): axp.plot(A10, v, MK[em], ms=3, mfc='none', color=C['hemisphere'], mew=0.7)
+        for k, v in PROF_O.items(): axp.plot(A10, v, MK[em], ms=3.0, color=C['hemisphere'], mec='white', mew=0.3, zorder=3)
         rows_b += [[em, 'hemisphere', f'measured {k}', *v] for k, v in PROF_O.items()]
     else:
         for nm, (m, sd) in PROF_G.items():
-            n = len(m); axp.errorbar(A10[:n], m, yerr=sd, fmt=MK[em], ms=3, color=C[nm], mfc=C[nm] if nm != 'freeform' else 'white', mew=0.7, elinewidth=0.6, capsize=1.2)
+            n = len(m); axp.errorbar(A10[:n], m, yerr=sd, fmt=MK[em], ms=3.4, color=C[nm], mfc='white', mew=0.9, elinewidth=0.7, capsize=1.4, zorder=3)
             rows_b += [[em, nm, 'measured mean', *m], [em, nm, 'measured sd', *sd]]
-    axp.set_xlim(0, 82); axp.set_ylim(0, 1.08); axp.set_xticks([0, 20, 40, 60, 80]); axp.set_xlabel('angle (°)'); axp.set_ylabel('I(θ) / I(0°)'); axp.set_title(title, loc='left')
-for nm, lab in (('bare', 'bare'), ('hemisphere', 'hemispherical'), ('freeform', 'freeform')):
-    ax_b.fill_between([], [], [], color=C[nm], alpha=0.35, lw=0, label='model, ' + lab)
-ax_b.plot([], [], 'o', mfc='none', color=C['hemisphere'], ms=3, label='measured, hemi. (5 devices)')
-ax_b.legend(fontsize=5, frameon=False, loc='lower left', handlelength=1.2)
-ax_c.plot([], [], '^', color='#777', ms=3, label='measured, tilt-corrected\n(mean ± s.d.; open: freeform)')
-ax_c.legend(fontsize=5, frameon=False, loc='lower left')
+    axp.set_xlim(-2.5, 83); axp.set_ylim(0, 1.08); axp.set_xticks([0, 20, 40, 60, 80]); axp.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0]); axp.set_xlabel('Viewing angle (°)'); axp.set_ylabel(r'Normalized intensity')
+    axp.text(0.96, 0.94, title, transform=axp.transAxes, ha='right', va='top', fontsize=7); FS.label(axp, letter)
 sheets.append(('bc_profiles', ['emitter', 'structure', 'series'] + [f'{x}deg' for x in A10], rows_b))
 # (d) angular factor
 d = ax_d; names = ['bare', 'freeform', 'hemisphere']; rng = np.random.default_rng(1); rows_d = []
 for i, nm in enumerate(names):
     for em, dx in (('orange', -0.2), ('green', 0.2)):
-        lo, hi = SIM[em][nm]['PE']; d.add_patch(Rectangle((i + dx - 0.13, lo), 0.26, max(hi - lo, 0.004), fc='#d8d7d2', ec='k', lw=0.7))
+        lo, hi = SIM[em][nm]['PE']; d.add_patch(Rectangle((i + dx - 0.14, lo), 0.28, max(hi - lo, 0.004), fc='#dcdcdc', ec='k', lw=0.7))
         v = (PE_O if em == 'orange' else PE_G)[nm]
-        d.plot(i + dx + rng.uniform(-0.07, 0.07, len(v)), v, MK[em], ms=3.2, color=C[nm], mfc=C[nm] if em == 'orange' else 'white', mew=0.8, alpha=0.9)
-        if nm != 'bare': d.plot(i + dx, P10[em][nm]['PE'], 'D', ms=3.6, mfc='white', mec='k', mew=0.7)
+        d.plot(i + dx + rng.uniform(-0.08, 0.08, len(v)), v, MK[em], ms=3.4, color=C[nm], mfc=C[nm] if em == 'orange' else 'white', mec='white' if em == 'orange' else C[nm], mew=0.3 if em == 'orange' else 0.9, zorder=3)
+        if nm != 'bare': d.plot(i + dx, P10[em][nm]['PE'], 'D', ms=3.8, mfc='white', mec='k', mew=0.8, zorder=2)
         rows_d.append([em, nm, lo, hi, P10[em][nm]['PE'] if nm != 'bare' else None] + list(v))
-d.add_patch(Rectangle((0, 0), 0, 0, fc='#d8d7d2', ec='k', lw=0.7, label='model, 3 mm patch (geometry range)'))
-d.plot([], [], 'D', ms=3.6, mfc='white', mec='k', label='model, 10 mm patch'); d.plot([], [], 'o', color='#777', ms=3, label='measured, orange'); d.plot([], [], '^', mfc='white', color='#777', ms=3, label='measured, green')
-d.axhline(1, color=INK2, lw=0.4, ls=':'); d.set_xticks(range(3)); d.set_xticklabels(names[:2] + ['hemispherical']); d.set_xlim(-0.55, 2.55)
-d.set_ylim(0.55, 1.3); d.set_ylabel('angular factor  EQE / EQE$_{0°}$'); d.legend(fontsize=5, frameon=False, loc='lower left', ncol=1)
-d.set_title('(d) angular factor', loc='left'); sheets.append(('d_angular_factor', ['emitter', 'structure', 'sim3_min', 'sim3_max', 'sim10', 'measured...'], rows_d))
+d.axhline(1, color='k', lw=0.6, ls=':'); d.set_xticks(range(3)); d.set_xticklabels(['Bare', 'Freeform\nMLA', 'Hemispherical\nMLA'], fontsize=7); d.set_xlim(-0.55, 2.55); d.tick_params(axis='x', which='both', top=False, length=0)
+d.set_ylim(0.55, 1.3); d.set_ylabel('Angular factor'); FS.label(d, 'd')
+sheets.append(('d_angular_factor', ['emitter', 'structure', 'sim3_min', 'sim3_max', 'sim10', 'measured...'], rows_d))
 # (e) lens/bare ratios of on-axis (Lambertian-equivalent) and total EQE
-e = ax_e; groups = [('orange', 'hemisphere'), ('green', 'hemisphere'), ('orange', 'freeform')]; rows_e = []; xt = []; xl = []
+e = ax_e; groups = [('orange', 'hemisphere'), ('green', 'hemisphere'), ('orange', 'freeform'), ('green', 'freeform')]; rows_e = []; xt = []; xl = []
 for g, (em, nm) in enumerate(groups):
     mb = np.mean((EQE_O if em == 'orange' else EQE_G)['bare']); fb = np.mean((FRONT_O if em == 'orange' else FRONT_G)['bare'])
     meas_tot = np.array((EQE_O if em == 'orange' else EQE_G)[nm]) / mb; meas_ax = np.array((FRONT_O if em == 'orange' else FRONT_G)[nm]) / fb
     sb = SIM[em]['bare']; sl = SIM[em][nm]
     sim_tot = sl['EQE'] / sb['EQE']; sim_ax = (sl['front'][0] / np.mean(sb['front']), sl['front'][1] / np.mean(sb['front']))
     t10 = P10[em][nm]['EQE'] / P10[em]['bare']['EQE']; a10 = P10[em][nm]['front_EQE'] / P10[em]['bare']['front_EQE']
-    for j, (lab, smin, smax, s10, mv) in enumerate((('on-axis', *sim_ax, a10, meas_ax), ('total', sim_tot, sim_tot, t10, meas_tot))):
-        x = 3 * g + j; xt.append(x); xl.append(lab)
-        e.add_patch(Rectangle((x - 0.3, min(smin, smax)), 0.6, max(abs(smax - smin), 0.006), fc='#d8d7d2', ec='k', lw=0.7))
-        e.plot(x, s10, 'D', ms=3.6, mfc='white', mec='k', mew=0.7)
-        e.plot(x + rng.uniform(-0.12, 0.12, len(mv)), mv, MK[em], ms=3.2, color=C[nm], mfc=C[nm] if em == 'orange' else 'white', mew=0.8)
-        rows_e.append([em, nm, lab, smin, smax, s10] + mv.tolist())
-    e.text(3 * g + 0.5, 1.93, f"{nm[:4] + '.' if nm == 'hemisphere' else 'freeform'}\n{em}", ha='center', va='top', fontsize=5.2, color=INK2)
-e.axhline(1, color=INK2, lw=0.5, ls=':'); e.set_xticks(xt); e.set_xticklabels(xl, fontsize=5.5); e.set_xlim(-0.7, 7.7); e.set_ylim(0.6, 1.95)
-e.set_ylabel('lens device / bare'); e.set_title('(e) on-axis versus total EQE', loc='left')
+    for j, (lab, smin, smax, s10, mv) in enumerate((('Axial', *sim_ax, a10, meas_ax), ('Total', sim_tot, sim_tot, t10, meas_tot))):
+        x = 2.6 * g + j; xt.append(x); xl.append(lab if j == 0 else '\n' + lab)
+        e.add_patch(Rectangle((x - 0.3, min(smin, smax)), 0.6, max(abs(smax - smin), 0.008), fc='#dcdcdc', ec='k', lw=0.7))
+        e.plot(x, s10, 'D', ms=3.8, mfc='white', mec='k', mew=0.8, zorder=2)
+        e.plot(x + rng.uniform(-0.14, 0.14, len(mv)), mv, MK[em], ms=3.4, color=C[nm], mfc=C[nm] if em == 'orange' else 'white', mec='white' if em == 'orange' else C[nm], mew=0.3 if em == 'orange' else 0.9, zorder=3)
+        rows_e.append([em, nm, lab.lower(), smin, smax, s10] + mv.tolist())
+    if g: e.axvline(2.6 * g - 0.8, color='#b0b0b0', lw=0.6)
+    e.text(2.6 * g + 0.5, 2.06, em.capitalize(), ha='center', va='top', fontsize=6.4)
+e.axhline(1, color='k', lw=0.6, ls=':'); e.set_xticks(xt); e.set_xticklabels(xl, fontsize=6.2); e.set_xlim(-0.8, 2.6 * 3 + 1.8); e.set_ylim(0.6, 2.1); e.tick_params(axis='x', which='both', top=False, length=0)
+e.set_ylabel('Lens device / bare device'); FS.label(e, 'e')
 sheets.append(('e_ratios', ['emitter', 'structure', 'quantity', 'sim3_min', 'sim3_max', 'sim10', 'measured...'], rows_e))
-fig.savefig('../figures_oe/fig5_experiment.png', dpi=300, bbox_inches='tight'); fig.savefig('../figures_oe/fig5_experiment.pdf', bbox_inches='tight')
+# legend cell
+lg.axis('off')
+lg.legend(handles=[Patch(fc=C[k], ec='none', label=LAB[k]) for k in ('bare', 'hemisphere', 'freeform')] +
+                  [Patch(fc='#b9b9b9', ec='none', alpha=0.6, label='Model range, 3 mm patch, in (b), (c)'), Patch(fc='#dcdcdc', ec='k', lw=0.7, label='Model range, 3 mm patch, in (d), (e)'),
+                   Line2D([], [], ls='none', marker='D', ms=3.8, mfc='white', mec='k', mew=0.8, label='Model, 10 mm patch'),
+                   Line2D([], [], ls='none', marker='o', ms=3.6, color='#4d4d4d', label='Measured, orange emitter'), Line2D([], [], ls='none', marker='^', ms=3.6, mfc='white', color='#4d4d4d', mew=0.9, label='Measured, green emitter')],
+          loc='center left', bbox_to_anchor=(-0.06, 0.5), fontsize=6.8, labelspacing=0.45, handlelength=1.1)
+FS.save(fig, '../figures_oe/fig5_experiment'); plt.close(fig)
 wb = Workbook(); wb.remove(wb.active)
 for nm, hdr, rows in sheets:
     ws = wb.create_sheet(nm); ws.append(hdr)
