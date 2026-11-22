@@ -46,5 +46,28 @@
   "R_cut": 5.0,
   "d_H_min": 3.358,
   "n_N_within_3A": 0
+ },
+ "atop33_open": {
+  "E_b": 0.4966,
+  "elec": 0.1998,
+  "D3": -0.2968,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1109,
+  "frag_atoms": 71,
+  "caps": 4,
+  "mol_atoms": 111,
+  "seconds": 14600,
+  "anchors": "N33",
+  "R_cut": 5.0,
+  "near": "N33",
+  "d_near": 2.3,
+  "d_H_min": 2.879,
+  "n_N_within_3A": 1,
+  "pos": [
+   0.012,
+   0.3769,
+   1.0303
+  ],
+  "from_site": "atop33"
  }
 }
