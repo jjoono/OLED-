@@ -1,5 +1,110 @@
 {
  "rows": {
+  "No01": {
+   "patent": {
+    "n": null,
+    "dE_kcal": null,
+    "s_A2": null,
+    "dEef": null,
+    "Rs": null
+   },
+   "E_b": 0.1288,
+   "elec": -0.0638,
+   "disp": 0.1926,
+   "site": "C5",
+   "d_H_min": 3.627,
+   "n_N_at_site": 0,
+   "E_b_open_site": 0.1288,
+   "dq_Ag1_Ag2": -0.11,
+   "q_Ag1": 0.1001,
+   "n_lpN_sites": 0,
+   "sasa_A2": 226.9,
+   "n_atoms": 24
+  },
+  "No02": {
+   "patent": {
+    "n": 1,
+    "dE_kcal": -51.6,
+    "s_A2": 902.7,
+    "dEef": -0.057,
+    "Rs": null
+   },
+   "E_b": 0.4129,
+   "elec": 0.1206,
+   "disp": 0.2924,
+   "site": "N33",
+   "d_H_min": 2.571,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4129,
+   "dq_Ag1_Ag2": -0.223,
+   "q_Ag1": 0.1217,
+   "n_lpN_sites": 1,
+   "sasa_A2": 1074.3,
+   "n_atoms": 111
+  },
+  "No03": {
+   "patent": {
+    "n": 3,
+    "dE_kcal": -36.418,
+    "s_A2": 981,
+    "dEef": -0.111,
+    "Rs": 963
+   },
+   "E_b": 0.4264,
+   "elec": 0.224,
+   "disp": 0.2024,
+   "site": "N63",
+   "d_H_min": 2.8,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4264,
+   "dq_Ag1_Ag2": -0.1143,
+   "q_Ag1": 0.0198,
+   "n_lpN_sites": 3,
+   "sasa_A2": 1101.9,
+   "n_atoms": 118
+  },
+  "No04": {
+   "patent": {
+    "n": 2,
+    "dE_kcal": -48.933,
+    "s_A2": 666,
+    "dEef": -0.147,
+    "Rs": 915750
+   },
+   "E_b": 0.4823,
+   "elec": 0.2523,
+   "disp": 0.23,
+   "site": "N21",
+   "d_H_min": 2.776,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4823,
+   "dq_Ag1_Ag2": -0.123,
+   "q_Ag1": 0.0127,
+   "n_lpN_sites": 1,
+   "sasa_A2": 737.1,
+   "n_atoms": 79
+  },
+  "No05": {
+   "patent": {
+    "n": 2,
+    "dE_kcal": -49.419,
+    "s_A2": 666,
+    "dEef": -0.148,
+    "Rs": 39120
+   },
+   "E_b": 0.4121,
+   "elec": 0.2052,
+   "disp": 0.2069,
+   "site": "N29",
+   "d_H_min": 2.817,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4121,
+   "dq_Ag1_Ag2": -0.1015,
+   "q_Ag1": 0.0096,
+   "n_lpN_sites": 2,
+   "sasa_A2": 743.6,
+   "n_atoms": 79
+  },
   "No06": {
    "patent": {
     "n": 3,
@@ -42,6 +147,27 @@
    "sasa_A2": 820.6,
    "n_atoms": 88
   },
+  "No08": {
+   "patent": {
+    "n": 4,
+    "dE_kcal": -41.989,
+    "s_A2": 729,
+    "dEef": -0.23,
+    "Rs": 278
+   },
+   "E_b": 0.4077,
+   "elec": 0.2219,
+   "disp": 0.1858,
+   "site": "N24",
+   "d_H_min": 2.927,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4077,
+   "dq_Ag1_Ag2": -0.1629,
+   "q_Ag1": 0.0733,
+   "n_lpN_sites": 4,
+   "sasa_A2": 820.0,
+   "n_atoms": 88
+  },
   "No09": {
    "patent": {
     "n": 2,
@@ -50,20 +176,70 @@
     "dEef": -0.238,
     "Rs": 122
    },
-   "E_b": null,
-   "elec": null,
-   "disp": null,
-   "site": null,
-   "d_H_min": null,
-   "n_N_at_site": null,
-   "E_b_open_site": null,
+   "E_b": 0.37,
+   "elec": 0.113,
+   "disp": 0.257,
+   "site": "H45",
+   "d_H_min": 2.473,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.37,
    "dq_Ag1_Ag2": -0.2527,
    "q_Ag1": 0.169,
    "n_lpN_sites": 1,
    "sasa_A2": 556.2,
    "n_atoms": 57
+  },
+  "No10": {
+   "patent": {
+    "n": 4,
+    "dE_kcal": -45.01,
+    "s_A2": 723,
+    "dEef": -0.249,
+    "Rs": 792
+   },
+   "E_b": 0.3501,
+   "elec": 0.1736,
+   "disp": 0.1764,
+   "site": "H64",
+   "d_H_min": 2.46,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.3501,
+   "dq_Ag1_Ag2": -0.212,
+   "q_Ag1": 0.0521,
+   "n_lpN_sites": 2,
+   "sasa_A2": 799.4,
+   "n_atoms": 88
+  },
+  "No11": {
+   "patent": {
+    "n": 4,
+    "dE_kcal": -57.302,
+    "s_A2": 634,
+    "dEef": -0.362,
+    "Rs": 52
+   },
+   "E_b": 0.4252,
+   "elec": 0.2017,
+   "disp": 0.2235,
+   "site": "H48",
+   "d_H_min": 2.575,
+   "n_N_at_site": 1,
+   "E_b_open_site": 0.4252,
+   "dq_Ag1_Ag2": -0.2661,
+   "q_Ag1": 0.0532,
+   "n_lpN_sites": 2,
+   "sasa_A2": 727.5,
+   "n_atoms": 76
   }
  },
- "spearman_vs_minus_log_Rs": {},
+ "spearman_vs_minus_log_Rs": {
+  "patent_dEef": 0.818,
+  "our_E_b": -0.236,
+  "our_elec": -0.212,
+  "our_E_b_open": -0.236,
+  "our_E_b_x_nlp_per_sasa": 0.527,
+  "patent_n_over_s": 0.863,
+  "n_compounds": 10
+ },
  "note": "Rs unmeasurable (No02) ranked worst. Spearman over the patent's compounds with N."
 }
