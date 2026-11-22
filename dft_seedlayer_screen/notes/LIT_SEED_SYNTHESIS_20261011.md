@@ -1,5 +1,12 @@
 # Seed-layer literature synthesis and the priority of screening descriptors (2026-10-11)
 
+> **Correction (2026-11-23, scripts 173-174, notes/KONICA_TABLE2_RESCORE.md).** The "0.5 eV gate" and
+> ranking by E_b are superseded. On the Konica US 9,923,166 seeds, E_b does not rank the Ag sheet
+> resistance within one binding class (rho = -0.46); the areal density of anchor sites does (rho = 0.89).
+> E_b is now a trap gate, E* = 0.30 eV (screen level, bounds 0.25-0.35 from the same data), and the
+> ranking variable is D = (anchors x P_trap(E_b)) / SASA (runs/two_tier.json).
+
+
 Question: putting the lab's own result (HATCN/Ag continuous at 7 nm; MoOx/Ag
 percolated with 9–23 % voids at 8 nm) beside everything reported for Ag seed
 layers, which descriptor should rank candidates, and in what order?

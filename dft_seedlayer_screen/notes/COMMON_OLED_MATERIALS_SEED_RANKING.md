@@ -1,5 +1,12 @@
 # Common evaporable OLED materials ranked as Ag seed layers (final, 2026-10-13)
 
+> **Correction (2026-11-23, scripts 173-174, notes/KONICA_TABLE2_RESCORE.md).** The "0.5 eV gate" and
+> ranking by E_b are superseded. On the Konica US 9,923,166 seeds, E_b does not rank the Ag sheet
+> resistance within one binding class (rho = -0.46); the areal density of anchor sites does (rho = 0.89).
+> E_b is now a trap gate, E* = 0.30 eV (screen level, bounds 0.25-0.35 from the same data), and the
+> ranking variable is D = (anchors x P_trap(E_b)) / SASA (runs/two_tier.json).
+
+
 Question: with the screening rule fixed in `LIT_SEED_SYNTHESIS_20261011.md`
 (gates first, then rank by E_b), where do the everyday HIL/HTL/host/ETL
 materials fall, and does 3TPYMB work as a seed under thin Ag?

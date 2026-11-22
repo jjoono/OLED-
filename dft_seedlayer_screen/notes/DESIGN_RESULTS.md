@@ -1,5 +1,11 @@
 # Design programme, steps 1-3: results
 
+> **정정 (2026-11-23, 스크립트 173–174, `notes/KONICA_TABLE2_RESCORE.md`).** "0.5 eV 문턱"과 E_b 순위는 폐기한다.
+> - Konica 특허 seed에서 같은 결합 등급 안의 면저항 순위를 E_b는 맞추지 못한다(ρ = −0.46). 결합 자리의 면밀도가 맞춘다(ρ = 0.89).
+> - 이제 E_b는 포획 여부를 가르는 문턱으로만 쓴다. E* = 0.30 eV(스크리닝 수준, 같은 데이터에서 범위 0.25–0.35)다.
+> - 순위 변수는 D = (결합 자리 수 × P_trap(E_b)) / SASA다(`runs/two_tier.json`).
+
+
 Spec: `notes/DESIGN_SPEC_CGL_SEED.md`. Scripts 160-167, data in `runs/design/`.
 
 ## Pipeline
@@ -165,3 +171,12 @@ Next calculations that would change a decision, cheapest first:
 2. PBE0 anchor for HAT-CNPh x3 (the aryl class; tests the map extrapolation).
 3. Glass-formation check beyond the heuristic (MD of a 50-molecule film or
    literature Tg of HAT aryl derivatives).
+
+## 2026-11-23 갱신: 두 단계 지표 적용 (스크립트 174, 165 재실행)
+
+- HAT 설계 후보 17종(하드 조건 통과)을 D로 다시 정렬했다. **D가 HATCN(38.1) 이상인 후보는 없다.** 최대는 HAT-CN-CN-CN2benzo의 32.4다. 기존 결론("HATCN을 이기는 후보 없음")이 유지되고, 더 강해진다.
+- 혼합 seed 순위(165)는 E* = 0.30 eV와 밀도 기반 θ로 다시 계산했다.
+  - 1:1 혼합의 N_sat 차이가 0.80–0.87로 줄었다.
+  - 상위는 PO-T2T, B3PyMPM, TPBi이고, 이전 상위는 TPBi, PO-T2T, p-bPPhenB였다.
+  - 혼합 상대 사이의 차이가 작아서, 상대 선택은 전기적 역할과 CT로 정해야 한다. 핵생성은 기준이 되지 못한다.
+- 사전 등록 예측: `notes/PREDICTION_REGISTER.md`.

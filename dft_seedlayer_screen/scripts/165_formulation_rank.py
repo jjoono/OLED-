@@ -79,10 +79,28 @@ def tau(eb):
     return np.exp((E_D + eb - E_FACE) / (KB * T)) / NU0
 
 
+# E* (screen-level E_b scale). The kinetic estimate below gives 0.465 eV;
+# the Konica US 9,923,166 seeds (script 174, notes/KONICA_TABLE2_RESCORE.md)
+# need every pyridyl site (0.35-0.50 eV) to trap and pi sites (<= 0.28) not
+# to, which bounds it to 0.25-0.35 eV. The calibrated value is used.
+E_STAR_KINETIC = KB * T * np.log(T_CAP * NU0) - E_D + E_FACE
+E_STAR = float(os.environ.get("E_STAR", "0.30"))
+
+
 def p_trap(eb):
-    # tau > t_cap  <=>  E_b > E* ;  E* = kT ln(t_cap nu0) - E_D + E_FACE
-    e_star = KB * T * np.log(T_CAP * NU0) - E_D + E_FACE
-    return float(1 - norm.cdf(e_star, loc=eb, scale=SIG_EB)), float(e_star)
+    # tau > t_cap  <=>  E_b > E*
+    return float(1 - norm.cdf(E_STAR, loc=eb, scale=SIG_EB)), float(E_STAR)
+
+
+def theta_from_density():
+    """Anchor fraction relative to neat HATCN = (anchors/SASA) / HATCN's,
+    from script 174 (replaces the hand estimates in THETA_SITE)."""
+    p = os.path.join(ROOT, "runs", "two_tier.json")
+    if not os.path.exists(p):
+        return {}
+    c = json.load(open(p))["commercial"]
+    h = c["HATCN"]["n_anchor"] / c["HATCN"]["SASA"]
+    return {n: round(v["n_anchor"] / v["SASA"] / h, 3) for n, v in c.items()}
 
 
 def partner_props(names):
@@ -185,11 +203,12 @@ def main():
     gx, gy = np.array([g[0] for g in grid]), np.array([g[1] for g in grid])
     nx = np.array(sorted(float(k) for k in neat))
     ny = np.array([neat[str(k) if str(k) in neat else repr(k)]["N_sat"] for k in nx])
+    THETA_DENS = theta_from_density()
     rows = []
     for n in names:
         eb = rank[n]["E_b"]
         pt, e_star = p_trap(eb)
-        th = THETA_SITE[n] * pt
+        th = THETA_DENS.get(n, THETA_SITE[n]) * pt
         ip = pp[n]["IP"]
         ct = "strong" if ip < 6.5 else ("weak possible" if ip < 7.0 else "none")
         rows.append({
@@ -233,7 +252,9 @@ def main():
         r["score"] = round(r["N_sat_rel"] - 0.15 * len(bad)
                            - 0.002 * max(0, (r["partner_risk"] or 0) - 30), 3)
     rows.sort(key=lambda r: -r["score"])
-    out = {"params": {"sigma_Eb": SIG_EB, "E_star_trap_eV": round(e_star, 3), "t_capture_s": T_CAP,
+    out = {"params": {"sigma_Eb": SIG_EB, "E_star_trap_eV": round(e_star, 3),
+                      "E_star_kinetic_eV": round(E_STAR_KINETIC, 3), "theta_source": "script 174 density",
+                      "t_capture_s": T_CAP,
                       "x_window": [X_KILL, X_PERC]}, "rows": rows,
            "kmc_neat_partner": neat}
     json.dump(out, open(OUT, "w"), indent=1)
