@@ -14,5 +14,21 @@
   "R_cut": 5.0,
   "d_H_min": 2.389,
   "n_N_within_3A": 1
+ },
+ "lpN21": {
+  "E_b": 0.4149,
+  "elec": 0.216,
+  "D3": -0.1989,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1128,
+  "frag_atoms": 41,
+  "caps": 2,
+  "mol_atoms": 88,
+  "seconds": 3703,
+  "near": "N21",
+  "gfn2_E_b": 0.8291,
+  "R_cut": 5.0,
+  "d_H_min": 3.044,
+  "n_N_within_3A": 1
  }
 }
