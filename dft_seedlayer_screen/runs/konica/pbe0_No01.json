@@ -14,5 +14,21 @@
   "R_cut": 5.0,
   "d_H_min": 3.558,
   "n_N_within_3A": 0
+ },
+ "hollow6": {
+  "E_b": 0.1288,
+  "elec": -0.0638,
+  "D3": -0.1926,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.0684,
+  "frag_atoms": 24,
+  "caps": 0,
+  "mol_atoms": 24,
+  "seconds": 1190,
+  "near": "C5",
+  "gfn2_E_b": 0.3805,
+  "R_cut": 5.0,
+  "d_H_min": 3.627,
+  "n_N_within_3A": 0
  }
 }
