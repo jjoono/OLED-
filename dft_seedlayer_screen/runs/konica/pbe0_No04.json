@@ -46,5 +46,28 @@
   "R_cut": 5.0,
   "d_H_min": 1.72,
   "n_N_within_3A": 1
+ },
+ "hollow18_open": {
+  "E_b": 0.4475,
+  "elec": 0.2564,
+  "D3": -0.1911,
+  "d3_sign_fixed": true,
+  "q_mulliken": -0.1492,
+  "frag_atoms": 52,
+  "caps": 2,
+  "mol_atoms": 79,
+  "seconds": 7513,
+  "anchors": "N21",
+  "R_cut": 5.0,
+  "near": "N21",
+  "d_near": 2.3,
+  "d_H_min": 2.901,
+  "n_N_within_3A": 1,
+  "pos": [
+   1.9097,
+   1.0206,
+   -5.284
+  ],
+  "from_site": "hollow18"
  }
 }
