@@ -85,6 +85,12 @@ for axp, em, letter, title in ((ax_b, 'orange', 'b', 'Orange emitter'), (ax_c, '
         PO = np.array(list(PROF_O.values())); mo, so = PO.mean(0), PO.std(0, ddof=1)
         axp.errorbar(A10, mo, yerr=so, fmt=MK[em], ms=3.4, color=C['hemisphere'], mec='white', mew=0.3, elinewidth=0.7, capsize=1.4, zorder=3)
         rows_b += [[em, 'hemisphere', 'measured mean', *mo.tolist()], [em, 'hemisphere', 'measured sd', *so.tolist()]] + [[em, 'hemisphere', f'measured {k}', *v] for k, v in PROF_O.items()]
+        # bare (one device) and freeform (two devices; mean with the range of the two)
+        OB = np.array([1.000, 0.972, 0.926, 0.853, 0.761, 0.649, 0.496, 0.321, 0.154])                                   # S5D2
+        OF = np.array([[1.000, 0.979, 0.874, 0.796, 0.760, 0.625, 0.452, 0.425, 0.183], [1.000, 0.925, 0.757, 0.800, 0.839, 0.830, 0.540, 0.415, 0.270]])  # S2D3, S3D3
+        axp.plot(A10, OB, MK[em], ms=3.4, color=C['bare'], mec='white', mew=0.3, zorder=3)
+        mf = OF.mean(0); axp.errorbar(A10, mf, yerr=[mf - OF.min(0), OF.max(0) - mf], fmt=MK[em], ms=3.4, color=C['freeform'], mec='white', mew=0.3, elinewidth=0.7, capsize=1.4, zorder=3)
+        rows_b += [[em, 'bare', 'measured S5D2', *OB.tolist()], [em, 'freeform', 'measured S2D3', *OF[0].tolist()], [em, 'freeform', 'measured S3D3', *OF[1].tolist()]]
     else:
         for nm, (m, sd) in PROF_G.items():
             n = len(m); axp.errorbar(A10[:n], m, yerr=sd, fmt=MK[em], ms=3.4, color=C[nm], mfc='white', mew=0.9, elinewidth=0.7, capsize=1.4, zorder=3)
