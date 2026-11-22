@@ -128,15 +128,26 @@ add('FigS8b_dedicated', 'Fig. S8', 'b', 'Selectivity of band-dedicated optima vs
 add('FigS8c_points', 'Fig. S8', 'c', 'Selectivity points.', rows_of(f, 'c_selectivity_points'), f)
 add('FigS8c_fits', 'Fig. S8', 'c', 'Selectivity fits.', rows_of(f, 'c_fits'), f)
 
+# ---------------- main-text tables (parsed from the manuscript so that they stay in step with it)
+import re as _re2
+_ms = open('manuscript_draft.md', encoding='utf-8').read()
+for _m in _re2.finditer(r'^\*\*Table (\d+)\.\*\* (.+?)\n\n((?:\|.*\n)+)', _ms, flags=_re2.M):
+    _n, _cap, _tbl = _m.groups()
+    _rows = [[c.strip().replace('$', '').replace('\\mathrm', '').replace('\\', '') for c in r.strip().strip('|').split('|')] for r in _tbl.strip().split('\n')]
+    _rows = [r for r in _rows if not all(set(c) <= set('-: ') for c in r)]
+    add(f'Table{_n}', f'Table {_n}', '-', _cap.replace('$', ''), _rows, 'manuscript_draft.md',
+        note={'1': 'Values from selectivity/placement.py (data/placement.json).', '2': 'Model: labdev/gonio_az_orange.json, gonio_az_e65h80.json; measured values per device/scan are in sheet Fig5d_angular_factor.',
+              '3': 'Each row cites its source table or note of Supplement 1.'}[_n])
 # ---------------- order sheets: main figures, then supplementary figures, each by number
 import re as _re
 def _key(ws):
     if ws.title == 'README': return (-1, 0, '')
+    if ws.title.startswith('Table'): return (0.5, int(ws.title[5:]), ws.title)
     mm = _re.match(r'Fig(S?)(\d+)', ws.title); return (1 if mm.group(1) else 0, int(mm.group(2)), ws.title)
 wb._sheets.sort(key=_key)
-index.sort(key=lambda r: (1 if r[1].startswith('Fig. S') else 0, int(_re.findall(r'\d+', r[1])[0]), r[0]))
+index.sort(key=lambda r: (1 if r[1].startswith('Fig. S') else (0.5 if r[1].startswith('Table') else 0), int(_re.findall(r'\d+', r[1])[0]), r[0]))
 # ---------------- README
-readme['A1'] = 'Source data for all figures (main text Figs. 1-5, Supplement Figs. S1-S10)'; readme['A1'].font = Font(bold=True, size=12)
+readme['A1'] = 'Source data for all figures and main-text tables (Figs. 1-5, Tables 1-3, Supplement Figs. S1-S10)'; readme['A1'].font = Font(bold=True, size=12)
 readme['A2'] = 'One sheet per panel. Angles are substrate (glass) polar angles in degrees; efficiencies are fractions of the power launched into the substrate unless noted; pp = percentage points.'
 readme['A3'] = 'Structure classes: planar, scatter (g = asymmetry, t = reduced optical depth tau*), MLA hemi/free (benchmark optima per band), A_shape/B_aspect/C_jitter/C2_jitter (randomized lenses), W_slope (wavy surfaces).'
 for j, t in enumerate(['sheet', 'figure', 'panel', 'content', 'generated from']):
