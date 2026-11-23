@@ -1027,6 +1027,15 @@
    "q_Ag2_total": 0.0393,
    "delta_q_Ag1_Ag2": -0.3105,
    "seconds": 830
+  },
+  "pbe0": {
+   "pocketN18N25": {
+    "error": "OSError(28, \"Can't synchronously write data (file write failed: time = Mon Nov 23 23:35:19 2026\\n, filename = '/tmp/tmp0_ofv53s', file descriptor = 5, errno = 28, error message = 'No space left on dev",
+    "near": "N21",
+    "gfn2_E_b": 2.0031,
+    "d_H_min": 7.248,
+    "seconds": 170
+   }
   }
  }
 }
