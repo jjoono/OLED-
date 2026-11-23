@@ -632,6 +632,20 @@
     "gfn2_E_b": 2.1628,
     "d_H_min": 7.274,
     "seconds": 3134
+   },
+   "bridge0": {
+    "E_b": 0.0839,
+    "elec": -0.0277,
+    "D3": -0.1116,
+    "d3_sign_fixed": true,
+    "q_mulliken": 0.5092,
+    "frag_atoms": 19,
+    "caps": 1,
+    "mol_atoms": 36,
+    "near": "N0",
+    "gfn2_E_b": 2.1616,
+    "d_H_min": 7.29,
+    "seconds": 3553
    }
   }
  }
