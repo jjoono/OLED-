@@ -617,6 +617,22 @@
    "q_Ag2_total": 0.0619,
    "delta_q_Ag1_Ag2": -0.2921,
    "seconds": 747
+  },
+  "pbe0": {
+   "hollow14": {
+    "E_b": 0.0794,
+    "elec": -0.0323,
+    "D3": -0.1117,
+    "d3_sign_fixed": true,
+    "q_mulliken": 0.5032,
+    "frag_atoms": 19,
+    "caps": 1,
+    "mol_atoms": 36,
+    "near": "N13",
+    "gfn2_E_b": 2.1628,
+    "d_H_min": 7.274,
+    "seconds": 3134
+   }
   }
  }
 }
