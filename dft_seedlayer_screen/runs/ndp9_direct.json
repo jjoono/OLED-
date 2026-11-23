@@ -569,6 +569,20 @@
    "near": "N0",
    "gfn2_E_b": 2.8343,
    "seconds": 5189
+  },
+  "pocketF38F40": {
+   "E_b": 2.1991,
+   "elec": 2.0079,
+   "D3": -0.1912,
+   "d3_sign_fixed": true,
+   "q_mulliken": 0.481,
+   "frag_atoms": 32,
+   "caps": 2,
+   "mol_atoms": 48,
+   "near": "N15",
+   "gfn2_E_b": 2.8338,
+   "seconds": 5949
   }
- }
+ },
+ "E_b_deepest": 2.4242
 }
