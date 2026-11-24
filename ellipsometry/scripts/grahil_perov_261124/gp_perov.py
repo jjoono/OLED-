@@ -185,15 +185,15 @@ def init_basis(va, wl_uv, N_uv):
 
 
 def stage_c(variant, va, x_basis):
-    extra, opt = VARIANTS[variant]
-    S = setup(opt.get('lo', LO), HI, STEP); nb = S['kb'].n; names = STRUCT + extra; ns = len(names)
+    extra, opt = VARIANTS[variant]; fixed = opt.get('fixed', {})          # fixed: structure parameters held at given values
+    S = setup(opt.get('lo', LO), HI, STEP); nb = S['kb'].n; names = [k for k in STRUCT + extra if k not in fixed]; ns = len(names)
     wr = opt.get('wr', WR); angles = opt.get('angles')
     lo = np.r_[[S_LO[k] for k in names], 1.0, 0.0, np.zeros(nb)]; hi = np.r_[[S_HI[k] for k in names], 4.0, 400.0, np.full(nb, 30.0)]
     x0 = np.r_[[va.get(k, S_0[k]) for k in names], x_basis]
     x0 = np.clip(x0, lo + 1e-9, hi - 1e-9)
     D2 = np.diff(np.eye(nb), 2, axis=0)
     def split(x):
-        v = dict(zip(names, x[:ns])); return v, S['kb'].N(x[ns + 2:], x[ns + 1], x[ns])
+        v = dict(zip(names, x[:ns])); v.update(fixed); return v, S['kb'].N(x[ns + 2:], x[ns + 1], x[ns])
     def res(x):
         v, Np = split(x); a, b = residuals(S, v, Np, wr, angles)
         return np.r_[a, b, SMOOTH * (D2 @ x[ns + 2:])]
