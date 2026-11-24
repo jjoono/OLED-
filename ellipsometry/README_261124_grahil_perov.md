@@ -344,6 +344,59 @@ files CompleteEASE saved:
 * `IR Pole Amp.` is A in −A/E²;
 * numbers are written as CompleteEASE prints them (`1.0E-8`, not `1e-08`).
 
+## 7. Using these n,k in a device model
+
+What the description of the perovskite layer does to the amount of light a
+model predicts (`gp_device_check.py`; far-field power into air per unit dipole
+strength — no Purcell normalisation — with one internal spectrum for all rows):
+
+| perovskite described as | normal direction | total into air |
+|---|---|---|
+| one layer, paper optics (n 2.3, k from absorbance, HIL n 1.5) | 1.52 | 1.70 |
+| one layer, ellipsometric dense n,k | 1.29 | 1.37 |
+| **two layers, lower part without the scattering loss** | 1.00 | 1.00 |
+| two layers, scattering loss × 0.5 | 0.49 | 0.46 |
+| two layers, scattered light counted as lost | 0.26 | 0.24 |
+
+A factor of seven between the first and the last row. The structure matters
+more than the exact n,k, and how the scattered light is treated matters most.
+
+1. **Two perovskite layers, not one.** `lib_Perov_dense` on the ETL side,
+   0.43 of the thickness; a `lib_Perov_lower` table on the HIL side, 0.57.
+   Use the tables over the whole EL band, not one index: n goes 2.28 → 2.34 →
+   2.28 → 2.14 between 500 and 600 nm.
+2. **Scattered light is not absorbed light.** At 540 nm 93 % of the lower
+   part's extinction is scattering, and one pass through it leaves 17 % of
+   the light in the coherent beam. `lib_Perov_lower_with_scattering` gives the
+   coherent field — right for the shape of the specular interference
+   pattern, wrong as a loss: it removes three quarters of the output, which a
+   device with the reported 28.9 % EQE cannot have lost. Use
+   `…_no_scattering` (only the perovskite's own absorption) for efficiency
+   and energy balance, as the upper bound; the coherent-only number is the
+   lower bound. The angular pattern is then the coherent part plus a diffuse
+   part of the "fully scattered" shape (§4), its share being the one number
+   the ellipsometry cannot supply.
+3. **Re-absorption.** The EL peak sits on the absorption edge: in the dense
+   part k = 0.179 / 0.076 / 0.003 at 520 / 540 / 560 nm, so one pass through
+   its 116 nm absorbs 39 / 18 / 1 %. The internal emission spectrum is
+   therefore bluer than the measured EL (peak 536–538 nm against 540 nm
+   here) and must be the model's source, not the EL; and an EQE model needs
+   photon recycling. The paper's k at 540 nm is half this value.
+4. **Emitters** spread over both parts, weighted by the perovskite fraction
+   (1 and 0.51); the angular data reject emission from either part alone
+   (§4). The depth profile of recombination is the free parameter to fit.
+5. **GraHIL** n = 1.38, k = 0.006, not 1.5; and its thickness in the device
+   needs its own measurement — 108 nm on this Si piece, 75 nm in the paper,
+   and the angular pattern is sensitive to the difference (§4).
+6. Carry the spread, not one curve: the `n_min … k_max` columns, a lower-part
+   perovskite fraction of 0.35–0.70 and a dense share of 0.40–0.47 cover the
+   fit variants.
+
+Two measurements would replace most of these assumptions: total against
+specular transmittance of the film on glass (is the scattering real, and how
+strong), and the reflectance spectrum of the finished device from the glass
+side, which tests the stack's optics with no assumption about the emitters.
+
 ## Files written to `$ELLIPS_OUT/grahil_perov/`
 
 | file | content |

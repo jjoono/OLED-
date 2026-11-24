@@ -68,9 +68,9 @@ def perov(kind, fit, mod):
     return [(N, d * D_PER / tot, wt(f, i == 0)) for i, (N, d, f) in enumerate(pl)][::-1]
 
 
-def pattern(kind, fit=None, d_hil=75.0, sig=15.0, n_zadn=N_ZADN, spec=None, **mod):
+def pattern(kind, fit=None, d_hil=75.0, sig=15.0, n_zadn=N_ZADN, spec=None, th=None, **mod):
     """-> I(theta) (not normalised), outcoupled spectrum at 0 deg per unit internal spectrum"""
-    th, _, _ = measured(); spec = np.ones(len(WL)) if spec is None else spec
+    th = measured()[0] if th is None else th; spec = np.ones(len(WL)) if spec is None else spec
     Ng = 1.5 * ONE if kind == 'paper' else PV.grahil_N(WL)[0]
     al = Dv.n_al(WL); x, w = P._GH[5 if sig > 0 else 1]
     I = 0.0; ext0 = 0.0
@@ -96,6 +96,37 @@ def run(label, kind, fit=None, **kw):
                 rms_mix=float(np.sqrt(np.mean((Imix - Im)[use]**2))), internal_peak=pk)
 
 
+def treatments(base):
+    """What the description of the perovskite layer does to the AMOUNT of light a model predicts.
+    Far-field power into air per unit dipole strength (not per emitted photon: no Purcell normalisation),
+    one internal spectrum for all rows (the one with which the SE structure gives the measured EL at 0 deg),
+    relative to the two-layer structure without the scattering loss."""
+    th = np.arange(0.0, 89.0, 2.0); t = np.deg2rad(th); el = measured()[2]
+    _, out0 = pattern('SE', base); spec = el / out0; spec = spec / spec.max()
+    rows = [('one layer, paper optics (n 2.3, k from absorbance, HIL n 1.5)', 'paper', None, {}),
+            ('one layer, ellipsometric dense n,k', 'dense', base, {}),
+            ('two layers, lower part without the scattering loss', 'SE', base, dict(ksc_scale=0.0)),
+            ('two layers, scattering loss x 0.5', 'SE', base, dict(ksc_scale=0.5)),
+            ('two layers, scattered light counted as lost', 'SE', base, {})]
+    out = []
+    for lab, kind, fit, kw in rows:
+        I, _ = pattern(kind, fit, spec=spec, th=th, **kw)
+        out.append(dict(label=lab, I0=float(I[0]), P=float(2 * np.pi * np.trapezoid(I * np.sin(t), t))))
+    i0, p0 = out[2]['I0'], out[2]['P']
+    return [dict(r, I0=r['I0'] / i0, P=r['P'] / p0) for r in out]
+
+
+def at_peak(base):
+    """absorption and scattering at the emission wavelengths, for the device's 270 nm"""
+    wl = np.array([520.0, 540.0, 560.0]); v = base['struct']; Np = PV.nk_of(base, wl)
+    Nl = P.bruggeman(Np, np.ones(3, complex), v['f_b']); ksc = v['k_sc'] * (633.0 / wl)**v['p']
+    dl = D_PER * v['d_b'] / (v['d_t'] + v['d_b']); dt = D_PER - dl
+    return [dict(wl=float(w), n_dense=float(Np[i].real), k_dense=float(Np[i].imag), absorption_length_nm=float(w / (4 * np.pi * Np[i].imag)),
+                 dense_single_pass_absorbed=float(1 - np.exp(-4 * np.pi * Np[i].imag * dt / w)), n_lower=float(Nl[i].real), k_abs_lower=float(Nl[i].imag),
+                 k_sc_lower=float(ksc[i]), scattering_share=float(ksc[i] / (ksc[i] + Nl[i].imag)),
+                 lower_single_pass_coherent=float(np.exp(-4 * np.pi * (ksc[i] + Nl[i].imag) * dl / w)), d_dense_nm=float(dt), d_lower_nm=float(dl)) for i, w in enumerate(wl)]
+
+
 def main():
     th, Im, el = measured(); lam = np.cos(np.deg2rad(th)); use = th <= 70
     base = fit_of('base'); rows = []
@@ -115,15 +146,22 @@ def main():
                     ('lower-layer perovskite fraction 1.0 (no low-index part)', dict(f_b=1.0)),
                     ('dense part 90 nm of 284', dict(d_t=90.0)), ('dense part 150 nm of 284', dict(d_t=150.0))):
         rows.append(run('SE base, ' + lab, 'SE', base, **kw))
-    dif = diffuse(th); rms = lambda I: float(np.sqrt(np.mean((I - Im)[use]**2)))
+    dif = diffuse(th); rms = lambda I: float(np.sqrt(np.mean((I - Im)[use]**2))); tr = treatments(base); pk = at_peak(base)
     json.dump(dict(theta=th.tolist(), measured=Im.tolist(), lambertian=dict(I=lam.tolist(), rms=rms(lam)), diffuse=dict(I=dif.tolist(), rms=rms(dif)),
-                   rows=[r for r in rows if r]), open(W + 'device_check.json', 'w'), indent=1)
+                   treatments=tr, at_peak=pk, rows=[r for r in rows if r]), open(W + 'device_check.json', 'w'), indent=1)
     print('%-58s ' % 'theta (deg)' + ' '.join('%5d' % t for t in th) + '  rms(0-70)   eta -> rms   internal peak')
     print('%-58s ' % 'measured (ED Fig. 7g)' + ' '.join('%5.3f' % v for v in Im)); print('%-58s ' % 'Lambertian' + ' '.join('%5.3f' % v for v in lam) + '    %.3f' % rms(lam))
     print('%-58s ' % 'fully scattered (isotropic in the glass)' + ' '.join('%5.3f' % v for v in dif) + '    %.3f' % rms(dif))
     for r in rows:
         if r is None: print(); continue
         print('%-58s ' % r['label'] + ' '.join('%5.3f' % v for v in r['I']) + '    %.3f     %.2f -> %.3f     %.0f nm' % (r['rms'], r['eta'], r['rms_mix'], r['internal_peak']))
+
+    print(); print('%-66s %8s %10s' % ('light predicted, relative to two layers without scattering loss', 'I(0 deg)', 'P into air'))
+    for r in tr: print('%-66s %8.2f %10.2f' % (r['label'], r['I0'], r['P']))
+    print()
+    for q in pk:
+        print('%g nm: dense k %.3f, absorption length %.0f nm, one pass through %.0f nm absorbs %.0f %% | lower part: k_abs %.3f, k_sc %.3f (%.0f %% of its extinction), one pass through %.0f nm keeps %.0f %% coherent'
+              % (q['wl'], q['k_dense'], q['absorption_length_nm'], q['d_dense_nm'], 100 * q['dense_single_pass_absorbed'], q['k_abs_lower'], q['k_sc_lower'], 100 * q['scattering_share'], q['d_lower_nm'], 100 * q['lower_single_pass_coherent']))
 
 
 if __name__ == '__main__':
