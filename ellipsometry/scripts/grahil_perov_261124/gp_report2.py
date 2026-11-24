@@ -1,7 +1,7 @@
 """Second figure of the GraHIL / perovskite session -> $ELLIPS_OUT/grahil_perov/grahil_perov_device.png
 
-  a  angular emission: measured, the paper's optics, the two-layer structure with the scattered light
-     followed (nominal geometry and the best geometry the micrograph allows), and its coherent part alone
+  a  angular emission: measured; the paper's optics and the two-layer structure with the scattered light
+     followed at the nominal thicknesses; both again with the thicknesses the micrograph allows
   b  where the photons go, per description (direct air / trapped in glass / re-absorbed by perovskite / lost)
   c  layer2 fit quality with the surface roughness imposed (effective-medium layer; long-scale height spread)
   d  band edge of the dense perovskite: ellipsometry, luminescence-stitched, published FA/Cs lead bromide
@@ -36,11 +36,12 @@ def main():
     lab = dict(color=INK2, fontsize=8.5); ttl = dict(color=INK, fontsize=9.5, loc='left')
     # a
     a = ax[0, 0]; style(a); fine = np.linspace(0, 85, 86); a.plot(fine, np.cos(np.deg2rad(fine)), color=MUTED, lw=1.1, label='Lambertian')
-    p0 = pick(R['one layer, paper optics']); a.plot(th, p0['I'], color=C2, lw=1.8, marker='s', ms=4, mec=SURF, mew=0.8, label='one layer, n = 2.3 (the paper\'s optics), rms %.3f' % p0['rms'])
-    p1 = pick(R['two layers']); a.plot(th, p1['I'], color=C1, lw=1.8, marker='o', ms=4, mec=SURF, mew=0.8, label='two layers, scattered light followed, rms %.3f' % p1['rms'])
+    p0 = pick(R['one layer, paper optics']); a.plot(th, p0['I'], color=C2, lw=1.8, marker='s', ms=4, mec=SURF, mew=0.8, label='one layer, n = 2.3, nominal thicknesses, rms %.3f' % p0['rms'])
+    p1 = pick(R['two layers']); a.plot(th, p1['I'], color=C1, lw=1.8, marker='o', ms=4, mec=SURF, mew=0.8, label='two layers, scattered light followed, nominal, rms %.3f' % p1['rms'])
     if F:
-        b = F['two, followed'][0]['best']; a.plot(th, b['I'], color=C3, lw=1.8, marker='^', ms=4.5, mec=SURF, mew=0.8, label='the same, best geometry within the micrograph, rms %.3f' % b['rms'])
-    p2 = pick(R['two layers'], scatter='lost'); a.plot(th, p2['I'], color=C1, lw=1.2, ls=(0, (4, 2)), label='two layers, coherent part alone, rms %.3f' % p2['rms'])
+        b = min(F['two, followed'], key=lambda r: r['volume']['rms'])['volume']
+        a.plot(th, b['I'], color=C3, lw=1.8, marker='^', ms=4.5, mec=SURF, mew=0.8, label='the same, thicknesses within the micrograph, rms %.3f' % b['rms'])
+        o = F['one layer'][0]['best']; a.plot(th, o['I'], color=C2, lw=1.2, ls=(0, (4, 2)), label='one layer, thicknesses within the micrograph, rms %.3f' % o['rms'])
     a.plot(th, Im, color=INK, lw=0, marker='o', ms=7, mfc='none', mew=1.6, label='measured (Extended Data Fig. 7g)')
     a.set_xlabel('emission angle (deg)', **lab); a.set_ylabel('EL intensity / normal', **lab); a.set_ylim(0, 1.2); a.legend(frameon=False, fontsize=7.5, labelcolor=INK2, loc='lower left')
     a.set_title('Angular emission of the green PeLED', **ttl)
@@ -65,8 +66,9 @@ def main():
     sg = [(0.0, b0['mse_ncs'])] + [(sc[k]['struct']['sig_s'], sc[k]['mse_ncs']) for k in ('sig_s 5', 'sig_s 10', 'sig_s 13.5', 'sig_s 20') if k in sc]
     a.plot(*zip(*dr), color=C2, lw=1.8, marker='s', ms=4.5, mec=SURF, mew=0.8, label='effective-medium roughness layer (lateral scale << wavelength)')
     a.plot(*zip(*sg), color=C1, lw=1.8, marker='o', ms=4.5, mec=SURF, mew=0.8, label='height spread, long lateral scale (coherent average)')
-    a.axvspan(3, 9, color=C2, alpha=0.10, lw=0); a.axvspan(10, 13.5, color=C1, alpha=0.10, lw=0)
-    a.text(6, 46, 'micro-roughness\nfrom top-view SEM', ha='center', fontsize=7, color=C2); a.text(11.75, 34, 'undulation\nfrom the\ncross-section', ha='center', fontsize=7, color=C1)
+    a.axvspan(3.4, 17, color=C2, alpha=0.07, lw=0); a.axvspan(10, 13.5, color=C1, alpha=0.10, lw=0)
+    a.text(6.2, 44, 'top-view SEM: cobbles from\nshallow caps (3 nm layer)\nto hemispheres (17 nm)', ha='center', fontsize=7, color=C2)
+    a.text(11.75, 31, 'undulation\nin the device\ncross-section', ha='center', fontsize=7, color=C1)
     a.set_xlabel('imposed roughness (nm): layer thickness, or rms height', **lab); a.set_ylabel('MSE of the layer2 fit', **lab); a.set_ylim(0, 60); a.set_xlim(-0.5, 21)
     a.legend(frameon=False, fontsize=7.5, labelcolor=INK2, loc='upper left'); a.set_title('Ellipsometry fit with the roughness imposed', **ttl)
     # d

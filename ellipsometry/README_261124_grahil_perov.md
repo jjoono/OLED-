@@ -49,7 +49,8 @@ depolarization goes to −50 % and lower, which no sample can do.
 | perovskite, depth profile | 122 nm dense on 162 nm of effective n ≈ 1.5–1.65 that scatters | one homogeneous layer |
 | dense perovskite n (540 nm) | 2.34 (2.34–2.37 over the fit variants) | 2.3, constant |
 | dense perovskite k (540 nm) | 0.076 (0.065–0.089) | 0.035 (absorbance) |
-| device angular emission, rms vs measured | 0.019 | 0.12–0.20 |
+| device angular emission, rms vs measured, nominal thicknesses (§4; not decisive, §8) | 0.019 | 0.12–0.20 |
+| EQE ceiling of the dipole model (η_rad = 1, substrate light lost, §8) | 24–26 % | 20–24 % |
 
 ## 1. GraHIL (layer1)
 
@@ -229,8 +230,11 @@ measured EL spectrum. Intensity relative to normal, rms over 0–70°:
 one-layer descriptions are worse, 0.17–0.20, and the ellipsometric structure
 is 0.018.)
 
-A single high-index layer, with either set of n,k, predicts a lobe at 20–40°
-that the device does not have. The two-part structure removes it. Sensitivity
+At these nominal thicknesses a single high-index layer, with either set of
+n,k, predicts a lobe at 20–40° that the device does not have, and the two-part
+structure removes it. (§8 repeats the comparison with the thicknesses the
+device micrograph allows: there the single layer fits as well. The numbers of
+this section are for the nominal stack only.) Sensitivity
 of that agreement, one change at a time from the base fit:
 
 | change | rms |
@@ -458,18 +462,53 @@ What this says:
 - **Scattered light counted as lost** gives the best angular pattern and an
   EQE of 3 %. It is not a model of the device; its pattern is that of the
   coherent part alone.
-- **The paper's flat optics** misses its own angular measurement by the
-  widest margin: it predicts a lobe at 20–40° (0.90 at 40° against the
-  measured 0.725) that survives any plausible thickness spread (rms 0.19 /
-  0.11 / 0.08 for 0 / 15 / 25 nm).
+- **The paper's flat optics**, at the nominal thicknesses, misses its own
+  angular measurement by the widest margin: a lobe at 20–40° (0.90 at 40°
+  against the measured 0.725) that a lateral thickness spread reduces but does
+  not remove (rms 0.19 / 0.11 / 0.08 for 0 / 15 / 25 nm). Other thicknesses
+  change that — see below.
 - **Two layers without scattering** lowers the EQE ceiling to 18 %: the
   low-index zone sends light into the glass (13 %), and nothing brings it
   back.
-- **Two layers with the scattered light followed** is the only description
-  that conserves energy, removes the lobe, and reaches the mean measured EQE
-  — at η_rad ≈ 1 and unit charge balance, as the paper's own model also
-  requires. The champion 28.9 % is out of reach for every description here
-  unless substrate light is recovered (η_rad 0.93 would then do).
+- **Two layers with the scattered light followed** conserves energy, has no
+  lobe, and reaches the mean measured EQE — at η_rad ≈ 1 and unit charge
+  balance, as the paper's own model also requires. The champion 28.9 % is out
+  of reach for every description here unless substrate light is recovered
+  (η_rad 0.93 would then do).
+
+### Thicknesses within what the micrograph allows
+
+The Methods give nominal thicknesses. `gp_device_fit.py` searches the ranges
+the device cross-section shows (FTO 342–396, BufHIL 34–75, perovskite 231–273,
+ZADN 35–51 nm, with the coat under the FTO; dense share 0.15–0.53; x_d), 140
+random geometries per family, the best re-evaluated at full resolution:
+
+| description | best angular rms | at FTO / HIL / perovskite / ZADN (nm), dense share, x_d | EQE at η_rad = 1: substrate light lost / recycled | over all geometries: 10th percentile / median / worst |
+|---|---|---|---|---|
+| one layer (dense n,k) | 0.010 | 357 / 34 / 258 / 47 | 20.4 % / 23.9 % | 0.021 / 0.044 / 0.094 |
+| two layers, no scattering | 0.016 | 383 / 44 / 269 / 39, 0.52, 1.0 | 20.4 % / 23.6 % | 0.038 / 0.128 / 0.278 |
+| two layers, scattered light followed | 0.011 | 393 / 40 / 266 / 47, 0.52, 1.0 | 21.1 % / 28.8 % | 0.025 / 0.046 / 0.058 |
+| **the same, emission by perovskite volume** | **0.015** | 366 / 54 / 272 / 42, 0.53, 0.69 | **23.8 % / 28.8 %** | — |
+
+- **The angular distribution does not choose between the descriptions.** With
+  the thicknesses free inside the micrograph's ±10 %, every one of them
+  reaches the noise of the digitised points (~0.01) — the single layer too.
+  The lobe of the one-layer optics, and the statement of §4 that the angular
+  data exclude that picture, belong to the nominal thicknesses only (a thinner
+  BufHIL, 34–45 nm, removes the lobe).
+- What does differ is how much depends on getting the thicknesses right.
+  With the scattering followed the pattern hardly moves over the whole range
+  (worst 0.058); without it the same structure ranges from 0.016 to 0.28.
+- And the EQE ceiling: 20 % for one layer, 24 % for two layers with the
+  scattering followed and emission spread by volume (29 % if substrate light
+  is recovered), against a measured mean of 25.2 % and a best of 28.9 %.
+
+The description to use is therefore the last row: two perovskite layers, the
+scattered light followed, emission by perovskite volume, photon recycling,
+incoherent glass, and the device's own thicknesses (FTO ≈ 366 + coat, BufHIL
+≈ 54, perovskite ≈ 272, ZADN ≈ 42 nm). It is chosen because the ellipsometry
+says the film is not one layer and because it is the least sensitive to what
+is not known — not because the angular data prefer it.
 
 ### The photoluminescence yield
 
