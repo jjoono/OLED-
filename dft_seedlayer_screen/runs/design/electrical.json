@@ -20,6 +20,15 @@
   "conv_N@N": true,
   "E_N@N": -1739.486949740161,
   "conv_I@N": true,
-  "E_I@N": -1739.6255371024868
+  "E_I@N": -1739.6255371024868,
+  "conv_I@I": true,
+  "spin_PR_heavy_atoms": 24.8,
+  "E_I@I": -1739.6279236906603,
+  "conv_N@I": true,
+  "E_N@I": -1739.4871092500143,
+  "EA_vert_eV": 3.771,
+  "EA_ad_eV": 3.836,
+  "lambda_eV": 0.061,
+  "seconds": 9000
  }
 }
