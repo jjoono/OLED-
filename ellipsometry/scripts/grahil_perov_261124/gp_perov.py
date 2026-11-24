@@ -44,9 +44,10 @@ _c = np.r_[np.arange(2.24, 2.801, 0.03), np.arange(2.90, 4.61, 0.12), np.arange(
 CEN, WID = _c, 1.6 * np.gradient(_c)
 
 STRUCT = ['d_t', 'd_b', 'f_b', 'd_r', 'k_sc', 'p', 's_R']
-S_LO = dict(d_t=30.0, d_b=30.0, f_b=0.15, d_r=0.0, k_sc=0.0, p=0.0, s_R=0.94, d_g=40.0, sig_s=0.0, n_m=1.0, k_top=0.0)
-S_HI = dict(d_t=260.0, d_b=330.0, f_b=1.0, d_r=25.0, k_sc=0.6, p=8.0, s_R=1.08, d_g=160.0, sig_s=40.0, n_m=1.65, k_top=0.2)
-S_0 = dict(d_t=120.0, d_b=160.0, f_b=0.5, d_r=4.0, k_sc=0.25, p=4.0, s_R=1.015, d_g=D_G, sig_s=10.0, n_m=1.3, k_top=0.01)
+S_LO = dict(d_t=30.0, d_b=30.0, f_b=0.15, d_r=0.0, k_sc=0.0, p=0.0, s_R=0.94, d_g=40.0, sig_s=0.0, n_m=1.0, k_top=0.0, f_b2=0.1, d_x=0.0)
+S_HI = dict(d_t=260.0, d_b=330.0, f_b=1.0, d_r=25.0, k_sc=0.6, p=8.0, s_R=1.08, d_g=160.0, sig_s=40.0, n_m=1.65, k_top=0.2, f_b2=1.0, d_x=120.0)
+S_0 = dict(d_t=120.0, d_b=160.0, f_b=0.5, d_r=4.0, k_sc=0.25, p=4.0, s_R=1.015, d_g=D_G, sig_s=10.0, n_m=1.3, k_top=0.01, f_b2=0.5, d_x=10.0)
+M_SUB = 5
 VARIANTS = {                                # name: extra structure parameters, options
     'base':            ([], {}),
     'GraHIL free':     (['d_g'], {}),
@@ -57,6 +58,12 @@ VARIANTS = {                                # name: extra structure parameters, 
     '65+70 only':      ([], dict(angles=[0, 1])),
     '70+75 only':      ([], dict(angles=[1, 2])),
     'from 230 nm':     ([], dict(lo=230.0)),
+    # refinements of the lower layer: is the residual of the transparent range a too-sharp profile?
+    'graded lower':    (['f_b2'], {}),                       # perovskite fraction f_b at its top -> f_b2 at its bottom
+    'soft boundary':   (['d_x'], {}),                        # linear transition of thickness d_x between dense and lower
+    'graded+GraHIL':   (['f_b2', 'd_g'], {}),
+    'graded+spread':   (['f_b2', 'sig_s'], {}),
+    'all':             (['f_b2', 'd_x', 'd_g', 'sig_s'], {}),
 }
 
 
@@ -78,15 +85,34 @@ def setup(lo=LO, hi=HI, step=STEP):
 
 
 # ------------------------------------------------------------------ model
+def perov_layers(wl, v, Np):
+    """The perovskite as a list of (index, thickness, perovskite fraction), top (air / ETL side) first:
+    dense layer, optional linear transition, lower layer (optionally graded f_b -> f_b2)."""
+    one = np.ones(len(wl), complex)
+    sc = (633.0 / wl)**v.get('p', 4.0)
+    nm = v.get('n_m', 1.0) * one
+    Nt = Np + 1j * v.get('k_top', 0.0) * sc
+    low = lambda f, w=1.0: P.bruggeman(Np, nm, f) + 1j * w * v['k_sc'] * sc         # lower-layer medium at fraction f
+    dx = min(v.get('d_x', 0.0), 1.8 * v['d_t'], 1.8 * v['d_b'])                     # transition, taken half from each side
+    dx = dx if dx > 0.5 else 0.0
+    out = [(Nt, v['d_t'] - dx / 2, 1.0)]
+    for i in range(M_SUB if dx else 0):                                            # dense (f = 1, no scatter) -> lower (f_b)
+        u = (i + 0.5) / M_SUB; f = 1 + (v['f_b'] - 1) * u; out.append((low(f, u), dx / M_SUB, f))
+    db = v['d_b'] - dx / 2
+    if 'f_b2' in v:
+        for i in range(M_SUB):
+            u = (i + 0.5) / M_SUB; f = v['f_b'] + (v['f_b2'] - v['f_b']) * u; out.append((low(f), db / M_SUB, f))
+    else:
+        out.append((low(v['f_b']), db, v['f_b']))
+    return out
+
+
 def stack_r(S, v, Np, angles=None):
     """r_p, r_s [n_wl, n_ang] for dense index Np and structure v (dict)."""
     wl = S['wl']; ang = S['ang'] if angles is None else S['ang'][angles]
-    sc = (633.0 / wl)**v.get('p', 4.0)
-    nm = v.get('n_m', 1.0) * S['air']
-    Nt = Np + 1j * v.get('k_top', 0.0) * sc
-    Nb = P.bruggeman(Np, nm, v['f_b']) + 1j * v['k_sc'] * sc
-    L = [S['air'], P.bruggeman(Nt, S['air'], 0.5), Nt, Nb, S['Ng'], S['ox'], S['si']]
-    D = [v['d_r'], v['d_t'], v['d_b'], v.get('d_g', D_G), D_OX]
+    pl = perov_layers(wl, v, Np)
+    L = [S['air'], P.bruggeman(pl[0][0], S['air'], 0.5)] + [x[0] for x in pl] + [S['Ng'], S['ox'], S['si']]
+    D = [v['d_r']] + [x[1] for x in pl] + [v.get('d_g', D_G), D_OX]
     if v.get('sig_s', 0.0) > 0:
         return P.rr_coh2(wl, ang, L, D, 1, 2, v['sig_s'], 0.0, nodes=7)
     RP, RS = [], []
@@ -195,15 +221,25 @@ def run_variant(a):
 
 def main():
     from multiprocessing import Pool
-    va = stage_a(); print('stage A (570-1000 nm, Sellmeier):', {k: round(v, 3) for k, v in va.items()})
-    wl_uv, N_uv = stage_b(va['d_r']); xb = init_basis(va, wl_uv, N_uv)
+    only = sys.argv[1:]                                     # variant names: rerun just these, starting from the saved base fit
+    old = json.load(open(W + 'perov_fits.json')) if _os.path.exists(W + 'perov_fits.json') else None
+    if only and old:
+        va = old['stage_a']; b = [r for r in old['variants'] if r['variant'] == 'base'][0]
+        va = dict(va, **b['struct']); xb = np.array(b['x'][len(b['names']):])
+    else:
+        va = stage_a(); print('stage A (570-1000 nm, Sellmeier):', {k: round(v, 3) for k, v in va.items()})
+        wl_uv, N_uv = stage_b(va['d_r']); xb = init_basis(va, wl_uv, N_uv)
+    todo = only if only else list(VARIANTS)
     with Pool(4) as pool:
-        res = pool.map(run_variant, [(k, va, xb) for k in VARIANTS])
+        res = pool.map(run_variant, [(k, va, xb) for k in todo])
+    if only and old:
+        keep = [r for r in old['variants'] if r['variant'] not in todo]; res = keep + res; va = old['stage_a']
     json.dump(dict(stage_a=va, variants=res), open(W + 'perov_fits.json', 'w'), indent=1)
     q = np.array([300.0, 400.0, 450.0, 500.0, 520.0, 530.0, 540.0, 550.0, 600.0, 633.0, 800.0, 1000.0])
     print('%-16s %6s %6s | %s | d_t    d_b    f_b   d_r   k_sc  p    s_R   extra' % ('variant', 'MSE', 'rms R', '205-300 300-450 450-570 570-1000'))
     for r in res:
         s = r['struct']
+        s = dict(s, f_b=s['f_b'])
         print('%-16s %6.2f %6.1f | %7.1f %7.1f %7.1f %8.1f | %5.1f %6.1f %5.2f %5.1f %5.3f %4.1f %5.3f  %s'
               % (r['variant'], r['mse_ncs'], r['rms_R'], *[r['bands'][k] for k in ('205-300', '300-450', '450-570', '570-1000')], s['d_t'], s['d_b'], s['f_b'], s['d_r'], s['k_sc'], s['p'], s['s_R'],
                  '  '.join('%s=%.3g' % (k, s[k]) for k in r['names'][len(STRUCT):])))
