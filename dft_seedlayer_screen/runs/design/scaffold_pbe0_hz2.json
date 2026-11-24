@@ -1025,6 +1025,22 @@
    "q_Ag2_total": 0.1066,
    "delta_q_Ag1_Ag2": -0.2554,
    "seconds": 1820
+  },
+  "pbe0": {
+   "lpN9": {
+    "E_b": 1.0161,
+    "elec": 0.8118,
+    "D3": -0.2043,
+    "d3_sign_fixed": true,
+    "q_mulliken": 0.5219,
+    "frag_atoms": 35,
+    "caps": 0,
+    "mol_atoms": 35,
+    "near": "N9",
+    "gfn2_E_b": 3.1213,
+    "d_H_min": null,
+    "seconds": 5294
+   }
   }
  }
 }
