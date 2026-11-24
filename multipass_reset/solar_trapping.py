@@ -24,11 +24,16 @@ def load(name, n):
 
 
 def planar(n):
-    """Planar face: Fresnel (unpolarized), specular."""
+    """Planar face: Fresnel (unpolarized), specular.  Internal bin k maps to the air bins it overlaps in
+    n^2 sin^2(theta) (etendue), so the binned matrix keeps reciprocity w_air T(air->in) = n^2 w_in T(in->air)."""
     s = n * np.sin(TH); ok = s < 1; ct = np.sqrt(np.clip(1 - s ** 2, 0, None)); ci = COS
     rs = ((n * ci - ct) / (n * ci + ct)) ** 2; rp = ((ci - n * ct) / (ci + n * ct)) ** 2
     T = np.where(ok, 1 - 0.5 * (rs + rp), 0.0)
-    BT = np.zeros((90, 90)); BT[np.arange(90)[ok], np.clip(np.degrees(np.arcsin(np.clip(s[ok], 0, 1))).astype(int), 0, 89)] = T[ok]
+    S2 = np.sin(np.radians(E)) ** 2; BT = np.zeros((90, 90))
+    for k in np.where(ok)[0]:
+        lo, hi = n * n * S2[k], min(n * n * S2[k + 1], 1.0)
+        ov = np.clip(np.minimum(S2[1:], hi) - np.maximum(S2[:-1], lo), 0, None)
+        if ov.sum() > 0: BT[k] = T[k] * ov / ov.sum()
     return BT, np.diag(1 - T)
 
 

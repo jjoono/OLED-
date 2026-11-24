@@ -68,6 +68,7 @@
 | Table S36 | `labdev/layout_sweep.json`, `results_patch*.json` | `labdev/layout_sweep.py` |
 | Table S37 | `labdev/lens_loss_test.json` | `labdev/lens_loss_test.py` |
 | Table S38, 노트 S1의 구간 폭·상관계수 | `selectivity/data/scatter_volume.json`, `selectivity/data/rev3_checks.json` | `selectivity/scatter_volume.py`, `selectivity/rev3_checks.py` |
+| Table S39 (광 포획 점검, 본문 5.4절) | `selectivity/data/solar_trapping.json`, `multipass_reset/highindex/*.npz` | `multipass_reset/solar_trapping.py` |
 
 ## 다시 만드는 순서
 
