@@ -83,13 +83,18 @@ def main(names):
     os.makedirs(GEO, exist_ok=True)
     for name in names:
         out = json.load(open(OUT)) if os.path.exists(OUT) else {}
-        if "lambda_eV" in out.get(name, {}):
+        if "lambda_eV" in out.get(name, {}) and not os.environ.get("REDO"):
             continue
         ion = +1 if name == "NPB" else -1
         S, XN = read(SRC.get(name, os.path.join(ROOT, "structures", "design", f"{name}.xyz")))
         t0 = time.time()
         XN, eN_x = gfn2_opt(S, XN, 0)
-        XI, eI_x = gfn2_opt(S, XN, ion)
+        # a random 0.03 A kick before the ion relaxation: from an exactly
+        # symmetric start (HATCN, D3h, degenerate LUMO) BFGS cannot leave the
+        # symmetric point and misses the Jahn-Teller distortion, which
+        # underestimates lambda (first HATCN run: 0.034 eV)
+        kick = float(os.environ.get("ION_KICK", "0.03"))
+        XI, eI_x = gfn2_opt(S, XN + np.random.default_rng(1).normal(0, kick, XN.shape), ion)
         write(os.path.join(GEO, f"{name}_0.xyz"), S, XN, f"{name} neutral GFN2")
         write(os.path.join(GEO, f"{name}_{'cat' if ion > 0 else 'an'}.xyz"), S, XI, f"{name} ion GFN2")
         r = {"gfn2_adiabatic_eV": round(abs(eI_x - eN_x), 3)}
