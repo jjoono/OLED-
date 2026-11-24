@@ -38,6 +38,15 @@ IDEAS = {
                 "ether-bridged dimer (bent, flexible)"),
     "Hz-C6F4-Hz": ("N#Cc1nc2nc(-c7c(F)c(F)c(-c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)c(F)c7F)nc3nc(C#N)nc(n1)n23",
                    "tetrafluorophenylene-bridged dimer (F forces a twist)"),
+    # second round (2026-11-24): bridges and oligomers around Hz-NCN-Hz
+    "Hz-C(CN)2-Hz": ("N#Cc1nc2nc(C(C#N)(C#N)c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(C#N)nc(n1)n23",
+                     "sp3 dicyanomethylene bridge: tetrahedral kink, two extra nitrile anchors"),
+    "Hz-SO2-Hz": ("N#Cc1nc2nc(S(=O)(=O)c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(C#N)nc(n1)n23", "sulfone bridge: strongly bent, electron-withdrawing"),
+    "Hz-S-Hz": ("N#Cc1nc2nc(Sc4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(C#N)nc(n1)n23", "thioether bridge: bent, soft S"),
+    "Hz3N": ("N(c1nc2nc(C#N)nc3nc(C#N)nc(n1)n23)(c1nc2nc(C#N)nc3nc(C#N)nc(n1)n23)c1nc2nc(C#N)nc3nc(C#N)nc(n1)n23",
+             "tri-heptazinyl amine: C3 propeller, MW ~700"),
+    "Hz-NCN-Hz-NCN-Hz": ("N#Cc1nc2nc(N(C#N)c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(N(C#N)c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc(n1)n23",
+                         "linear trimer with two cyanamide bridges"),
 }
 
 
