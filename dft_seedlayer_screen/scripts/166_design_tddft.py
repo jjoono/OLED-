@@ -90,12 +90,18 @@ def main():
     for name in sys.argv[1:]:
         S, X = read_xyz(os.path.join(ROOT, "structures", "design", f"{name}.xyz"))
         X = np.asarray(X, float)
-        for tag, ch in (("neutral", 0), ("anion", -1)):
+        # TD_ANION_NROOTS=N: anion only, N roots, stored as "anion_nN". With
+        # 4 roots the heptazine anions put every state below 1.4 eV, so the
+        # visible window (1.65-3.1 eV) was never reached and vis_sum_f = 0
+        # meant "not computed", not "transparent".
+        nr = int(os.environ.get("TD_ANION_NROOTS", "0"))
+        jobs = ((f"anion_n{nr}", -1),) if nr else (("neutral", 0), ("anion", -1))
+        for tag, ch in jobs:
             d = json.load(open(OUT)) if os.path.exists(OUT) else {}
             if tag in d.get(name, {}):
                 continue
             t0 = time.time()
-            st = run(S, X, ch)
+            st = run(S, X, ch, nr or None) if nr else run(S, X, ch)
             d = json.load(open(OUT)) if os.path.exists(OUT) else {}
             d.setdefault(name, {})[tag] = {"states": st, **summarise(st, ch != 0)}
             json.dump(d, open(OUT, "w"), indent=1)
