@@ -25,6 +25,8 @@ python gp_explore.py         # layer2: which structure - nine alternatives on on
 python gp_perov.py           # layer2: full-range fit and its variants   (python gp_perov.py "soft boundary" reruns one)
 python gp_device_check.py    # angular emission of the device with these n,k
 python gp_report.py          # -> $ELLIPS_OUT/grahil_perov/  n,k tables, structure.json, figure
+python gp_genosc.py          # both dispersions refitted as compact Gen-Osc materials
+python gp_make_mod.py        # -> $ELLIPS_OUT/grahil_perov_mod/  CompleteEASE .mod files, read back and re-scored
 ```
 
 Si and its native oxide (fixed, 1.5 nm) are the CompleteEASE SI_JAW / NTVE_JAW
@@ -261,6 +263,87 @@ comparison.
   (2026-08-16) predate the transfer-matrix fix and assumed one homogeneous
   270 nm layer with k tied to SI Fig. 6a. This session supersedes them.
 
+## 6. CompleteEASE `.mod` files
+
+The fits above describe each material with a fixed basis of 32 / 44 Gaussians.
+That is the right tool for finding the n,k without assuming a line shape, but
+not something to edit in a Gen-Osc dialog. `gp_genosc.py` therefore refits
+both, against the data, as ordinary Gen-Osc materials, and `gp_make_mod.py`
+writes them into the lab's own model file frame:
+
+| file | stack (substrate up) | MSE, basis fit | MSE, Gen-Osc fit | MSE from the file |
+|---|---|---|---|---|
+| `GraHIL_108.4nm_on_NTVE15A_Si_GenOsc.mod` | SI_JAW / NTVE_JAW 15 Å / **GraHIL** 108.36 nm | 1.37 | 1.74 | 1.74 |
+| `PerovNC_on_GraHIL_on_NTVE15A_Si_GenOsc.mod` | SI_JAW / NTVE_JAW 15 Å / **GraHIL** 108.3 nm (fit off) / **Perov_lower** 163.8 nm / **Perov_dense** 121.4 nm / Roughness 1.36 nm | 9.38 | 9.89 | 9.89 |
+
+"MSE from the file": each `.mod` is parsed back, its tables decoded and its
+oscillators re-evaluated, the stack rebuilt from that alone and scored against
+the data (200–1000 nm for layer1, 205–1000 nm for layer2). The files were not
+opened in CompleteEASE here.
+
+**GraHIL** — Einf 1.244, UV pole 89.28 at 12 eV (fixed energy), IR pole 0.0223,
+four Gaussians:
+
+| # | Amp | Br (eV) | En (eV) |
+|---|---|---|---|
+| 1 | 0.0440* | 3.123 | 0.600* |
+| 2 | 0.0145 | 1.612 | 4.883 |
+| 3 | 0.0622 | 0.448 | 5.479 |
+| 4 | 0.2188 | 0.889 | 6.500 |
+
+With Einf fixed at 1, as in the tooling files, this film cannot be fitted (MSE
+12–14): its dispersion is too flat for a pole alone. The IR pole carries the
+free-carrier dispersion of PEDOT; a Gaussian placed there instead slides below
+the data range. n,k agree with the basis result to 0.0014 / 0.0023 over
+250–1000 nm.
+
+**Perov_dense** — Einf 2.067, UV pole 1.48* at 6.34 eV, seven Gaussians:
+
+| # | Amp | Br (eV) | En (eV) | |
+|---|---|---|---|---|
+| 1 | 0.344 | 0.080 | 2.333 | exciton / band edge, 531 nm |
+| 2 | 0.549* | 0.164 | 2.416 | |
+| 3 | 0.515* | 0.255* | 2.560 | |
+| 4 | 0.982* | 0.417 | 2.825 | |
+| 5 | 1.626 | 0.658 | 3.228 | |
+| 6 | 3.605 | 1.236 | 4.100 | |
+| 7 | 2.137 | 1.939 | 6.007 | |
+
+(* written with the fit flag off: 90 % interval wider than half the value, or
+on a bound.) The structure refitted with it is 121.4 / 163.8 nm, 50.7 %
+perovskite below, k_sc(633) 0.252, exponent 3.52 — the base fit within its
+variant spread — and n,k follow the basis result to 0.012 / 0.010 over
+450–1000 nm (540 nm: 2.336 + 0.080i). Left to themselves the broad UV
+Gaussians put an absorption tail under the gap (k = 0.007 at 633 nm, with a
+slightly lower MSE, 9.41); ε₂ above 580 nm is penalised in this fit, which
+brings it to k < 0.0012 there.
+
+**Perov_lower** is a tabulated layer, not an EMA layer: CompleteEASE has no
+effective-medium layer with a scattering loss. The table is
+Bruggeman(Perov_dense, void) plus k_sc·(633/λ)^p, held constant below 450 nm,
+computed from the same fit on a 0.005 eV grid (188–1771 nm; an extrapolation
+outside 205–1000 nm). It does not follow if Perov_dense is refitted in
+CompleteEASE; thicknesses and roughness can be.
+
+To reproduce the MSE in CompleteEASE, limit the fit range to 205–1000 nm
+(200–1000 nm for layer1): beyond 1000 nm the wafer is transparent and
+layer2's exported depolarization is unusable.
+
+Format notes, beyond those of `README_260820_session.md` §2 — all read off
+files CompleteEASE saved:
+
+* a material with its own name uses that name in the section tags
+  (`start_<name> Fit Parms`, `… Misc Parms`, `… Grade Parms`,
+  `… Permanent Poles`), and on the layer line twice
+  (`'Layer' '<name>' 'GENOSC' '' '<name>'`);
+* a tabulated film is the `NTVE_JAW` block with another name: `Mat Table`
+  count, then `Wvl` (Å, ascending), `e1`, `e2`, each base64 of gzip of
+  big-endian float32. The gzip header is ten bytes `1f 8b 08` + zeros and the
+  stream is deflate level 6: re-encoding the template's own tables this way
+  returns its bytes exactly, which `gp_make_mod.py` asserts before writing;
+* `IR Pole Amp.` is A in −A/E²;
+* numbers are written as CompleteEASE prints them (`1.0E-8`, not `1e-08`).
+
 ## Files written to `$ELLIPS_OUT/grahil_perov/`
 
 | file | content |
@@ -270,6 +353,7 @@ comparison.
 | `lib_Perov_dense.csv`, `lib_Perov_lower_with_scattering.csv`, `lib_Perov_lower_no_scattering.csv`, `lib_GraHIL.csv` | the same media as `wavelength_nm,n,k` |
 | `structure.json` | thicknesses, every variant, the tables above |
 | `grahil_perov_summary.png` | fit at three angles, n, k, device angular emission |
+| `../grahil_perov_mod/*.mod`, `mod_check.json` | the two CompleteEASE models of §6 and their read-back check |
 
 For a device simulation use two perovskite layers, not one: `lib_Perov_dense`
 on the ETL side (0.43 of the perovskite thickness) and a `lib_Perov_lower`

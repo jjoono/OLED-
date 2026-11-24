@@ -89,7 +89,7 @@ def perov_layers(wl, v, Np):
     """The perovskite as a list of (index, thickness, perovskite fraction), top (air / ETL side) first:
     dense layer, optional linear transition, lower layer (optionally graded f_b -> f_b2)."""
     one = np.ones(len(wl), complex)
-    sc = (633.0 / wl)**v.get('p', 4.0)
+    sc = (633.0 / np.maximum(wl, v.get('sc_hold', 0.0)))**v.get('p', 4.0)        # sc_hold (nm): the law is held constant below it
     nm = v.get('n_m', 1.0) * one
     Nt = Np + 1j * v.get('k_top', 0.0) * sc
     low = lambda f, w=1.0: P.bruggeman(Np, nm, f) + 1j * w * v['k_sc'] * sc         # lower-layer medium at fraction f
