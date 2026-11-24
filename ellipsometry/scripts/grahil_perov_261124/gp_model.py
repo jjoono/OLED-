@@ -139,6 +139,36 @@ def ncs_coh(wl, ang, layers, ds, j, sig, nodes=11, extra=None):
     return tuple(np.stack([o[k] for o in out], 1) for k in range(3))
 
 
+def rr_coh2(wl, ang, layers, ds, jt, jb, sig_s, sig_i, nodes=7):
+    """Coherently averaged r_p, r_s [n_wl, n_ang] with TWO independent Gaussian height spreads:
+    sig_s of the top surface and sig_i of the internal boundary between ds[jt] (upper film) and
+    ds[jb] (the film under it).  Surface up by h: upper film + h, air gap - h.  Boundary up by g:
+    lower film + g, upper film - g.  Amplitudes are referred to one fixed plane, so this also
+    carries the Debye-Waller loss of the specular beam (compare absolute reflectance with it)."""
+    xs, ws = (np.array([0.0]), np.array([1.0])) if sig_s <= 0 else np.polynomial.hermite_e.hermegauss(nodes)
+    xi_, wi_ = (np.array([0.0]), np.array([1.0])) if sig_i <= 0 else np.polynomial.hermite_e.hermegauss(nodes)
+    ws = ws / ws.sum(); wi_ = wi_ / wi_.sum()
+    c = sig_s * xs.max()
+    L = [layers[0], layers[0]] + list(layers[1:])
+    RP, RS = [], []
+    for th in ang:
+        rp = 0.0; rs = 0.0
+        for x1, w1 in zip(xs, ws):
+            h = sig_s * x1
+            for x2, w2 in zip(xi_, wi_):
+                g = sig_i * x2; dd = list(ds)
+                dd[jt] = max(ds[jt] + h - g, 0.0); dd[jb] = max(ds[jb] + g, 0.0)
+                a_, b_ = tmm(wl, L, [c - h] + dd, th)
+                rp = rp + w1 * w2 * a_; rs = rs + w1 * w2 * b_
+        RP.append(rp); RS.append(rs)
+    return np.stack(RP, 1), np.stack(RS, 1)
+
+
+def ncs_from_r(rp, rs):
+    Ip, Is = np.abs(rp)**2, np.abs(rs)**2; X = np.conj(rp) * rs; I = Ip + Is
+    return (Is - Ip) / I, 2 * X.real / I, 2 * X.imag / I
+
+
 def tmm_uni(wl, eo, ee, ds, theta):
     """Stack of uniaxial layers, optic axis along z (isotropic: eo = ee); eps lists ambient..substrate.
     Same propagation and sign convention as tmm_fix.tmm (copied from tooling_261117/tl_bphen10)."""
