@@ -1029,13 +1029,6 @@
    "seconds": 830
   },
   "pbe0": {
-   "pocketN18N25": {
-    "error": "OSError(28, \"Can't synchronously write data (file write failed: time = Mon Nov 23 23:35:19 2026\\n, filename = '/tmp/tmp0_ofv53s', file descriptor = 5, errno = 28, error message = 'No space left on dev",
-    "near": "N21",
-    "gfn2_E_b": 2.0031,
-    "d_H_min": 7.248,
-    "seconds": 170
-   },
    "pocketN33N40": {
     "E_b": 0.0163,
     "elec": -0.0959,
@@ -1050,6 +1043,11 @@
     "d_H_min": 7.25,
     "seconds": 27188
    }
+  },
+  "verdict": {
+   "E_b_max_pbe0": 0.0163,
+   "status": "fails E* (0.30 eV)",
+   "note": "pocketN18N25, pocketN33N40, pocketN3N10 are the same site by the C3 symmetry (GFN2 2.0031/2.0028/2.0027 eV, Ag-N 2.28 A); one scored at PBE0, 0.016 eV. The pyrazine lone-pair sites (lpN18 etc., GFN2 1.88) were not scored; the same dicyanopyrazine unit in bi-TCNQx gave 0.23 eV at its lone-pair site, below E*. Stopped to free the CPU (7.5 h per site)."
   }
  }
 }
