@@ -202,5 +202,29 @@
    "first_bright_f": 0.7468,
    "vis_sum_f": 0
   }
+ },
+ "CN3-heptazine": {
+  "neutral": {
+   "states": [
+    {
+     "eV": 2.65,
+     "nm": 467.9,
+     "f": 0.0
+    },
+    {
+     "eV": 3.298,
+     "nm": 376.0,
+     "f": 0.0
+    },
+    {
+     "eV": 3.417,
+     "nm": 362.9,
+     "f": 0.0
+    }
+   ],
+   "first_bright_eV": null,
+   "first_bright_f": null,
+   "bright_below_3p1": []
+  }
  }
 }
