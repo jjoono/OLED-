@@ -27,6 +27,11 @@ python gp_device_check.py    # angular emission of the device with these n,k
 python gp_report.py          # -> $ELLIPS_OUT/grahil_perov/  n,k tables, structure.json, figure
 python gp_genosc.py          # both dispersions refitted as compact Gen-Osc materials
 python gp_make_mod.py        # -> $ELLIPS_OUT/grahil_perov_mod/  CompleteEASE .mod files, read back and re-scored
+python gp_rough.py           # the layer2 fit with the surface roughness imposed (§9)
+python gp_device_model.py    # dipole model of the device: where every photon goes, per description (§8)
+python gp_device_fit.py      # best angular pattern of each description within the micrograph's thicknesses
+python gp_stitch.py          # luminescence-stitched band edge (§11); DASGUPTA_CSV = published set, optional
+python gp_report2.py         # -> grahil_perov_device.png
 ```
 
 Si and its native oxide (fixed, 1.5 nm) are the CompleteEASE SI_JAW / NTVE_JAW
@@ -101,10 +106,13 @@ k = 0.3–0.7 at 500–600 nm in a film whose k is 0.006 on layer1. A dedoped
 PEDOT minority phase cannot supply that; the alternative is rejected on
 physical grounds, not on MSE alone.
 
-This matches the cross-section SEM of the device (SI Fig. 5): a featureless
-upper band on blocky ~100–200 nm grains with dark gaps, and the paper's grain
-statistics (in situ particles 123 ± 34 nm, 10 ± 2 nm nanocrystals inside
-~100 nm macro-grains).
+The device cross-section (SI Fig. 5) has the same orientation but not the same
+proportions: a low-relief band under the ETL, 45 nm thick at the median
+(24–97 nm), over blocky 80–150 nm grains that reach the HIL, with no visible
+boundary at 43 % of the depth. The paper's grain statistics (in situ particles
+123 ± 34 nm, 10 ± 2 nm nanocrystals inside ~100 nm macro-grains) give the
+scatterers their size. §10 goes through what the micrographs do and do not
+support.
 
 R is the unpolarised reflectance obtained from the two sheets' intensities,
 R₂ = (I₂/I₁)·R₁(model of layer1); the lamp cancels because both pieces were
@@ -158,9 +166,10 @@ What is stable across them, and what is not:
   GraHIL was changed by the perovskite deposition — and cannot exclude a
   change of that size either.
 - **Surface roughness** comes out at 0.5–6 nm of effective-medium layer, which
-  is small for a nanocrystal film; the UV data bound it below 15 nm. A height
-  spread of σ ≈ 9–22 nm with a lateral scale too large to act as an effective
-  medium is allowed and slightly preferred.
+  is small for a nanocrystal film. A height spread of σ ≈ 9–22 nm with a
+  lateral scale too large to act as an effective medium is allowed and
+  slightly preferred. §9 imposes both kinds and compares with the micrographs:
+  the small value is required by the data.
 - The most flexible variant (5.50) turns the two-zone step into a continuous
   profile: 81 nm dense, the perovskite fraction then falling to 0.15 over
   104 nm and rising again to 0.88 at the GraHIL over the last 90 nm, i.e. the
@@ -386,16 +395,265 @@ more than the exact n,k, and how the scattered light is treated matters most.
    (1 and 0.51); the angular data reject emission from either part alone
    (§4). The depth profile of recombination is the free parameter to fit.
 5. **GraHIL** n = 1.38, k = 0.006, not 1.5; and its thickness in the device
-   needs its own measurement — 108 nm on this Si piece, 75 nm in the paper,
-   and the angular pattern is sensitive to the difference (§4).
+   needs its own measurement — 108 nm on this Si piece, 75 nm in the paper's
+   Methods, 50 ± 11 nm in the paper's device micrograph — and the angular
+   pattern is sensitive to the difference (§4, §8).
 6. Carry the spread, not one curve: the `n_min … k_max` columns, a lower-part
    perovskite fraction of 0.35–0.70 and a dense share of 0.40–0.47 cover the
    fit variants.
+
+§8 carries this out with a dipole model in which every photon is followed.
 
 Two measurements would replace most of these assumptions: total against
 specular transmittance of the film on glass (is the scattering real, and how
 strong), and the reflectance spectrum of the finished device from the glass
 side, which tests the stack's optics with no assumption about the emitters.
+
+## 8. Device model: every photon followed
+
+`gp_dipole.py` is a dipole-emission solver for planar stacks (plane-wave
+expansion of the dipole field, exact multiple reflection at the dipole plane,
+power flow through every interface). `gp_device_model.py` uses it to follow
+each emission event to its end: into air, trapped in the glass, re-absorbed
+by the perovskite (and re-emitted: photon recycling), absorbed elsewhere, or
+scattered in the lower zone — in which case it restarts as an isotropic,
+incoherent source inside that zone at the same wavelength, and is followed
+again. EQE = η_rad·air / (1 − η_rad·A_perovskite).
+
+Checks of the solver: a dipole in a homogeneous medium (exact); in front of a
+perfect mirror (the analytic decay-rate curves, to 10⁻⁴); the far field
+against the independent reciprocity calculation of `gp_device.py` (four
+digits, absorbing emitter layer included). And it reproduces the paper's own
+simulation when given the paper's optics:
+
+| one layer, n = 2.3, k from absorbance | this code | paper (SI Fig. 6b, Methods) |
+|---|---|---|
+| direct outcoupling | 8.5 % | 9 % |
+| re-absorbed by the perovskite | 72.5 % | ~69 % |
+| parasitic | 19.1 % | ~22 % |
+| EQE at η_rad = 1, substrate light recycled | 30.8 % | 29.2 % |
+| escape probability of the bare film → η_rad from the 46 % PLQE | 0.104 → 0.89 | ~0.11 → 0.88 |
+
+### Descriptions compared
+
+Nominal thicknesses (FTO 350 / BufHIL 75 / perovskite 270 / ZADN 45), 15 nm
+thickness spread, emission by perovskite volume, substrate light counted as
+lost (the EQE was measured with a luminance meter):
+
+| perovskite described as | angular rms | air | glass | re-absorbed | parasitic | EQE at η_rad = 1 | η_rad needed for 25.2 % |
+|---|---|---|---|---|---|---|---|
+| one layer, the paper's optics | 0.112 | 8.0 | 8.2 | 66.2 | 17.6 | 23.7 % | 1.02 |
+| one layer, ellipsometric dense n,k | 0.104 | 6.1 | 6.0 | 73.3 | 14.6 | 22.7 % | 1.03 |
+| two layers, no scattering | 0.080 | 7.8 | 13.3 | 56.4 | 22.6 | 17.8 % | 1.15 |
+| two layers, scattered light counted as lost | 0.018 | 1.8 | 1.8 | 29.2 | 8.6 (+58.5 scattered) | 2.6 % | 2.7 |
+| **two layers, scattered light followed** | 0.064 | 9.7 | 10.9 | 62.1 | 17.3 | **25.6 %** | 0.99 |
+| the same, substrate light recycled | 0.066 | 11.1 | — | 68.8 | 20.1 | 35.6 % | 0.89 |
+
+(shares in % of emitted photons, averaged over the internal spectrum; angular
+rms over 0–70° against Extended Data Fig. 7g, where a Lambertian source
+scores 0.043.)
+
+What this says:
+
+- **Scattered light counted as lost** gives the best angular pattern and an
+  EQE of 3 %. It is not a model of the device; its pattern is that of the
+  coherent part alone.
+- **The paper's flat optics** misses its own angular measurement by the
+  widest margin: it predicts a lobe at 20–40° (0.90 at 40° against the
+  measured 0.725) that survives any plausible thickness spread (rms 0.19 /
+  0.11 / 0.08 for 0 / 15 / 25 nm).
+- **Two layers without scattering** lowers the EQE ceiling to 18 %: the
+  low-index zone sends light into the glass (13 %), and nothing brings it
+  back.
+- **Two layers with the scattered light followed** is the only description
+  that conserves energy, removes the lobe, and reaches the mean measured EQE
+  — at η_rad ≈ 1 and unit charge balance, as the paper's own model also
+  requires. The champion 28.9 % is out of reach for every description here
+  unless substrate light is recovered (η_rad 0.93 would then do).
+
+### The photoluminescence yield
+
+The paper turns the film's external PLQE of 46 % into an internal efficiency
+of 88 % with its flat-film optics. The same step with each description
+(bare film on a transparent substrate, substrate-guided light re-absorbed):
+
+| film described as | escape probability | implied η_rad | EQE the device model then predicts |
+|---|---|---|---|
+| one layer, the paper's optics | 0.104 | 0.89 | 17.4 % |
+| two layers, no scattering | 0.135 | 0.86 | 13.1 % |
+| two layers, scattered light followed | 0.287 | 0.75 | 13.5 % |
+
+(0.20 / 0.32 / 0.38 escape and η_rad 0.81 / 0.73 / 0.69 if substrate-guided
+light is counted as escaping through the edges inside the sphere.) No
+description connects the 46 % PLQE to a 25–29 % EQE: the device at its
+efficiency peak must run at a higher radiative efficiency than the film under
+62.5 mW cm⁻² of 325 nm light, by any of these optics. A scattering film makes
+that gap larger, not smaller, because it lets more of the photoluminescence
+out. This is the one observation that speaks against scattering as strong
+as on the Si piece; a haze measurement decides it (§5).
+
+## 9. Surface roughness: is the small fitted value an artefact?
+
+The fit gives 0.6 nm of effective-medium roughness, while the device
+cross-section (SI Fig. 5) shows a visibly undulating perovskite surface. Two
+different things are being compared. `gp_rough.py` repeats the fit of §3 with
+the roughness imposed, everything else refitted:
+
+| imposed | MSE | dense / lower (nm) | n(633) of the dense part |
+|---|---|---|---|
+| effective-medium layer fitted: 0.6 nm | 9.38 | 122 / 162 | 2.106 |
+| effective-medium layer 3 nm | 10.4 | 121 / 154 | 2.125 |
+| 6 nm | 14.4 | 120 / 144 | 2.150 |
+| 10 nm | 23.6 | 120 / 130 | 2.189 |
+| 15 nm | 38.3 | 120 / 116 | 2.232 |
+| 20 nm | 55.0 | 119 / 106 | 2.286 |
+| height spread σ = 5 nm (long lateral scale) | 9.02 | 121 / 163 | 2.106 |
+| σ = 10 nm | 8.62 | 121 / 167 | 2.107 |
+| σ = 13.5 nm | 9.35 | 119 / 172 | 2.111 |
+| σ = 20 nm | 14.7 | 116 / 181 | 2.122 |
+| 6 nm layer and σ = 13.5 nm | 13.2 | 118 / 162 | 2.139 |
+
+- **An effective-medium layer** stands for roughness much finer than the
+  wavelength. The data reject more than ~3–5 nm of it: the MSE grows
+  quadratically, and the fit can only follow by raising the index of the dense
+  part above that of bulk lead bromide perovskite (2.107 at 633 nm in the
+  published data of §11). The small value is required by the data, not an
+  over-fit.
+- **A height spread with a long lateral scale** (amplitudes averaged
+  coherently) is what a film undulating over hundreds of nanometres is. To
+  first order it leaves r_p/r_s unchanged, so ellipsometry barely sees it;
+  it shows in the fringe contrast and in the reflected intensity. 5–13.5 nm
+  fits as well as or better than none, with the same n,k.
+
+The micrographs say the same. Along 3 µm of the device cross-section the
+perovskite top surface has rms 13.5 nm (peak-to-valley ~55 nm), but split by
+lateral period it is 1.7 nm below 100 nm, 3.2 nm at 100–300 nm and 11.4 nm at
+0.3–1 µm; part of it is inherited from the FTO (rms 14 nm), which a film on
+Si does not have. The top-view SEM of the core/shell film (SI Fig. 1c) shows
+close-packed, rounded cobbles of 40–130 nm with dark grooves and no pinholes.
+A top view gives the lateral size, not the height: full hemispheres would
+mean rms 8–11 nm, caps a quarter as high as wide 5–6 nm, an eighth 2–3 nm,
+and groove contrast in an SEM does not tell which. The ellipsometry does, for
+this Si piece: an equivalent layer of at most ~5 nm, i.e. shallow caps (rms
+≲ 3 nm). The paper has no AFM; one scan of the film would settle it.
+
+So: effective-medium roughness 1–5 nm, plus a long-scale height spread of
+5–13 nm on Si (8–15 nm in the device). The "surface spread" fits of §3 are the
+preferred description; the device model averages over a thickness spread of
+15 nm.
+
+One caution on how the roughness is determined. Below 450 nm an imposed
+roughness layer costs nothing (the fitted n,k of the dense part absorb it:
+n(300 nm) goes from 1.88 to 2.09 at 6 nm); the penalty comes from 450–1000 nm,
+where the same, Kramers-Kronig-smooth dispersion must also give the fringes.
+The roughness is therefore fixed by the consistency of n between the opaque
+and the transparent range, not by the UV data alone.
+
+## 10. Assumptions checked against the paper, its SI and its micrographs
+
+| assumption | evidence | verdict | used |
+|---|---|---|---|
+| perovskite 270 nm | Methods: 270; cross-section: 254 ± 14 (231–273) | supported | 254–270 |
+| BufHIL 75 nm | Methods: 75; cross-section: 50 ± 11 (34–67); our Si piece: 108 | the device is thinner than nominal, and not 108 | 35–75 scanned |
+| FTO 350 nm, flat | cross-section: 367 ± 15, rms 14 nm, plus a ~47 nm coat under it | thickness supported; coat and texture not in any model so far | 367 + SnO₂/SiO₂ coat in the "micrograph" geometry |
+| ZADN 45 nm, n = 2.0 | cross-section 42 ± 5; the index is the paper's assumption | thickness supported, index unverified | 42–45; 1.85 tested |
+| dense zone on the ETL side | device image: a low-relief band under the ZADN, 45 nm median (24–97), blocky grains below to the HIL | orientation supported; the 43 % share is from the Si piece, the image suggests less | share 0.15–0.53 scanned |
+| lower zone = 51 % perovskite + **void** | cross-section dark fraction 10–30 % (fracture surface, low trust); through-film gaps ≤ 3 % in plan-view TEM; the film is 10 nm nanocrystals in an organic (BPA) matrix inside ~100 nm macro-grains | 50 % void is not supported; the same effective index with an organic host and 10–30 % void is | the "organic matrix" fit (23 % perovskite in a host of n = 1.34) alongside the base fit |
+| lower zone scatters | the paper has no haze, transmittance or full absorbance spectrum; 80–150 nm grains, rms 13 nm interfaces | plausible, unverified | followed, never counted as absorption; ×0.5 tested |
+| dense zone is dense perovskite | n in the transparent range equals published Cs₀.₁₇FA₀.₈₃PbBr₃ to 0.02 (§11) | supported | — |
+| isotropic dipoles, emission spread in depth | the paper's own simulation: both orientations, 20 positions | shared assumption | isotropic; x_d free |
+| internal spectrum by reverse calculation | the paper does the same (peak 535 nm) | supported; ours peaks at 535–537.5 nm | — |
+| internal radiative efficiency | external PLQE 46 % measured; the 88 % is the paper's flat-film model | model-dependent (§8) | free, ≤ 1 |
+| EQE counts forward light only | luminance meter + angular distribution; the glass edges glow in the photographs | supported | substrate light counted as lost |
+| target EQE | maximum 28.9 %, mean 25.2 ± 1.6 % (40 devices), ~24 % in the second laboratory | — | both quoted |
+
+Not verifiable from the paper: BPA concentration, film haze, any AFM, the
+glass thickness, and whether the Si piece measured here followed the same
+recipe as the device films.
+
+On the void fraction specifically. The ellipsometry fixes the effective index
+of the lower zone (1.65 at 540 nm, 1.53 at 633 nm), not its composition:
+51 % perovskite + 49 % void and 23 % perovskite in a host of n = 1.34 fit
+equally (§3). The micrographs rule out the first reading — there is no 50 %
+of empty space — and the paper describes nanocrystals bound by excess BPA, so
+the second, with part of the host being void (10–30 %), is the physical one.
+For the device model the difference is the perovskite content of the lower
+zone, i.e. how much of the emission and of the re-absorption happens there
+(x_d by volume 0.60 against 0.76); the angular pattern and the EQE barely
+move (§8).
+
+## 11. Band edge and the method of Dasgupta *et al.* (arXiv:2601.11793)
+
+"Deriving a comprehensive dataset of optical constants for metal halide
+perovskites" (Dasgupta, Hu, Seo, Yuan, Boeije, Johnston, Stranks, Snaith,
+January 2026) makes three points that apply here.
+
+1. *Fit one layer at a time, with an intensity measurement in the fit.* They
+   characterise the substrate and each underlayer separately and add
+   transmittance to the ellipsometric data. Here: GraHIL from its own piece,
+   then the perovskite on it; the reflected-intensity ratio of the two pieces
+   plays the role of their transmittance.
+2. *Ellipsometry leaves an unphysical extinction below the gap, caused by
+   roughness, and an effective-medium roughness layer does not remove it.*
+   That is the scattering term of §2–3 seen from the other side: here it is
+   kept out of the perovskite's own k by giving it its own layer and
+   wavelength law, and §7–8 treat it as redistribution, never as absorption.
+3. *The band-edge shape must come from a measurement that sees absorption
+   only; scale it to the ellipsometric k just above the edge, extend the tail
+   log-linearly, recalculate n by Kramers-Kronig.* They use PDS. This film has
+   none, but its luminescence is tied to its absorption by detailed balance,
+   α(E) ∝ φ_int(E)·e^{E/kT}/(n²E²), with φ_int the internal spectrum of the
+   device model. `gp_stitch.py` does the stitching with that:
+
+| λ (nm) | k, ellipsometry | k, stitched | k, published set shifted to this edge |
+|---|---|---|---|
+| 530 | 0.156 | 0.156 | 0.176 |
+| 540 | 0.076 | 0.060 | 0.059 |
+| 545 | 0.036 | 0.018 | — |
+| 550 | 0.016 | 0.0048 | 0.010 |
+| 560 | 0.0027 | 0.00033 | 0.0022 |
+| 580 | 0 | 2×10⁻⁶ | — |
+| 600 | 0 | 2×10⁻⁸ | 3×10⁻⁶ |
+
+   Stitch point 537.5 nm (k = 0.10); Urbach energy 15.4 meV (theirs, for
+   Cs₀.₁₇FA₀.₈₃PbBr₃: 21 meV); n changes by at most 0.019 (at 540 nm:
+   2.342 → 2.357). The ellipsometric fit alone has an edge that is too soft
+   in its last decade — its shape there is that of the basis functions, not
+   of the data — which is exactly their warning. Above the stitch point the
+   ellipsometric k is kept: there the luminescence-derived α depends on the
+   self-absorption correction of the device model and is not independent.
+   `Perov_dense_nk_stitched.csv` is the table to use where re-absorption of
+   the red side of the emission matters.
+
+Their public dataset (github.com/akashdasgupta/Perovskite-Dielectric-Constants-Repository)
+has Cs₀.₁₇FA₀.₈₃PbBr₃, close to this film's
+(FA₀.₇MA₀.₁GA₀.₂)₀.₈₇Cs₀.₁₃PbBr₃:
+
+| λ (nm) | n, dense part (this work) | n, published | k, this work | k, published | k, published shifted |
+|---|---|---|---|---|---|
+| 400 | 2.296 | 2.175 | 0.525 | 0.423 | 0.368 |
+| 450 | 2.333 | 2.144 | 0.324 | 0.332 | 0.313 |
+| 500 | 2.283 | 2.161 | 0.208 | 0.299 | 0.307 |
+| 520 | 2.303 | 2.186 | 0.179 | 0.303 | 0.287 |
+| 633 | 2.106 | 2.107 | 0 | 5×10⁻⁷ | — |
+| 800 | 2.022 | 2.006 | 0 | — | — |
+| 1000 | 1.985 | 1.968 | 0 | — | — |
+
+- In the transparent range the dense part has the refractive index of bulk
+  lead bromide perovskite, to 0.02. It is dense perovskite, and an
+  effective-medium roughness layer that pushes it higher (§9) is unphysical.
+- Their band edge lies 15–23 nm to the red (half-height of k at 554.5 nm
+  against 539 nm): this film's composition and 10 nm nanocrystals put it at
+  2.30 eV.
+- Just above the edge this film absorbs less (k = 0.18–0.21 at 500–520 nm
+  against 0.30) and towards the UV more. Either that is the nanocrystal
+  spectrum, which rises steadily where the bulk film has a plateau, or the
+  ellipsometry cannot fully separate absorption in the dense part from
+  extinction in the lower part over 480–535 nm. The film-average k of the
+  paper's absorbance (0.125–0.132 at 520–526 nm) is met either way: 0.129
+  with the fitted values (§3), and equally by a bulk-like 0.30 in the dense
+  part with almost none below. With η_rad = 1 the EQE of §8 does not depend
+  on which (k × 1.5: 25.1 % against 24.8 %).
 
 ## Files written to `$ELLIPS_OUT/grahil_perov/`
 
@@ -406,6 +664,8 @@ side, which tests the stack's optics with no assumption about the emitters.
 | `lib_Perov_dense.csv`, `lib_Perov_lower_with_scattering.csv`, `lib_Perov_lower_no_scattering.csv`, `lib_GraHIL.csv` | the same media as `wavelength_nm,n,k` |
 | `structure.json` | thicknesses, every variant, the tables above |
 | `grahil_perov_summary.png` | fit at three angles, n, k, device angular emission |
+| `Perov_dense_nk_stitched.csv`, `lib_Perov_dense_stitched.csv`, `stitch.json` | dense perovskite with the luminescence-stitched band edge (§11) |
+| `grahil_perov_device.png` | angular emission and photon budget per description, roughness scan, band edge |
 | `../grahil_perov_mod/*.mod`, `mod_check.json` | the two CompleteEASE models of §6 and their read-back check |
 
 For a device simulation use two perovskite layers, not one: `lib_Perov_dense`
