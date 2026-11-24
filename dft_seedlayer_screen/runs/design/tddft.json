@@ -151,5 +151,29 @@
    "first_bright_f": 0.0615,
    "vis_sum_f": 0.091
   }
+ },
+ "Hz-NCN-Hz": {
+  "neutral": {
+   "states": [
+    {
+     "eV": 2.725,
+     "nm": 455.0,
+     "f": 0.0024
+    },
+    {
+     "eV": 2.809,
+     "nm": 441.4,
+     "f": 0.0019
+    },
+    {
+     "eV": 3.411,
+     "nm": 363.5,
+     "f": 0.0021
+    }
+   ],
+   "first_bright_eV": null,
+   "first_bright_f": null,
+   "bright_below_3p1": []
+  }
  }
 }
