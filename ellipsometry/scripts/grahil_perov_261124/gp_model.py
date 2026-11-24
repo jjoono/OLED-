@@ -15,6 +15,10 @@ What is here
                the film thicknesses), which is what depolarizes: the result
                then has N^2 + C^2 + S^2 < 1 and is compared with the measured
                N, C, S scaled by sqrt(1 - depolarization).
+  ncs_coh()    the same spread but INSIDE the coherence area: amplitudes are
+               averaged, which damps interference fringes without depolarizing
+               (roughness with a lateral scale that is not small against the
+               wavelength - grains, film undulation).
   graded()     a layer cut into sublayers whose composition runs linearly from
                bottom to top (Bruggeman mix of two media)."""
 import os as _os
@@ -102,6 +106,35 @@ def ncs(wl, ang, layers, ds, sig=0.0, vary=None, nodes=5):
             rp, rs = tmm(wl, layers, dd, th)
             Ip = Ip + wi * np.abs(rp)**2; Is = Is + wi * np.abs(rs)**2; X = X + wi * np.conj(rp) * rs
         I = Ip + Is
+        out.append(((Is - Ip) / I, 2 * X.real / I, 2 * X.imag / I))
+    return tuple(np.stack([o[k] for o in out], 1) for k in range(3))
+
+
+def ncs_coh(wl, ang, layers, ds, j, sig, nodes=11, extra=None):
+    """N, C, S with the height of the top surface spread laterally INSIDE the coherence area.
+
+    The thickness ds[j] (the top film; j indexes ds) takes the values d + h, h ~ N(0, sig), and the
+    AMPLITUDES r_p, r_s are averaged, each referred to one fixed plane above the sample (an air gap
+    c - h is put on top, so the phase of the front reflection moves with the surface as it does in
+    reality).  This is the scalar (Kirchhoff) picture of roughness whose lateral scale is not small
+    against the wavelength: it damps the interference between the front and the buried interfaces
+    and sends the lost light into diffuse scatter, but leaves the specular beam fully polarized - no
+    depolarization, unlike an incoherent average (ncs(..., sig=)).  On an opaque film it does nothing
+    to rho = r_p / r_s, since both get the same factor.
+    extra: optional (weights, [(layers_k, ds_k), ...]) is not used here; see ncs_mix for area mixing."""
+    if sig <= 0:
+        return ncs(wl, ang, layers, ds)
+    x, w = np.polynomial.hermite_e.hermegauss(nodes); w = w / w.sum()
+    c = sig * x.max()
+    L = [layers[0], layers[0]] + list(layers[1:])
+    out = []
+    for th in ang:
+        rp = 0.0; rs = 0.0
+        for xi, wi in zip(x, w):
+            h = sig * xi; dd = list(ds); dd[j] = max(ds[j] + h, 0.0)
+            a, b_ = tmm(wl, L, [c - h] + dd, th)
+            rp = rp + wi * a; rs = rs + wi * b_
+        Ip, Is = np.abs(rp)**2, np.abs(rs)**2; X = np.conj(rp) * rs; I = Ip + Is
         out.append(((Is - Ip) / I, 2 * X.real / I, 2 * X.imag / I))
     return tuple(np.stack([o[k] for o in out], 1) for k in range(3))
 
