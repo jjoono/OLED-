@@ -584,5 +584,18 @@
    "seconds": 5949
   }
  },
- "E_b_deepest": 2.4242
+ "E_b_deepest": 2.4242,
+ "whole": {
+  "atop10": {
+   "E_b": 2.2401,
+   "elec": 2.1163,
+   "D3": -0.1238,
+   "d3_sign_fixed": true,
+   "q_mulliken": 0.5432,
+   "frag_atoms": 48,
+   "caps": 0,
+   "mol_atoms": 48,
+   "seconds": 13374
+  }
+ }
 }
