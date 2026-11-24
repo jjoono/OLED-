@@ -276,6 +276,33 @@
    "first_bright_eV": null,
    "first_bright_f": null,
    "bright_below_3p1": []
+  },
+  "anion": {
+   "states": [
+    {
+     "eV": 1.02,
+     "nm": 1216.0,
+     "f": 0.9599
+    },
+    {
+     "eV": 1.165,
+     "nm": 1064.1,
+     "f": 0.0444
+    },
+    {
+     "eV": 1.228,
+     "nm": 1009.3,
+     "f": 0.0536
+    },
+    {
+     "eV": 1.449,
+     "nm": 855.9,
+     "f": 0.0018
+    }
+   ],
+   "first_bright_eV": 1.02,
+   "first_bright_f": 0.9599,
+   "vis_sum_f": 0
   }
  }
 }
