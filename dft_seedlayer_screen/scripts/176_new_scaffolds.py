@@ -28,6 +28,16 @@ IDEAS = {
                        "3D: three dicyanopyrazino arms on a triptycene, cannot stack like a disc"),
     "bi-TCNQx": ("N#Cc1nc2cc(-c3cc4nc(C#N)c(C#N)nc4cc3C#N)c(C#N)cc2nc1C#N",
                  "twisted biaryl dimer of TCN-Qx: dense anchors, non-planar"),
+    # heptazine dimers (2026-11-24): fix the monomer's MW 248 (volatile) and
+    # flat-disc packing while keeping its anchor density
+    "biHz": ("N#Cc1nc2nc(-c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(C#N)nc(n1)n23",
+             "heptazine dimer, direct C-C bond"),
+    "Hz-NCN-Hz": ("N#Cc1nc2nc(N(C#N)c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(C#N)nc(n1)n23",
+                  "cyanamide-bridged dimer (melon-type N bridge, bent, extra nitrile anchor)"),
+    "Hz-O-Hz": ("N#Cc1nc2nc(Oc4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)nc3nc(C#N)nc(n1)n23",
+                "ether-bridged dimer (bent, flexible)"),
+    "Hz-C6F4-Hz": ("N#Cc1nc2nc(-c7c(F)c(F)c(-c4nc5nc(C#N)nc6nc(C#N)nc(n4)n56)c(F)c7F)nc3nc(C#N)nc(n1)n23",
+                   "tetrafluorophenylene-bridged dimer (F forces a twist)"),
 }
 
 

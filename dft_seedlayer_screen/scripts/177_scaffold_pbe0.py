@@ -11,7 +11,7 @@ import importlib.util, json, os, sys, time
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 ROOT = os.path.join(HERE, "..")
-OUT = os.path.join(ROOT, "runs", "design", "scaffold_pbe0.json")
+OUT = os.environ.get("SCAFFOLD_OUT", os.path.join(ROOT, "runs", "design", "scaffold_pbe0.json"))
 os.environ.setdefault("FRAG_RCUT", "5.0")
 
 
