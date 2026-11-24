@@ -51,8 +51,8 @@ scripts/   analysis code (see table below)
 
 | Material | Scripts | Result |
 |---|---|---|
-| Perovskite on GraHIL | `perovfit*.py`, `k_anchored.py`, `final_window.py`, `err_budget.py` | `Perov_FINAL_nk.csv` |
-| GraHIL (PEDOT:PSS) | (in `ellipsometry_fit.py` presets) | `GraHIL_genosc_nk.csv` |
+| Perovskite on GraHIL | `grahil_perov_261124/gp_*.py` (supersedes `perovfit*.py`, `k_anchored.py`, `final_window.py`, `err_budget.py`) | `grahil_perov/Perov_dense_nk.csv` |
+| GraHIL (PEDOT:PSS:PFI) | `grahil_perov_261124/gp_grahil.py` | `grahil_perov/GraHIL_nk.csv` |
 | IZO (O2-annealed) | `izo_*.py` | `IZO_O2_nk.csv` |
 | Ag on HATCN | `hatcn_*.py`, `ag_*.py` | `AgHATCN_nk.csv` |
 | sputtered ITO / IZO | `ito_*.py`, `substrate_sens.py` | `ITO_IZO_all5_nk.csv` |
@@ -101,3 +101,15 @@ unknown going in (`scripts/tooling_261117/`, see
 identify every continuous film independently and the NPB dispersion reproduces
 `data/nk/NPB.csv`; Si and glass thicknesses agree to ±2 nm once the glass back
 surface is modelled. The Bphen 10 nm pieces fit no continuous film.
+
+## Session 2026-11-24
+
+GraHIL and the perovskite-NC film of the green PeLED, each on Si
+(`scripts/grahil_perov_261124/`, see
+[README_261124_grahil_perov.md](README_261124_grahil_perov.md)). GraHIL is a
+plain homogeneous film, 108 nm, n = 1.38. The perovskite film fits no single
+layer: it needs ~120 nm of dense perovskite (n = 2.34 at 540 nm) on ~160 nm of
+effective index ≈ 1.5 that scatters, on the unchanged GraHIL. That structure,
+unlike a single n = 2.3 layer, also reproduces the device's published angular
+emission. Replaces the 2026-08-16 perovskite result, which predates the
+transfer-matrix fix.

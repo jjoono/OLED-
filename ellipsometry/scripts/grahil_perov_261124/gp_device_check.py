@@ -17,7 +17,9 @@ Each scenario is averaged over a lateral spread of the perovskite thickness (dif
 incoherently).  The internal emission spectrum is not taken from the paper (theirs was back-
 calculated with their optics): it is solved so that the model's normal-incidence output is the
 measured EL spectrum.  Light scattered in the lower layer counts as lost to the coherent pattern;
-eta is the share of Lambertian light that would best complete a scenario (0 = none needed)."""
+eta is the share of Lambertian light that would best complete a scenario (0 = none needed).
+What the scattered light itself would look like, if it leaves at all, is the row
+'fully scattered': isotropic radiance in the glass, refracted into air."""
 import os as _os
 ELLIPS_DATA = _os.environ.get('ELLIPS_DATA', '.')
 ELLIPS_OUT  = _os.environ.get('ELLIPS_OUT', '.')
@@ -36,6 +38,14 @@ ONE = np.ones(len(WL), complex)
 def measured():
     j = json.load(open(W + 'ed7g_digitized.json')); e = json.load(open(W + 'ed7c_digitized.json'))
     return np.array(j['theta'], float), np.array(j['I']), np.interp(WL, e['wl'], e['el'])
+
+
+def diffuse(th_deg, n_glass=N_GLASS):
+    """Light that was scattered on its way out: isotropic radiance in the glass, then glass -> air.
+    I(theta) = cos(theta) T(theta) / T(0) - a Lambertian source times the Fresnel transmission."""
+    ta = np.deg2rad(np.asarray(th_deg, float)); tg = np.arcsin(np.sin(ta) / n_glass); cg, ca = np.cos(tg), np.cos(ta)
+    T = 1 - 0.5 * (((n_glass * cg - ca) / (n_glass * cg + ca))**2 + ((cg - n_glass * ca) / (cg + n_glass * ca))**2)
+    return ca * T / T[0]
 
 
 def fit_of(name='base'):
@@ -105,9 +115,12 @@ def main():
                     ('lower-layer perovskite fraction 1.0 (no low-index part)', dict(f_b=1.0)),
                     ('dense part 90 nm of 284', dict(d_t=90.0)), ('dense part 150 nm of 284', dict(d_t=150.0))):
         rows.append(run('SE base, ' + lab, 'SE', base, **kw))
-    json.dump(dict(theta=th.tolist(), measured=Im.tolist(), rows=[r for r in rows if r]), open(W + 'device_check.json', 'w'), indent=1)
+    dif = diffuse(th); rms = lambda I: float(np.sqrt(np.mean((I - Im)[use]**2)))
+    json.dump(dict(theta=th.tolist(), measured=Im.tolist(), lambertian=dict(I=lam.tolist(), rms=rms(lam)), diffuse=dict(I=dif.tolist(), rms=rms(dif)),
+                   rows=[r for r in rows if r]), open(W + 'device_check.json', 'w'), indent=1)
     print('%-58s ' % 'theta (deg)' + ' '.join('%5d' % t for t in th) + '  rms(0-70)   eta -> rms   internal peak')
-    print('%-58s ' % 'measured (ED Fig. 7g)' + ' '.join('%5.3f' % v for v in Im)); print('%-58s ' % 'Lambertian' + ' '.join('%5.3f' % v for v in lam) + '    %.3f' % np.sqrt(np.mean((lam - Im)[use]**2)))
+    print('%-58s ' % 'measured (ED Fig. 7g)' + ' '.join('%5.3f' % v for v in Im)); print('%-58s ' % 'Lambertian' + ' '.join('%5.3f' % v for v in lam) + '    %.3f' % rms(lam))
+    print('%-58s ' % 'fully scattered (isotropic in the glass)' + ' '.join('%5.3f' % v for v in dif) + '    %.3f' % rms(dif))
     for r in rows:
         if r is None: print(); continue
         print('%-58s ' % r['label'] + ' '.join('%5.3f' % v for v in r['I']) + '    %.3f     %.2f -> %.3f     %.0f nm' % (r['rms'], r['eta'], r['rms_mix'], r['internal_peak']))

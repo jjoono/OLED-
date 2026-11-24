@@ -17,7 +17,7 @@ import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 W = _os.path.join(ELLIPS_OUT, ''); OUT = _os.path.join(ELLIPS_OUT, 'grahil_perov', '')
 INK, INK2, MUTED, GRID, AXIS, SURF = '#0b0b0b', '#52514e', '#898781', '#e1e0d9', '#c3c2b7', '#fcfcfb'
 C1, C2, C3 = '#2a78d6', '#eb6834', '#1baf7a'          # validated categorical slots 1-3 (blue, orange, aqua)
-SKIP = ('65+70 only', '70+75 only')                   # data subsets: in the envelope, not separate models
+SC_HOLD = 450.0                                       # nm; below this the scattering extinction of the lower layer is held constant
 
 
 def style(a):
@@ -31,7 +31,9 @@ def main():
     wl = np.arange(205.0, 1001.0, 1.0)
     N0 = PV.nk_of(base, wl); allN = np.array([PV.nk_of(r, wl) for r in J['variants']])
     v = base['struct']; one = np.ones(len(wl), complex)
-    Nlow = P.bruggeman(N0, one, v['f_b']) + 1j * v['k_sc'] * (633.0 / wl)**v['p']
+    # the lambda^-p law is seen only where light reaches the lower layer (the dense layer is opaque
+    # below ~450 nm) and cannot keep growing into the UV: held at its 450 nm value below that
+    Nlow = P.bruggeman(N0, one, v['f_b']) + 1j * v['k_sc'] * (633.0 / np.maximum(wl, SC_HOLD))**v['p']
     cols = np.c_[wl, N0.real, N0.imag, allN.real.min(0), allN.real.max(0), allN.imag.min(0), allN.imag.max(0), Nlow.real, Nlow.imag]
     np.savetxt(OUT + 'Perov_dense_nk.csv', cols, delimiter=',', fmt='%.5f', comments='',
                header='wavelength_nm,n_dense,k_dense,n_min,n_max,k_min,k_max,n_lower_layer,k_lower_layer_incl_scattering')
@@ -53,7 +55,10 @@ def main():
         dense_nk={str(w): dict(n=float(N0[i].real), k=float(N0[i].imag), n_range=[float(allN.real[:, i].min()), float(allN.real[:, i].max())],
                                k_range=[float(allN.imag[:, i].min()), float(allN.imag[:, i].max())]) for w, i in zip(q, iq)},
         lower_layer_nk={str(w): [float(Nlow[i].real), float(Nlow[i].imag)] for w, i in zip(q, iq)},
-        device_angular={r['label'].strip(): dict(rms=r['rms'], I=r['I']) for r in dev['rows']}, device_theta=dev['theta'], device_measured=dev['measured'])
+        lower_layer_note='effective medium of the base fit: Bruggeman(dense, void, f_b) + i k_sc (633/lambda)^p; the extinction is scattering '
+                         '(light leaves the specular beam), determined over ~480-1000 nm and held constant below %g nm' % SC_HOLD,
+        device_angular={r['label'].strip(): dict(rms=r['rms'], I=r['I']) for r in dev['rows']}, device_theta=dev['theta'], device_measured=dev['measured'],
+        device_reference=dict(lambertian=dev['lambertian'], fully_scattered=dev['diffuse']))
     json.dump(summ, open(OUT + 'structure.json', 'w'), indent=1)
 
     # ---------------------------------------------------------------- figure
@@ -84,18 +89,19 @@ def main():
     fa = (v['d_t'] + v['f_b'] * v['d_b']) / (v['d_t'] + v['d_b'])
     ax.plot(wl[m], fa * N0.imag[m], color=C1, lw=1.3, ls=(0, (4, 2)), label='the same x %.2f (film average)' % fa)
     ax.plot(DC.K_PAPER[0], DC.K_PAPER[1], color=C2, lw=0, marker='o', ms=4.5, mec=SURF, mew=0.8, label='k from absorbance (paper SI Fig. 6a)')
-    ax.set_xlabel('wavelength (nm)', color=INK2, fontsize=8.5); ax.set_ylabel('k', color=INK2, fontsize=8.5); ax.set_ylim(0, 0.26)
+    ax.set_xlabel('wavelength (nm)', color=INK2, fontsize=8.5); ax.set_ylabel('k', color=INK2, fontsize=8.5); ax.set_ylim(0, 0.31)
     ax.legend(frameon=False, fontsize=7.5, labelcolor=INK2, loc='upper right'); ax.set_title('Extinction coefficient at the band edge', color=INK, fontsize=9, loc='left')
     # device
     ax = fig.add_subplot(gs[2, 4:6]); style(ax); th = np.array(dev['theta']); fine = np.linspace(0, 85, 86)
     ax.plot(fine, np.cos(np.deg2rad(fine)), color=MUTED, lw=1.2, label='Lambertian')
+    ax.plot(fine, DC.diffuse(fine), color=MUTED, lw=1.2, ls=(0, (4, 2)), label='fully scattered')
     pick = {r['label'].strip(): r for r in dev['rows']}
     se = pick['SE structure (base fit)      spread 15']; pa = pick['paper optics                 spread 15']
-    ax.plot(th, pa['I'], color=C2, lw=2, marker='s', ms=4, mec=SURF, mew=0.8, label='paper optics (n = 2.3, one layer), rms %.3f' % pa['rms'])
+    ax.plot(th, pa['I'], color=C2, lw=2, marker='s', ms=4, mec=SURF, mew=0.8, label='paper optics, rms %.3f' % pa['rms'])
     ax.plot(th, se['I'], color=C1, lw=2, marker='o', ms=4, mec=SURF, mew=0.8, label='this work, rms %.3f' % se['rms'])
-    ax.plot(th, dev['measured'], color=INK, lw=0, marker='o', ms=7, mfc='none', mew=1.6, label='measured (paper ED Fig. 7g)')
-    ax.set_xlabel('emission angle (deg)', color=INK2, fontsize=8.5); ax.set_ylabel('EL intensity / normal', color=INK2, fontsize=8.5); ax.set_ylim(0, 1.55)
-    ax.legend(frameon=False, fontsize=7.5, labelcolor=INK2, loc='upper right'); ax.set_title('Green PeLED, angular emission', color=INK, fontsize=9, loc='left')
+    ax.plot(th, dev['measured'], color=INK, lw=0, marker='o', ms=7, mfc='none', mew=1.6, label='measured (ED Fig. 7g)')
+    ax.set_xlabel('emission angle (deg)', color=INK2, fontsize=8.5); ax.set_ylabel('EL intensity / normal', color=INK2, fontsize=8.5); ax.set_ylim(0, 1.2)
+    ax.legend(frameon=False, fontsize=7.5, labelcolor=INK2, loc='lower left'); ax.set_title('Green PeLED, angular emission', color=INK, fontsize=9, loc='left')
     fig.suptitle('Perovskite NC film on GraHIL on Si: three-angle fit 205-1000 nm (MSE %.1f), dense %.0f nm on a low-index scattering %.0f nm, GraHIL %.0f nm'
                  % (base['mse_ncs'], v['d_t'], v['d_b'], PV.D_G), color=INK, fontsize=10, x=0.02, ha='left', y=0.975)
     fig.savefig(OUT + 'grahil_perov_summary.png', dpi=200, facecolor=SURF, bbox_inches='tight')
