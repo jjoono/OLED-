@@ -9,6 +9,23 @@
   "E_N@N": -1340.2558807600908,
   "conv_N@N": true,
   "E_I@N": -1340.3756900527046,
-  "conv_I@N": true
+  "conv_I@N": true,
+  "E_I@I": -1340.3874487635176,
+  "conv_I@I": true,
+  "spin_PR_heavy_atoms": 18.8,
+  "E_N@I": -1340.251672790626,
+  "conv_N@I": true,
+  "EA_vert_eV": 3.26,
+  "EA_ad_eV": 3.58,
+  "lambda_eV": 0.434,
+  "seconds": 9527
+ },
+ "Hz-NCN-Hz": {
+  "gfn2_lambda_eV": 0.081,
+  "gfn2_lambda_seeds": [
+   0.081,
+   0.08,
+   0.081
+  ]
  }
 }
