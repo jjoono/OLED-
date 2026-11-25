@@ -65,5 +65,12 @@
   "lambda_eV": 0.034,
   "seconds": 3601,
   "dG_CT_vs_NPB_gas_eV": 2.75
+ },
+ "HATCN": {
+  "gfn2_adiabatic_eV": 8.761,
+  "conv_N@N": true,
+  "E_N@N": -1340.2559102209134,
+  "conv_I@N": true,
+  "E_I@N": -1340.3757186303974
  }
 }
