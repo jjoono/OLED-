@@ -1,20 +1,4 @@
 {
- "HATCN": {
-  "gfn2_adiabatic_eV": 8.76,
-  "conv_N@N": true,
-  "E_N@N": -1340.2559102209138,
-  "conv_I@N": true,
-  "E_I@N": -1340.3757186303997,
-  "conv_I@I": true,
-  "spin_PR_heavy_atoms": 10.7,
-  "E_I@I": -1340.3753068325977,
-  "conv_N@I": true,
-  "E_N@I": -1340.2542324352985,
-  "EA_vert_eV": 3.26,
-  "EA_ad_eV": 3.249,
-  "lambda_eV": 0.034,
-  "seconds": 3601
- },
  "Hz-NCN-Hz": {
   "gfn2_adiabatic_eV": 9.119,
   "conv_N@N": true,
@@ -29,7 +13,8 @@
   "EA_vert_eV": 3.771,
   "EA_ad_eV": 3.836,
   "lambda_eV": 0.061,
-  "seconds": 9000
+  "seconds": 9000,
+  "dG_CT_vs_NPB_gas_eV": 2.163
  },
  "NPB": {
   "gfn2_adiabatic_eV": 10.678,
@@ -55,6 +40,30 @@
   "E_I@N": -1667.4074286755576,
   "conv_I@I": true,
   "spin_PR_heavy_atoms": 23.8,
-  "E_I@I": -1667.4093881017525
+  "E_I@I": -1667.4093881017525,
+  "conv_N@I": true,
+  "E_N@I": -1667.2749919506723,
+  "EA_vert_eV": 3.597,
+  "EA_ad_eV": 3.65,
+  "lambda_eV": 0.061,
+  "seconds": 3338,
+  "dG_CT_vs_NPB_gas_eV": 2.349
+ },
+ "HATCN_nokick": {
+  "gfn2_adiabatic_eV": 8.76,
+  "conv_N@N": true,
+  "E_N@N": -1340.2559102209138,
+  "conv_I@N": true,
+  "E_I@N": -1340.3757186303997,
+  "conv_I@I": true,
+  "spin_PR_heavy_atoms": 10.7,
+  "E_I@I": -1340.3753068325977,
+  "conv_N@I": true,
+  "E_N@I": -1340.2542324352985,
+  "EA_vert_eV": 3.26,
+  "EA_ad_eV": 3.249,
+  "lambda_eV": 0.034,
+  "seconds": 3601,
+  "dG_CT_vs_NPB_gas_eV": 2.75
  }
 }
