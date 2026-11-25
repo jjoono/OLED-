@@ -40,5 +40,13 @@
   "EA_ad_eV": 3.817,
   "lambda_eV": 0.062,
   "seconds": 7241
+ },
+ "Hz-O-Hz": {
+  "gfn2_lambda_eV": 0.079,
+  "gfn2_lambda_seeds": [
+   0.079,
+   0.079,
+   0.079
+  ]
  }
 }

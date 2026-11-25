@@ -77,7 +77,10 @@ def main(names):
         gI = os.path.join(GEO, f"{name}_T30_{'cat' if ion > 0 else 'an'}.xyz")
         t0 = time.time()
         if "gfn2_lambda_eV" not in row:
-            S, X0 = e179.read(os.path.join(GEO, f"{name}_0.xyz"))
+            src = os.path.join(GEO, f"{name}_0.xyz")
+            if not os.path.exists(src):   # not run through 179: start from the design structure
+                src = os.path.join(ROOT, "structures", "design", f"{name}.xyz")
+            S, X0 = e179.read(src)
             XN, EN = opt(S, X0, 0)
             runs = []
             for seed in (1, 2, 3):
