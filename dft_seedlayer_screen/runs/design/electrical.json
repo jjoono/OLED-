@@ -30,7 +30,23 @@
   "IP_vert_eV": 6.037,
   "IP_ad_eV": 5.999,
   "lambda_eV": 0.105,
-  "seconds": 26944
+  "seconds": 26944,
+  "scf_checked": {
+   "E_ion@N": {
+    "default": -1801.873557989631,
+    "cross": -1801.8735579905933
+   },
+   "E_ion@I": {
+    "default": -1801.8749521720338,
+    "cross": -1801.874952174193
+   },
+   "lambda_eV": 0.105,
+   "ion_relax_eV": 0.038,
+   "neutral_relax_eV": 0.067,
+   "spin_PR_heavy_atoms": 25.8,
+   "IP_vert_eV": 6.037,
+   "IP_ad_eV": 5.999
+  }
  },
  "Hz-O-Hz": {
   "gfn2_adiabatic_eV": 9.046,
