@@ -17,8 +17,10 @@ energy at each geometry. Neutral (closed shell) values are kept from 179/180.
 Writes E_ion@N_min, E_ion@I_min and the corrected EA/IP, lambda, spin PR
 into the same json under "scf_checked".
 """
+import gc
 import importlib.util
 import json
+import types
 import os
 import sys
 
@@ -46,7 +48,14 @@ def scf(S, X, ch, dm0=None):
     mf.kernel(dm0)
     if not mf.converged:
         mf = mf.newton(); mf.kernel(mf.make_rdm1())
-    return mf
+    # keep only what is needed and drop the density-fitting tensor (3-4 GB scratch file each)
+    out = types.SimpleNamespace(e_tot=mf.e_tot, dm=mf.make_rdm1(), pr=spin_pr(mf, S))
+    try:
+        mf.with_df.reset(); mf.with_df._cderi_to_save = None   # the temp file closes and is removed
+    except AttributeError:
+        pass
+    del mf; gc.collect()
+    return out
 
 
 def spin_pr(mf, S):
@@ -72,7 +81,7 @@ def main(tag, names):
         S, XN = e179.read(os.path.join(GEO, f"{name}{sfx}_0.xyz"))
         XI = e179.read(os.path.join(GEO, f"{name}{sfx}_{'cat' if ion > 0 else 'an'}.xyz"))[1]
         aN = scf(S, XN, ion); aI = scf(S, XI, ion)
-        bN = scf(S, XN, ion, aI.make_rdm1()); bI = scf(S, XI, ion, aN.make_rdm1())
+        bN = scf(S, XN, ion, aI.dm); bI = scf(S, XI, ion, aN.dm)
         eIN = min(aN.e_tot, bN.e_tot); mI = aI if aI.e_tot <= bI.e_tot else bI
         eII = mI.e_tot
         eNN, eNI = row["E_N@N"], row["E_N@I"]
@@ -80,7 +89,7 @@ def main(tag, names):
              "E_ion@I": {"default": aI.e_tot, "cross": bI.e_tot},
              "lambda_eV": round(((eIN - eII) + (eNI - eNN)) * HA, 3),
              "ion_relax_eV": round((eIN - eII) * HA, 3), "neutral_relax_eV": round((eNI - eNN) * HA, 3),
-             "spin_PR_heavy_atoms": round(spin_pr(mI, S), 1)}
+             "spin_PR_heavy_atoms": round(mI.pr, 1)}
         if ion < 0:
             r["EA_vert_eV"] = round((eNN - eIN) * HA, 3); r["EA_ad_eV"] = round((eNN - eII) * HA, 3)
         else:

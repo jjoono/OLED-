@@ -55,7 +55,23 @@
   "EA_vert_eV": 3.75,
   "EA_ad_eV": 3.817,
   "lambda_eV": 0.062,
-  "seconds": 7241
+  "seconds": 7241,
+  "scf_checked": {
+   "E_ion@N": {
+    "default": -1739.6259964145534,
+    "cross": -1739.625996413803
+   },
+   "E_ion@I": {
+    "default": -1739.6284347632213,
+    "cross": -1739.6284347644464
+   },
+   "lambda_eV": 0.062,
+   "ion_relax_eV": 0.066,
+   "neutral_relax_eV": -0.004,
+   "spin_PR_heavy_atoms": 25.0,
+   "EA_vert_eV": 3.75,
+   "EA_ad_eV": 3.817
+  }
  },
  "Hz-O-Hz": {
   "gfn2_lambda_eV": 0.079,
