@@ -86,20 +86,33 @@ def main(names):
         if "lambda_eV" in out.get(name, {}) and not os.environ.get("REDO"):
             continue
         ion = +1 if name == "NPB" else -1
-        S, XN = read(SRC.get(name, os.path.join(ROOT, "structures", "design", f"{name}.xyz")))
+        S, XN0 = read(SRC.get(name, os.path.join(ROOT, "structures", "design", f"{name}.xyz")))
         t0 = time.time()
-        XN, eN_x = gfn2_opt(S, XN, 0)
+        gN = os.path.join(GEO, f"{name}_0.xyz"); gI = os.path.join(GEO, f"{name}_{'cat' if ion > 0 else 'an'}.xyz")
+        prev = out.get(name, {})
+        if (os.path.exists(gN) and os.path.exists(gI) and "E_N@N" in prev and "gfn2_adiabatic_eV" in prev
+                and not os.environ.get("REDO")):
+            # resume after an interrupted run: same geometries, keep finished single points
+            XN, XI = read(gN)[1], read(gI)[1]
+            r = {"gfn2_adiabatic_eV": prev["gfn2_adiabatic_eV"]}
+            e = {t: prev[f"E_{t}"] for t in ("N@N", "I@N", "I@I", "N@I") if f"E_{t}" in prev}
+            print(name, "resume with", sorted(e), flush=True)
+        else:
+            XN, XI, r, e = None, None, None, {}
+        if XN is None:
+            XN, eN_x = gfn2_opt(S, XN0, 0)
         # a random 0.03 A kick before the ion relaxation: from an exactly
         # symmetric start (HATCN, D3h, degenerate LUMO) BFGS cannot leave the
         # symmetric point and misses the Jahn-Teller distortion, which
         # underestimates lambda (first HATCN run: 0.034 eV)
-        kick = float(os.environ.get("ION_KICK", "0.03"))
-        XI, eI_x = gfn2_opt(S, XN + np.random.default_rng(1).normal(0, kick, XN.shape), ion)
-        write(os.path.join(GEO, f"{name}_0.xyz"), S, XN, f"{name} neutral GFN2")
-        write(os.path.join(GEO, f"{name}_{'cat' if ion > 0 else 'an'}.xyz"), S, XI, f"{name} ion GFN2")
-        r = {"gfn2_adiabatic_eV": round(abs(eI_x - eN_x), 3)}
-        e = {}
+            kick = float(os.environ.get("ION_KICK", "0.03"))
+            XI, eI_x = gfn2_opt(S, XN + np.random.default_rng(1).normal(0, kick, XN.shape), ion)
+            write(gN, S, XN, f"{name} neutral GFN2")
+            write(gI, S, XI, f"{name} ion GFN2")
+            r = {"gfn2_adiabatic_eV": round(abs(eI_x - eN_x), 3)}
         for tag, X, ch in (("N@N", XN, 0), ("I@N", XN, ion), ("I@I", XI, ion), ("N@I", XI, 0)):
+            if tag in e:
+                continue
             e[tag], conv, pr = pbe0(S, X, ch)
             r[f"conv_{tag}"] = conv
             if pr is not None and tag == "I@I":

@@ -96,6 +96,8 @@ def main():
         # meant "not computed", not "transparent".
         nr = int(os.environ.get("TD_ANION_NROOTS", "0"))
         jobs = ((f"anion_n{nr}", -1),) if nr else (("neutral", 0), ("anion", -1))
+        if not nr and os.environ.get("TD_NEUTRAL_ONLY"):   # anion then run separately with 12 roots
+            jobs = (("neutral", 0),)
         for tag, ch in jobs:
             d = json.load(open(OUT)) if os.path.exists(OUT) else {}
             if tag in d.get(name, {}):
