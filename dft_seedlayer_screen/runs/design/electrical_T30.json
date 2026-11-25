@@ -51,7 +51,16 @@
   "E_N@N": -1667.2748663171537,
   "conv_N@N": true,
   "E_I@N": -1667.4068999043798,
-  "conv_I@N": true
+  "conv_I@N": true,
+  "E_I@I": -1667.409129725279,
+  "conv_I@I": true,
+  "spin_PR_heavy_atoms": 23.9,
+  "E_N@I": -1667.2748110098773,
+  "conv_N@I": true,
+  "EA_vert_eV": 3.593,
+  "EA_ad_eV": 3.653,
+  "lambda_eV": 0.062,
+  "seconds": 8998
  },
  "Hz-C(CN)2-Hz": {
   "gfn2_lambda_eV": 0.089,
