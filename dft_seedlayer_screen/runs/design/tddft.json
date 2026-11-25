@@ -529,5 +529,29 @@
    "first_bright_f": null,
    "bright_below_3p1": []
   }
+ },
+ "Hz-S-Hz": {
+  "neutral": {
+   "states": [
+    {
+     "eV": 2.702,
+     "nm": 458.9,
+     "f": 0.0019
+    },
+    {
+     "eV": 2.766,
+     "nm": 448.2,
+     "f": 0.0009
+    },
+    {
+     "eV": 3.39,
+     "nm": 365.7,
+     "f": 0.01
+    }
+   ],
+   "first_bright_eV": null,
+   "first_bright_f": null,
+   "bright_below_3p1": []
+  }
  }
 }
