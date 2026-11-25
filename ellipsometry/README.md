@@ -1,0 +1,122 @@
+# Ellipsometry analysis — n,k extraction
+
+Spectroscopic-ellipsometry (VASE) analysis for thin films measured in 2026:
+perovskite/GraHIL, IZO, Ag-on-HATCN, and sputtered ITO / IZO.
+
+## Method
+
+All samples are analysed with the same validated pipeline:
+
+1. **NCS-space residuals** (`N=cos2Ψ, C=sin2Ψ·cosΔ, S=sin2Ψ·sinΔ`) — bounded, immune
+   to the Ψ→90° / Δ-wrap pathologies that break Ψ/Δ-space fitting.
+2. **Depolarization weighting** — measured `% Depolarization` down-weights unreliable
+   points (Si turns transparent >1107 nm → backside reflection).
+3. **Geometry scan** — chain-consistency residual over a (thickness, roughness) grid
+   locates the true geometry and exposes n·d alias branches.
+4. **Model-free chain extraction** — per-wavelength (n,k) from the multi-angle data with
+   a continuity penalty; no dispersion-model assumption.
+5. **KK-consistent Gen-Osc** — Drude + Tauc-Lorentz/Gaussian with a singularity-subtracted
+   Kramers-Kronig integral (validated against the analytic Lorentz to 2e-3).
+
+Independent anchors are used whenever available: SEM thickness, UV-Vis absorption,
+and glass-baseline transmittance.
+
+## Usage
+
+Measurement data and fitted results are not in this repository. Point the scripts at
+your own copies:
+
+```bash
+export ELLIPS_DATA=/path/to/measurements   # xlsx exports, .mod/.mat files
+export ELLIPS_OUT=/path/to/output          # figures, CSV, intermediate .npz
+python scripts/ito_all5.py
+```
+
+Requires `numpy`, `scipy`, `matplotlib`, `openpyxl`.
+
+## Layout
+
+```
+scripts/   analysis code (see table below)
+```
+
+### Core
+
+| File | Purpose |
+|---|---|
+| `ellipsometry_fit.py` | Shared library: TMM, Bruggeman EMA, KK operators, Gen-Osc, loaders |
+| `kkcheck.py` | Validates the KK integral against the analytic Lorentz oscillator |
+
+### Per-material
+
+| Material | Scripts | Result |
+|---|---|---|
+| Perovskite on GraHIL | `grahil_perov_261124/gp_*.py` (supersedes `perovfit*.py`, `k_anchored.py`, `final_window.py`, `err_budget.py`) | `grahil_perov/Perov_dense_nk.csv` |
+| GraHIL (PEDOT:PSS:PFI) | `grahil_perov_261124/gp_grahil.py` | `grahil_perov/GraHIL_nk.csv` |
+| IZO (O2-annealed) | `izo_*.py` | `IZO_O2_nk.csv` |
+| Ag on HATCN | `hatcn_*.py`, `ag_*.py` | `AgHATCN_nk.csv` |
+| sputtered ITO / IZO | `ito_*.py`, `substrate_sens.py` | `ITO_IZO_all5_nk.csv` |
+
+## Data-file formats
+
+`.SE` files (J.A. Woollam CompleteEASE measurement files) are **proprietary-obfuscated**:
+a fixed-position keystream, no readable tokens, no deflate blocks. They cannot be parsed
+without CompleteEASE — export Ψ/Δ (+ depolarization) to xlsx instead.
+
+What *is* parseable:
+
+- **`.mod` / `.mat`** (CompleteEASE model and material files) — plain text with
+  base64+gzip arrays. Decoders live in `izo_extract2.py` (JAW substrate tables:
+  big-endian float32, wavelength in Ångström) and `hatcn_mat.py` (uniaxial B-spline
+  material file: `spline_e2(E)` nodes + `E Inf`).
+- **xlsx exports** — `load_data_xlsx()` in `ellipsometry_fit.py` auto-detects the header
+  row and both column layouts (interleaved `wl|Ψ Δ|Ψ Δ` and grouped `wl|Ψ Ψ Ψ|Δ Δ Δ`);
+  `depol_weights()` builds fit weights from the depolarization block.
+
+## Notes on reliability
+
+Each CSV carries the residual (and, where available, an uncertainty band). Values quoted
+as `0.0000` for k mean *below the detection limit*, not literally zero — the limit is
+~0.01 for these films, established by forcing k to fixed values and watching the residual.
+
+## Session 2026-08-20/21
+
+Transfer-matrix bug fix, CompleteEASE `.mod` generation, thin Ag on HATCN/MoOx seeds, T/R cross-check and device optics: see [README_260820_session.md](README_260820_session.md). Data locations and how to regenerate everything: [DATA.md](DATA.md). **The library `scripts/ellipsometry_fit.py` on this branch contains the TMM fix; results computed with earlier versions need re-checking.**
+
+## Session 2026-09-10
+
+Thin-Ag n,k re-extracted from the ellipsometry and the absolute T/R together
+(`scripts/joint_nk_260910/`, see [README_260910_joint.md](README_260910_joint.md)).
+Runs without a CompleteEASE `.mod` — the substrate comes from published tabulated
+data instead — and reaches the same seed dispersion as the 260819 pass. For Ag on
+HATCN one dielectric function now describes both measurements to 0.15 %p in
+absolute T/R, which retires the SE-vs-T/R disagreement in n reported in §5 of the
+260820 notes; Ag on MoOx still needs an inhomogeneous model.
+
+## Session 2026-11-17
+
+NPB / TAPC / Bphen tooling pieces on Si and glass, material and thickness both
+unknown going in (`scripts/tooling_261117/`, see
+[README_261117_tooling.md](README_261117_tooling.md)). The absorption bands
+identify every continuous film independently and the NPB dispersion reproduces
+`data/nk/NPB.csv`; Si and glass thicknesses agree to ±2 nm once the glass back
+surface is modelled. The Bphen 10 nm pieces fit no continuous film.
+
+## Session 2026-11-24
+
+GraHIL and the perovskite-NC film of the green PeLED, each on Si
+(`scripts/grahil_perov_261124/`, see
+[README_261124_grahil_perov.md](README_261124_grahil_perov.md)). GraHIL is a
+plain homogeneous film, 108 nm, n = 1.38. The perovskite film fits no single
+layer: it needs ~120 nm of dense perovskite (n = 2.34 at 540 nm) on ~160 nm of
+effective index ≈ 1.5 that scatters, on the unchanged GraHIL. That structure,
+unlike a single n = 2.3 layer, also reproduces the device's published angular
+emission. Replaces the 2026-08-16 perovskite result, which predates the
+transfer-matrix fix.
+
+## Session 2026-11-25
+
+Two ZnS films on Si (`scripts/zns_261125/`, see
+[README_261125_zns.md](README_261125_zns.md)): 96.0 and 93.8 nm (97.0 / 94.8 nm
+with a 3 % density gradient), a unique solution just under the expected
+100–250 nm; n = 2.36 at 550 nm.
