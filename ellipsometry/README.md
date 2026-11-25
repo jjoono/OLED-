@@ -113,3 +113,10 @@ effective index ≈ 1.5 that scatters, on the unchanged GraHIL. That structure,
 unlike a single n = 2.3 layer, also reproduces the device's published angular
 emission. Replaces the 2026-08-16 perovskite result, which predates the
 transfer-matrix fix.
+
+## Session 2026-11-25
+
+Two ZnS films on Si (`scripts/zns_261125/`, see
+[README_261125_zns.md](README_261125_zns.md)): 96.0 and 93.8 nm (97.0 / 94.8 nm
+with a 3 % density gradient), a unique solution just under the expected
+100–250 nm; n = 2.36 at 550 nm.
