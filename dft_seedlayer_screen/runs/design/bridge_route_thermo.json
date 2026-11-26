@@ -1,0 +1,41 @@
+{
+ "E_eV": {
+  "HzCN3": -1317.7609026234932,
+  "CCN": -2694.8059345409465,
+  "CCN_ketenimine": -2695.426186869425,
+  "CCN_anion": -1523.394017775485,
+  "NCN": -2580.4322064132143,
+  "NCN_carbodiimide": -2581.0769933977303,
+  "NCN_anion": -1408.2929572605235,
+  "HzCl3": -1280.4248080874727,
+  "Cl2Hz_CN": -1292.8895774274251,
+  "Cl_CCN_anion": -1498.3691281189401,
+  "Cl_CCN": -2645.0469311740894,
+  "Cl_CCN_ketenimine": -2645.233614939139,
+  "Cl_CCN_1CN": -2657.493520385141,
+  "Cl_NCN_anion": -1383.2717654559456,
+  "Cl_NCN": -2530.6279830016942,
+  "Cl_NCN_carbodiimide": -2531.241789691772,
+  "Cl_NCN_1CN": -2543.093027579132,
+  "CN-": -142.0258983182184,
+  "Cl-": -132.84321468553296,
+  "malononitrile_anion": -353.4644663437807,
+  "cyanamide_anion": -237.75656195139177,
+  "HCN": -149.91025325343838,
+  "HCl": -137.6747875510093
+ },
+ "reactions_eV": {
+  "step2_C_attack (target)": 0.9,
+  "step2_N_attack (ketenimine)": 0.72,
+  "step2_NCN_N_attack (target)": 0.23,
+  "step2_NCN_carbodiimide": -0.39,
+  "step3_CCN_Cl_to_CN (wanted)": -3.26,
+  "step3_CCN_bridge_cleavage": -4.19,
+  "step3_NCN_Cl_to_CN (wanted)": -3.28,
+  "step3_NCN_bridge_cleavage": -3.51,
+  "final_CCN_isomer (ketenimine - target)": -0.62,
+  "final_NCN_isomer (carbodiimide - target)": -0.64,
+  "final_CCN_cleavage_by_CN-": -4.32,
+  "final_NCN_cleavage_by_CN-": -3.6
+ }
+}
