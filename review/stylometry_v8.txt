@@ -1,0 +1,31 @@
+10 reference articles; manuscripts: Manuscript_EN.pdf
+metric                                      ref mean      sd     min     max |   value     z
+prose words                                   4143.4  1309.4  2297.0  6192.0 |  3581.0  -0.4
+abstract words                                 177.8    64.1   100.0   312.0 |   174.0  -0.1
+figures                                          8.4     2.8     4.0    13.0 |     5.0  -1.2  <--
+tables                                           1.6     1.3     0.0     4.0 |     2.0  +0.3
+references                                      33.5     7.5    25.0    49.0 |    33.0  -0.1
+caption words (mean)                            47.5    25.3    24.4    99.6 |    71.2  +0.9
+headings                                         0.2     0.6     0.0     2.0 |     0.0  -0.3
+sentence length (mean words)                    25.2     5.0    20.7    37.3 |    23.9  -0.3
+sentences > 35 words (%)                        15.2    11.7     4.1    43.1 |    12.2  -0.3
+sentences < 12 words (%)                         6.8     3.7     2.1    13.4 |    10.1  +0.9
+word length (mean letters)                       5.1     0.5     4.5     6.0 |     4.7  -0.8
+numbers /1000w                                  43.3    22.6    15.1    95.9 |    45.5  +0.1
+percent signs /1000w                             5.1     2.1     3.1     9.5 |     3.6  -0.7
+parentheses /1000w                              23.7    11.4     9.8    51.6 |    18.2  -0.5
+citation brackets /1000w                         4.9     1.5     2.4     7.2 |     5.9  +0.7
+figure/table/eq callouts /1000w                 10.9     4.7     4.8    21.9 |    12.3  +0.3
+commas /1000w                                   61.8    12.5    46.5    83.8 |    51.4  -0.8
+semicolons /1000w                                0.6     0.4     0.0     1.3 |     0.6  -0.0
+colons /1000w                                    1.4     0.9     0.0     2.9 |     1.1  -0.3
+hyphenated words /1000w                         21.0    10.1     6.9    39.6 |    14.2  -0.7
+en/em dashes /1000w                              1.2     1.7     0.0     4.4 |     0.8  -0.2
+slashes /1000w                                   6.3     3.8     0.0    12.4 |     7.3  +0.3
+plus-minus, approx, =,<,> /1000w                 7.7     7.9     0.0    22.2 |     8.1  +0.1
+we/our /1000w                                    4.4     2.5     1.8     9.0 |     3.1  -0.5
+acronyms /1000w                                 61.5    22.3    30.0   108.3 |    38.8  -1.0  <--
+however/therefore/thus/moreover /1000w           3.8     1.1     2.1     5.7 |     3.9  +0.1
+was/were /1000w                                  6.0     7.5     0.0    17.5 |     7.3  +0.2
+is/are /1000w                                   20.0     9.4     8.8    35.3 |    17.3  -0.3
+which/that /1000w                                7.9     3.5     2.4    13.8 |     8.7  +0.2

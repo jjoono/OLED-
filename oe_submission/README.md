@@ -28,7 +28,7 @@ python3 md2optica.py                                                  # main.tex
 
 - 제목은 문장형 대소문자, 초록은 150단어, 수식은 (1)–(10)으로 번호를 붙였고 본문에서 "Eq. (n)"으로 인용한다.
 - 그림은 "Fig. 1(a)" 형식으로 인용하고 번호 순서대로 처음 인용된다(Fig. 1–5, Table 1–3).
-- 참고문헌 50건은 Optica 양식(저자 3인 + et al., "제목," 학술지 **권**, 쪽 (연도))이며 첫 인용 순서로 번호가 매겨진다. 검증 기록은 `review/reference_check.md`.
+- 참고문헌 33건은 Optica 양식(저자 3인 + et al., "제목," 학술지 **권**, 쪽 (연도))이며 첫 인용 순서로 번호가 매겨진다. 검증 기록은 `review/reference_check.md`.
 - 뒷부분은 Funding, Acknowledgment, Disclosures, Data availability, Supplemental document 순서이다.
 
 ## 투고 전에 사람이 채울 것
