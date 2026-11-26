@@ -147,7 +147,7 @@ def _key(ws):
 wb._sheets.sort(key=_key)
 index.sort(key=lambda r: (1 if r[1].startswith('Fig. S') else (0.5 if r[1].startswith('Table') else 0), int(_re.findall(r'\d+', r[1])[0]), r[0]))
 # ---------------- README
-readme['A1'] = 'Source data for all figures and main-text tables (Figs. 1-5, Tables 1-3, Supplement Figs. S1-S10)'; readme['A1'].font = Font(bold=True, size=12)
+readme['A1'] = 'Source data for all figures and main-text tables (Figs. 1-5, Tables 1-2, Supplement Figs. S1-S10)'; readme['A1'].font = Font(bold=True, size=12)
 readme['A2'] = 'One sheet per panel. Angles are substrate (glass) polar angles in degrees; efficiencies are fractions of the power launched into the substrate unless noted; pp = percentage points.'
 readme['A3'] = 'Structure classes: planar, scatter (g = asymmetry, t = reduced optical depth tau*), MLA hemi/free (benchmark optima per band), A_shape/B_aspect/C_jitter/C2_jitter (randomized lenses), W_slope (wavy surfaces).'
 for j, t in enumerate(['sheet', 'figure', 'panel', 'content', 'generated from']):

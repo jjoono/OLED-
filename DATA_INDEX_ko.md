@@ -1,6 +1,6 @@
 # 그림·표별 원자료 안내 (Optics Express 투고본)
 
-2026-11-22 기준. 본문과 Supplement 1의 모든 그림·표가 어떤 파일에서 나왔는지 정리한다. 그림에 실제로 찍힌 값은 `Figure_source_data.xlsx`에 패널별 시트로 들어 있고(본문 Table 1–3 포함, 총 56개 시트), 각 시트의 출처는 그 파일의 `README` 시트에 적혀 있다.
+2026-11-22 기준. 본문과 Supplement 1의 모든 그림·표가 어떤 파일에서 나왔는지 정리한다. 그림에 실제로 찍힌 값은 `Figure_source_data.xlsx`에 패널별 시트로 들어 있고(본문 Table 1–2 포함, 총 55개 시트), 각 시트의 출처는 그 파일의 `README` 시트에 적혀 있다.
 
 - 저장소에 있는 것: 그림 원자료 워크북(`Figure_source_data.xlsx`, `figures_oe/*.xlsx`), 반환 행렬(`multipass_reset/**/*.npz`), 소자·렌즈 모델 결과(`labdev/*.json`, `labdev/kernel*.npz`), LightTools 캠페인 기록(루트의 `*.mat`), 모든 스크립트.
 - 저장소에 없는 것: `selectivity/data/`(구조 라이브러리 평가 결과, .gitignore 대상)와 측정 원자료. 이 둘은 별도 묶음 `OE_raw_data.zip`으로 전달한다. `selectivity/data/`는 아래 "다시 만드는 순서"로 재생성할 수 있다.
@@ -27,7 +27,7 @@
 |---|---|---|---|
 | Table 1 | 혼합 위치별 탈출 확률과 평면 계면의 $\eta_{\mathrm{sta}}$ | 시트 `Table1`, `selectivity/data/placement.json` | `selectivity/placement.py` |
 | Table 2 | 제작 소자의 각도 인자(모델 범위, 측정) | 시트 `Table2`, `Fig5d_angular_factor` | `labdev/fig_experiment.py`, `labdev/gonio_az.py` |
-| Table 3 | 견고성 점검 요약 | 시트 `Table3`. 각 행의 출처는 표의 Source 열(Table S5–S7, S10, S28–S30, Fig. S10, Note S1, S9) | 아래 SI 표 항목 참조 |
+| (구 Table 3) | 견고성 점검 요약은 Supplement 1의 Table S40으로 옮김 | 각 행의 출처는 표의 Source 열(Table S5–S7, S10, S26–S30, Fig. S10, Note S1, S9) | 아래 SI 표 항목 참조 |
 
 ## Supplement 1의 그림
 

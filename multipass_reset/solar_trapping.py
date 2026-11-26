@@ -23,18 +23,19 @@ def load(name, n):
     return z['BT'], z['BR'].T                                   # BT[in, air]; BR[out, in]
 
 
-def planar(n):
-    """Planar face: Fresnel (unpolarized), specular.  Internal bin k maps to the air bins it overlaps in
-    n^2 sin^2(theta) (etendue), so the binned matrix keeps reciprocity w_air T(air->in) = n^2 w_in T(in->air)."""
-    s = n * np.sin(TH); ok = s < 1; ct = np.sqrt(np.clip(1 - s ** 2, 0, None)); ci = COS
-    rs = ((n * ci - ct) / (n * ci + ct)) ** 2; rp = ((ci - n * ct) / (ci + n * ct)) ** 2
-    T = np.where(ok, 1 - 0.5 * (rs + rp), 0.0)
+def planar(n, sub=200):
+    """Planar face: Fresnel (unpolarized), specular.  Each 1-degree bin is divided into sub-cells of equal etendue;
+    the transmission of a sub-cell goes to the air bin of its refracted angle, so p(theta) is the etendue average
+    over the bin (as for the planar interface of the main text) and the binned matrix keeps reciprocity."""
     S2 = np.sin(np.radians(E)) ** 2; BT = np.zeros((90, 90))
-    for k in np.where(ok)[0]:
-        lo, hi = n * n * S2[k], min(n * n * S2[k + 1], 1.0)
-        ov = np.clip(np.minimum(S2[1:], hi) - np.maximum(S2[:-1], lo), 0, None)
-        if ov.sum() > 0: BT[k] = T[k] * ov / ov.sum()
-    return BT, np.diag(1 - T)
+    for k in range(90):
+        s2 = S2[k] + (np.arange(sub) + 0.5) / sub * (S2[k + 1] - S2[k]); a2 = n * n * s2; ok = a2 < 1
+        if not ok.any(): continue
+        ci = np.sqrt(1 - s2[ok]); ct = np.sqrt(1 - a2[ok]); si = np.sqrt(s2[ok])
+        rs = ((n * ci - ct) / (n * ci + ct)) ** 2; rp = ((ci - n * ct) / (ci + n * ct)) ** 2
+        j = np.searchsorted(S2, a2[ok], side='right') - 1
+        np.add.at(BT[k], np.clip(j, 0, 89), (1 - 0.5 * (rs + rp)) / sub)
+    return BT, np.diag(1 - BT.sum(1))
 
 
 def run(BT, BR, n, ad, Rb=1.0, front='actual', back='specular'):
