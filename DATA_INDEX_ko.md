@@ -27,48 +27,42 @@
 |---|---|---|---|
 | Table 1 | 혼합 위치별 탈출 확률과 평면 계면의 $\eta_{\mathrm{sta}}$ | 시트 `Table1`, `selectivity/data/placement.json` | `selectivity/placement.py` |
 | Table 2 | 제작 소자의 각도 인자(모델 범위, 측정) | 시트 `Table2`, `Fig5d_angular_factor` | `labdev/fig_experiment.py`, `labdev/gonio_az.py` |
-| (구 Table 3) | 견고성 점검 요약은 Supplement 1의 Table S40으로 옮김 | 각 행의 출처는 표의 Source 열(Table S5–S7, S10, S26–S30, Fig. S10, Note S1, S9) | 아래 SI 표 항목 참조 |
+| (구 Table 3) | 견고성 점검 요약은 Supplement 1의 Table S13으로 옮김 | 각 행의 출처는 표의 Source 열 | 아래 SI 표 항목 참조 |
 
 ## Supplement 1의 그림
 
-| 그림 | 원자료 시트 | 계산 결과 파일 | 스크립트 |
-|---|---|---|---|
-| Fig. S1 | `FigS1_device_inputs` | `selectivity/data/devices.npz` | `selectivity/fig_devices.py` |
-| Fig. S2 | `FigS2a_…`, `FigS2b_…`, `FigS2c_…` | 구조 라이브러리 | `selectivity/oe_figs.py` |
-| Fig. S3 | `FigS3_composition` | 구조 라이브러리 | `selectivity/review2_diag.py` |
-| Fig. S4 | `FigS4a_first_pass`, `FigS4b_composition` | 구조 라이브러리 | `selectivity/oe_figs.py` |
-| Fig. S5 | `FigS5b_…`, `FigS5c_bands` | 루트의 LightTools 캠페인 기록(`opt_hemisphere_result.mat`, `opt_4band_result_25by25.mat` 등) | `make_figures.py` |
-| Fig. S6 | `FigS6_…` (5개) | `opt_hemisphere_result.mat`, `opt_4band_result_25by25.mat`, `warmstart_hemisphere_result.mat`, `freeform_EQEtotal_result.mat` | `make_optimizer_convergence.py` |
-| Fig. S7 | `FigS7a_…`, `FigS7b_…` | `warmstart_hemisphere_result.mat`, `reeval_confirm_2040_result.mat` | `make_supp_figures_and_data.py` |
-| Fig. S8 | `FigS8a_…`, `FigS8b_…`, `FigS8c_…` | 루트의 LightTools 캠페인 기록(`opt_4band_result_25by25.mat`, `stress_random_result.mat` 등) | `make_figures.py` |
-| Fig. S9 | `FigS9a_profiles`, `FigS9b_best_EQE`, `FigS9c_searches` | 루트의 LightTools 캠페인 기록(`*.mat`) | `make_figures.py` |
-| Fig. S10 | `FigS10a_size`, `FigS10b_pixel`, `FigS10c_mixing_gain` | `selectivity/data/finite_size.json` | `selectivity/finite_size.py`, `selectivity/fig_finite_size.py` |
+| 그림 | 내용 | 원자료 시트 | 계산 결과 파일 | 스크립트 |
+|---|---|---|---|---|
+| Fig. S1 | 소자 입력(첫 패스 휘도, 반사율) | `FigS1_device_inputs` | `selectivity/data/devices.npz` | `selectivity/fig_devices.py` |
+| Fig. S2 | 더 단순한 모델 대 전체 급수 | `FigS2a_…`, `FigS2b_…`, `FigS2c_…` | 구조 라이브러리 | `selectivity/oe_figs.py` |
+| Fig. S3 | 유한 기판 | `FigS3a_size`, `FigS3b_pixel`, `FigS3c_mixing_gain` | `selectivity/data/finite_size.json` | `selectivity/finite_size.py`, `selectivity/fig_finite_size.py` |
+| Fig. S4 | 휘도 순서 상한, 출력의 각도 구성 | `FigS4a_first_pass`, `FigS4b_composition` | 구조 라이브러리 | `selectivity/oe_figs.py` |
+| Fig. S5 | 자유형 대 반구 벤치마크 | `FigS5a_profiles`, `FigS5b_best_EQE`, `FigS5c_searches` | 루트의 LightTools 캠페인 기록(`*.mat`) | `make_figures.py` |
 
 ## Supplement 1의 표
 
-| 표 | 계산 결과 파일 | 스크립트 |
-|---|---|---|
-| Table S1, S20 | `selectivity/data/cutoff_modes.json` | `selectivity/cutoff_modes.py` |
-| Table S2 | `selectivity/data/devices.npz` | `selectivity/fig_devices.py`, `selectivity/run_devices.py` |
-| Table S3, S4 | `figures_oe/fig4_structure_map.xlsx`, `fig3_reduced_model.xlsx` | `selectivity/oe_figs.py` |
-| Table S5–S11 | `multipass_reset/random_sweep_unc/*.npz`, `selectivity/data/uncertainty.json`, `review_checks.json`, `review_traces.json`, `mixing_gain_by_condition.json`, `mixing_gain_spectral.json` | `selectivity/unc_analysis.py`, `review_checks.py`, `review_traces_analysis.py`, `make_note_s12.py`, `multipass_reset/polcheck.py`(S7) |
-| Table S12–S15, S31 | LightTools 캠페인 기록(루트 `*.mat`) | `make_supp_figures_and_data.py` |
-| Table S16, S17 | `selectivity/data/cavity_decomp.json`, `cav_lens_cross.json` | `selectivity/cavity_decomp.py`, `cav_lens_cross.py` |
-| Table S18 | `multipass_reset/fixedcav/results.json` | `multipass_reset/fixedcav_opt.py` |
-| Table S19 | `multipass_reset/blind/*.npz`, `results.json` | `multipass_reset/direct_blind.py`, `blind_table.py` |
-| Table S21 | `selectivity/data/slab_direct_check.json` | `selectivity/slab_direct_check.py` |
-| Table S22–S24 | `selectivity/data/review2_diag.json` | `selectivity/review2_diag.py` |
-| Table S25 | `selectivity/data/device_side_slabs.json` | `selectivity/device_side_slabs.py` |
-| Table S26, S27 | `selectivity/data/placement.json` | `selectivity/placement.py` |
-| Table S28 | `selectivity/data/highindex.json` | `multipass_reset/run_highindex.py`, `selectivity/highindex_slabs.py` |
-| Table S29, S30 | `selectivity/data/spectral_placement.json` | `selectivity/spectral_placement.py` |
-| Table S32, S33 | 측정 원자료(별도 묶음) | 요약값은 `labdev/fig_experiment.py` 상단에 있음 |
-| Table S34 | `labdev/gonio_az_orange.json`, `gonio_az_e65h80.json` | `labdev/gonio_az.py` |
-| Table S35 | `labdev/layout_variants*.json` | `labdev/trace_variants.py`, `layout_variants.py` |
-| Table S36 | `labdev/layout_sweep.json`, `results_patch*.json` | `labdev/layout_sweep.py` |
-| Table S37 | `labdev/lens_loss_test.json` | `labdev/lens_loss_test.py` |
-| Table S38, 노트 S1의 구간 폭·상관계수 | `selectivity/data/scatter_volume.json`, `selectivity/data/rev3_checks.json` | `selectivity/scatter_volume.py`, `selectivity/rev3_checks.py` |
-| Table S39 (광 포획 점검, 본문 5.4절) | `selectivity/data/solar_trapping.json`, `multipass_reset/highindex/*.npz` | `multipass_reset/solar_trapping.py` |
+| 표 | 내용 | 계산 결과 파일 | 스크립트 |
+|---|---|---|---|
+| Table S1 | 각도 절단에 따른 축약 모델 오차 | `selectivity/data/cutoff_modes.json` | `selectivity/cutoff_modes.py` |
+| Table S2 | 몬테카를로 불확도 | `multipass_reset/random_sweep_unc/*.npz`, `selectivity/data/uncertainty.json` | `selectivity/unc_analysis.py` |
+| Table S3 | 소자 적층 | `selectivity/data/devices.npz` | `selectivity/fig_devices.py`, `selectivity/run_devices.py` |
+| Table S4, S5 | 38개 구조, 종류별 오차 | `figures_oe/fig4_structure_map.xlsx`, `fig3_reduced_model.xlsx` | `selectivity/oe_figs.py` |
+| Table S6 | 직접 광선추적, 표본 외 구조 | `multipass_reset/blind/*.npz`, `results.json` | `multipass_reset/direct_blind.py`, `blind_table.py` |
+| Table S7 | 이완 속도와 사전 시험 | `selectivity/data/cutoff_modes.json`, `prospective_predictions.json`, `prospective_results.json` | `selectivity/cutoff_modes.py`, `multipass_reset/prospective.py`, `selectivity/prospective_test.py` |
+| Table S8 | HG 부피 | `selectivity/data/scatter_volume.json` | `selectivity/scatter_volume.py` |
+| Table S9 | 소자·파장별 완전 혼합 이득 | `selectivity/data/mixing_gain_by_condition.json`, `mixing_gain_spectral.json` | `selectivity/make_note_s12.py` |
+| Table S10 | 스펙트럼 가중, 혼합 위치 세 가지 | `selectivity/data/spectral_placement.json` | `selectivity/spectral_placement.py` |
+| Table S11 | 텍스처 출사면 슬랩 | `selectivity/data/highindex.json`, `multipass_reset/highindex/*.npz` | `multipass_reset/run_highindex.py`, `selectivity/highindex_slabs.py` |
+| Table S12 | 광 포획 점검 | `selectivity/data/solar_trapping.json` | `multipass_reset/solar_trapping.py` |
+| Table S13 | 견고성 요약 | 각 행의 출처는 표의 Source 열 | — |
+| Table S14 | 자유형 대 반구 | LightTools 캠페인 기록(루트 `*.mat`) | `make_supp_figures_and_data.py` |
+| Table S15, S16 | 측정 소자(주황, 녹색) | 측정 원자료(별도 묶음) | 요약값은 `labdev/fig_experiment.py` 상단 |
+| Table S17 | 렌즈 소자 EQE 차이의 원인 후보 | `labdev/lens_loss_test.json`, `labdev/layout_variants*.json` | `labdev/lens_loss_test.py`, `labdev/layout_variants.py` |
+| Table S18 | 렌즈 패치 폭 | `labdev/layout_sweep.json` | `labdev/layout_sweep.py` |
+
+노트 본문에만 나오는 수치의 출처: 구간 폭·상관계수 `selectivity/data/rev3_checks.json`(`rev3_checks.py`), 편광 `multipass_reset/polcheck.py`, 슬랩 직접 추적 `selectivity/data/slab_direct_check.json`, 소자 혼합과 평면 슬랩 `selectivity/data/placement.json`, 산란층 위치 `selectivity/data/device_side_slabs.json`, 고정 캐비티 렌즈 최적화 `multipass_reset/fixedcav/results.json`, 고니오미터 민감도 `labdev/gonio_az_*.json`.
+
+압축 전 Supplement(표 40개, 그림 10개)에 있던 나머지 표와 그림의 자료는 저장소에 그대로 있으며, 2026-11-26 이전 커밋의 이 문서에 대응표가 있다.
 
 ## 다시 만드는 순서
 

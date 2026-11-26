@@ -13,7 +13,7 @@ python3 md2optica.py                                                  # main.tex
 |---|---|
 | `main.tex` | 본문. Optica 공용 템플릿(`optica-article.cls`, `\journal{opticajournal}`, `\articletype{Research Article}`) 대상 |
 | `supplement.tex` | Supplement 1. 표준 article 클래스로 바로 컴파일된다 |
-| `figures/` | 본문 Fig. 1–5와 Fig. S1–S10의 PDF(벡터, 글꼴 내장). 본문 그림 폭은 5.25 in |
+| `figures/` | 본문 Fig. 1–5와 Fig. S1–S5의 PDF(벡터, 글꼴 내장). 본문 그림 폭은 5.25 in |
 
 ## 컴파일
 

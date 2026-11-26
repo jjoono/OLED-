@@ -98,36 +98,16 @@ add('Fig5bc_profiles', 'Fig. 5', 'b,c', 'Normalized angular intensity: model ran
 add('Fig5d_angular_factor', 'Fig. 5', 'd', 'Angular factor: model range (3 mm patch), model for a 10 mm patch, measured mean, s.d., n (statistics of Table 2), and the individual devices or scans.', rows_of(f, 'd_angular_factor'), f)
 add('Fig5e_ratios', 'Fig. 5', 'e', 'Lens-device/bare ratio of on-axis (Lambertian-equivalent) and total EQE (3 mm patch): lossless model range, model with the lens-glass interface transmission 0.925 (fitted to the total EQE of the orange hemispherical devices), measured mean, s.d., n, and individual devices.', rows_of(f, 'e_ratios'), f)
 f = D + 'fig6_hemisphere_benchmark.xlsx'
-add('FigS9a_profiles', 'Fig. S9', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
-add('FigS9b_best_EQE', 'Fig. S9', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
-add('FigS9c_searches', 'Fig. S9', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
+add('FigS5a_profiles', 'Fig. S5', 'a', 'Band-optimized freeform profiles and the hemispherical reference (units of lens radius).', rows_of(f, 'a_profiles'), f)
+add('FigS5b_best_EQE', 'Fig. S5', 'b', 'Best EQE of each lens class per objective and G_j.', rows_of(f, 'b_best_EQE'), f)
+add('FigS5c_searches', 'Fig. S5', 'c', 'Freeform/hemisphere ratio of each independent search.', rows_of(f, 'c_independent_searches'), f)
 f = D + 'figS_finite_size.xlsx'
-add('FigS10a_size', 'Fig. S10', 'a', 'eta_sta vs substrate half-width / thickness (glass/air sides).', rows_of(f, 'a_size'), f)
-add('FigS10b_pixel', 'Fig. S10', 'b', 'eta_sta vs pixel radius / thickness, stack only under the pixel.', rows_of(f, 'b_pixel'), f)
-add('FigS10c_mixing_gain', 'Fig. S10', 'c', 'Gain from complete mixing at the escape interface.', rows_of(f, 'c_mixing_gain'), f)
+add('FigS3a_size', 'Fig. S3', 'a', 'eta_sta vs substrate half-width / thickness (glass/air sides).', rows_of(f, 'a_size'), f)
+add('FigS3b_pixel', 'Fig. S3', 'b', 'eta_sta vs pixel radius / thickness, stack only under the pixel.', rows_of(f, 'b_pixel'), f)
+add('FigS3c_mixing_gain', 'Fig. S3', 'c', 'Gain from complete mixing at the escape interface.', rows_of(f, 'c_mixing_gain'), f)
 # ---------------- Supplement
 f = D + 'figS11_device_inputs.xlsx'
 add('FigS1_device_inputs', 'Fig. S1', 'a-b', 'First-pass substrate radiance (a) and angle-resolved reflectance R (b) of the three devices at 550 nm.', rows_of(f, 'devices_550nm'), f)
-f = D + 'figS2_composition_window.xlsx'
-add('FigS3_composition', 'Fig. S3', 'all', 'S40-60 vs eta_sta for all structures, devices and wavelengths.', rows_of(f, 'points'), f)
-f = 'fig1_platform.xlsx'
-add('FigS5b_profiles', 'Fig. S5', 'b', 'Hemispherical and freeform (40-60 deg) lens profiles.', rows_of(f, 'b_lens_profiles'), f)
-add('FigS5b_control_pts', 'Fig. S5', 'b', 'Free control points of the freeform profile.', rows_of(f, 'b_control_points'), f)
-add('FigS5c_bands', 'Fig. S5', 'c', 'Polar-band definition.', rows_of(f, 'c_band_definition'), f)
-f = 'figS1_restart_control.xlsx'
-add('FigS7a_restart_arms', 'Fig. S7', 'a', 'Re-measured hemisphere and restarted optimum for every arm.', rows_of(f, 'a_all_arms'), f)
-add('FigS7b_confirm_reps', 'Fig. S7', 'b', 'Five-repeat confirmation of the 20-40 deg arm (repeats).', rows_of(f, 'b_confirmation_reps'), f)
-add('FigS7b_confirm_stats', 'Fig. S7', 'b', 'Five-repeat confirmation (statistics).', rows_of(f, 'b_confirmation_stats'), f)
-f = D + 'figS5_optimizer_convergence.xlsx'
-for sh in ('0–20deg', '20–40deg', '40–60deg', '60–80deg', 'Total EQE'):
-    add('FigS6_' + sh.replace('–', '-').replace(' ', '_'), 'Fig. S6', sh, f'Best-so-far objective vs evaluation count, {sh}.', rows_of(f, sh), f)
-f = 'fig3_efficiency_composition.xlsx'
-add('FigS8a_points', 'Fig. S8', 'a', 'Total EQE vs 40-60 deg EQE: random and optimizer-visited designs.', rows_of(f, 'a_collapse_points'), f)
-add('FigS8a_fit', 'Fig. S8', 'a', 'Linear fit (R^2 = 0.968).', rows_of(f, 'a_fit'), f)
-add('FigS8b_dedicated', 'Fig. S8', 'b', 'Selectivity of band-dedicated optima vs natural composition.', rows_of(f, 'b_dedicated_vs_natural'), f)
-add('FigS8c_points', 'Fig. S8', 'c', 'Selectivity points.', rows_of(f, 'c_selectivity_points'), f)
-add('FigS8c_fits', 'Fig. S8', 'c', 'Selectivity fits.', rows_of(f, 'c_fits'), f)
-
 # ---------------- main-text tables (parsed from the manuscript so that they stay in step with it)
 import re as _re2
 _ms = open('manuscript_draft.md', encoding='utf-8').read()
@@ -147,7 +127,7 @@ def _key(ws):
 wb._sheets.sort(key=_key)
 index.sort(key=lambda r: (1 if r[1].startswith('Fig. S') else (0.5 if r[1].startswith('Table') else 0), int(_re.findall(r'\d+', r[1])[0]), r[0]))
 # ---------------- README
-readme['A1'] = 'Source data for all figures and main-text tables (Figs. 1-5, Tables 1-2, Supplement Figs. S1-S10)'; readme['A1'].font = Font(bold=True, size=12)
+readme['A1'] = 'Source data for all figures and main-text tables (Figs. 1-5, Tables 1-2, Supplement Figs. S1-S5)'; readme['A1'].font = Font(bold=True, size=12)
 readme['A2'] = 'One sheet per panel. Angles are substrate (glass) polar angles in degrees; efficiencies are fractions of the power launched into the substrate unless noted; pp = percentage points.'
 readme['A3'] = 'Structure classes: planar, scatter (g = asymmetry, t = reduced optical depth tau*), MLA hemi/free (benchmark optima per band), A_shape/B_aspect/C_jitter/C2_jitter (randomized lenses), W_slope (wavy surfaces).'
 for j, t in enumerate(['sheet', 'figure', 'panel', 'content', 'generated from']):
